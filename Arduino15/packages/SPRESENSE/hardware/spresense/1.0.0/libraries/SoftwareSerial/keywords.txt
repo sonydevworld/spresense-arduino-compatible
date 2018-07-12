@@ -1,0 +1,8 @@
+# Class
+SoftwareSerial	KEYWORD1
+
+# Function
+listen	KEYWORD2
+isListening	KEYWORD2
+stopListening	KEYWORD2
+overflow	KEYWORD2

@@ -1,0 +1,53 @@
+menu.Debug=Debug
+menu.UploadSpeed=UploadSpeed
+
+############## Spresense BOARD ##############
+spresense.name=Spresense
+
+spresense.upload.tool=spresense-tools
+spresense.upload.speed=115200
+spresense.upload.resetmethod=ck
+spresense.upload.maximum_size=786432
+spresense.upload.maximum_data_size=786432
+spresense.upload.wait_for_upload_port=true
+spresense.serial.disableDTR=false
+spresense.serial.disableRTS=true
+
+spresense.bootloader.tool=spresense-tools
+
+spresense.build.mcu=spresense
+spresense.build.f_cpu=156000000L
+spresense.build.board=spresense_ast
+spresense.build.core=spresense
+spresense.build.variant=spresense
+spresense.build.debug=
+spresense.build.libpath=
+spresense.build.stack=-Wl,--defsym,__stack=_vectors+{upload.maximum_size}
+
+spresense.menu.Debug.Disabled=Disabled
+spresense.menu.Debug.Disabled.build.debug=
+spresense.menu.Debug.Disabled.build.kernel={runtime.tools.spresense-sdk.path}/spresense/release
+spresense.menu.Debug.Disabled.build.libpath={build.kernel}/prebuilt
+
+spresense.menu.Debug.Enabled=Enabled
+spresense.menu.Debug.Enabled.build.debug=
+spresense.menu.Debug.Enabled.build.kernel={runtime.tools.spresense-sdk.path}/spresense/debug
+spresense.menu.Debug.Enabled.build.libpath={build.kernel}/prebuilt
+
+spresense.menu.UploadSpeed.115200=115200
+spresense.menu.UploadSpeed.115200.upload.speed=
+spresense.menu.UploadSpeed.230400=230400
+spresense.menu.UploadSpeed.230400.upload.speed=-b 230400
+spresense.menu.UploadSpeed.460800=460800
+spresense.menu.UploadSpeed.460800.upload.speed=-b 460800
+spresense.menu.UploadSpeed.500000=500000
+spresense.menu.UploadSpeed.500000.upload.speed=-b 500000
+spresense.menu.UploadSpeed.576000=576000
+spresense.menu.UploadSpeed.576000.upload.speed=-b 576000
+spresense.menu.UploadSpeed.921600=921600
+spresense.menu.UploadSpeed.921600.upload.speed=-b 921600
+spresense.menu.UploadSpeed.1000000=1000000
+spresense.menu.UploadSpeed.1000000.upload.speed=-b 1000000
+spresense.menu.UploadSpeed.1152000=1152000
+spresense.menu.UploadSpeed.1152000.upload.speed=-b 1152000
+

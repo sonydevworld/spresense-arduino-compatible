@@ -1,0 +1,535 @@
+SpGnss : begin in
+SpGnss : begin out
+SpGnss : start in
+  mode = COLD_START
+SpGnss : start out
+Gnss setup OK 
+
+1980/01/06 00:00:01.000490, numSat: 0, pos not fixed 
+
+1980/01/06 00:00:02.000505, numSat: 1, pos not fixed 
+
+1980/01/06 00:00:03.000515, numSat: 2, pos not fixed 
+
+1980/01/06 00:00:04.000502, numSat: 2, pos not fixed 
+
+1980/01/06 00:00:05.000514, numSat: 1, pos not fixed 
+
+1980/01/06 00:00:06.000490, numSat: 0, pos not fixed 
+
+1980/01/06 00:00:07.000501, numSat: 1, pos not fixed 
+
+1980/01/06 00:00:08.000497, numSat: 1, pos not fixed 
+
+1980/01/06 00:00:09.000508, numSat: 0, pos not fixed 
+
+1980/01/06 00:00:10.000494, numSat: 0, pos not fixed 
+
+1980/01/06 00:00:11.000499, numSat: 0, pos not fixed 
+
+1980/01/06 00:00:12.000496, numSat: 0, pos not fixed 
+
+1980/01/06 00:00:13.000506, numSat: 0, pos not fixed 
+
+1980/01/06 00:00:14.000494, numSat: 1, pos not fixed 
+
+1980/01/06 00:00:15.000513, numSat: 1, pos not fixed 
+
+1980/01/06 00:00:16.000508, numSat: 1, pos not fixed 
+
+1980/01/06 00:00:17.000510, numSat: 0, pos not fixed 
+
+1980/01/06 00:00:18.000495, numSat: 1, pos not fixed 
+
+1980/01/06 00:00:19.000494, numSat: 1, pos not fixed 
+
+1980/01/06 00:00:20.000489, numSat: 0, pos not fixed 
+
+1980/01/06 00:00:21.000506, numSat: 0, pos not fixed 
+
+1980/01/06 00:00:22.000514, numSat: 0, pos not fixed 
+
+1980/01/06 00:00:23.000518, numSat: 1, pos not fixed 
+
+1980/01/06 00:00:24.000503, numSat: 1, pos not fixed 
+
+1980/01/06 00:00:25.000504, numSat: 0, pos not fixed 
+
+1980/01/06 00:00:26.000518, numSat: 1, pos not fixed 
+
+1980/01/06 00:00:27.000502, numSat: 1, pos not fixed 
+
+1980/01/06 00:00:28.000506, numSat: 1, pos not fixed 
+
+1980/01/06 00:00:29.000505, numSat: 0, pos not fixed 
+
+1980/01/06 00:00:30.000517, numSat: 0, pos not fixed 
+
+1980/01/06 00:00:31.000516, numSat: 0, pos not fixed 
+
+1980/01/06 00:00:32.000509, numSat: 0, pos not fixed 
+
+1980/01/06 00:00:33.000518, numSat: 0, pos not fixed 
+
+1980/01/06 00:00:34.000513, numSat: 0, pos not fixed 
+
+1980/01/06 00:00:35.000509, numSat: 0, pos not fixed 
+
+1980/01/06 00:00:36.000518, numSat: 0, pos not fixed 
+
+1980/01/06 00:00:37.000652, numSat: 0, pos not fixed 
+
+1980/01/06 00:00:38.000621, numSat: 0, pos not fixed 
+
+1980/01/06 00:00:39.000597, numSat: 0, pos not fixed 
+
+1980/01/06 00:00:40.000546, numSat: 0, pos not fixed 
+
+1980/01/06 00:00:41.000483, numSat: 0, pos not fixed 
+
+1980/01/06 00:00:42.000511, numSat: 0, pos not fixed 
+
+1980/01/06 00:00:43.000629, numSat: 0, pos not fixed 
+
+1980/01/06 00:00:44.000632, numSat: 0, pos not fixed 
+
+1980/01/06 00:00:45.000627, numSat: 0, pos not fixed 
+
+1980/01/06 00:00:46.000628, numSat: 0, pos not fixed 
+
+1980/01/06 00:00:47.000610, numSat: 0, pos not fixed 
+
+1980/01/06 00:00:48.000503, numSat: 1, pos not fixed 
+
+1980/01/06 00:00:49.000517, numSat: 2, pos not fixed 
+
+1980/01/06 00:00:50.000513, numSat: 2, pos not fixed 
+
+1980/01/06 00:00:51.000514, numSat: 1, pos not fixed 
+
+1980/01/06 00:00:52.000493, numSat: 1, pos not fixed 
+
+1980/01/06 00:00:53.000504, numSat: 1, pos not fixed 
+
+1980/01/06 00:00:54.000511, numSat: 1, pos not fixed 
+
+1980/01/06 00:00:55.000506, numSat: 2, pos not fixed 
+
+1980/01/06 00:00:56.000517, numSat: 2, pos not fixed 
+
+1980/01/06 00:00:57.000494, numSat: 1, pos not fixed 
+
+1980/01/06 00:00:58.000513, numSat: 1, pos not fixed 
+
+1980/01/06 00:00:59.000503, numSat: 1, pos not fixed 
+
+numSatellites: 2
+[ 0] Type:GPS, Id:12, Elv: 0, Azm:  0, Lv:16.000000 
+
+[ 1] Type:GPS, Id:22, Elv: 0, Azm:  0, Lv:8.000000 
+
+1980/01/06 00:01:00.000503, numSat: 2, pos not fixed 
+
+1980/01/06 00:01:01.000497, numSat: 1, pos not fixed 
+
+1980/01/06 00:01:02.000489, numSat: 0, pos not fixed 
+
+1980/01/06 00:01:03.000512, numSat: 0, pos not fixed 
+
+1980/01/06 00:01:04.000501, numSat: 0, pos not fixed 
+
+1980/01/06 00:01:05.000503, numSat: 0, pos not fixed 
+
+1980/01/06 00:01:06.000519, numSat: 2, pos not fixed 
+
+1980/01/06 00:01:07.000671, numSat: 3, pos not fixed 
+
+1980/01/06 00:01:08.000714, numSat: 1, pos not fixed 
+
+1980/01/06 00:01:09.000617, numSat: 1, pos not fixed 
+
+1980/01/06 00:01:10.000704, numSat: 1, pos not fixed 
+
+1980/01/06 00:01:11.000706, numSat: 1, pos not fixed 
+
+1980/01/06 00:01:12.000709, numSat: 1, pos not fixed 
+
+1980/01/06 00:01:13.000509, numSat: 1, pos not fixed 
+
+1980/01/06 00:01:14.000513, numSat: 1, pos not fixed 
+
+1980/01/06 00:01:15.000492, numSat: 0, pos not fixed 
+
+1980/01/06 00:01:16.000507, numSat: 0, pos not fixed 
+
+1980/01/06 00:01:17.000519, numSat: 0, pos not fixed 
+
+1980/01/06 00:01:18.000501, numSat: 1, pos not fixed 
+
+1980/01/06 00:01:19.000504, numSat: 1, pos not fixed 
+
+1980/01/06 00:01:20.000506, numSat: 0, pos not fixed 
+
+1980/01/06 00:01:21.000493, numSat: 0, pos not fixed 
+
+1980/01/06 00:01:22.000497, numSat: 0, pos not fixed 
+
+1980/01/06 00:01:23.000516, numSat: 0, pos not fixed 
+
+1980/01/06 00:01:24.000490, numSat: 0, pos not fixed 
+
+1980/01/06 00:01:25.000493, numSat: 0, pos not fixed 
+
+1980/01/06 00:01:26.000515, numSat: 0, pos not fixed 
+
+1980/01/06 00:01:27.000502, numSat: 0, pos not fixed 
+
+1980/01/06 00:01:28.000497, numSat: 0, pos not fixed 
+
+1980/01/06 00:01:29.000494, numSat: 0, pos not fixed 
+
+1980/01/06 00:01:30.000504, numSat: 0, pos not fixed 
+
+1980/01/06 00:01:31.000497, numSat: 0, pos not fixed 
+
+1980/01/06 00:01:32.000512, numSat: 0, pos not fixed 
+
+1980/01/06 00:01:33.000501, numSat: 0, pos not fixed 
+
+1980/01/06 00:01:34.000511, numSat: 0, pos not fixed 
+
+1980/01/06 00:01:35.000518, numSat: 0, pos not fixed 
+
+1980/01/06 00:01:36.000489, numSat: 2, pos not fixed 
+
+1980/01/06 00:01:37.000504, numSat: 3, pos not fixed 
+
+1980/01/06 00:01:38.000492, numSat: 3, pos not fixed 
+
+1980/01/06 00:01:39.000504, numSat: 3, pos not fixed 
+
+1980/01/06 00:01:40.000504, numSat: 3, pos not fixed 
+
+SpGnss : begin in
+SpGnss : begin out
+SpGnss : start in
+  mode = COLD_START
+SpGnss : start out
+Gnss setup OK 
+
+1980/01/06 00:00:01.000512, numSat: 0, pos not fixed 
+
+1980/01/06 00:00:02.000512, numSat: 3, pos not fixed 
+
+1980/01/06 00:00:03.000492, numSat: 6, pos not fixed 
+
+1980/01/06 00:00:04.000508, numSat: 6, pos not fixed 
+
+1980/01/06 00:00:05.000509, numSat: 6, pos not fixed 
+
+1980/01/06 00:00:06.000505, numSat: 6, pos not fixed 
+
+1980/01/06 00:00:07.000490, numSat: 6, pos not fixed 
+
+1980/01/06 00:00:08.000495, numSat: 5, pos not fixed 
+
+1980/01/06 00:00:09.000511, numSat: 5, pos not fixed 
+
+1980/01/06 00:00:10.000601, numSat: 5, pos not fixed 
+
+1980/01/06 00:00:11.000632, numSat: 6, pos not fixed 
+
+1980/01/06 00:00:12.000622, numSat: 6, pos not fixed 
+
+1980/01/06 00:00:13.000603, numSat: 6, pos not fixed 
+
+1980/01/06 00:00:14.000612, numSat: 6, pos not fixed 
+
+1980/01/06 00:00:15.000602, numSat: 6, pos not fixed 
+
+1980/01/06 00:00:16.000489, numSat: 6, pos not fixed 
+
+1980/01/06 00:00:17.000517, numSat: 5, pos not fixed 
+
+1980/01/06 00:00:18.000512, numSat: 5, pos not fixed 
+
+1980/01/06 00:00:19.000511, numSat: 7, pos not fixed 
+
+1980/01/06 00:00:20.000492, numSat: 7, pos not fixed 
+
+1980/01/06 00:00:21.000490, numSat: 5, pos not fixed 
+
+1980/01/06 00:00:22.000509, numSat: 5, pos not fixed 
+
+1980/01/06 00:00:23.000512, numSat: 5, pos not fixed 
+
+1980/01/06 00:00:24.000510, numSat: 5, pos not fixed 
+
+1980/01/06 00:00:25.000517, numSat: 6, pos not fixed 
+
+1980/01/06 00:00:26.000507, numSat: 6, pos not fixed 
+
+1980/01/06 00:00:27.000510, numSat: 6, pos not fixed 
+
+1980/01/06 00:00:28.000503, numSat: 6, pos not fixed 
+
+1980/01/06 00:00:29.000498, numSat: 6, pos not fixed 
+
+1980/01/06 00:00:30.000490, numSat: 6, pos not fixed 
+
+1980/01/06 00:00:31.000517, numSat: 6, pos not fixed 
+
+1980/01/06 00:00:32.000490, numSat: 7, pos not fixed 
+
+1980/01/06 00:00:33.000507, numSat: 7, pos not fixed 
+
+1980/01/06 00:00:34.000502, numSat: 6, pos not fixed 
+
+1980/01/06 00:00:35.000508, numSat: 5, pos not fixed 
+
+1980/01/06 00:00:36.000616, numSat: 6, pos not fixed 
+
+1980/01/06 00:00:37.000591, numSat: 6, pos not fixed 
+
+1980/01/06 00:00:38.000599, numSat: 6, pos not fixed 
+
+1980/01/06 00:00:39.000564, numSat: 6, pos not fixed 
+
+1980/01/06 00:00:40.000517, numSat: 6, pos not fixed 
+
+1980/01/06 00:00:41.000504, numSat: 6, pos not fixed 
+
+1980/01/06 00:00:42.000596, numSat: 7, pos not fixed 
+
+1980/01/06 00:00:43.000603, numSat: 7, pos not fixed 
+
+1980/01/06 00:00:44.000606, numSat: 6, pos not fixed 
+
+1980/01/06 00:00:45.000598, numSat: 6, pos not fixed 
+
+1980/01/06 00:00:46.000613, numSat: 7, pos not fixed 
+
+1980/01/06 00:00:47.000551, numSat: 7, pos not fixed 
+
+1980/01/06 00:00:48.000510, numSat: 7, pos not fixed 
+
+1980/01/06 00:00:49.000491, numSat: 7, pos not fixed 
+
+1980/01/06 00:00:50.000494, numSat: 6, pos not fixed 
+
+1980/01/06 00:00:51.000514, numSat: 6, pos not fixed 
+
+1980/01/06 00:00:52.000491, numSat: 7, pos not fixed 
+
+1980/01/06 00:00:53.000503, numSat: 8, pos not fixed 
+
+1980/01/06 00:00:54.000495, numSat: 8, pos not fixed 
+
+1980/01/06 00:00:55.000512, numSat: 7, pos not fixed 
+
+1980/01/06 00:00:56.000500, numSat: 6, pos not fixed 
+
+numSatellites: 6
+[ 0] Type:GPS, Id:12, Elv: 0, Azm:  0, Lv:36.000000 
+
+[ 1] Type:GPS, Id:15, Elv: 0, Azm:  0, Lv:35.000000 
+
+[ 2] Type:GPS, Id:17, Elv: 0, Azm:  0, Lv:37.000000 
+
+[ 3] Type:GPS, Id:19, Elv: 0, Azm:  0, Lv:34.000000 
+
+[ 4] Type:GPS, Id:24, Elv: 0, Azm:  0, Lv:33.000000 
+
+[ 5] Type:GPS, Id:32, Elv: 0, Azm:  0, Lv:20.000000 
+
+2018/04/12 10:59:50.000532, numSat: 6, pos not fixed 
+
+2018/04/12 10:59:51.000546, numSat: 6, pos not fixed 
+
+2018/04/12 10:59:52.000546, numSat: 6, pos not fixed 
+
+2018/04/12 10:59:53.000543, numSat: 6, pos not fixed 
+
+2018/04/12 10:59:54.000536, numSat: 7, pos not fixed 
+
+2018/04/12 10:59:55.000545, numSat: 7, pos not fixed 
+
+2018/04/12 10:59:56.000548, numSat: 6, pos not fixed 
+
+2018/04/12 10:59:57.000545, numSat: 6, pos not fixed 
+
+2018/04/12 10:59:58.000552, numSat: 7, pos not fixed 
+
+2018/04/12 10:59:59.000541, numSat: 7, pos not fixed 
+
+numSatellites: 7
+[ 0] Type:GPS, Id:12, Elv: 0, Azm:  0, Lv:36.000000 
+
+[ 1] Type:GPS, Id:15, Elv: 0, Azm:  0, Lv:34.000000 
+
+[ 2] Type:GPS, Id:17, Elv: 0, Azm:  0, Lv:37.000000 
+
+[ 3] Type:GPS, Id:19, Elv: 0, Azm:  0, Lv:34.000000 
+
+[ 4] Type:GPS, Id:23, Elv: 0, Azm:  0, Lv:0.000000 
+
+[ 5] Type:GPS, Id:24, Elv: 0, Azm:  0, Lv:34.000000 
+
+[ 6] Type:GPS, Id:32, Elv: 0, Azm:  0, Lv:21.000000 
+
+2018/04/12 11:00:00.000545, numSat: 7, pos not fixed 
+
+2018/04/12 11:00:01.000541, numSat: 9, pos not fixed 
+
+2018/04/12 11:00:02.000548, numSat: 8, pos not fixed 
+
+2018/04/12 11:00:03.000535, numSat: 8, pos not fixed 
+
+2018/04/12 11:00:04.000535, numSat: 9, pos not fixed 
+
+2018/04/12 11:00:05.000532, numSat: 9, pos not fixed 
+
+2018/04/12 11:00:06.000554, numSat: 8, pos not fixed 
+
+2018/04/12 11:00:07.000540, numSat: 8, pos not fixed 
+
+2018/04/12 11:00:08.000550, numSat: 8, pos not fixed 
+
+2018/04/12 11:00:09.000542, numSat: 9, pos not fixed 
+
+2018/04/12 11:00:10.000557, numSat: 9, pos not fixed 
+
+2018/04/12 11:00:11.000539, numSat: 8, pos not fixed 
+
+2018/04/12 11:00:12.000546, numSat: 8, pos not fixed 
+
+2018/04/12 11:00:13.000549, numSat: 9, pos not fixed 
+
+2018/04/12 11:00:14.000572, numSat: 9, pos not fixed 
+
+2018/04/12 11:00:15.000533, numSat: 8, pos not fixed 
+
+2018/04/12 11:00:16.000543, numSat: 8, pos not fixed 
+
+2018/04/12 11:00:17.000548, numSat: 8, pos not fixed 
+
+2018/04/12 11:00:18.000534, numSat: 8, pos not fixed 
+
+2018/04/12 11:00:19.000528, numSat: 8, pos not fixed 
+
+2018/04/12 11:00:20.000542, numSat: 8, pos not fixed 
+
+2018/04/12 11:00:21.000547, numSat: 8, pos not fixed 
+
+2018/04/12 11:00:22.000534, numSat: 8, pos not fixed 
+
+2018/04/12 11:00:23.000543, numSat: 8, pos not fixed 
+
+2018/04/12 11:00:24.000528, numSat: 8, pos not fixed 
+
+2018/04/12 11:00:25.000536, numSat: 8, pos not fixed 
+
+2018/04/12 11:00:26.000541, numSat: 8, pos not fixed 
+
+2018/04/12 11:00:27.000545, numSat: 8, pos not fixed 
+
+2018/04/12 11:00:28.000542, numSat: 8, pos not fixed 
+
+2018/04/12 11:00:29.000550, numSat: 8, pos not fixed 
+
+2018/04/12 11:00:30.000540, numSat: 9, pos not fixed 
+
+2018/04/12 11:00:31.000535, numSat: 9, pos not fixed 
+
+2018/04/12 11:00:31.818826, numSat: 8, Lat=51.244066, Lon=-1.099201 
+
+2018/04/12 11:00:32.000574, numSat: 8, Lat=51.244066, Lon=-1.099201 
+
+2018/04/12 11:00:33.000562, numSat: 8, Lat=51.244050, Lon=-1.099288 
+
+2018/04/12 11:00:34.000579, numSat: 8, Lat=51.244101, Lon=-1.099330 
+
+2018/04/12 11:00:35.000563, numSat: 8, Lat=51.244111, Lon=-1.099328 
+
+2018/04/12 11:00:36.000555, numSat: 8, Lat=51.244126, Lon=-1.099347 
+
+2018/04/12 11:00:37.000561, numSat: 8, Lat=51.244115, Lon=-1.099337 
+
+2018/04/12 11:00:38.000561, numSat: 8, Lat=51.244109, Lon=-1.099330 
+
+2018/04/12 11:00:39.000553, numSat: 8, Lat=51.244096, Lon=-1.099321 
+
+2018/04/12 11:00:40.000558, numSat: 8, Lat=51.244094, Lon=-1.099317 
+
+2018/04/12 11:00:41.000581, numSat: 8, Lat=51.244101, Lon=-1.099314 
+
+2018/04/12 11:00:42.000563, numSat: 8, Lat=51.244094, Lon=-1.099306 
+
+2018/04/12 11:00:43.000560, numSat: 8, Lat=51.244095, Lon=-1.099311 
+
+2018/04/12 11:00:44.000563, numSat: 8, Lat=51.244091, Lon=-1.099307 
+
+2018/04/12 11:00:45.000562, numSat: 8, Lat=51.244090, Lon=-1.099306 
+
+2018/04/12 11:00:46.000558, numSat: 8, Lat=51.244087, Lon=-1.099309 
+
+2018/04/12 11:00:47.000555, numSat: 8, Lat=51.244077, Lon=-1.099305 
+
+2018/04/12 11:00:48.000555, numSat: 8, Lat=51.244073, Lon=-1.099298 
+
+2018/04/12 11:00:49.000578, numSat: 8, Lat=51.244073, Lon=-1.099298 
+
+2018/04/12 11:00:50.000578, numSat: 8, Lat=51.244074, Lon=-1.099298 
+
+2018/04/12 11:00:51.000558, numSat: 8, Lat=51.244072, Lon=-1.099291 
+
+2018/04/12 11:00:52.000573, numSat: 8, Lat=51.244073, Lon=-1.099289 
+
+2018/04/12 11:00:53.000554, numSat: 8, Lat=51.244071, Lon=-1.099286 
+
+2018/04/12 11:00:54.000565, numSat: 8, Lat=51.244071, Lon=-1.099283 
+
+2018/04/12 11:00:55.000567, numSat: 8, Lat=51.244069, Lon=-1.099276 
+
+2018/04/12 11:00:56.000579, numSat: 8, Lat=51.244066, Lon=-1.099271 
+
+2018/04/12 11:00:57.000572, numSat: 8, Lat=51.244063, Lon=-1.099267 
+
+2018/04/12 11:00:58.000567, numSat: 8, Lat=51.244061, Lon=-1.099266 
+
+2018/04/12 11:00:59.000565, numSat: 8, Lat=51.244061, Lon=-1.099267 
+
+numSatellites: 8
+[ 0] Type:GPS, Id:10, Elv: 0, Azm:  0, Lv:22.000000 
+
+[ 1] Type:GPS, Id:12, Elv:43, Azm:213, Lv:35.000000 
+
+[ 2] Type:GPS, Id:15, Elv:48, Azm:172, Lv:35.000000 
+
+[ 3] Type:GPS, Id:17, Elv:34, Azm: 72, Lv:37.000000 
+
+[ 4] Type:GPS, Id:19, Elv:34, Azm: 98, Lv:35.000000 
+
+[ 5] Type:GPS, Id:20, Elv: 0, Azm:  0, Lv:30.000000 
+
+[ 6] Type:GPS, Id:24, Elv:78, Azm: 37, Lv:36.000000 
+
+[ 7] Type:GPS, Id:32, Elv: 0, Azm:  0, Lv:21.000000 
+
+2018/04/12 11:01:00.000571, numSat: 8, Lat=51.244065, Lon=-1.099270 
+
+2018/04/12 11:01:01.000576, numSat: 8, Lat=51.244070, Lon=-1.099272 
+
+2018/04/12 11:01:02.000568, numSat: 8, Lat=51.244071, Lon=-1.099271 
+
+2018/04/12 11:01:03.000577, numSat: 8, Lat=51.244074, Lon=-1.099274 
+
+2018/04/12 11:01:04.000564, numSat: 8, Lat=51.244074, Lon=-1.099298 
+
+2018/04/12 11:01:05.000576, numSat: 8, Lat=51.244073, Lon=-1.099298 
+
+2018/04/12 11:01:06.000572, numSat: 8, Lat=51.244073, Lon=-1.099291 
+
+2018/04/12 11:01:07.000580, numSat: 8, Lat=51.244073, Lon=-1.099289 
+ 
+

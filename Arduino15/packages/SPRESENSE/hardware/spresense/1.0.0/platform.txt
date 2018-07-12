@@ -1,0 +1,109 @@
+
+# Spresense platform
+# ------------------------------
+# For more info:
+# https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5---3rd-party-Hardware-specification
+
+name=Spresense Boards
+version=1.0.0
+
+variant.path={runtime.platform.path}/variants/{build.variant}
+
+compiler.warning_flags=-w
+compiler.warning_flags.none=-w
+compiler.warning_flags.default=
+compiler.warning_flags.more=-Wall
+compiler.warning_flags.all=-Wall -Wextra
+
+compiler.path={runtime.tools.gcc-arm-none-eabi.path}/{runtime.os}/bin/
+compiler.sdk.path={build.kernel}
+compiler.cpreprocessor.flags= "-I{compiler.sdk.path}/include" "-I{compiler.sdk.path}/arch" "-I{compiler.sdk.path}/arch/chip" "-I{compiler.sdk.path}/include/apps" "-I{compiler.sdk.path}/include/sdk" "-I{variant.path}" {build.debug} -DCONFIG_WCHAR_BUILTIN -DCONFIG_HAVE_DOUBLE
+
+
+compiler.c.cmd=arm-none-eabi-gcc
+compiler.c.flags=-c {compiler.warning_flags} -MMD -std=gnu99 -c -fno-builtin -mabi=aapcs -Wall -Os -fno-strict-aliasing -fno-strength-reduce -fomit-frame-pointer -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -pipe -ggdb -gdwarf-3
+
+compiler.S.cmd=arm-none-eabi-gcc
+compiler.S.flags=
+
+compiler.c.elf.flags=-ggdb -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -Xlinker --entry=__start -nodefaultlibs -nostartfiles "{build.stack}" "-T{build.libpath}/build/ramconfig.ld"
+
+compiler.c.elf.cmd=arm-none-eabi-g++
+compiler.c.elf.libs= "{build.libpath}/libs/libapps.a" "{build.libpath}/libs/libnuttx.a" -lgcc
+
+compiler.cpp.cmd=arm-none-eabi-g++
+compiler.cpp.flags=-c {compiler.warning_flags} -MMD -std=gnu++98 -c -fno-builtin -mabi=aapcs -Wall -Os -fno-strict-aliasing -fno-strength-reduce -fomit-frame-pointer -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -pipe -ffunction-sections -fno-exceptions -fno-rtti -ggdb -gdwarf-3
+
+
+compiler.as.cmd=arm-none-eabi-as
+compiler.ar.cmd=arm-none-eabi-ar
+compiler.ar.flags=rcs
+
+compiler.elf2hex.cmd=
+compiler.elf2hex.flags=
+
+compiler.size.cmd=arm-none-eabi-size
+
+
+# This can be overriden in boards.txt
+build.extra_flags=
+
+# These can be overridden in platform.local.txt
+compiler.c.extra_flags=
+compiler.c.elf.extra_flags=
+compiler.S.extra_flags=
+compiler.cpp.extra_flags=
+compiler.ar.extra_flags=
+compiler.objcopy.eep.extra_flags=
+compiler.elf2hex.extra_flags=
+
+## generate file with git version number
+## needs bash, git, and echo
+
+## windows-compatible version may be added later
+
+
+## Compile c files
+recipe.c.o.pattern="{compiler.path}{compiler.c.cmd}" {compiler.cpreprocessor.flags} {compiler.c.flags} -DF_CPU={build.f_cpu}  -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} -DARDUINO_BOARD="{build.board}" {compiler.c.extra_flags} {build.extra_flags} {includes} "{source_file}" -o "{object_file}"
+
+## Compile c++ files
+recipe.cpp.o.pattern="{compiler.path}{compiler.cpp.cmd}" {compiler.cpreprocessor.flags} {compiler.cpp.flags} -DF_CPU={build.f_cpu} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} -DARDUINO_BOARD="{build.board}" {compiler.cpp.extra_flags} {build.extra_flags} {includes} "{source_file}" -o "{object_file}"
+
+## Compile S files
+#recipe.S.o.pattern="{compiler.path}{compiler.c.cmd}" {compiler.cpreprocessor.flags} {compiler.S.flags} -DF_CPU={build.f_cpu}  -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} -DARDUINO_BOARD="{build.board}" {compiler.c.extra_flags} {build.extra_flags} {includes} "{source_file}" -o "{object_file}"
+
+## Create archives
+recipe.ar.pattern="{compiler.path}{compiler.ar.cmd}" {compiler.ar.flags} {compiler.ar.extra_flags} "{build.path}/arduino.ar" "{object_file}"
+
+## Combine gc-sections, archives, and objects
+recipe.c.combine.pattern="{compiler.path}{compiler.c.elf.cmd}" {compiler.c.elf.flags} {compiler.c.elf.extra_flags} -Xlinker "-Map={build.path}/output.map" -o  "{build.path}/{build.project_name}.axf" -Wl,--start-group {object_files} "{build.path}/core/main.cpp.o" "{build.path}/arduino.ar" {compiler.c.elf.libs} -Wl,--end-group "-L{build.path}"
+
+## Create hex
+recipe.objcopy.hex.pattern="{runtime.tools.spresense-tools.path}/mkspk/{runtime.os}/mkspk" -c 2 "{build.path}/{build.project_name}.axf" nuttx "{build.path}/{build.project_name}.spk"
+recipe.objcopy.hex.pattern.windows="{runtime.tools.spresense-tools.path}/mkspk/{runtime.os}/mkspk.exe" -c 2 "{build.path}/{build.project_name}.axf" nuttx "{build.path}/{build.project_name}.spk"
+
+#recipe.objcopy.hex.pattern="{runtime.tools.esptool.path}/{compiler.esptool.cmd}" -eo "{runtime.platform.path}/bootloaders/eboot/eboot.elf" -bo "{build.path}/{build.project_name}.bin" -bm {build.flash_mode} -bf {build.flash_freq} -bz {build.flash_size} -bs .text -bp 4096 -ec -eo "{build.path}/{build.project_name}.elf" -bs .irom0.text -bs .text -bs .data -bs .rodata -bc -ec
+
+## Compute size
+recipe.size.pattern="{compiler.path}{compiler.size.cmd}" -A "{build.path}/{build.project_name}.axf"
+recipe.size.regex=^(\.text|\.data|\.init_section|\.ARM.exidx|\.bss)\s+([0-9]+).*
+recipe.size.regex.data=^(\.text|\.data|\.init_section|\.ARM.exidx|\.bss)\s+([0-9]+).*
+
+
+# ------------------------------
+tools.spresense-tools.path={runtime.tools.spresense-tools.path}
+tools.spresense-tools.cmd.path={path}/flash_writer/{runtime.os}/flash_writer
+tools.spresense-tools.cmd.path.windows={path}/flash_writer/{runtime.os}/flash_writer.exe
+tools.spresense-tools.cmd.opt.baudrate={upload.speed}
+tools.spresense-tools.pycmd=python3.4m.exe
+tools.spresense-tools.upload.protocol=spresense
+tools.spresense-tools.upload.params.verbose=
+tools.spresense-tools.upload.params.quiet=
+tools.spresense-tools.upload.pattern="{cmd.path}" -s -c "{serial.port}" {cmd.opt.baudrate} -d -n "{build.path}/{build.project_name}.spk"
+tools.spresense-tools.erase.params.verbose=
+tools.spresense-tools.erase.params.quiet=
+tools.spresense-tools.erase.pattern=
+tools.spresense-tools.bootloader.params.verbose=
+tools.spresense-tools.bootloader.params.quiet=
+tools.spresense-tools.firmware.path={runtime.tools.spresense-sdk.path}/{build.variant}/firmware
+tools.spresense-tools.bootloader.pattern="{cmd.path}" -s -c "{serial.port}" {cmd.opt.baudrate} -d -n -S "{firmware.path}/loader.espk" -S "{firmware.path}/gnssfw.espk"

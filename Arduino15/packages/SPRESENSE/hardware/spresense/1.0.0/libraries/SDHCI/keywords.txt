@@ -1,0 +1,6 @@
+# Class
+SDClass	KEYWORD1
+
+# Function
+beginUsbMsc	KEYWORD2
+endUsbMsc	KEYWORD2

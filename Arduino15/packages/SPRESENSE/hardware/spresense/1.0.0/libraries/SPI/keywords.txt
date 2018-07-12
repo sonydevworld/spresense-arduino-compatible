@@ -1,0 +1,19 @@
+# Class
+SPISettings	KEYWORD1
+SPIClass	KEYWORD1
+
+# Constants
+SPI	LITERAL1
+SPI4	LITERAL1
+SPI5	LITERAL1
+
+# Function
+SPISettings	KEYWORD2
+beginTransaction	KEYWORD2
+endTransaction	KEYWORD2
+setBitOrder	KEYWORD2
+setDataMode	KEYWORD2
+setClockDivider	KEYWORD2
+usingInterrupt	KEYWORD2
+notUsingInterrupt	KEYWORD2
+transfer16	KEYWORD2
