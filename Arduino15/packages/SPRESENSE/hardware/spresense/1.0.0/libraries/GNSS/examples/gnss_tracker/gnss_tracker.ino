@@ -19,7 +19,7 @@
 
 /**
  * @file gnss_tracker.ino
- * @author Sony Corporation
+ * @author Sony Semiconductor Solutions Corporation
  * @brief GNSS tracker example application
  * @details The gnss_tracker is a sample sketch that performs GPS positioning by
  *          intermittent operation.

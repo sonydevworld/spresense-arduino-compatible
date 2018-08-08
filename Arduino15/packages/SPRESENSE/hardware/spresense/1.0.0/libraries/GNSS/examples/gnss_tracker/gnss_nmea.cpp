@@ -19,7 +19,7 @@
 
 /**
  * @file gnss_nmea.cpp
- * @author Sony Corporation
+ * @author Sony Semiconductor Solutions Corporation
  * @brief NMEA's GGA sentence
  */
 

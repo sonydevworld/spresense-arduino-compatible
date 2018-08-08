@@ -22,7 +22,7 @@
 
 /**
  * @file gnss_tracker.h
- * @author Sony Corporation
+ * @author Sony Semiconductor Solutions Corporation
  * @brief Debug log setup
  */
 

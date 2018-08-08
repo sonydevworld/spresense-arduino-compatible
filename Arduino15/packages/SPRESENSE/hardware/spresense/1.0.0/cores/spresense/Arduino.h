@@ -128,6 +128,16 @@ unsigned long clockCyclesPerMicrosecond(void);
 #define bitClear(value, bit) ((value) &= ~(1UL << (bit)))
 #define bitWrite(value, bit, bitvalue) (bitvalue ? bitSet(value, bit) : bitClear(value, bit))
 #define bit(b) (1UL << (b))
+//macro added for compatibility
+#ifndef _BV
+#define _BV(bit) (1 << (bit))
+#endif
+#ifndef cbi
+#define cbi(reg, bit) (*(reg) &= ~_BV(bit))
+#endif
+#ifndef sbi
+#define sbi(reg, bit) (*(reg) |= _BV(bit))
+#endif
 
 /* Interrupts */
 void interrupts(void);
@@ -140,6 +150,7 @@ int atexit(void (*func)());
 void setup(void);
 void loop(void);
 long map(long x, long in_min, long in_max, long out_min, long out_max);
+void yield(void);
 
 #ifdef __cplusplus
 } // extern "C"

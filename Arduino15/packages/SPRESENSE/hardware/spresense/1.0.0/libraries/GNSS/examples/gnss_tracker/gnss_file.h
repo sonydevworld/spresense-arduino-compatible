@@ -22,7 +22,7 @@
 
 /**
  * @file gnss_file.h
- * @author Sony Corporation
+ * @author Sony Semiconductor Solutions Corporation
  * @brief Handling I/O operation on the SD card
  */
 

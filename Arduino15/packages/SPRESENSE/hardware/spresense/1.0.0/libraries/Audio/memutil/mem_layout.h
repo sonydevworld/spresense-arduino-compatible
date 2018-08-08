@@ -1,7 +1,7 @@
 /****************************************************************************
  * mem_layout.h
  *
- *   Copyright (C) 2018 Sony Corporation
+ *   Copyright 2018 Sony Semiconductor Solutions Corporation
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -13,9 +13,10 @@
  *    notice, this list of conditions and the following disclaimer in
  *    the documentation and/or other materials provided with the
  *    distribution.
- * 3. Neither the name NuttX nor Sony nor the names of its contributors
- *    may be used to endorse or promote products derived from this software
- *    without specific prior written permission.
+ * 3. Neither the name of Sony Semiconductor Solutions Corporation nor
+ *    the names of its contributors may be used to endorse or promote
+ *    products derived from this software without specific prior written
+ *    permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -192,29 +193,29 @@
 #define L1_MIC_IN_BUF_POOL_ALIGN    0x00000008
 #define L1_MIC_IN_BUF_POOL_L_FENCE  0x000c300c
 #define L1_MIC_IN_BUF_POOL_ADDR     0x000c3010
-#define L1_MIC_IN_BUF_POOL_SIZE     0x00008700
-#define L1_MIC_IN_BUF_POOL_U_FENCE  0x000cb710
+#define L1_MIC_IN_BUF_POOL_SIZE     0x00014000
+#define L1_MIC_IN_BUF_POOL_U_FENCE  0x000d7010
 #define L1_MIC_IN_BUF_POOL_NUM_SEG  0x00000005
-#define L1_MIC_IN_BUF_POOL_SEG_SIZE 0x00001b00
+#define L1_MIC_IN_BUF_POOL_SEG_SIZE 0x00004000
 
 #define L1_ENC_APU_CMD_POOL_ALIGN    0x00000008
-#define L1_ENC_APU_CMD_POOL_L_FENCE  0x000cb714
-#define L1_ENC_APU_CMD_POOL_ADDR     0x000cb718
+#define L1_ENC_APU_CMD_POOL_L_FENCE  0x000d7014
+#define L1_ENC_APU_CMD_POOL_ADDR     0x000d7018
 #define L1_ENC_APU_CMD_POOL_SIZE     0x00000114
-#define L1_ENC_APU_CMD_POOL_U_FENCE  0x000cb82c
+#define L1_ENC_APU_CMD_POOL_U_FENCE  0x000d712c
 #define L1_ENC_APU_CMD_POOL_NUM_SEG  0x00000003
 #define L1_ENC_APU_CMD_POOL_SEG_SIZE 0x0000005c
 
 /* Skip 0x0004 bytes for alignment. */
 #define L1_SRC_APU_CMD_POOL_ALIGN    0x00000008
-#define L1_SRC_APU_CMD_POOL_L_FENCE  0x000cb834
-#define L1_SRC_APU_CMD_POOL_ADDR     0x000cb838
+#define L1_SRC_APU_CMD_POOL_L_FENCE  0x000d7134
+#define L1_SRC_APU_CMD_POOL_ADDR     0x000d7138
 #define L1_SRC_APU_CMD_POOL_SIZE     0x00000114
-#define L1_SRC_APU_CMD_POOL_U_FENCE  0x000cb94c
+#define L1_SRC_APU_CMD_POOL_U_FENCE  0x000d724c
 #define L1_SRC_APU_CMD_POOL_NUM_SEG  0x00000003
 #define L1_SRC_APU_CMD_POOL_SEG_SIZE 0x0000005c
 
-/* Remainder AUDIO_WORK_AREA=0x000306b0 */
+/* Remainder AUDIO_WORK_AREA=0x00024db0 */
 
 /* Layout2: */
 #define MEMMGR_L2_WORK_SIZE   0x00000090

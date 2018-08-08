@@ -24,7 +24,7 @@
   This header file maybe inclued in plain C file.
   To avoid compiling error all C++ stuff should be ignored
  */
-#ifdef __cplusplus
+// #ifdef __cplusplus
 
 #include <stdbool.h>
 #include <nuttx/config.h>
@@ -117,5 +117,5 @@ extern TwoWire Wire;
 #error Please enable I2C0 in NuttX
 #endif
 
-#endif //__cplusplus
+// #endif //__cplusplus
 #endif //Wire_h

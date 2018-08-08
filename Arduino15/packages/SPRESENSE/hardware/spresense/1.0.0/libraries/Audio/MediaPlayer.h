@@ -22,7 +22,7 @@
 
 #include <SDHCI.h>
 
-#ifdef __cplusplus
+// #ifdef __cplusplus
 
 #include <audio/audio_high_level_api.h>
 #include <memutils/simple_fifo/CMN_SimpleFifo.h>
@@ -53,8 +53,8 @@
 #define MEDIAPLAYER_ECODE_FILEEND 4
 #define MEDIAPLAYER_ECODE_SHARED_MEMORY_ERROR 5
 
-#define MEDIAPLAYER_BUF_FRAME_NUM  10 
-#define MEDIAPLAYER_BUF_FRAME_SIZE 3072
+#define MEDIAPLAYER_BUF_FRAME_NUM  8
+#define MEDIAPLAYER_BUF_FRAME_SIZE 6144
 #define MEDIAPLAYER_BUF_SIZE (MEDIAPLAYER_BUF_FRAME_NUM * MEDIAPLAYER_BUF_FRAME_SIZE)
 
 /*--------------------------------------------------------------------------*/
@@ -76,7 +76,10 @@ public:
   err_t begin(void);
   err_t create(PlayerId id);
   err_t activate(PlayerId id, uint8_t output_device, MediaPlayerCallback mpcb);
+  err_t init(PlayerId id, uint8_t codec_type, uint32_t sampling_rate, uint8_t channel_number);
+  err_t init(PlayerId id, uint8_t codec_type, uint32_t sampling_rate, uint8_t bit_length, uint8_t channel_number);
   err_t init(PlayerId id, uint8_t codec_type, const char *codec_path, uint32_t sampling_rate, uint8_t channel_number);
+  err_t init(PlayerId id, uint8_t codec_type, const char *codec_path, uint32_t sampling_rate, uint8_t bit_length, uint8_t channel_number);
   err_t start(PlayerId id, DecodeDoneCallback dccb);
   err_t stop(PlayerId id);
   err_t reqNextProcess(PlayerId id, AsRequestNextType type);
@@ -125,6 +128,6 @@ private:
   bool check_decode_dsp(uint8_t codec_type, const char *path);
 };
 
-#endif // __cplusplus
+// #endif // __cplusplus
 #endif // MediaPlayer_h
 

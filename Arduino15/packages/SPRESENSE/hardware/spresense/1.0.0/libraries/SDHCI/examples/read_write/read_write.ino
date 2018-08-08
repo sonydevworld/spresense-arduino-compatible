@@ -19,7 +19,7 @@
 
 /**
  * @file read_write.ino
- * @author Sony Corporation
+ * @author Sony Semiconductor Solutions Corporation
  * @brief SD Card read/write sample application.
  */
 

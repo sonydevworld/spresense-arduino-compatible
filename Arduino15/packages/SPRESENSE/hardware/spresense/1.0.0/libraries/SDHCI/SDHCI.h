@@ -22,7 +22,7 @@
 
 /**
  * @file SDHCI.h
- * @author Sony Corporation
+ * @author Sony Semiconductor Solutions Corporation
  * @brief SPRESENSE Arduino SDHCI library
  * 
  * @details The SDHCI library allows for reading from and writing to SD cards

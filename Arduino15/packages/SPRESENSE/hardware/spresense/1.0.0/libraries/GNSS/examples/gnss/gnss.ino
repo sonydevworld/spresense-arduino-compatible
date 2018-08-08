@@ -19,7 +19,7 @@
 
 /**
  * @file gnss.ino
- * @author Sony Corporation
+ * @author Sony Semiconductor Solutions Corporation
  * @brief GNSS example application
  * @details Spresense has an built in GNSS receiver which supports GPS and other
  *          GNSS satellites. This skecth provides an example the GNSS operation.
