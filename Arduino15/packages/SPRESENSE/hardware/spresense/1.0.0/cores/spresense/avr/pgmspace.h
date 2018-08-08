@@ -23,6 +23,8 @@
 #ifndef __PGMSPACE_H_
 #define __PGMSPACE_H_
 
+#include <stdint.h>
+
 #define PROGMEM
 #define PGM_P  const char *
 #define PSTR(str) (str)

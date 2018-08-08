@@ -1,7 +1,7 @@
 /****************************************************************************
  * pool_layout.h
  *
- *   Copyright (C) 2018 Sony Corporation
+ *   Copyright 2018 Sony Semiconductor Solutions Corporation
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -13,9 +13,10 @@
  *    notice, this list of conditions and the following disclaimer in
  *    the documentation and/or other materials provided with the
  *    distribution.
- * 3. Neither the name NuttX nor Sony nor the names of its contributors
- *    may be used to endorse or promote products derived from this software
- *    without specific prior written permission.
+ * 3. Neither the name of Sony Semiconductor Solutions Corporation nor
+ *    the names of its contributors may be used to endorse or promote
+ *    products derived from this software without specific prior written
+ *    permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -57,9 +58,9 @@ extern const PoolAttr MemoryPoolLayouts[NUM_MEM_LAYOUTS][NUM_MEM_POOLS] = {
  {/* Layout:1 */
   /* pool_ID          type       seg fence  addr        size         */
   { OUTPUT_BUF_POOL , BasicType,   2, true, 0x000c0008, 0x00003000 },  /* AUDIO_WORK_AREA */
-  { MIC_IN_BUF_POOL , BasicType,   5, true, 0x000c3010, 0x00008700 },  /* AUDIO_WORK_AREA */
-  { ENC_APU_CMD_POOL, BasicType,   3, true, 0x000cb718, 0x00000114 },  /* AUDIO_WORK_AREA */
-  { SRC_APU_CMD_POOL, BasicType,   3, true, 0x000cb838, 0x00000114 },  /* AUDIO_WORK_AREA */
+  { MIC_IN_BUF_POOL , BasicType,   5, true, 0x000c3010, 0x00014000 },  /* AUDIO_WORK_AREA */
+  { ENC_APU_CMD_POOL, BasicType,   3, true, 0x000d7018, 0x00000114 },  /* AUDIO_WORK_AREA */
+  { SRC_APU_CMD_POOL, BasicType,   3, true, 0x000d7138, 0x00000114 },  /* AUDIO_WORK_AREA */
  },
  {/* Layout:2 */
   /* pool_ID          type       seg fence  addr        size         */

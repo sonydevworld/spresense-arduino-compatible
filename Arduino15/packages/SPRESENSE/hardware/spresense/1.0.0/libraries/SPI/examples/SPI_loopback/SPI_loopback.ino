@@ -19,7 +19,7 @@
 
 /**
  * @file SPI_loopback.ino
- * @author Sony Corporation
+ * @author Sony Semiconductor Solutions Corporation
  * @brief This example is used to demonstrate the SPI port.
  * @details This example uses the default SPI port (SPI4) and it is used as 
  *          an SPI master. Transfer of 8 bit, 16 bit and an array of 8 bit 

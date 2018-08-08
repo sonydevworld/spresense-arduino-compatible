@@ -19,7 +19,7 @@
 
 /**
  * @file SPI.cpp
- * @author Sony Corporation
+ * @author Sony Semiconductor Solutions Corporation
  * @brief Spresense Arduino SPI library 
  * 
  * @details It is a library for communicating with SPI devices, with the 

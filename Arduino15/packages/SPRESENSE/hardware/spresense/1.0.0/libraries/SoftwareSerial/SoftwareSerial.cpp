@@ -19,7 +19,7 @@
 
 /**
  * @file SoftwareSerial.cpp
- * @author Sony Corporation
+ * @author Sony Semiconductor Solutions Corporation
  * @brief SPRESENSE Arduino Software Serial library 
  * 
  * @details The Software Serial library has been developed to allow serial 

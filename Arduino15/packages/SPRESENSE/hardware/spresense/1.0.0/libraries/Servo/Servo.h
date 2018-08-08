@@ -20,7 +20,7 @@
 #ifndef Servo_h
 #define Servo_h
 
-#ifdef __cplusplus
+// #ifdef __cplusplus
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -161,5 +161,5 @@ private:
     uint16_t angle_;
 };
 
-#endif // __cplusplus
+// #endif // __cplusplus
 #endif //Servo_h

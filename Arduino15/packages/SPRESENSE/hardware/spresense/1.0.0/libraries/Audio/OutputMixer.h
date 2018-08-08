@@ -20,7 +20,7 @@
 #ifndef OutputMixer_h 
 #define OutputMixer_h
 
-#ifdef __cplusplus
+// #ifdef __cplusplus
 
 #include <audio/audio_high_level_api.h>
 
@@ -90,6 +90,6 @@ private:
 
 };
 
-#endif // __cplusplus
+// #endif // __cplusplus
 #endif // MediaPlayer_h
 

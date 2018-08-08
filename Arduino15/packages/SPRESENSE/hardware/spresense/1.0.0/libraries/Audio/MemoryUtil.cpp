@@ -83,3 +83,11 @@ int createStaticPools(uint8_t layout_no)
   return 0;
 }
 
+/*--------------------------------------------------------------------------*/
+int destroyStaticPools(void)
+{
+  Manager::destroyStaticPools();
+
+  return 0;
+}
+

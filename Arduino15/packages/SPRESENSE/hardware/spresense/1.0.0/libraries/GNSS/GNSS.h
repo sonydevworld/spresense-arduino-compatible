@@ -24,7 +24,7 @@
 
 /**
  * @file GNSS.h
- * @author Sony Corporation
+ * @author Sony Semiconductor Solutions Corporation
  * @brief Spresense Arduino GNSS library
  * @details It is a library for controlling the GNSS built in Spresense
  *          and acquiring positioning information. This library is available

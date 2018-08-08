@@ -184,6 +184,8 @@ err_t AudioClass::setReadyMode(void)
 
   board_external_amp_mute_control(true);
 
+  destroyStaticPools();
+
   return AUDIOLIB_ECODE_OK;
 }
 /****************************************************************************
@@ -271,7 +273,7 @@ err_t AudioClass::setPlayerMode(uint8_t device)
     }
   CMN_SimpleFifoClear(&m_player0_simple_fifo_handle);
 
-  if (CMN_SimpleFifoInitialize(&m_player1_simple_fifo_handle, m_player1_simple_fifo_buf, SIMPLE_FIFO_BUF_SIZE, NULL) != 0)
+  if (CMN_SimpleFifoInitialize(&m_player1_simple_fifo_handle, m_player1_simple_fifo_buf, WRITE_BUF_SIZE, NULL) != 0)
     {
       print_err("Fail to initialize simple FIFO.\n");
       return AUDIOLIB_ECODE_SIMPLEFIFO_ERROR;
@@ -313,9 +315,30 @@ err_t AudioClass::setPlayerMode(uint8_t device)
   return AUDIOLIB_ECODE_OK;
 }
 
+/*--------------------------------------------------------------------------*/
+err_t AudioClass::initPlayer(PlayerId id, uint8_t codec_type,
+                             uint32_t sampling_rate, uint8_t channel_number)
+{
+  return initPlayer(id, codec_type, "/mnt/sd0/BIN", sampling_rate, AS_BITLENGTH_16, channel_number);
+}
 
 /*--------------------------------------------------------------------------*/
-err_t AudioClass::initPlayer(PlayerId id, uint8_t codec_type, const char* codec_path, uint32_t sampling_rate, uint8_t channel_number)
+err_t AudioClass::initPlayer(PlayerId id, uint8_t codec_type,
+                             uint32_t sampling_rate, uint8_t bit_length, uint8_t channel_number)
+{
+  return initPlayer(id, codec_type, "/mnt/sd0/BIN", sampling_rate, bit_length, channel_number);
+}
+
+/*--------------------------------------------------------------------------*/
+err_t AudioClass::initPlayer(PlayerId id, uint8_t codec_type, const char* codec_path,
+                             uint32_t sampling_rate, uint8_t channel_number)
+{
+  return initPlayer(id, codec_type, codec_path, sampling_rate, AS_BITLENGTH_16, channel_number);
+}
+
+/*--------------------------------------------------------------------------*/
+err_t AudioClass::initPlayer(PlayerId id, uint8_t codec_type, const char* codec_path,
+                             uint32_t sampling_rate, uint8_t bit_length, uint8_t channel_number)
 {
   if (!check_decode_dsp(codec_type, codec_path))
     {
@@ -330,7 +353,7 @@ err_t AudioClass::initPlayer(PlayerId id, uint8_t codec_type, const char* codec_
 
   command.player.player_id = (id == Player0) ? AS_PLAYER_ID_0 : AS_PLAYER_ID_1;
   command.player.init_param.codec_type    = codec_type;
-  command.player.init_param.bit_length    = AS_BITLENGTH_16;
+  command.player.init_param.bit_length    = bit_length;
   command.player.init_param.channel_number= channel_number;
   command.player.init_param.sampling_rate = sampling_rate;
   snprintf(command.player.init_param.dsp_path, AS_AUDIO_DSP_PATH_LEN, "%s", codec_path);
@@ -539,10 +562,11 @@ err_t AudioClass::writeFrames(PlayerId id, File& myFile)
   int ret = AUDIOLIB_ECODE_OK;
   char *buf = (id == Player0) ? m_es_player0_buf : m_es_player1_buf; 
   CMN_SimpleFifoHandle *handle = (id == Player0) ? &m_player0_simple_fifo_handle : &m_player1_simple_fifo_handle;
+  uint32_t write_size = (id == Player0) ? FIFO_FRAME_SIZE : WRITE_FIFO_FRAME_SIZE;
 
   for (int i = 0; i < WRITE_FRAME_NUM; i++)
     {
-      ret = write_fifo(myFile, buf, handle);
+      ret = write_fifo(myFile, buf, write_size, handle);
       if (ret != AUDIOLIB_ECODE_OK) break;
     }
 
@@ -633,11 +657,11 @@ err_t AudioClass::setRecorderMode(uint8_t input_device)
 }
 
 /*--------------------------------------------------------------------------*/
-err_t AudioClass::init_recorder_wav(AudioCommand* command, uint32_t sampling_rate, uint8_t channel_number)
+err_t AudioClass::init_recorder_wav(AudioCommand* command, uint32_t sampling_rate, uint8_t bit_length, uint8_t channel_number)
 {
   command->recorder.init_param.sampling_rate  = sampling_rate;
   command->recorder.init_param.channel_number = channel_number;
-  command->recorder.init_param.bit_length     = AS_BITLENGTH_16;
+  command->recorder.init_param.bit_length     = bit_length;
   command->recorder.init_param.codec_type     = m_codec_type;
   AS_SendAudioCommand(command);
 
@@ -666,11 +690,11 @@ err_t AudioClass::init_recorder_wav(AudioCommand* command, uint32_t sampling_rat
 }
 
 /*--------------------------------------------------------------------------*/
-err_t AudioClass::init_recorder_mp3(AudioCommand* command, uint32_t sampling_rate, uint8_t channel_number)
+err_t AudioClass::init_recorder_mp3(AudioCommand* command, uint32_t sampling_rate, uint8_t bit_length, uint8_t channel_number)
 {
   command->recorder.init_param.sampling_rate  = sampling_rate;
   command->recorder.init_param.channel_number = channel_number;
-  command->recorder.init_param.bit_length     = AS_BITLENGTH_16;
+  command->recorder.init_param.bit_length     = bit_length;
   command->recorder.init_param.codec_type     = m_codec_type;
   command->recorder.init_param.bitrate        = AS_BITRATE_96000;
   AS_SendAudioCommand(command);
@@ -688,11 +712,11 @@ err_t AudioClass::init_recorder_mp3(AudioCommand* command, uint32_t sampling_rat
 }
 
 /*--------------------------------------------------------------------------*/
-err_t AudioClass::init_recorder_opus(AudioCommand* command, uint32_t sampling_rate, uint8_t channel_number)
+err_t AudioClass::init_recorder_opus(AudioCommand* command, uint32_t sampling_rate, uint8_t bit_length, uint8_t channel_number)
 {
   command->recorder.init_param.sampling_rate  = sampling_rate;
   command->recorder.init_param.channel_number = channel_number;
-  command->recorder.init_param.bit_length     = AS_BITLENGTH_16;
+  command->recorder.init_param.bit_length     = bit_length;
   command->recorder.init_param.codec_type     = m_codec_type;
   command->recorder.init_param.bitrate        = AS_BITRATE_8000;
   command->recorder.init_param.computational_complexity = AS_INITREC_COMPLEXITY_0;
@@ -711,11 +735,11 @@ err_t AudioClass::init_recorder_opus(AudioCommand* command, uint32_t sampling_ra
 }
 
 /*--------------------------------------------------------------------------*/
-err_t AudioClass::init_recorder_pcm(AudioCommand* command, uint32_t sampling_rate, uint8_t channel_number)
+err_t AudioClass::init_recorder_pcm(AudioCommand* command, uint32_t sampling_rate, uint8_t bit_length, uint8_t channel_number)
 {
   command->recorder.init_param.sampling_rate  = sampling_rate;
   command->recorder.init_param.channel_number = channel_number;
-  command->recorder.init_param.bit_length     = AS_BITLENGTH_16;
+  command->recorder.init_param.bit_length     = bit_length;
   command->recorder.init_param.codec_type     = m_codec_type;
   AS_SendAudioCommand(command);
 
@@ -732,7 +756,27 @@ err_t AudioClass::init_recorder_pcm(AudioCommand* command, uint32_t sampling_rat
 }
 
 /*--------------------------------------------------------------------------*/
-err_t AudioClass::initRecorder(uint8_t codec_type, const char *codec_path, uint32_t sampling_rate, uint8_t channel)
+err_t AudioClass::initRecorder(uint8_t codec_type, uint32_t sampling_rate, uint8_t channel)
+{
+  return initRecorder(codec_type, "/mnt/sd0/BIN", sampling_rate, AS_BITLENGTH_16, channel);
+}
+
+/*--------------------------------------------------------------------------*/
+err_t AudioClass::initRecorder(uint8_t codec_type, uint32_t sampling_rate, uint8_t bit_length, uint8_t channel)
+{
+  return initRecorder(codec_type, "/mnt/sd0/BIN", sampling_rate, bit_length, channel);
+}
+
+/*--------------------------------------------------------------------------*/
+err_t AudioClass::initRecorder(uint8_t codec_type, const char *codec_path,
+                               uint32_t sampling_rate, uint8_t channel)
+{
+  return initRecorder(codec_type, codec_path, sampling_rate, AS_BITLENGTH_16, channel);
+}
+
+/*--------------------------------------------------------------------------*/
+err_t AudioClass::initRecorder(uint8_t codec_type, const char *codec_path,
+                               uint32_t sampling_rate, uint8_t bit_length, uint8_t channel)
 {
   
   if (!check_encode_dsp(codec_type, codec_path, sampling_rate))
@@ -753,19 +797,19 @@ err_t AudioClass::initRecorder(uint8_t codec_type, const char *codec_path, uint3
   switch (codec_type)
     {
       case AS_CODECTYPE_WAV:
-        ret = init_recorder_wav(&command, sampling_rate, channel);
+        ret = init_recorder_wav(&command, sampling_rate, bit_length, channel);
         break;
 
       case AS_CODECTYPE_MP3:
-        ret = init_recorder_mp3(&command, sampling_rate, channel);
+        ret = init_recorder_mp3(&command, sampling_rate, bit_length, channel);
         break;
 
       case AS_CODECTYPE_OPUS:
-        ret = init_recorder_opus(&command, sampling_rate, channel);
+        ret = init_recorder_opus(&command, sampling_rate, bit_length, channel);
         break;
 
       case AS_CODECTYPE_PCM:
-        ret = init_recorder_pcm(&command, sampling_rate, channel);
+        ret = init_recorder_pcm(&command, sampling_rate, bit_length, channel);
         break;
 
       default:
@@ -1084,16 +1128,16 @@ err_t AudioClass::set_output(int device)
 }
 
 /*--------------------------------------------------------------------------*/
-/*err_t AudioClass::write_fifo(int fd, char *buf, CMN_SimpleFifoHandle *handle)
+/*err_t AudioClass::write_fifo(int fd, char *buf, uint32_t write_size, CMN_SimpleFifoHandle *handle)
 {
 
   int vacant_size = CMN_SimpleFifoGetVacantSize(handle);
-  if (vacant_size < FIFO_FRAME_SIZE)
+  if (vacant_size < write_size)
     {
       return AUDIOLIB_ECODE_SIMPLEFIFO_ERROR;
     }
 
-  int ret = fread(fd, buf, FIFO_FRAME_SIZE);
+  int ret = fread(fd, buf, write_size);
 
   if (ret < 0)
     {
@@ -1119,11 +1163,11 @@ err_t AudioClass::set_output(int device)
 }
 */
 /*--------------------------------------------------------------------------*/
-err_t AudioClass::write_fifo(File& myFile, char *p_es_buf, CMN_SimpleFifoHandle *handle)
+err_t AudioClass::write_fifo(File& myFile, char *p_es_buf, uint32_t write_size, CMN_SimpleFifoHandle *handle)
 {
 
   int vacant_size = CMN_SimpleFifoGetVacantSize(handle);
-  if (vacant_size < FIFO_FRAME_SIZE)
+  if (vacant_size < write_size)
     {
       return AUDIOLIB_ECODE_OK;
     }
@@ -1132,7 +1176,7 @@ err_t AudioClass::write_fifo(File& myFile, char *p_es_buf, CMN_SimpleFifoHandle 
 
   if (myFile.available())
     {
-      ret = myFile.read(p_es_buf, FIFO_FRAME_SIZE);
+      ret = myFile.read(p_es_buf, write_size);
     }
   else
     {

@@ -136,10 +136,40 @@ err_t MediaPlayer::activate(PlayerId id, uint8_t output_device, MediaPlayerCallb
 
 /*--------------------------------------------------------------------------*/
 err_t MediaPlayer::init(PlayerId id,
-                                   uint8_t codec_type,
-                                   const char *codec_path,
-                                   uint32_t sampling_rate,
-                                   uint8_t channel_number)
+                        uint8_t codec_type,
+                        uint32_t sampling_rate,
+                        uint8_t channel_number)
+{
+  return init(id, codec_type, "/mnt/sd0/BIN", sampling_rate, AS_BITLENGTH_16, channel_number);
+}
+
+/*--------------------------------------------------------------------------*/
+err_t MediaPlayer::init(PlayerId id,
+                        uint8_t codec_type,
+                        uint32_t sampling_rate,
+                        uint8_t bit_length,
+                        uint8_t channel_number)
+{
+  return init(id, codec_type, "/mnt/sd0/BIN", sampling_rate, bit_length, channel_number);
+}
+
+/*--------------------------------------------------------------------------*/
+err_t MediaPlayer::init(PlayerId id,
+                        uint8_t codec_type,
+                        const char *codec_path,
+                        uint32_t sampling_rate,
+                        uint8_t channel_number)
+{
+  return init(id, codec_type, codec_path, sampling_rate, AS_BITLENGTH_16, channel_number);
+}
+
+/*--------------------------------------------------------------------------*/
+err_t MediaPlayer::init(PlayerId id,
+                        uint8_t codec_type,
+                        const char *codec_path,
+                        uint32_t sampling_rate,
+                        uint8_t bit_length,
+                        uint8_t channel_number)
 {
   if (!check_decode_dsp(codec_type, codec_path))
     {
@@ -149,7 +179,7 @@ err_t MediaPlayer::init(PlayerId id,
   AsInitPlayerParam player_init;
 
   player_init.codec_type     = codec_type/*AS_CODECTYPE_MP3*/;
-  player_init.bit_length     = AS_BITLENGTH_16;
+  player_init.bit_length     = bit_length;
   player_init.channel_number = channel_number/*AS_CHANNEL_STEREO*/;
   player_init.sampling_rate  = sampling_rate/*AS_SAMPLINGRATE_48000*/;
   snprintf(player_init.dsp_path, AS_AUDIO_DSP_PATH_LEN, "%s", codec_path);
