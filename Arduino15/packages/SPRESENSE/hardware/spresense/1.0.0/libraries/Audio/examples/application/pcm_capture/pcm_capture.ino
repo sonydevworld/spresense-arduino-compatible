@@ -28,7 +28,7 @@ char buffer[buffer_size];
 /**
  *  @brief Setup audio device to capture PCM stream
  *
- *  Select input device as analog microphone, AMIC  <br>
+ *  Select input device as microphone <br>
  *  Set PCM capture sapling rate parameters to 48 kb/s <br>
  *  Set channel number 4 to capture audio from 4 microphones simultaneously <br>
  *  System directory "/mnt/sd0/BIN" will be searched for PCM codec
@@ -41,8 +41,8 @@ void setup()
 
   puts("initialization Audio Library");
 
-  /* Select input device as AMIC */
-  theAudio->setRecorderMode(AS_SETRECDR_STS_INPUTDEVICE_MIC_A);
+  /* Select input device as microphone */
+  theAudio->setRecorderMode(AS_SETRECDR_STS_INPUTDEVICE_MIC);
 
   /*
    * Set PCM capture sapling rate parameters to 48 kb/s. Set channel number 4
@@ -72,7 +72,7 @@ void loop() {
     }
 
   /* Read frames to record in buffer */
-  int err = theAudio->readFrames(buffer, buffer_size, &read_size);
+  err_t err = theAudio->readFrames(buffer, buffer_size, &read_size);
 
   if (err != AUDIOLIB_ECODE_OK && err != AUDIOLIB_ECODE_INSUFFICIENT_BUFFER_AREA)
     {

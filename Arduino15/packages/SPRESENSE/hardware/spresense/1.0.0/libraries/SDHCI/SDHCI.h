@@ -49,9 +49,9 @@ class File : public Stream {
 private:
   char* _name;            /**<  The name of the file. */
   FILE* _fd;              /**<  The pointer to a File object. */
-  void* _dir;             /**<  The pointer to the directory stream. */
   unsigned long _size;    /**<  The size of the file. */
   unsigned long _curpos;  /**<  The current position within the file. */
+  void* _dir;             /**<  The pointer to the directory stream. */
 
 public:
  /**

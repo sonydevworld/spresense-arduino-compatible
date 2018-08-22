@@ -221,9 +221,15 @@ err_t MediaPlayer::start(PlayerId id, DecodeDoneCallback dccb)
 /*--------------------------------------------------------------------------*/
 err_t MediaPlayer::stop(PlayerId id)
 {
+  return stop(id, AS_STOPPLAYER_ESEND);
+}
+
+/*--------------------------------------------------------------------------*/
+err_t MediaPlayer::stop(PlayerId id, uint8_t mode)
+{
   AsStopPlayerParam player_stop;
 
-  player_stop.stop_mode = AS_STOPPLAYER_NORMAL;
+  player_stop.stop_mode = mode;
 
   if (id == Player0)
     {

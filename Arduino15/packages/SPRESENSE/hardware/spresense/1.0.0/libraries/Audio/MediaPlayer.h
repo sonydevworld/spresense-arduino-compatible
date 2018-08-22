@@ -82,6 +82,7 @@ public:
   err_t init(PlayerId id, uint8_t codec_type, const char *codec_path, uint32_t sampling_rate, uint8_t bit_length, uint8_t channel_number);
   err_t start(PlayerId id, DecodeDoneCallback dccb);
   err_t stop(PlayerId id);
+  err_t stop(PlayerId id, uint8_t mode);
   err_t reqNextProcess(PlayerId id, AsRequestNextType type);
   err_t deactivate(PlayerId id);
 
