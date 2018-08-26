@@ -38,11 +38,11 @@
 #include <memutils/simple_fifo/CMN_SimpleFifo.h>
 
 #define WRITE_FIFO_FRAME_NUM  (8)
-#define WRITE_FIFO_FRAME_SIZE (6144)
+#define WRITE_FIFO_FRAME_SIZE (1024*2*3)
 #define WRITE_BUF_SIZE   (WRITE_FIFO_FRAME_NUM * WRITE_FIFO_FRAME_SIZE)
 
 #define READ_FIFO_FRAME_NUM   (10)
-#define READ_FIFO_FRAME_SIZE  (16384)
+#define READ_FIFO_FRAME_SIZE  (1024*2*8)
 #define READ_BUF_SIZE    (READ_FIFO_FRAME_NUM * READ_FIFO_FRAME_SIZE)
 
 #define FIFO_FRAME_SIZE (\
@@ -208,10 +208,18 @@ public:
    *
    *          In this function, setting HW necessary for sound recording, and setting ES buffer configuration etc.
    *
+   *          This function can select either input interface MIC or I2S as an argument.
+   *          When I2S is selected, it becomes input of 2 channels of L/R.
+   *          The type of MIC is determined by configuration of sdk. The default is an analog microphone.
+   *          The value of CXD56_AUDIO_MIC_CHANNEL_SEL can be used to select the analog microphone
+   *          or digital microphone and assign the microphone channel.
+   *          Refer to the document for the setting value.
+   *          If you change the settings, import sdk again.
+   * 
    */
   err_t setRecorderMode(
-      uint8_t device /**<  Select input device. AS_SETRECDR_STS_INPUTDEVICE_MIC_A or
-                           AS_SETRECDR_STS_INPUTDEVICE_MIC_D or AS_SETRECDR_STS_INPUTDEVICE_I2S_IN. */
+      uint8_t device /**<  Select input device. AS_SETRECDR_STS_INPUTDEVICE_MIC or
+                           AS_SETRECDR_STS_INPUTDEVICE_I2S. */
   );
 
   /**
@@ -471,6 +479,21 @@ public:
   );
 
   /**
+   * @brief Stop Player (mode specified)
+   *
+   * @details This function stops Player with specified mode.
+   *
+   *          You can set stop mode. If you would like to stop player immediately,
+   *          set mode to AS_STOPPLAYER_NORMAL. If you don't set mode, player stops
+   *          after all of audio data in buffer is going out.
+   *
+   */
+  err_t stopPlayer(
+      PlayerId id, /**< Select Player ID. */
+      uint8_t mode /**< Stop mode. AS_STOPPLAYER_NOMAL, AS_STOPPLAYER_ESEND */
+  );
+
+  /**
    * @brief Stop Recorder
    *
    * @details This function stops Recorder.
@@ -553,6 +576,25 @@ public:
   err_t writeFrames(
       PlayerId id, /**< Select Player ID. */
       File& myfile /**< Specify an instance of the File class of the audio file. */
+  );
+
+  /**
+   * @brief Write Stream Data from a file to FIFO by some frames.(now 5 frames)
+   *
+   * @details This function writes from the audio file specified by the File class
+   *          to the Stream  data FIFO in the Audio library.
+   *          It writes for several frames data (now five frames).
+   *          It can be called on PlayerMode.
+   * 
+   *          This FIFO is cleared when calling StopPlayer or setReadyMode.
+   * 
+   *          During music playback, please call this function periodically.
+   *          When an error occurs, you should error handling as properly
+   *
+   */
+  err_t writeFrames(
+      PlayerId id, /**< Select Player ID. */
+      int fd  /**< file pointer of the audio file. */
   );
 
   /** APIs for Recorder Mode */
@@ -669,6 +711,14 @@ private:
   /* Private Functions */
 
   /* Functions for initialization on begin/end */
+  err_t begin_manager(void);
+  err_t begin_player(void);
+  err_t begin_recorder(void);
+
+  err_t end_manager(void);
+  err_t end_player(void);
+  err_t end_recorder(void);
+
   err_t activateAudio(void);
 
   err_t powerOn(void);

@@ -46,7 +46,7 @@ void setup()
 
   /* Set output device to speaker */
   theAudio->setRenderingClockMode(AS_CLKMODE_NORMAL);
-  theAudio->setPlayerMode(AS_OUT_SP);
+  theAudio->setPlayerMode(AS_SETPLAYER_OUTPUTDEVICE_SPHP);
 
   /*
    * Set main player to decode stereo mp3. Stream sample rate is set to "auto detect"
@@ -142,8 +142,8 @@ void loop()
     }
 
   /* Send new frames to decode in a loop until file ends */
-  int err0 = theAudio->writeFrames(AudioClass::Player0,mainFile);
-  int err1 = theAudio->writeFrames(AudioClass::Player1,subFile);
+  err_t err0 = theAudio->writeFrames(AudioClass::Player0,mainFile);
+  err_t err1 = theAudio->writeFrames(AudioClass::Player1,subFile);
 
   /*  Tell when one of player file ends */
   if (err0 == AUDIOLIB_ECODE_FILEEND)

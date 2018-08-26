@@ -160,7 +160,7 @@ void setup()
   printf("Open! %d\n", myFile);
 
   /* Send first frames to be decoded */
-  int err = thePlayer->writeFrames(MediaPlayer::Player0, myFile);
+  err_t err = thePlayer->writeFrames(MediaPlayer::Player0, myFile);
 
   if (err != MEDIAPLAYER_ECODE_OK)
     {
@@ -187,7 +187,7 @@ void loop()
   puts("loop!!");
 
   /* Send new frames to decode in a loop until file ends */
-  int err = thePlayer->writeFrames(MediaPlayer::Player0, myFile);
+  err_t err = thePlayer->writeFrames(MediaPlayer::Player0, myFile);
 
   /*  Tell when player file ends */
   if (err == MEDIAPLAYER_ECODE_FILEEND)
