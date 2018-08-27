@@ -4,7 +4,7 @@ Thank you for your interest in our software, "SPRESENSE Arduino Compatible" (the
 
 Sony Semiconductor Solutions Corporation ("Sony") grants the right to use the Software under such terms and conditions as described below (the "License").  Please refer to the terms and conditions of the License which is contained in 'COPYING' file under the same directly as this file is contained. 
 
-The License: GNU General Public License version 2
+The License: GNU Lesser General Public License version 2.1
 
 When you submit a Contribution, you are asked to submit the source code in compliance with the License.
 
