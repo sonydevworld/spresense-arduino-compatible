@@ -123,7 +123,7 @@ static int tone_begin(uint8_t pin, unsigned int frequency, unsigned long duratio
     s_ctx.pin = pin;
     s_ctx.infinite = (duration == 0);
     s_ctx.duration = duration * 1000; // convert to us
-    s_ctx.interval = 1000000L / frequency / 2;
+    s_ctx.interval = (unsigned long)(1000000.0 / 2 / frequency + 0.5);
     s_ctx.pin_addr = get_gpio_regaddr((uint32_t)pin_convert(pin));
 
     if (!s_ctx.infinite && s_ctx.duration < s_ctx.interval) {
