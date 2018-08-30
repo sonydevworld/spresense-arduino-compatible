@@ -739,7 +739,7 @@ err_t AudioClass::init_recorder_wav(AudioCommand* command, uint32_t sampling_rat
   command->recorder.init_param.sampling_rate  = sampling_rate;
   command->recorder.init_param.channel_number = channel_number;
   command->recorder.init_param.bit_length     = bit_length;
-  command->recorder.init_param.codec_type     = m_codec_type;
+  command->recorder.init_param.codec_type     = AS_CODECTYPE_PCM;
   AS_SendAudioCommand(command);
 
   AudioResult result;
@@ -874,7 +874,6 @@ err_t AudioClass::initRecorder(uint8_t codec_type, const char *codec_path,
   switch (codec_type)
     {
       case AS_CODECTYPE_WAV:
-        m_codec_type = AS_CODECTYPE_PCM;
         ret = init_recorder_wav(&command, sampling_rate, bit_length, channel);
         break;
 
