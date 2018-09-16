@@ -66,6 +66,55 @@ static uint32_t g_buffer[16];
  * tasks.
  */
 
+static bool status = false;
+static uint32_t s_data;
+
+static int dsp_send(void *args)
+{
+  int ret;
+
+	if(status == true){
+		puts("Nosend");
+		return 1;
+	}
+	
+  s_data = (uint32_t)(uintptr_t)args;
+
+  /* Send RPC message to DSP */
+
+  ret = mpmq_send(&g_dspmq, DSP_RPC_MSG, s_data);
+  if (ret < 0)
+    {
+      errmsg("mpmq_send() failure. %d\n", ret);
+      return ret;
+    }
+	status = true;
+	return 0;
+}
+
+static int dsp_rev(void *args)
+{
+  int ret;
+
+	if(status == false){
+		puts("Norev");
+		return 0;
+	}
+  /* Wait for DSP math function is done */
+
+  ret = mpmq_receive(&g_dspmq, &s_data);
+  if (ret < 0)
+    {
+      errmsg("mpmq_recieve() failure. %d\n", ret);
+      return ret;
+    }
+
+	status = false;
+
+	return (int)s_data;
+}
+
+
 static int dsp_rpc(void *args)
 {
   int ret;
@@ -124,6 +173,33 @@ void exec_fft_f32(float32_t * pSrcA, float32_t * pDst)
 
 }
 
+void send_fft_f32(float32_t * pSrcA, float32_t * pDst)
+{
+	puts("send");
+  uint32_t *args = g_buffer;
+
+  args[0] = DSP_EXEC_FFT_F32;
+  args[1] = ARGPTR(pSrcA);
+  args[2] = ARGPTR(pDst);
+
+  (void)dsp_send(args);
+
+}
+
+void rev_fft_f32(float32_t* pSrcA, float32_t* pDst)
+{
+	puts("rev");
+
+	uint32_t *args = g_buffer;
+
+  args[0] = DSP_EXEC_FFT_F32;
+  args[1] = ARGPTR(pSrcA);
+  args[2] = ARGPTR(pDst);
+
+
+  (void)dsp_rev(args);
+
+}
 
 int load_library(const char *filename)
 {

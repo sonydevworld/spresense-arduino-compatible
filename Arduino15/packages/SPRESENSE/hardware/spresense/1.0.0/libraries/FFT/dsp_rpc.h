@@ -48,6 +48,9 @@ void exec_fft_f32(float32_t * pSrcA, float32_t * pDst);
 int load_library(const char *filename);
 void unload_library(void);
 
+void send_fft_f32(float32_t * pSrcA, float32_t * pDst);
+void rev_fft_f32(float32_t * pSrcA, float32_t * pDst);
+
 #ifdef __cplusplus
 }
 #endif
