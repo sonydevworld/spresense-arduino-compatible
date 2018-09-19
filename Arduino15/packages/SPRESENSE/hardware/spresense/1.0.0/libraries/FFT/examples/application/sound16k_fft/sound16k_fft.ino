@@ -28,7 +28,7 @@ File myFile;
 
 const int32_t recoding_frames = 400;
 //const int32_t buffer_size = 6144;
-const int32_t buffer_size = 768*2; 
+const int32_t buffer_size = 256*2; 
 char buffer[buffer_size];
 float buffer_f[buffer_size/2];
 
@@ -69,7 +69,7 @@ void setup()
    * Search for PCM codec in "/mnt/sd0/BIN" directory
    */
 //  theAudio->initRecorder(AS_CODECTYPE_PCM, "/mnt/sd0/BIN", AS_SAMPLINGRATE_48000, AS_CHANNEL_4CH);
-  theAudio->initRecorder(AS_CODECTYPE_PCM, "/mnt/sd0/BIN", AS_SAMPLINGRATE_48000, AS_CHANNEL_MONO);
+  theAudio->initRecorder(AS_CODECTYPE_PCM, "/mnt/sd0/BIN", AS_SAMPLINGRATE_16000, AS_CHANNEL_MONO);
   puts("Init Recorder!");
 
   puts("Rec!");
@@ -117,8 +117,8 @@ void loop() {
    
   /* Transform input a[n] from time domain to frequency domain A[k] */
 
-// int ret = myFile.write((uint8_t*)buffer, 768*2);  // for 16bit data
-   int ret = myFile.write((uint8_t*)buffer_f, 768*4);
+// int ret = myFile.write((uint8_t*)buffer, 256*2);  // for 16bit data
+   int ret = myFile.write((uint8_t*)buffer_f, 256*4);
 
     float32_t* in  = buffer_f;
     float32_t* out = testOutput;
@@ -131,36 +131,9 @@ void loop() {
       printf("%2.8f\n",testOutput[i]);
     }
 
+
     rev_fft_f32(in, out); // For parallel execute
     send_fft_f32(in+128, out);
-  
-    for(int i=0;i<(MAX_BLOCKSIZE/2/2);i++){
-      printf("%2.8f\n",testOutput[i]);
-    }
-
-    rev_fft_f32(in, out); // For parallel execute
-    send_fft_f32(in+256, out);
-  
-    for(int i=0;i<(MAX_BLOCKSIZE/2/2);i++){
-      printf("%2.8f\n",testOutput[i]);
-    }
-
-    rev_fft_f32(in, out); // For parallel execute
-    send_fft_f32(in+384, out);
-  
-    for(int i=0;i<(MAX_BLOCKSIZE/2/2);i++){
-      printf("%2.8f\n",testOutput[i]);
-    }
-
-    rev_fft_f32(in, out); // For parallel execute
-    send_fft_f32(in+512, out);
-  
-    for(int i=0;i<(MAX_BLOCKSIZE/2/2);i++){
-      printf("%2.8f\n",testOutput[i]);
-    }
-
-    rev_fft_f32(in, out); // For parallel execute
-    send_fft_f32(in+640, out);
   
     for(int i=0;i<(MAX_BLOCKSIZE/2/2);i++){
       printf("%2.8f\n",testOutput[i]);
@@ -169,7 +142,8 @@ void loop() {
 
   }
 
-
+//  volatile int i;  
+//  for(i=0; i<100000;i++);
 
   cnt++;
 

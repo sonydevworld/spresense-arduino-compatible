@@ -201,6 +201,48 @@ void rev_fft_f32(float32_t* pSrcA, float32_t* pDst)
 
 }
 
+/****************/
+arm_status init_fft_q15(uint16_t blockNum, uint8_t ifftFlag, uint8_t bitReverseFlag)
+{
+  uint32_t *args = g_buffer;
+
+  args[0] = DSP_INIT_FFT_Q15;
+  args[1] = ARGVAL(blockNum);
+  args[2] = ARGVAL(ifftFlag);
+  args[3] = ARGVAL(bitReverseFlag);
+
+  return (arm_status)dsp_rpc(args);
+}
+
+
+void send_fft_q15(int16_t * pSrcA, int16_t * pDst)
+{
+	puts("send");
+  uint32_t *args = g_buffer;
+
+  args[0] = DSP_EXEC_FFT_F32;
+  args[1] = ARGPTR(pSrcA);
+  args[2] = ARGPTR(pDst);
+
+  (void)dsp_send(args);
+
+}
+
+void rev_fft_q15(int16_t* pSrcA, int16_t* pDst)
+{
+	puts("rev");
+
+	uint32_t *args = g_buffer;
+
+  args[0] = DSP_EXEC_FFT_Q15;
+  args[1] = ARGPTR(pSrcA);
+  args[2] = ARGPTR(pDst);
+
+
+  (void)dsp_rev(args);
+
+}
+
 int load_library(const char *filename)
 {
   int ret;

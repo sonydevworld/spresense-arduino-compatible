@@ -58,5 +58,9 @@
 #define DSP_EXEC_FFT_F32          0x3bf3d7f3   
 #define DSP_FLUSH_FFT_F32         0xf6b19571
 
+#define DSP_INIT_FFT_Q15          0xe5dd7e40
+#define DSP_EXEC_FFT_Q15          0x3bf3d7f0
+#define DSP_FLUSH_FFT_Q15         0xf6b19570
+
 
 #endif /* __EXAMPLES_FFT_RESOURCE_H */

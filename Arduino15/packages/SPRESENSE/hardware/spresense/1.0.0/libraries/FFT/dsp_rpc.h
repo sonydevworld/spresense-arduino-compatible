@@ -43,13 +43,17 @@ extern "C" {
 typedef float float32_t;
 typedef int arm_status;
 
-arm_status init_fft_f32(uint16_t blockNum, uint8_t ifftFlag, uint8_t bitReverseFlag);
-void exec_fft_f32(float32_t * pSrcA, float32_t * pDst);
 int load_library(const char *filename);
 void unload_library(void);
 
+arm_status init_fft_f32(uint16_t blockNum, uint8_t ifftFlag, uint8_t bitReverseFlag);
+void exec_fft_f32(float32_t * pSrcA, float32_t * pDst);
 void send_fft_f32(float32_t * pSrcA, float32_t * pDst);
 void rev_fft_f32(float32_t * pSrcA, float32_t * pDst);
+
+arm_status init_fft_q15(uint16_t blockNum, uint8_t ifftFlag, uint8_t bitReverseFlag);
+void send_fft_q15(int16_t * pSrcA, int16_t * pDst);
+void rev_fft_q15(int16_t * pSrcA, int16_t * pDst);
 
 #ifdef __cplusplus
 }
