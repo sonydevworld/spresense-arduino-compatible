@@ -684,7 +684,7 @@ err_t AudioClass::writeFrames(PlayerId id, File& myFile)
 #define m_recorder_simple_fifo_buf m_player0_simple_fifo_buf
 #define m_es_recorder_buf m_es_player0_buf
 
-err_t AudioClass::setRecorderMode(uint8_t input_device)
+err_t AudioClass::setRecorderMode(uint8_t input_device, int32_t gain)
 {
   const NumLayout layout_no = MEM_LAYOUT_RECORDER;
 
@@ -725,12 +725,18 @@ err_t AudioClass::setRecorderMode(uint8_t input_device)
       return AUDIOLIB_ECODE_AUDIOCOMMAND_ERROR;
     }
 
-  if (init_mic_gain(input_device, 0) != AUDIOLIB_ECODE_OK)
+  if (init_mic_gain(input_device, gain) != AUDIOLIB_ECODE_OK)
     {
       print_err("Mic init error!");
     }
 
   return AUDIOLIB_ECODE_OK;
+}
+
+/*--------------------------------------------------------------------------*/
+err_t AudioClass::setRecorderMode(uint8_t input_device)
+{
+	return setRecorderMode(input_device,0);
 }
 
 /*--------------------------------------------------------------------------*/
