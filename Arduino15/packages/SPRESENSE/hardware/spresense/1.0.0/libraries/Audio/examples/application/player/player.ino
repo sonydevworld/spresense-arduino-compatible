@@ -18,10 +18,9 @@
  */
 
 #include <Audio.h>
+#include <SD.h>
 
-SDClass theSD;
 AudioClass *theAudio;
-
 File myFile;
 
 /**
@@ -35,9 +34,13 @@ File myFile;
  */
 void setup()
 {
+  /* Initialize SD Card */
+  while (!SD.begin()) {
+    ; /* wait until SD card is mounted. */
+  }
+
   // start audio system
   theAudio = AudioClass::getInstance();
-
   theAudio->begin();
 
   puts("initialization Audio Library");
@@ -59,8 +62,9 @@ void setup()
       exit(1);
     }
 
-  /* Open file placed on SD card */
-  myFile = theSD.open("Sound.mp3");
+  /* Open the file. Note that only one file can be open at a time,
+     so you have to close this one before opening another. */
+  myFile = SD.open("ayaka.mp3");
 
   /* Verify file open */
   if (!myFile)

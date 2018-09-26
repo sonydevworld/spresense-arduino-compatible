@@ -18,8 +18,8 @@
  */
 
 #include <Audio.h>
+#include <SD.h>
 
-SDClass theSD;
 AudioClass *theAudio;
 
 File mainFile,subFile;
@@ -37,6 +37,11 @@ File mainFile,subFile;
  */
 void setup()
 {
+
+  /* Initialize SD Card */
+  while (!SD.begin()) {
+    ; /* wait until SD card is mounted. */
+  }
 
   /* start audio system */
   theAudio = AudioClass::getInstance();
@@ -76,7 +81,7 @@ void setup()
   
   
   /* Open file placed on SD card */
-  mainFile = theSD.open("Sound0.mp3");
+  mainFile = SD.open("Sound0.mp3");
 
   /* Verify file open */
   if (!mainFile)
@@ -86,7 +91,7 @@ void setup()
     }
 
   /* Open file placed on SD card */
-  subFile =  theSD.open("Sound1.mp3");
+  subFile =  SD.open("Sound1.mp3");
 
   /* Verify file open */
   if (!subFile)
