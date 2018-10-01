@@ -1,5 +1,5 @@
 /*
- *  SDHCI.cpp - Spresense Arduino SDHCI library
+ *  SD.cpp - Spresense Arduino SD library
  *  Copyright 2018 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
@@ -18,31 +18,31 @@
  */
 
 /**
- * @file SDHCI.cpp
+ * @file SD.cpp
  * @author Sony Semiconductor Solutions Corporation
- * @brief SPRESENSE Arduino SDHCI library
+ * @brief Spresense Arduino SD library
  * 
- * @details The SDHCI library allows for reading from and writing to SD cards
+ * @details The SD library allows for creating and removing files and directories
+ *          on the SD card. This is derivatived from Storage library. The file
+ *          operations such as writing and reading are performed via File library.
  */
 
 #include <sdk/config.h>
 
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <dirent.h>
-#include "SDHCI.h"
+#include <Arduino.h>
+#include <SD.h>
 
 #include <sys/boardctl.h>
 #include <nuttx/usb/usbdev.h>
+#include <nuttx/fs/mkfatfs.h>
 
 #ifndef CONFIG_SYSTEM_USBMSC_NLUNS
 #  define CONFIG_SYSTEM_USBMSC_NLUNS 1
 #endif
 
-#ifndef CONFIG_SYSTEM_USBMSC_DEVPATH1
-#  define CONFIG_SYSTEM_USBMSC_DEVPATH1 "/dev/mmcsd0"
-#endif
+#define SD_DEVPATH "/dev/mmcsd0"
+
+#define SD_MOUNT_POINT "/mnt/sd0/"
 
 //#define DEBUG
 #ifdef DEBUG
@@ -51,92 +51,27 @@
 #  define DebugPrintf(fmt, ...) ((void)0)
 #endif
 
-#define STDIO_BUFFER_SIZE     4096           /**< STDIO buffer size. */
-#define MAX_PATH_LENGTH        128           /**< Max path lenght. */       
-static char SD_MOUNT_POINT[] = "/mnt/sd0/";  /**< SD mount point. */
-
-namespace SDHCILib {
-
-/**
- * @brief Creates the full path name for the specified relative path name.
- * 
- * @param [out] buf The buffer for full path name.
- * @param [in] bufsize Size of buffer for full path name.
- * @param [in] filepath Relative file path name.
- * @return full path name
- */
-static char* fullpathname(char* buf, int bufsize, const char * filepath)
+SDClass::SDClass() : StorageClass(SD_MOUNT_POINT), mshandle(NULL)
 {
-  if ((strlen(filepath) + sizeof(SD_MOUNT_POINT) <= (size_t)bufsize) && (bufsize >= 0)) {
-    strcpy(buf, SD_MOUNT_POINT);
-    strcat(buf, filepath);
-    return buf;
-  }
-
-  return NULL;
 }
 
-File SDClass::open(const char *filepath, uint8_t mode) {
-  return File(filepath, mode);
-}
+boolean SDClass::begin(uint8_t dummy)
+{
+  struct stat buf;
+  int retry;
+  int ret;
 
-boolean SDClass::exists(const char *filepath) {
-  struct stat stat;
-  char fpbuf[MAX_PATH_LENGTH];
-  char *fpname = fullpathname(fpbuf, MAX_PATH_LENGTH, filepath);
+  (void)dummy;
 
-  if (fpname) {
-    return (::stat(fpname, &stat) == 0);
-  } else {
-    return false;
-  }
-}
-
-boolean SDClass::mkdir(const char *filepath) {
-  struct stat stat;
-  char fpbuf[MAX_PATH_LENGTH];
-  char *fpname = fullpathname(fpbuf, MAX_PATH_LENGTH, filepath);
-  char *p;
-  char tmp;
-
-  if (!fpname)
-    return false;
-
-  // create directories recursively
-  for (p = fpname + sizeof(SD_MOUNT_POINT); *p; ++p) {
-    if (*p == '/' || *(p+1) == 0) {
-      tmp = *p;
-      *p = 0;
-      if (::stat(fpname, &stat) != 0 || !S_ISDIR(stat.st_mode)) {
-        if (::mkdir(fpname, 0777) != 0) {
-            return false;
-        }
-        *p = tmp;
-      }
+  /* In case that SD card isn't inserted, it times out at max 2 sec */
+  for (retry = 0; retry < 20; retry++) {
+    ret = stat(SD_MOUNT_POINT, &buf);
+    if (ret == 0) {
+      return true;
     }
+    usleep(100 * 1000); // 100 msec
   }
-
-  return true;
-}
-
-boolean SDClass::rmdir(const char *filepath) {
-  char fpbuf[MAX_PATH_LENGTH];
-  char *fpname = fullpathname(fpbuf, MAX_PATH_LENGTH, filepath);
-
-  if (!fpname)
-    return false;
-
-  return (::rmdir(fpname) == 0);
-}
-
-boolean SDClass::remove(const char *filepath) {
-  char fpbuf[MAX_PATH_LENGTH];
-  char *fpname = fullpathname(fpbuf, MAX_PATH_LENGTH, filepath);
-
-  if (!fpname)
-    return false;
-
-  return (::unlink(fpname) == 0);
+  return false;
 }
 
 int SDClass::beginUsbMsc()
@@ -178,11 +113,11 @@ int SDClass::beginUsbMsc()
       goto failure;
     }
 
-  ret = usbmsc_bindlun(handle, CONFIG_SYSTEM_USBMSC_DEVPATH1, 0, 0, 0, false);
+  ret = usbmsc_bindlun(handle, SD_DEVPATH, 0, 0, 0, false);
   if (ret < 0)
     {
       DebugPrintf("usbmsc_bindlun failed for LUN 1 using %s: %d\n",
-                  CONFIG_SYSTEM_USBMSC_DEVPATH1, -ret);
+                  SD_DEVPATH, -ret);
       goto failure;
     }
 
@@ -235,4 +170,18 @@ int SDClass::endUsbMsc()
   return 0;
 }
 
-};
+int SDClass::format(uint8_t fattype)
+{
+  int ret;
+  struct fat_format_s fmt = FAT_FORMAT_INITIALIZER;
+
+  /* Default is FAT32, but it's possible to format at FAT12 or FAT16. */
+  if ((fattype == 12) || (fattype == 16)) {
+    fmt.ff_fattype = fattype;
+  }
+
+  ret = mkfatfs(SD_DEVPATH, &fmt);
+  return ret;
+}
+
+SDClass SD;

@@ -18,6 +18,7 @@
  */
 
 #include <Audio.h>
+#include <SD.h>
 
 #define RecordLoopNum 800
 
@@ -29,7 +30,6 @@ enum
   Recording
 };
 
-SDClass theSD;
 AudioClass *theAudio;
 
 File myFile;
@@ -42,6 +42,11 @@ File myFile;
  */
 void setup()
 {
+  /* Initialize SD Card */
+  while (!SD.begin()) {
+    ; /* wait until SD card is mounted. */
+  }
+
   // start audio system
   theAudio = AudioClass::getInstance();
 
@@ -78,7 +83,7 @@ void playerMode(char *fname)
     }
 
   /* Open file placed on SD card */
-  myFile = theSD.open(fname);
+  myFile = SD.open(fname);
 
   /* Verify file open */
   if (!myFile)
@@ -159,7 +164,7 @@ void recorderMode(char *fname)
   theAudio->initRecorder(AS_CODECTYPE_MP3, "/mnt/sd0/BIN", AS_SAMPLINGRATE_48000, AS_CHANNEL_STEREO);
 
   /* Open file for data write on SD card */
-  myFile = theSD.open(fname, FILE_WRITE);
+  myFile = SD.open(fname, FILE_WRITE);
   /* Verify file open */
   if (!myFile)
     {

@@ -47,7 +47,7 @@
  */
 
 #define MEDIAPLAYER_ECODE_OK            0
-#define MEDIAPLAYER_ECODE_COMMAND_ERROR 1 
+#define MEDIAPLAYER_ECODE_COMMAND_ERROR 1
 #define MEDIAPLAYER_ECODE_SIMPLEFIFO_ERROR 2
 #define MEDIAPLAYER_ECODE_FILEACCESS_ERROR 3
 #define MEDIAPLAYER_ECODE_FILEEND 4
@@ -60,39 +60,16 @@
 /*--------------------------------------------------------------------------*/
 
 /**
- * MediaPlayer Class Definitions.
+ * @class MediaPlayer
+ * @brief MediaPlayer Class Definitions.
  */
 
 class MediaPlayer
 {
 public:
 
-  typedef enum
-  {
-    Player0,
-    Player1
-  } PlayerId;
-
-  err_t begin(void);
-  err_t create(PlayerId id);
-  err_t activate(PlayerId id, uint8_t output_device, MediaPlayerCallback mpcb);
-  err_t init(PlayerId id, uint8_t codec_type, uint32_t sampling_rate, uint8_t channel_number);
-  err_t init(PlayerId id, uint8_t codec_type, uint32_t sampling_rate, uint8_t bit_length, uint8_t channel_number);
-  err_t init(PlayerId id, uint8_t codec_type, const char *codec_path, uint32_t sampling_rate, uint8_t channel_number);
-  err_t init(PlayerId id, uint8_t codec_type, const char *codec_path, uint32_t sampling_rate, uint8_t bit_length, uint8_t channel_number);
-  err_t start(PlayerId id, DecodeDoneCallback dccb);
-  err_t stop(PlayerId id);
-  err_t stop(PlayerId id, uint8_t mode);
-  err_t reqNextProcess(PlayerId id, AsRequestNextType type);
-  err_t deactivate(PlayerId id);
-
-  err_t writeFrames(
-      PlayerId id, /**< Player ID の指定 */
-      File& myfile /**< 音声ファイルを制御しているFileクラスのインスタンスを指定します。*/
-  );
-
   /**
-   * To get instance of MediaPlayer 
+   * @brief Get instance of MediaRecorder for singleton.
    */
 
   static MediaPlayer* getInstance()
@@ -100,6 +77,217 @@ public:
       static MediaPlayer instance;
       return &instance;
     }
+
+   /**
+   * @enum Player ID
+   *
+   * @brief Audio library allows you to use two players simultaneously.
+   *        Please set Player ID that player instance id created to use.
+   */
+
+  typedef enum
+  {
+    Player0,  /**< Indicates Player0 */
+    Player1   /**< Indicates Player1 */
+  } PlayerId;
+
+  /**
+   * @brief Initialize the MediaPlayer.
+   *
+   * @details This function is called only once when using the MediaPlayer.
+   *          In this function, alloc memory area of FIFO for ES data supply.
+   *
+   */
+
+  err_t begin(void);
+
+  /**
+   * @brief Creation of the MediaPlayer.
+   *
+   * @details This function is called only once when using the MediaPlayer.
+   *          In this function, create objcets for audio data decoding.
+   *
+   */
+
+  err_t create(
+      PlayerId id /**< Select Player ID. */
+  );
+
+  /**
+   * @brief Activate the MediaPlayer
+   *
+   * @details This function activates media player system.
+   *          You should specify output device which you would like to sound.
+   *          You can set "Speaker/HeadPhone-out" or "I2S-out".
+   *          The result of APIs will be returnd by callback function which is
+   *          specified by this function.
+   *
+   */
+
+  err_t activate(
+      PlayerId id,             /**< Select Player ID. */
+      uint8_t output_device,   /**< Set output device. AS_SETPLAYER_OUTPUTDEVICE_SPHP, AS_SETPLAYER_OUTPUTDEVICE_I2SOUTPUT*/
+      MediaPlayerCallback mpcb /**< Sepcify callback function which is called to notify API results. */
+  );
+
+  /**
+   * @brief Initialize the MediaPlayer (Abridged version).
+   *
+   * @details This is abridged version on initialize API.
+   *          You can init media player with codec type, sampling rate, and number of channels.
+   *          When this API is called, other parameters are fixed as below.
+   *
+   *          Bit length      : 16bit
+   *          DSP binary path : /mnt/sd0/BIN
+   *
+   */
+
+  err_t init(
+      PlayerId id,            /**< Select Player ID. */
+      uint8_t codec_type,     /**< Set compression code. AS_CODECTYPE_MP3 or AS_CODECTYPE_WAV */
+      uint32_t sampling_rate, /**< Set sampling rate. AS_SAMPLINGRATE_XXXXX */
+      uint8_t channel_number  /**< Set channnel number. AS_CHANNEL_MONO or AS_CHANNEL_STEREO */
+  );
+
+  /**
+   * @brief Initialize the MediaPlayer (Abridged version).
+   *
+   * @details This is abridged version on initialize API.
+   *          If you would like to set all of decode parameters but DSP binary path can be default,
+   *          you can call this API. DSP binary path will be defautl as below.
+   *
+   *          DSP binary path : /mnt/sd0/BIN
+   *
+   */
+
+  err_t init(
+      PlayerId id,            /**< Select Player ID. */
+      uint8_t codec_type,     /**< Set compression code. AS_CODECTYPE_MP3 or AS_CODECTYPE_WAV */
+      uint32_t sampling_rate, /**< Set sampling rate. AS_SAMPLINGRATE_XXXXX */
+      uint8_t bit_length,     /**< Set bit length. AS_BITLENGTH_16 or AS_BITLENGTH_24 */
+      uint8_t channel_number  /**< Set channnel number. AS_CHANNEL_MONO or AS_CHANNEL_STEREO */
+  );
+
+  /**
+   * @brief Initialize the MediaPlayer (Abridged version).
+   *
+   * @details This is abridged version on initialize API.
+   *          If you would like to set DSP binary path but bit length paramter can be default,
+   *          you can call this API. Bit length parameter will be defautl as below.
+   *
+   *          DSP binary path : /mnt/sd0/BIN
+   *
+   */
+
+  err_t init(
+      PlayerId id,            /**< Select Player ID. */
+      uint8_t codec_type,     /**< Set compression code. AS_CODECTYPE_MP3 or AS_CODECTYPE_WAV */
+      const char *codec_path, /**< Set DSP binary placement path */
+      uint32_t sampling_rate, /**< Set sampling rate. AS_SAMPLINGRATE_XXXXX */
+      uint8_t channel_number  /**< Set channnel number. AS_CHANNEL_MONO or AS_CHANNEL_STEREO */
+  );
+
+  /**
+   * @brief Initialize the MediaPlayer.
+   *
+   * @details This is full version on initialize API.
+   *          You can set all of decode parameters.
+   *          Before you start playing, you must initialize media player by this API or
+   *          abridge versions of this APS.
+   *
+   */
+
+  err_t init(
+      PlayerId id,            /**< Select Player ID. */
+      uint8_t codec_type,     /**< Set compression code. AS_CODECTYPE_MP3 or AS_CODECTYPE_WAV */
+      const char *codec_path, /**< Set DSP binary placement path */
+      uint32_t sampling_rate, /**< Set sampling rate. AS_SAMPLINGRATE_XXXXX */
+      uint8_t bit_length,     /**< Set bit length. AS_BITLENGTH_16 or AS_BITLENGTH_24 */
+      uint8_t channel_number  /**< Set channnel number. AS_CHANNEL_MONO or AS_CHANNEL_STEREO */
+  );
+
+  /**
+   * @brief Start playing.
+   *
+   * @details This function starts playing audio data.
+   *          When you call this API, player system pull out audio data from FIFO.
+   *          So, you have to push audio data which will play into FIFO by "write frame API".
+   *          Decode completion and decodec data will be notified by callback function which is
+   *          specified by this API. You can process them.
+   *
+   */
+
+  err_t start(
+      PlayerId id,            /**< Select Player ID. */
+      DecodeDoneCallback dccb /**< Callback function for notify decode completion */
+  );
+
+  /**
+   * @brief Stop playing.
+   *
+   * @details This function stops playing audio data.
+   *          You can call this API when playing is activate.
+   *          When you call this API, return of API will back soon but internal work
+   *          cannot stop immediately. So, after API call, decodec data will be returned
+   *          to application while supplied data runs out. It is better to process them.
+   *
+   */
+
+  err_t stop(PlayerId id);
+
+  /**
+   * @brief Stop playing (Stop mode specify).
+   *
+   * @details This function stops playing audio data with stop mode.
+   *          Stop mode is "Wait ES ends : stop after play all of supplied data and reply result"
+   *          and "Immediately stop : stop soon". You can set either of them.
+   *
+   */
+
+  err_t stop(
+      PlayerId id, /**< Select Player ID. */
+      uint8_t mode /**< Set stop mode. AS_STOPPLAYER_NORMAL or AS_STOPPLAYER_ESEND */
+  );
+
+  /**
+   * @brief Request next process to player.
+   *
+   * @details This function requests next process to player.
+   *          You should call this API at timing of next decode can be done.
+   *          For example, timing of decoded data rendering is done.
+   *
+   */
+
+  err_t reqNextProcess(
+      PlayerId id,           /**< Select Player ID. */
+      AsRequestNextType type /**< Set Request type. AsNextNormalRequest or AsNextStopResRequest */
+  );
+
+  /**
+   * @brief Deactivate the MediaPlayer
+   *
+   * @details This function deactivates media player system.
+   *
+   */
+
+  err_t deactivate(
+      PlayerId id
+  );
+
+  /**
+   * @brief Write(Supply) audio data to play
+   *
+   * @details This function supplies audio data to player system.
+   *          When you call this API, player read "myfile" and supply audio data to FIFO
+   *          and the data will be decoded. If you do not, FIFO will occuers underflow.
+   *
+   */
+
+  err_t writeFrames(
+      PlayerId id, /**< Select Player ID. */
+      File& myfile /**< */
+  );
+
 
 private:
 

@@ -1,5 +1,5 @@
 /*
- *  SDHCI.cpp - Spresense Arduino SDHCI library
+ *  eMMC.cpp - Spresense Arduino eMMC library
  *  Copyright 2018 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
@@ -18,31 +18,32 @@
  */
 
 /**
- * @file SDHCI.cpp
+ * @file eMMC.cpp
  * @author Sony Semiconductor Solutions Corporation
- * @brief SPRESENSE Arduino SDHCI library
+ * @brief Spresense Arduino eMMC library
  * 
- * @details The SDHCI library allows for reading from and writing to SD cards
+ * @details The eMMC library allows for creating and removing files and directories
+ *          on the eMMC. This is derivatived from Storage library. The file
+ *          operations such as writing and reading are performed via File library.
  */
 
 #include <sdk/config.h>
 
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <dirent.h>
-#include "SDHCI.h"
+#include <Arduino.h>
+#include <eMMC.h>
 
 #include <sys/boardctl.h>
 #include <nuttx/usb/usbdev.h>
+#include <nuttx/fs/mkfatfs.h>
+#include <arch/board/board.h>
 
 #ifndef CONFIG_SYSTEM_USBMSC_NLUNS
 #  define CONFIG_SYSTEM_USBMSC_NLUNS 1
 #endif
 
-#ifndef CONFIG_SYSTEM_USBMSC_DEVPATH1
-#  define CONFIG_SYSTEM_USBMSC_DEVPATH1 "/dev/mmcsd0"
-#endif
+#define EMMC_DEVPATH "/dev/emmc0"
+
+#define EMMC_MOUNT_POINT "/mnt/vfat/"
 
 //#define DEBUG
 #ifdef DEBUG
@@ -51,95 +52,24 @@
 #  define DebugPrintf(fmt, ...) ((void)0)
 #endif
 
-#define STDIO_BUFFER_SIZE     4096           /**< STDIO buffer size. */
-#define MAX_PATH_LENGTH        128           /**< Max path lenght. */       
-static char SD_MOUNT_POINT[] = "/mnt/sd0/";  /**< SD mount point. */
-
-namespace SDHCILib {
-
-/**
- * @brief Creates the full path name for the specified relative path name.
- * 
- * @param [out] buf The buffer for full path name.
- * @param [in] bufsize Size of buffer for full path name.
- * @param [in] filepath Relative file path name.
- * @return full path name
- */
-static char* fullpathname(char* buf, int bufsize, const char * filepath)
+eMMCClass::eMMCClass() : StorageClass(EMMC_MOUNT_POINT), mshandle(NULL)
 {
-  if ((strlen(filepath) + sizeof(SD_MOUNT_POINT) <= (size_t)bufsize) && (bufsize >= 0)) {
-    strcpy(buf, SD_MOUNT_POINT);
-    strcat(buf, filepath);
-    return buf;
-  }
-
-  return NULL;
 }
 
-File SDClass::open(const char *filepath, uint8_t mode) {
-  return File(filepath, mode);
-}
+boolean eMMCClass::begin()
+{
+  int ret;
 
-boolean SDClass::exists(const char *filepath) {
-  struct stat stat;
-  char fpbuf[MAX_PATH_LENGTH];
-  char *fpname = fullpathname(fpbuf, MAX_PATH_LENGTH, filepath);
-
-  if (fpname) {
-    return (::stat(fpname, &stat) == 0);
-  } else {
+  /* Initialize and mount the eMMC device */
+  ret = board_emmc_initialize();
+  if (ret != 0) {
     return false;
-  }
-}
-
-boolean SDClass::mkdir(const char *filepath) {
-  struct stat stat;
-  char fpbuf[MAX_PATH_LENGTH];
-  char *fpname = fullpathname(fpbuf, MAX_PATH_LENGTH, filepath);
-  char *p;
-  char tmp;
-
-  if (!fpname)
-    return false;
-
-  // create directories recursively
-  for (p = fpname + sizeof(SD_MOUNT_POINT); *p; ++p) {
-    if (*p == '/' || *(p+1) == 0) {
-      tmp = *p;
-      *p = 0;
-      if (::stat(fpname, &stat) != 0 || !S_ISDIR(stat.st_mode)) {
-        if (::mkdir(fpname, 0777) != 0) {
-            return false;
-        }
-        *p = tmp;
-      }
-    }
   }
 
   return true;
 }
 
-boolean SDClass::rmdir(const char *filepath) {
-  char fpbuf[MAX_PATH_LENGTH];
-  char *fpname = fullpathname(fpbuf, MAX_PATH_LENGTH, filepath);
-
-  if (!fpname)
-    return false;
-
-  return (::rmdir(fpname) == 0);
-}
-
-boolean SDClass::remove(const char *filepath) {
-  char fpbuf[MAX_PATH_LENGTH];
-  char *fpname = fullpathname(fpbuf, MAX_PATH_LENGTH, filepath);
-
-  if (!fpname)
-    return false;
-
-  return (::unlink(fpname) == 0);
-}
-
-int SDClass::beginUsbMsc()
+int eMMCClass::beginUsbMsc()
 {
   struct boardioc_usbdev_ctrl_s ctrl;
   FAR void *handle;
@@ -178,11 +108,11 @@ int SDClass::beginUsbMsc()
       goto failure;
     }
 
-  ret = usbmsc_bindlun(handle, CONFIG_SYSTEM_USBMSC_DEVPATH1, 0, 0, 0, false);
+  ret = usbmsc_bindlun(handle, EMMC_DEVPATH, 0, 0, 0, false);
   if (ret < 0)
     {
       DebugPrintf("usbmsc_bindlun failed for LUN 1 using %s: %d\n",
-                  CONFIG_SYSTEM_USBMSC_DEVPATH1, -ret);
+                  EMMC_DEVPATH, -ret);
       goto failure;
     }
 
@@ -209,7 +139,7 @@ failure:
   return -1;
 }
 
-int SDClass::endUsbMsc()
+int eMMCClass::endUsbMsc()
 {
   struct boardioc_usbdev_ctrl_s ctrl;
 
@@ -235,4 +165,18 @@ int SDClass::endUsbMsc()
   return 0;
 }
 
-};
+int eMMCClass::format(uint8_t fattype)
+{
+  int ret;
+  struct fat_format_s fmt = FAT_FORMAT_INITIALIZER;
+
+  /* Default is FAT32, but it's possible to format at FAT12 or FAT16. */
+  if ((fattype == 12) || (fattype == 16)) {
+    fmt.ff_fattype = fattype;
+  }
+
+  ret = mkfatfs(EMMC_DEVPATH, &fmt);
+  return ret;
+}
+
+eMMCClass eMMC;

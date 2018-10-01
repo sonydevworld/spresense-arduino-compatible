@@ -49,26 +49,16 @@
 /*--------------------------------------------------------------------------*/
 
 /**
- * OutputMixer Class Definitions.
+ * @class OutputMixer
+ * @brief OutputMixer Class Definitions.
  */
 
 class OutputMixer
 {
 public:
 
-  err_t create(void);
-  err_t activate(AsOutputMixerHandle handle, OutputMixerCallback omcb);
-  err_t sendData(AsOutputMixerHandle handle,
-                 PcmProcDoneCallback pcmdone_cb,
-                 AsPcmDataParam pcm);
-  err_t deactivate(AsOutputMixerHandle handle);
-
-  err_t activateBaseband(void);
-  err_t deactivateBaseband(void);
-  err_t setVolume(int master, int player0, int player1);
-
   /**
-   * To get instance of OutputMixer 
+   * @brief Get instance of MediaRecorder for singleton.
    */
 
   static OutputMixer* getInstance()
@@ -76,6 +66,89 @@ public:
       static OutputMixer instance;
       return &instance;
     }
+
+  /**
+   * @brief Creation of the OutputMixer.
+   *
+   * @details This function is called only once when using the OutputMixer.
+   *          In this function, create objcets for audio data mixing and rendering. 
+   *
+   */
+
+  err_t create(void);
+
+  /**
+   * @brief Activate the OutputMixer 
+   *
+   * @details This function activates output mixer system.
+   *          The result of APIs will be returnd by callback function which is
+   *          specified by this function.
+   *
+   */
+
+  err_t activate(
+      AsOutputMixerHandle handle, /**< Select output mixer handle. OutputMixer0 or OutputMixer1 */
+      OutputMixerCallback omcb    /**< Sepcify callback function which is called to notify API results. */
+  );
+
+  /**
+   * @brief Send PCM data via OutputMixer 
+   *
+   * @details This function send PCM data.
+   *          According to "pcm" paramters, start sending PCM data.
+   *          When send complete, callback function "pcmdome_cb" will be called.
+   *
+   */
+
+  err_t sendData(
+      AsOutputMixerHandle handle,     /**< Select output mixer handle. OutputMixer0 or OutputMixer1 */
+      PcmProcDoneCallback pcmdone_cb, /**< Callback function which will be called when send complete */
+      AsPcmDataParam pcm              /**< PCM data parameters */
+  );
+
+  /**
+   * @brief Deactivate the OutputMixer 
+   *
+   * @details This function deactivates output mixer system.
+   *
+   */
+
+  err_t deactivate(
+      AsOutputMixerHandle handle      /**< Select output mixer handle. OutputMixer0 or OutputMixer1 */
+  );
+
+  /**
+   * @brief Activate Audio Hw 
+   *
+   * @details This function activates Audio HW.
+   *          You must call this API to sound.
+   *
+   */
+
+  err_t activateBaseband(void);
+
+  /**
+   * @brief Deactivate Audio Hw 
+   *
+   * @details This function deactivates output mixer system.
+   *
+   */
+
+  err_t deactivateBaseband(void);
+
+  /**
+   * @brief Set speaker out volume
+   *
+   * @details This function set volume.
+   *          You should activate baseband before this API call.
+   *
+   */
+
+  err_t setVolume(
+      int master,  /**< Master volume. -1020(-102db) - 120(12db) */
+      int player0, /**< Player0 volume. -1020(-102db) - 120(12db) */
+      int player1  /**< Plyaer1 volume. -1020(-102db) - 120(12db) */
+  );
 
 private:
 

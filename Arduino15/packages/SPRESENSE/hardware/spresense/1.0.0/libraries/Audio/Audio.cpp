@@ -684,7 +684,7 @@ err_t AudioClass::writeFrames(PlayerId id, File& myFile)
 #define m_recorder_simple_fifo_buf m_player0_simple_fifo_buf
 #define m_es_recorder_buf m_es_player0_buf
 
-err_t AudioClass::setRecorderMode(uint8_t input_device)
+err_t AudioClass::setRecorderMode(uint8_t input_device, int32_t gain)
 {
   const NumLayout layout_no = MEM_LAYOUT_RECORDER;
 
@@ -725,12 +725,18 @@ err_t AudioClass::setRecorderMode(uint8_t input_device)
       return AUDIOLIB_ECODE_AUDIOCOMMAND_ERROR;
     }
 
-  if (init_mic_gain(input_device, 0) != AUDIOLIB_ECODE_OK)
+  if (init_mic_gain(input_device, gain) != AUDIOLIB_ECODE_OK)
     {
       print_err("Mic init error!");
     }
 
   return AUDIOLIB_ECODE_OK;
+}
+
+/*--------------------------------------------------------------------------*/
+err_t AudioClass::setRecorderMode(uint8_t input_device)
+{
+	return setRecorderMode(input_device,0);
 }
 
 /*--------------------------------------------------------------------------*/
@@ -994,11 +1000,11 @@ err_t AudioClass::closeOutputFile(File& myFile)
 {
   ssize_t ret;
 
-  m_wav_format.total_size = m_es_size + sizeof(WavaFormat_t) - 8;
+  m_wav_format.total_size = m_es_size + sizeof(WavFormat_t) - 8;
   m_wav_format.data_size = m_es_size;
   fseek(fd, 0, SEEK_SET);
 
-  int ret = fwrite(&m_wav_format, 1, sizeof(WavaFormat_t), fd);
+  int ret = fwrite(&m_wav_format, 1, sizeof(WavFormat_t), fd);
   if (ret < 0)
     {
       print_err("Fail to write file(wav header)\n");
@@ -1012,10 +1018,10 @@ err_t AudioClass::writeWavHeader(File& myFile)
 {
   myFile.seek(0);
 
-  m_wav_format.total_size = m_es_size + sizeof(WavaFormat_t) - 8;
+  m_wav_format.total_size = m_es_size + sizeof(WavFormat_t) - 8;
   m_wav_format.data_size  = m_es_size;
 
-  int ret = myFile.write((uint8_t*)&m_wav_format, sizeof(WavaFormat_t));
+  int ret = myFile.write((uint8_t*)&m_wav_format, sizeof(WavFormat_t));
   if (ret < 0)
     {
       print_err("Fail to write file(wav header)\n");

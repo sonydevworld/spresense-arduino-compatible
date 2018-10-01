@@ -10,31 +10,29 @@
  *  This library is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *  Lesser General Public License for more details.
- *
+    *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <SDHCI.h>
-
 #include <Audio.h>
+#include <SD.h>
+
 //#include <fcntl.h>
 #include <arch/board/board.h>
 
-
-SDClass theSD;
 AudioClass *theAudio;
-
 File myFile;
-
-
 
 void setup()
 {
-  theAudio = AudioClass::getInstance();
+  /* Initialize SD Card */
+  while (!SD.begin()) {
+    ; /* wait until SD card is mounted. */
+  }
 
+  theAudio = AudioClass::getInstance();
   theAudio->begin();
 
   puts("initialization Audio Library");
@@ -43,7 +41,7 @@ void setup()
   theAudio->initRecorder(AS_CODECTYPE_WAV,"/mnt/sd0/BIN",AS_SAMPLINGRATE_48000,AS_CHANNEL_STEREO);
   puts("Init Recorder!");
 
-  myFile = theSD.open("Sound.wav", FILE_WRITE);
+  myFile = SD.open("Sound.wav", FILE_WRITE);
   puts("Open!");
 
   theAudio->writeWavHeader(myFile);

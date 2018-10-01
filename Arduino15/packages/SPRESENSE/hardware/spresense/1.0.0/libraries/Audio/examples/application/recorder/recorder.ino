@@ -18,8 +18,8 @@
  */
 
 #include <Audio.h>
+#include <SD.h>
 
-SDClass theSD;
 AudioClass *theAudio;
 
 File myFile;
@@ -33,8 +33,12 @@ File myFile;
  */
 void setup()
 {
+ /* Initialize SD Card */
+  while (!SD.begin()) {
+    ; /* wait until SD card is mounted. */
+  }
+ 
   theAudio = AudioClass::getInstance();
-
   theAudio->begin();
 
   puts("initialization Audio Library");
@@ -50,7 +54,7 @@ void setup()
   puts("Init Recorder!");
 
   /* Open file for data write on SD card */
-  myFile = theSD.open("Sound.mp3", FILE_WRITE);
+  myFile = SD.open("Sound.mp3", FILE_WRITE);
   /* Verify file open */
   if (!myFile)
     {
