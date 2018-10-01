@@ -38,6 +38,8 @@
 #include <audio/audio_high_level_api.h>
 #include <memutils/simple_fifo/CMN_SimpleFifo.h>
 
+#include "WavHeaderdef.h"
+
 #define WRITE_FIFO_FRAME_NUM  (8)
 #define WRITE_FIFO_FRAME_SIZE (1024*2*3)
 #define WRITE_BUF_SIZE   (WRITE_FIFO_FRAME_NUM * WRITE_FIFO_FRAME_SIZE)
@@ -70,12 +72,6 @@ extern "C" void  outputDeviceCallback(uint32_t);
 #endif
 
 /*--------------------------------------------------------------------------*/
-#define CHUNKID_RIFF        ("RIFF")
-#define FORMAT_WAVE         ("WAVE")
-#define SUBCHUNKID_FMT      ("fmt ")
-#define SUBCHUNKID_DATA     ("data")
-#define AUDIO_FORMAT_PCM    (0x0001)
-#define FMT_SIZE            (0x10)
 
 #define AS_CODECTYPE_PCM  5
 
@@ -99,26 +95,6 @@ extern "C" void  outputDeviceCallback(uint32_t);
  */
 
 typedef unsigned int err_t;
-
-/**
- * @brief Wav file Header definition
- */
-typedef struct
-{
-  uint8_t   riff[4];    /**< "RIFF" */
-  uint32_t  total_size;
-  uint8_t   wave[4];    /**< "WAVE" */
-  uint8_t   fmt[4];     /**< "fmt " */
-  uint32_t  fmt_size;   /**< fmt chunk size */
-  uint16_t  format;     /**< format type */
-  uint16_t  channel;
-  uint32_t  rate;       /**< sampling rate */
-  uint32_t  avgbyte;    /**< rate * block */
-  uint16_t  block;      /**< channels * bit / 8 */
-  uint16_t  bit;        /**< bit length */
-  uint8_t   data[4];    /**< "data" */
-  uint32_t  data_size;
-} WavaFormat_t;
 
 /*--------------------------------------------------------------------------*/
 
@@ -709,7 +685,7 @@ private:
 
   AsRecorderOutputDeviceHdlr    m_output_device_handler;
   int                           m_es_size;
-  WavaFormat_t                  m_wav_format;
+  WavFormat_t                  m_wav_format;
   int                           m_codec_type;
 
   File theFile; /* for  auto file read */

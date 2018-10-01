@@ -1000,11 +1000,11 @@ err_t AudioClass::closeOutputFile(File& myFile)
 {
   ssize_t ret;
 
-  m_wav_format.total_size = m_es_size + sizeof(WavaFormat_t) - 8;
+  m_wav_format.total_size = m_es_size + sizeof(WavFormat_t) - 8;
   m_wav_format.data_size = m_es_size;
   fseek(fd, 0, SEEK_SET);
 
-  int ret = fwrite(&m_wav_format, 1, sizeof(WavaFormat_t), fd);
+  int ret = fwrite(&m_wav_format, 1, sizeof(WavFormat_t), fd);
   if (ret < 0)
     {
       print_err("Fail to write file(wav header)\n");
@@ -1018,10 +1018,10 @@ err_t AudioClass::writeWavHeader(File& myFile)
 {
   myFile.seek(0);
 
-  m_wav_format.total_size = m_es_size + sizeof(WavaFormat_t) - 8;
+  m_wav_format.total_size = m_es_size + sizeof(WavFormat_t) - 8;
   m_wav_format.data_size  = m_es_size;
 
-  int ret = myFile.write((uint8_t*)&m_wav_format, sizeof(WavaFormat_t));
+  int ret = myFile.write((uint8_t*)&m_wav_format, sizeof(WavFormat_t));
   if (ret < 0)
     {
       print_err("Fail to write file(wav header)\n");
