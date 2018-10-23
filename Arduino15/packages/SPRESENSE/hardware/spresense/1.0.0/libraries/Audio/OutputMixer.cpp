@@ -32,6 +32,15 @@
 #include "memutil/mem_layout.h"
 #include "memutil/memory_layout.h"
 
+extern "C" {
+
+static void attentionCallback(const ErrorAttentionParam *attparam)
+{
+  print_err("Attention!! Level 0x%x Code 0x%x\n", attparam->error_code, attparam->error_att_sub_code);
+}
+
+}
+
 /****************************************************************************
  * Public API on OutputMixer Class
  ****************************************************************************/
@@ -49,7 +58,7 @@ err_t OutputMixer::create(void)
   output_mix_create_param.pool_id.render_path0_filter_dsp = PF0_APU_CMD_POOL;
   output_mix_create_param.pool_id.render_path1_filter_dsp = PF1_APU_CMD_POOL;
 
-  bool result = AS_CreateOutputMixer(&output_mix_create_param);
+  bool result = AS_CreateOutputMixer(&output_mix_create_param, attentionCallback);
 
   if (!result)
     {
@@ -213,4 +222,24 @@ err_t OutputMixer::setVolume(int master, int player0, int player1)
   return OUTPUTMIXER_ECODE_OK;
 }
 
+/*--------------------------------------------------------------------------*/
+bool OutputMixer::setRenderingClkMode(uint8_t clk_mode)
+{
+  CXD56_AUDIO_ECODE error_code = CXD56_AUDIO_ECODE_OK;
+
+  cxd56_audio_clkmode_t mode;
+
+  mode = (clk_mode == OUTPUTMIXER_RNDCLK_NORMAL)
+           ? CXD56_AUDIO_CLKMODE_NORMAL : CXD56_AUDIO_CLKMODE_HIRES;
+
+  error_code = cxd56_audio_set_clkmode(mode);
+
+  if (error_code != CXD56_AUDIO_ECODE_OK)
+    {
+      print_err("cxd56_audio_set_clkmode() error! [%d]\n", error_code);
+      return false;
+    }
+
+  return true;
+}
 

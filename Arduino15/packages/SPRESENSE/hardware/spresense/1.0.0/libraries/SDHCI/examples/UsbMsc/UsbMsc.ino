@@ -23,6 +23,10 @@ SDClass SD;
 void setup() {
   Serial.begin(115200);
 
+  if (!SD.begin()) {
+    Serial.println("SD card is not present");
+  }
+
   if (SD.beginUsbMsc()) {
     Serial.println("USB MSC Failure!");
   } else {

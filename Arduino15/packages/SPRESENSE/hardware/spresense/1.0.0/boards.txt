@@ -30,7 +30,7 @@ spresense.menu.Debug.Disabled.build.kernel={runtime.tools.spresense-sdk.path}/sp
 spresense.menu.Debug.Disabled.build.libpath={build.kernel}/prebuilt
 
 spresense.menu.Debug.Enabled=Enabled
-spresense.menu.Debug.Enabled.build.debug=
+spresense.menu.Debug.Enabled.build.debug=-DBRD_DEBUG
 spresense.menu.Debug.Enabled.build.kernel={runtime.tools.spresense-sdk.path}/spresense/debug
 spresense.menu.Debug.Enabled.build.libpath={build.kernel}/prebuilt
 

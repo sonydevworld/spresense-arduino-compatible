@@ -27,8 +27,7 @@
  * 
  * @details The Software Serial library has been developed to allow serial 
  *          communication on any digital pins of the SPRESENSE. It is possible
- *          to have 12 software serial ports operating at the same time with 
- *          speeds up to 250,000 bps.
+ *          to communicate with speeds up to 250,000 bps.
  */
 
 #include <inttypes.h>
@@ -44,10 +43,7 @@
  *
  * @details You can control Software Serial comunication by operating SoftwareSerial 
  *          objects instantiated in your app. It is usable on all the GPIO pins 
- *          (D0 - D28). TX can be any of these pins, but there are some limitation 
- *          in RX pins selection. At the same time, up to 6 pins can be chosen from: 
- *          0, 1, 10, 11, 12, 13, 16, 17, 18, 19, 20, 21, 23, 24, 25, 26, 27, 28 
- *          and up to 6 pins from: 2, 3, 4, 5, 6, 7, 8, 9, 14, 15, 22.
+ *          (D0 - D28).
  */
 class SoftwareSerial : public Stream
 {

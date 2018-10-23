@@ -17,6 +17,7 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#include <SDHCI.h>
 #include <Audio.h>
 
 SDClass theSD;
@@ -163,6 +164,10 @@ void loop()
       goto stop_player;
     }
 
+  /* This sleep is adjusted by the time to read the audio stream file.
+     Please adjust in according with the processing contents
+     being processed at the same time by Application.
+  */
   usleep(40000);
   cnt++;
   /* Don't go further and continue play */

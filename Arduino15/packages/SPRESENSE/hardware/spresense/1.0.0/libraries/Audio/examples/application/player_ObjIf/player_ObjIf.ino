@@ -17,6 +17,7 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,  MA 02110-1301  USA
  */
 
+#include <SDHCI.h>
 #include <MediaPlayer.h>
 #include <OutputMixer.h>
 #include <MemoryUtil.h>
@@ -136,6 +137,10 @@ void setup()
 
   theMixer->create();
 
+  /* Set rendering clock */
+
+  theMixer->setRenderingClkMode(OUTPUTMIXER_RNDCLK_NORMAL);
+
   /* Activate Objects. Set output device to Speakers/Headphones */
   thePlayer->activate(MediaPlayer::Player0, AS_SETPLAYER_OUTPUTDEVICE_SPHP, mediaplayer_done_callback);
 
@@ -201,6 +206,11 @@ void loop()
       printf("Main player error code: %d\n", err);
       goto stop_player;
     }
+    
+  /* This sleep is adjusted by the time to read the audio stream file.
+     Please adjust in according with the processing contents
+     being processed at the same time by Application.
+  */
 
   usleep(40000);
   /* Don't go further and continue play */

@@ -25,7 +25,6 @@
 #include <Arduino.h>
 #include <signal.h>
 
-#define SP_GNSS_DEV_NAME        "/dev/gps"
 
 #define SP_GNSS_DEBUG
 
@@ -39,10 +38,10 @@
 # define PRINT_I(c)
 #endif /* SP_GNSS_DEBUG */
 
-#define MY_GNSS_SIG               18
-
-#define MAGIC_NUMBER                0xDEADBEEF
-#define BIN_BUF_SIZE                sizeof(GnssPositionData)
+const char SP_GNSS_DEV_NAME[]       = "/dev/gps";
+const int SP_GNSS_SIG               = 18;
+const unsigned int MAGIC_NUMBER     = 0xDEADBEEF;
+const unsigned int BIN_BUF_SIZE     = sizeof(GnssPositionData);
 
 SpPrintLevel SpGnss::DebugPrintLevel = PrintNone;   /* Print level */
 Stream& SpGnss::DebugOut = Serial;
@@ -77,6 +76,20 @@ static uint32_t crc32(uint8_t *buf, size_t len) {
     return c ^ 0xFFFFFFFF;
 }
 
+/*
+ * Count bit
+ */
+static unsigned int count_bits(unsigned int bits)
+{
+    unsigned int num;
+
+    num = (bits >> 1) & 03333333333;
+    num = bits - num - ((num >> 1) & 03333333333);  
+    num = ((num + (num >> 3)) & 0707070707) % 077;
+
+    return num;    
+}
+
 #if defined(_ENABLE_TIME_T)
 /**
  * @brief
@@ -103,14 +116,14 @@ static struct cxd56_gnss_datetime_s ConvetTime(time_t sec)
 #endif /* if defined(_ENABLE_TIME_T) */
 
 /**
- * @brief Returns whether GPS is used as satellite system
+ * @brief Returns whether specified type of satellite is used
  * @return 1 use, 0 unuse
  */
-int SpNavData::isSatelliteTypeGps(unsigned long index)
+int SpNavData::isSatelliteType(unsigned long index, SpSatelliteType sattype)
 {
     int ret;
 
-    if (satellite[index].type & CXD56_GNSS_SAT_GPS)
+    if (satellite[index].type & sattype)
     {
         ret = true;
     }
@@ -123,23 +136,21 @@ int SpNavData::isSatelliteTypeGps(unsigned long index)
 }
 
 /**
- * @brief Returns whether Glonass is used as satellite system
- * @return 1 use, 0 unuse
+ * @brief Get satellite type
+ * @param [in] index Array number of the satellite array
+ * @return Type of satellite system
  */
-int SpNavData::isSatelliteTypeGlonass(unsigned long index)
+SpSatelliteType SpNavData::getSatelliteType(unsigned long index)
 {
-    int ret;
-
-    if (satellite[index].type & CXD56_GNSS_SAT_GLONASS)
+    if(index < numSatellites)
     {
-        ret = true;
+        return (SpSatelliteType)satellite[index].type;
     }
     else
     {
-        ret = false;
+        PRINT_E("SpNavData E: invalid range!!\n");
+        return UNKNOWN;
     }
-
-    return ret;
 }
 
 /**
@@ -262,7 +273,7 @@ int SpGnss::begin(void)
     /* Configure mask to notify GNSS signal. */
 
     sigemptyset(&mask);
-    sigaddset(&mask, MY_GNSS_SIG);
+    sigaddset(&mask, SP_GNSS_SIG);
     if (sigprocmask(SIG_UNBLOCK, &mask, NULL) != OK)
     {
         PRINT_E("sigprocmask failed.\n");
@@ -274,7 +285,7 @@ int SpGnss::begin(void)
         setting.fd      = fd_;
         setting.enable  = 1;
         setting.gnsssig = CXD56_GNSS_SIG_GNSS;
-        setting.signo   = MY_GNSS_SIG;
+        setting.signo   = SP_GNSS_SIG;
         setting.data    = NULL;
 
         ret = ioctl(fd_, CXD56_GNSS_IOCTL_SIGNAL_SET, (unsigned long)&setting);
@@ -287,7 +298,7 @@ int SpGnss::begin(void)
         sa.sa_handler = signal_handler;
         sa.sa_flags = SA_NOCLDSTOP;
         sa.sa_mask = mask;
-        sigaction( MY_GNSS_SIG,  &sa, 0 );
+        sigaction( SP_GNSS_SIG,  &sa, 0 );
     }
 
     /* Init CRC. */
@@ -477,8 +488,8 @@ int SpGnss::waitUpdate(long timeout)
 
     /* Check update */
 
-    if(no_handler == MY_GNSS_SIG){
-        sig_ret = MY_GNSS_SIG;
+    if(no_handler == SP_GNSS_SIG){
+        sig_ret = SP_GNSS_SIG;
     }
     else if(timeout < 0)
     {
@@ -492,7 +503,7 @@ int SpGnss::waitUpdate(long timeout)
         sig_ret = sigtimedwait(&mask, NULL, &time);
     }
 
-    if (sig_ret == MY_GNSS_SIG){
+    if (sig_ret == SP_GNSS_SIG){
         ret = 1;
         no_handler = 0;
     }
@@ -729,14 +740,14 @@ int SpGnss::setInterval(long interval)
 }
 
 /**
- * @brief Returns whether GPS is used as satellite system
+ * @brief Returns whether the specified satellite system is selecting
  * @return 1 use, 0 unuse
  */
-int SpGnss::isGps(void)
+int SpGnss::isSelecting(SpSatelliteType sattype)
 {
     int ret;
 
-    if (SatelliteSystem & CXD56_GNSS_SAT_GPS)
+    if (SatelliteSystem & sattype)
     {
         ret = true;
     }
@@ -749,70 +760,64 @@ int SpGnss::isGps(void)
 }
 
 /**
- * @brief Use GPS for positioning
+ * @brief Add specified satellite system to selection for positioning
  * @return 0 if success, -1 if failure
  */
-int SpGnss::useGps(void)
+int SpGnss::select(SpSatelliteType sattype)
 {
-    SatelliteSystem = SatelliteSystem | CXD56_GNSS_SAT_GPS;
+    unsigned long selection = SatelliteSystem | sattype;
+
+    /* Call ioctl. */
+
+    if (fd_ < 0)
+    {
+        PRINT_E("SpGnss E: not initialized!\n");
+        return -1;
+    }
+
+    int ret = ioctl(fd_, CXD56_GNSS_IOCTL_SELECT_SATELLITE_SYSTEM, selection);
+    if (ret < 0)
+    {
+        PRINT_E("SpGnss E: Failed to set satellite\n");
+        return ret;
+    }
+
+    SatelliteSystem = selection;
 
     return OK;
 }
 
 /**
- * @brief Unuse GPS for positioning
+ * @brief Remove specified satellite system to selection for positioning
  * @return 0 if success, -1 if failure
  */
-int SpGnss::unuseGps(void)
+int SpGnss::deselect(SpSatelliteType sattype)
 {
-    SatelliteSystem = SatelliteSystem & ~CXD56_GNSS_SAT_GPS;
 
-    if(SatelliteSystem == 0)
+    unsigned long selection = SatelliteSystem & ~sattype;
+
+    if (selection == 0)
     {
         PRINT_W("SpGnss W: No satellite system.Please set any satellite.\n");
+        return -1;
     }
 
-    return OK;
-}
+    /* Call ioctl. */
 
-/**
- * @brief Returns whether Glonass is used as satellite system
- * @return 1 use, 0 unuse
- */
-int SpGnss::isGlonass(void)
-{
-    int ret;
-
-    if (SatelliteSystem & CXD56_GNSS_SAT_GLONASS)
+    if (fd_ < 0)
     {
-        ret = true;
+        PRINT_E("SpGnss E: not initialized!\n");
+        return -1;
     }
-    else
+
+    int ret = ioctl(fd_, CXD56_GNSS_IOCTL_SELECT_SATELLITE_SYSTEM, selection);
+    if (ret < 0)
     {
-        ret = false;
+        PRINT_E("SpGnss E: Failed to set satellite\n");
+        return ret;
     }
 
-    return ret;
-}
-
-/**
- * @brief Use Glonass for positioning
- * @return 0 if success, -1 if failure
- */
-int SpGnss::useGlonass(void)
-{
-    SatelliteSystem = SatelliteSystem | CXD56_GNSS_SAT_GLONASS;
-
-    return OK;
-}
-
-/**
- * @brief Unuse Glonass for positioning
- * @return 0 if success, -1 if failure
- */
-int SpGnss::unuseGlonass(void)
-{
-    SatelliteSystem = SatelliteSystem & ~CXD56_GNSS_SAT_GLONASS;
+    SatelliteSystem = selection;
 
     return OK;
 }
@@ -849,3 +854,22 @@ int SpGnss::saveEphemeris(void)
     return ret;
 }
 
+/*
+ * Private function: inquire
+ */
+
+unsigned long SpGnss::inquireSatelliteType(void)
+{
+    if (fd_ < 0)
+    {
+        return 0;
+    }
+    unsigned long sattype;
+    int ret = ioctl(fd_, CXD56_GNSS_IOCTL_GET_SATELLITE_SYSTEM, (unsigned long)&sattype);
+    if (ret < OK)
+    {
+        PRINT_E("SpGnss E: Failed to save BackupData\n");
+    }
+
+    return sattype;
+}

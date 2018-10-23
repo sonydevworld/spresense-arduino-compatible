@@ -22,7 +22,7 @@ TMP_DIR=`mktemp -d`
 
 # versioning
 cd $SDK_DIR
-sh sdk/tools/mkversion.sh && mv .version nuttx/.version
+bash sdk/tools/mkversion.sh
 
 # create sdk-export.zip
 cd $SDK_DIR/sdk
@@ -75,6 +75,8 @@ mv ./libs/libsdk.a ./libs/libnuttx.a
 mkdir -p prebuilt
 cp -a build libs prebuilt
 rm -rf build libs
+
+cp ${SDK_DIR}/LICENSE ./
 
 cd $TMP_DIR
 find . -name .gitignore | xargs rm &>/dev/null

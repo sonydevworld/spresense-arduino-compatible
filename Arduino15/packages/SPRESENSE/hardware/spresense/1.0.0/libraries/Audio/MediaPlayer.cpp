@@ -37,6 +37,15 @@ void  input_device_callback(uint32_t size)
     /* do nothing */
 }
 
+extern "C" {
+
+static void attentionCallback(const ErrorAttentionParam *attparam)
+{
+  print_err("Attention!! Level 0x%x Code 0x%x\n", attparam->error_code, attparam->error_att_sub_code);
+}
+
+}
+
 /****************************************************************************
  * Public API on MediaPlayer Class
  ****************************************************************************/
@@ -64,16 +73,17 @@ err_t MediaPlayer::create(PlayerId id)
   player_create_param.pool_id.es     = (id == Player0) ? DEC_ES_MAIN_BUF_POOL : DEC_ES_SUB_BUF_POOL;
   player_create_param.pool_id.pcm    = (id == Player0) ? REND_PCM_BUF_POOL : REND_PCM_SUB_BUF_POOL;
   player_create_param.pool_id.dsp    = DEC_APU_CMD_POOL;
+  player_create_param.pool_id.src_work = SRC_WORK_MAIN_BUF_POOL;
 
   bool result;
 
   if (id == Player0)
     {
-      result = AS_CreatePlayer(AS_PLAYER_ID_0, &player_create_param);
+      result = AS_CreatePlayerMulti(AS_PLAYER_ID_0, &player_create_param, attentionCallback);
     }
   else
     {
-      result = AS_CreatePlayer(AS_PLAYER_ID_1, &player_create_param);
+      result = AS_CreatePlayerMulti(AS_PLAYER_ID_1, &player_create_param, attentionCallback);
     }
 
   if (!result)
@@ -346,6 +356,9 @@ err_t MediaPlayer::write_fifo(File& myFile, char *p_es_buf, CMN_SimpleFifoHandle
 bool MediaPlayer::check_decode_dsp(uint8_t codec_type, const char *path)
 {
   char fullpath[32];
+  struct stat buf;
+  int retry;
+  int ret = 0;
   
   switch (codec_type)
     {
@@ -369,6 +382,24 @@ bool MediaPlayer::check_decode_dsp(uint8_t codec_type, const char *path)
 
       default:
         break;
+    }
+
+  if (0 == strncmp("/mnt/sd0", path, 8))
+    {
+      /* In case that SD card isn't inserted, it times out at max 2 sec */
+      for (retry = 0; retry < 20; retry++) {
+        ret = stat("/mnt/sd0", &buf);
+        if (ret == 0)
+          {
+            break;
+          }
+        usleep(100 * 1000); // 100 msec
+      }
+      if (ret)
+        {
+          print_err("SD card is not present.\n");
+          return false;
+        }
     }
 
   FILE *fp = fopen(fullpath, "r");

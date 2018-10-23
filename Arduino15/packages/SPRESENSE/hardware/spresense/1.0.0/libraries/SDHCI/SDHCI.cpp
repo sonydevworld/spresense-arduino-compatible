@@ -76,6 +76,25 @@ static char* fullpathname(char* buf, int bufsize, const char * filepath)
   return NULL;
 }
 
+boolean SDClass::begin(uint8_t dummy)
+{
+  struct stat buf;
+  int retry;
+  int ret;
+
+  (void)dummy;
+
+  /* In case that SD card isn't inserted, it times out at max 2 sec */
+  for (retry = 0; retry < 20; retry++) {
+    ret = stat(SD_MOUNT_POINT, &buf);
+    if (ret == 0) {
+      return true;
+    }
+    usleep(100 * 1000); // 100 msec
+  }
+  return false;
+}
+
 File SDClass::open(const char *filepath, uint8_t mode) {
   return File(filepath, mode);
 }
@@ -243,12 +262,20 @@ File::File(const char *name, uint8_t mode)
   char *fpname = fullpathname(fpbuf, MAX_PATH_LENGTH, name);
   String fmode = "";
   String fplus = "";
+  int retry = 0;
 
   if (!fpname)
     return;
 
   /* Wait for the SD card to be mounted */
-  while (::stat(SD_MOUNT_POINT, &stat) < 0);
+  while (::stat(SD_MOUNT_POINT, &stat) < 0) {
+    retry++;
+    if (retry >= 20) {
+      retry = 0;
+      printf("Insert SD card!\n");
+    }
+    usleep(100 * 1000); // 100 msec
+  }
 
   stat_ret = ::stat(fpname, &stat);
 
@@ -299,13 +326,17 @@ File::File(const char *name, uint8_t mode)
     fmode += fplus;
 
     _fd = ::fopen(fpname, fmode.c_str());
-    setvbuf(_fd, NULL, _IOLBF, STDIO_BUFFER_SIZE);
+    if (_fd != NULL) {
+      setvbuf(_fd, NULL, _IOLBF, STDIO_BUFFER_SIZE);
+    }
   }
 
   _name = strdup(name);
-  _size = stat.st_size;
-  ::fseek(_fd, 0, SEEK_CUR);
-  _curpos = ::ftell(_fd);
+  if (_fd != NULL) {
+    _size = stat.st_size;
+    ::fseek(_fd, 0, SEEK_CUR);
+    _curpos = ::ftell(_fd);
+  }
 }
 
 File::File(void):
@@ -376,7 +407,7 @@ void File::flush() {
     fflush(_fd);
 }
 
-int File::read(void *buf, uint16_t nbyte) {
+int File::read(void *buf, size_t nbyte) {
   int ret;
 
   if (_fd) {
