@@ -78,6 +78,19 @@ enum SpPvtType {
 };
 
 /**
+ * @enum SpSatelliteType
+ * @brief Satellite system type
+ */
+enum SpSatelliteType {
+    GPS       = (1U << 0),
+    GLONASS   = (1U << 1),
+    SBAS      = (1U << 2),
+    QZ_L1CA   = (1U << 3),
+    QZ_L1S    = (1U << 5),
+    UNKNOWN   = 0,
+};
+
+/**
  * @class SpGnssTime
  * @brief Time acquired from the satellite at the time of positioning
  *
@@ -105,7 +118,8 @@ public:
  */
 class SpSatellite {
 public:
-  unsigned short type;      /**< Satellite type of GPS or Glonass */
+  unsigned short type;      /**< Satellite type of GPS, Glonass, QZSS/Michibiki;
+                                 w/ positioning augmentation of SBAS or QZSS L1S */
   unsigned char  svid;      /**< Satellite ID */
   unsigned char  elevation; /**< Elevation of satellite [degree] */
   unsigned char  azimuth;   /**< Azimuth of satellite [degree]; Clockwise from the north */
@@ -143,17 +157,31 @@ public:
      * @brief Check if the specified satellite is GPS
      * @details If the satellite of the element of array index is GPS, 1 is returned.
      * @param [in] index Array number of the satellite array
-     * @return 1 GPS, 0 not GPS
+     * @param [in] sattype Type of satellite system
+     * @return 1 match, 0 unmatch
      */
-    int isSatelliteTypeGps(unsigned long index);
+    int isSatelliteType(unsigned long index, SpSatelliteType sattype);
 
     /**
-     * @brief Check if the specified satellite is Glonass
-     * @details If the satellite of the element of array index is Glonass, 1 is returned.
-     * @param [in] index Array number of the satellite array
-     * @return 1 Glonass, 0 not Glonass
+     * @brief [Obsolete] Check if the specified satellite is GPS
+     * @details This function is obsolete. Replace with #isSatelliteType.
      */
-    int isSatelliteTypeGlonass(unsigned long index);
+    int isSatelliteTypeGps(unsigned long index) { return isSatelliteType(index, GPS); }
+
+    /**
+     * @brief [Obsolete] Check if the specified satellite is Glonass
+     * @details This function is obsolete. Replace with #isSatelliteType.
+     */
+    int isSatelliteTypeGlonass(unsigned long index) { return isSatelliteType(index, GLONASS); }
+
+    /**
+     * @brief Get satellite type
+     * @details Specify the element number of the satellite and return the
+     *          type of satellite system.
+     * @param [in] index Array number of the satellite array
+     * @return Type of satellite system
+     */
+    SpSatelliteType getSatelliteType(unsigned long index);
 
     /**
      * @brief Get satellite ID(SVID)
@@ -313,46 +341,68 @@ public:
     int setInterval(long interval = 1);
 
     /**
-     * @brief Returns whether GPS is used as satellite system
-     * @details Make sure GPS is used for the satellite system used for positioning.
-     * @return 1 use, 0 unuse
+     * @brief Returns whether the specified satellite system is selecting
+     * @details Returns whether satellite system specified as argument is
+     *          selecting as the satellite used for positioning.
+     * @param [in] sattype Type of satellite system
+     * @return 1 selected, 0 not selected
      */
-    int isGps(void);
+    int isSelecting(SpSatelliteType sattype);
 
     /**
-     * @brief Use GPS for positioning
-     * @details Add GPS to the satellite system using for positioning.
-     * @return 0 if success, -1 if failure
+     * @brief Add specified satellite system to selection for positioning
+     * @details GPS is selected by default. In addition to this, it is able
+     *          to select Glonass or QZSS L1 / CA as the positioning
+     *          satellite system, SBAS or QZSS L1S as the positioning
+     *          augmentation system.
+     * @param [in] sattype Type of satellite system
+     * @return 0 if success, negative if failure
      */
-    int useGps(void);
+    int select(SpSatelliteType sattype);
 
     /**
-     * @brief Unuse GPS for positioning
-     * details Remove the GPS from the satellite system used for positioning.
-     * @return 0 if success, -1 if failure
+     * @brief Remove specified satellite system to selection for positioning
+     * @details Do not use the specified satellite system for positioning.
+     * @param [in] type of satellite system
+     * @return 0 if success, negative if failure
      */
-    int unuseGps(void);
+    int deselect(SpSatelliteType sattype);
 
     /**
-     * @brief Returns whether Glonass is used as satellite system
-     * @details Make sure Glonass is used for the satellite system used for positioning.
-     * @return 1 use, 0 unuse
+     * @brief [Obsolete] Returns whether GPS is used as satellite system
+     * @details This function is obsolete. Replace with #isSelecting.
      */
-    int isGlonass(void);
+    int isGps(void) { return isSelecting(GPS); }
 
     /**
-     * @brief Use Glonass for positioning
-     * @details Add Glonass to the satellite system using for positioning.
-     * @return 0 if success, -1 if failure
+     * @brief [Obsolete] Use GPS for positioning
+     * @details This function is obsolete. Replace with #select.
      */
-    int useGlonass(void);
+    int useGps(void) { return select(GPS); }
 
     /**
-     * @brief Unuse Glonass for positioning
-     * @details Remove the Glonass from the satellite system used for positioning.
-     * @return 0 if success, -1 if failure
+     * @brief [Obsolete] Unuse GPS for positioning
+     * @details This function is obsolete. Replace with #deselect.
      */
-    int unuseGlonass(void);
+    int unuseGps(void) { return deselect(GPS); }
+
+    /**
+     * @brief [Obsolete] Returns whether Glonass is used as satellite system
+     * @details This function is obsolete. Replace with #isSelecting.
+     */
+    int isGlonass(void) { return isSelecting(GLONASS); }
+
+    /**
+     * @brief [Obsolete] Use Glonass for positioning
+     * @details This function is obsolete. Replace with #select.
+     */
+    int useGlonass(void) { return select(GLONASS); }
+
+    /**
+     * @brief [Obsolete] Unuse Glonass for positioning
+     * @details This function is obsolete. Replace with #deselect.
+     */
+    int unuseGlonass(void) { return deselect(GLONASS); }
 
     /**
      * @brief Set debug mode
@@ -369,14 +419,15 @@ public:
     int saveEphemeris(void);
 
 private:
-    int fd_;                /* file descriptor */
-    long SatelliteSystem;    /* satellite type */
-    SpNavData NavData;    /* copy pos data */
+    int fd_;                          /* file descriptor */
+    unsigned long SatelliteSystem;    /* satellite type */
+    SpNavData NavData;                /* copy pos data */
+
+    unsigned long inquireSatelliteType(void);
 
     /* Debug Print */
     static Stream& DebugOut;
     static SpPrintLevel DebugPrintLevel;
-
     inline static void printMessage(SpPrintLevel level, const char* str)
     {
         if (level <= DebugPrintLevel)

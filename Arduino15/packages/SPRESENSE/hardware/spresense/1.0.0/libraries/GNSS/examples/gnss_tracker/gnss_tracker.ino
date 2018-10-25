@@ -77,9 +77,13 @@ enum TrackerMode {
  * @brief Satellite system
  */
 enum ParamSat {
-  eSatGps,      /**< GPS */
-  eSatGlonass,  /**< GLONASS */
-  eSatAll       /**< ALL */
+  eSatGps,            /**< GPS */
+  eSatGlonass,        /**< GLONASS */
+  eSatGpsSbas,        /**< GPS+SBAS */
+  eSatGpsGlonass,     /**< GPS+Glonass */
+  eSatGpsQz1c,        /**< GPS+QZSS_L1CA */
+  eSatGpsGlonassQz1c, /**< GPS+Glonass+QZSS_L1CA */
+  eSatGpsQz1cQz1S,    /**< GPS+QZSS_L1CA+QZSS_L1S */
 };
 
 /**
@@ -211,7 +215,7 @@ static String MakeParameterString(ConfigParam *pConfigParam)
   String ParamString;
 
   /* Set SatelliteSystem. */
-  pComment = "; Satellite system(GPS/GLONASS/ALL)";
+  pComment = "; Satellite system(GPS/GLONASS/SBAS/QZSS_L1CA/QZSS_L1S)";
   pParam = "SatelliteSystem=";
   switch (pConfigParam->SatelliteSystem)
   {
@@ -219,13 +223,29 @@ static String MakeParameterString(ConfigParam *pConfigParam)
       pData = "GPS";
       break;
 
+    case eSatGpsSbas:
+      pData = "GPS+SBAS";
+      break;
+
     case eSatGlonass:
       pData = "GLONASS";
       break;
 
-    case eSatAll:
+    case eSatGpsGlonass:
+      pData = "GPS+GLONASS";
+      break;
+
+    case eSatGpsQz1c:
+      pData = "GPS+QZSS_L1CA";
+      break;
+
+    case eSatGpsQz1cQz1S:
+      pData = "GPS+QZSS_L1CA+QZSS_L1S";
+      break;
+
+    case eSatGpsGlonassQz1c:
     default:
-      pData = "ALL";
+      pData = "GPS+GLONASS+QZSS_L1CA";
       break;
   }
   snprintf(StringBuffer, STRING_BUFFER_SIZE, "%s\n%s%s\n", pComment, pParam, pData);
@@ -422,13 +442,33 @@ static int ReadParameter(ConfigParam *pConfigParam)
       {
         pConfigParam->SatelliteSystem = eSatGps;
       }
+      else if (!ParamCompare(pParamData, "GPS+SBAS"))
+      {
+        pConfigParam->SatelliteSystem = eSatGpsSbas;
+      }
       else if (!ParamCompare(pParamData, "GLONASS"))
       {
         pConfigParam->SatelliteSystem = eSatGlonass;
       }
-      else if (!ParamCompare(pParamData, "ALL"))
+      else if (!ParamCompare(pParamData, "GPS+GLONASS"))
       {
-        pConfigParam->SatelliteSystem = eSatAll;
+        pConfigParam->SatelliteSystem = eSatGpsGlonass;
+      }
+      else if (!ParamCompare(pParamData, "GPS+QZSS_L1CA"))
+      {
+        pConfigParam->SatelliteSystem = eSatGpsQz1c;
+      }
+      else if (!ParamCompare(pParamData, "GPS+QZSS_L1CA+QZSS_L1S"))
+      {
+        pConfigParam->SatelliteSystem = eSatGpsQz1cQz1S;
+      }
+      else if (!ParamCompare(pParamData, "GPS+GLONASS+QZSS_L1CA"))
+      {
+        pConfigParam->SatelliteSystem = eSatGpsGlonassQz1c;
+      }
+      else
+      {
+        pConfigParam->SatelliteSystem = eSatGpsGlonassQz1c;
       }
     }
     else if (!ParamCompare(pParamName, "NmeaOutUart="))
@@ -638,7 +678,7 @@ static int SetupPositioning(void)
   int error_flag = 0;
 
   /* Set default Parameter. */
-  Parameter.SatelliteSystem  = eSatAll;
+  Parameter.SatelliteSystem  = eSatGpsGlonassQz1c;
   Parameter.NmeaOutUart      = true;
   Parameter.NmeaOutFile      = true;
   Parameter.BinaryOut        = false;
@@ -677,21 +717,41 @@ static int SetupPositioning(void)
 
     switch (Parameter.SatelliteSystem)
     {
-      case eSatGps:
-        Gnss.useGps();
-        Gnss.unuseGlonass();
-        break;
+    case eSatGps:
+      Gnss.select(GPS);
+      break;
 
-      case eSatGlonass:
-        Gnss.unuseGps();
-        Gnss.useGlonass();
-        break;
+    case eSatGpsSbas:
+      Gnss.select(GPS);
+      Gnss.select(SBAS);
+      break;
 
-      case eSatAll:
-      default:
-        Gnss.useGps();
-        Gnss.useGlonass();
-        break;
+    case eSatGlonass:
+      Gnss.select(GLONASS);
+      break;
+
+    case eSatGpsGlonass:
+      Gnss.select(GPS);
+      Gnss.select(GLONASS);
+      break;
+
+    case eSatGpsQz1c:
+      Gnss.select(GPS);
+      Gnss.select(QZ_L1CA);
+      break;
+
+    case eSatGpsQz1cQz1S:
+      Gnss.select(GPS);
+      Gnss.select(QZ_L1CA);
+      Gnss.select(QZ_L1S);
+      break;
+
+    case eSatGpsGlonassQz1c:
+    default:
+      Gnss.select(GPS);
+      Gnss.select(GLONASS);
+      Gnss.select(QZ_L1CA);
+      break;
     }
 
     Gnss.setInterval(Parameter.IntervalSec);
@@ -808,6 +868,7 @@ void loop() {
   static int State = eStateActive;
   static int TimeOut = IDLE_ACTIVE_TIME;
   static bool PosFixflag = false;
+  static int skipUnstableCount = 10;
   static char *pNmeaBuff     = NULL;
   static char *pBinaryBuffer = NULL;
 
@@ -832,6 +893,9 @@ void loop() {
 
       /* Set new mode. */
       State = eStateActive;
+
+      /* Reset unstable counter */
+      skipUnstableCount = 10;
 
       /* Go to Active mode. */
       SleepOut();
@@ -864,7 +928,7 @@ void loop() {
       /* Get NavData. */
       Gnss.getNavData(&NavData);
 
-      LedSet = ((NavData.posDataExist) && (NavData.posFixMode != 1));	// 初回POSFIXが分かる？
+      LedSet = ((NavData.posDataExist) && (NavData.posFixMode != 0));
       if(PosFixflag != LedSet)
       {
         Led_isPosfix(LedSet);
@@ -939,9 +1003,9 @@ void loop() {
               /* Write Binary Data. */
               GnssPositionData *pAdr = (GnssPositionData*)pBinaryBuffer;
               Led_isSdAccess(true);
-              WriteSize = WriteBinary((char*)&pAdr->MagicNumber, FilenameBin, sizeof(pAdr->MagicNumber), (FILE_WRITE | O_APPEND));
-              WriteSize = WriteBinary((char*)&pAdr->Data,        FilenameBin, sizeof(pAdr->Data),        (FILE_WRITE | O_APPEND));
-              WriteSize = WriteBinary((char*)&pAdr->CRC,         FilenameBin, sizeof(pAdr->CRC),         (FILE_WRITE | O_APPEND));
+              WriteSize  = WriteBinary((char*)&pAdr->MagicNumber, FilenameBin, sizeof(pAdr->MagicNumber), (FILE_WRITE | O_APPEND));
+              WriteSize += WriteBinary((char*)&pAdr->Data,        FilenameBin, sizeof(pAdr->Data),        (FILE_WRITE | O_APPEND));
+              WriteSize += WriteBinary((char*)&pAdr->CRC,         FilenameBin, sizeof(pAdr->CRC),         (FILE_WRITE | O_APPEND));
               Led_isSdAccess(false);
 
               /* Check result. */

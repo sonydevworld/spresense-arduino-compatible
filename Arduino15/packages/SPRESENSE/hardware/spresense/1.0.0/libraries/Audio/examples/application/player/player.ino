@@ -17,6 +17,7 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#include <SDHCI.h>
 #include <Audio.h>
 
 SDClass theSD;
@@ -27,6 +28,7 @@ File myFile;
 /**
  * @brief Setup audio player to play mp3 file
  *
+ * Set clock mode to normal <br>
  * Set output device to speaker <br>
  * Set main player to decode stereo mp3. Stream sample rate is set to "auto detect" <br>
  * System directory "/mnt/sd0/BIN" will be searched for MP3 decoder (MP3DEC file)
@@ -42,8 +44,13 @@ void setup()
 
   puts("initialization Audio Library");
 
-  /* Set output device to speaker */
+  /* Set clock mode to normal */
   theAudio->setRenderingClockMode(AS_CLKMODE_NORMAL);
+
+  /* Set output device to speaker.
+   * If you want to change the output device to I2S,
+   * specify "AS_SETPLAYER_OUTPUTDEVICE_I2SOUTPUT" as an argument.
+   */
   theAudio->setPlayerMode(AS_SETPLAYER_OUTPUTDEVICE_SPHP);
 
   /*
@@ -112,7 +119,14 @@ void loop()
       goto stop_player;
     }
 
+  /* This sleep is adjusted by the time to read the audio stream file.
+     Please adjust in according with the processing contents
+     being processed at the same time by Application.
+  */
+
   usleep(40000);
+
+
   /* Don't go further and continue play */
   return;
 

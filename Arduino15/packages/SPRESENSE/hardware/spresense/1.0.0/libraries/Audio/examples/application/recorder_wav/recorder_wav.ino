@@ -80,7 +80,11 @@ void loop() {
       exit(1);
     }
 
-  usleep(1);
+  /* This sleep is adjusted by the time to write the audio stream file.
+     Please adjust in according with the processing contents
+     being processed at the same time by Application.
+  */
+  usleep(10000);
 
   cnt++;
 }

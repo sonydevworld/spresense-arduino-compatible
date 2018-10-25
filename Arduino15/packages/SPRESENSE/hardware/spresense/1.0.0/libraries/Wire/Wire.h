@@ -90,6 +90,11 @@ public:
     void setClock(uint32_t clock);
     void onReceive(TWIReceiveHandler handler);
     void onRequest(TWIRequestHandler handler);
+
+    inline size_t write(unsigned long n) { return write((uint8_t)n); }
+    inline size_t write(long n) { return write((uint8_t)n); }
+    inline size_t write(unsigned int n) { return write((uint8_t)n); }
+    inline size_t write(int n) { return write((uint8_t)n); }
     using Print::write;
 
 private:

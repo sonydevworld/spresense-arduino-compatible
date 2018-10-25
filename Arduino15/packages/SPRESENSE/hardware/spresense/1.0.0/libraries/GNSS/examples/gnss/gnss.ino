@@ -125,6 +125,10 @@ void setup() {
   }
   else
   {
+    /* Setup GNSS */
+    Gnss.select(QZ_L1CA);  // Michibiki complement
+    Gnss.select(QZ_L1S);   // Michibiki augmentation(Valid only in Japan)
+
     /* Start positioning */
     result = Gnss.start(COLD_START);
     if (result != 0)
@@ -171,9 +175,17 @@ static void print_pos(SpNavData *pNavData)
   Serial.print(StringBuffer);
 
   /* print position data */
+  if (pNavData->posFixMode == FixInvalid)
+  {
+    Serial.print("No-Fix, ");
+  }
+  else
+  {
+    Serial.print("Fix, ");
+  }
   if (pNavData->posDataExist == 0)
   {
-    Serial.print("pos not fixed");
+    Serial.print("No Position");
   }
   else
   {
@@ -201,16 +213,35 @@ static void print_condition(SpNavData *pNavData)
   for (cnt = 0; cnt < pNavData->numSatellites; cnt++)
   {
     const char *pType = "---";
+    SpSatelliteType sattype = pNavData->getSatelliteType(cnt);
 
     /* Get satellite type. */
     /* Keep it to three letters. */
-    if ( pNavData->isSatelliteTypeGps(cnt) )
+    switch (sattype)
     {
-      pType = "GPS";
-    }
-    else if ( pNavData->isSatelliteTypeGlonass(cnt))
-    {
-      pType = "GLN";
+      case GPS:
+        pType = "GPS";
+        break;
+      
+      case GLONASS:
+        pType = "GLN";
+        break;
+
+      case QZ_L1CA:
+        pType = "QCA";
+        break;
+
+      case SBAS:
+        pType = "SBA";
+        break;
+
+      case QZ_L1S:
+        pType = "Q1S";
+        break;
+
+      default:
+        pType = "UKN";
+        break;
     }
 
     /* Get print conditions. */
@@ -220,7 +251,7 @@ static void print_condition(SpNavData *pNavData)
     float sigLevel = pNavData->getSatelliteSignalLevel(cnt);
 
     /* Print satellite condition. */
-    snprintf(StringBuffer, STRING_BUFFER_SIZE, "[%2d] Type:%s, Id:%2d, Elv:%2d, Azm:%3d, Lv:", cnt, pType, Id, Elv, Azm );
+    snprintf(StringBuffer, STRING_BUFFER_SIZE, "[%2d] Type:%s, Id:%2d, Elv:%2d, Azm:%3d, CN0:", cnt, pType, Id, Elv, Azm );
     Serial.print(StringBuffer);
     Serial.println(sigLevel, 6);
   }

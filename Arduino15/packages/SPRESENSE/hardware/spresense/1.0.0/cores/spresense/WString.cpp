@@ -75,6 +75,11 @@ String::String(const char *pstr)
 	*this = pstr;
 }
 
+String::String(const __FlashStringHelper *pstr) {
+	init();
+	*this = pstr;
+}
+
 #if __cplusplus >= 201103L || defined(__GXX_EXPERIMENTAL_CXX0X__)
 String::String(String &&rval)
 {
@@ -210,6 +215,17 @@ String & String::copy(const char *cstr, unsigned int length)
 	return *this;
 }
 
+String & String::copy(const __FlashStringHelper *pstr, unsigned int length)
+{
+	if (!reserve(length)) {
+		invalidate();
+		return *this;
+	}
+	len = length;
+	strcpy_P(buffer, (PGM_P)pstr);
+	return *this;
+}
+
 #if __cplusplus >= 201103L || defined(__GXX_EXPERIMENTAL_CXX0X__)
 void String::move(String &rhs)
 {
@@ -261,6 +277,14 @@ String & String::operator = (const char *cstr)
 	if (cstr) copy(cstr, strlen(cstr));
 	else invalidate();
 	
+	return *this;
+}
+
+String & String::operator = (const __FlashStringHelper *pstr)
+{
+	if (pstr) copy(pstr, strlen_P((PGM_P)pstr));
+	else invalidate();
+
 	return *this;
 }
 
@@ -347,6 +371,17 @@ unsigned char String::concat(double num)
 	return concat(string, strlen(string));
 }
 
+unsigned char String::concat(const __FlashStringHelper * str)
+{
+	if (!str) return 0;
+	int length = strlen_P((const char *) str);
+	if (length == 0) return 1;
+	unsigned int newlen = len + length;
+	if (!reserve(newlen)) return 0;
+	strcpy_P(buffer + len, (const char *) str);
+	len = newlen;
+	return 1;
+}
 
 /*********************************************/
 /*  Concatenate                              */
@@ -416,6 +451,13 @@ StringSumHelper & operator + (const StringSumHelper &lhs, double num)
 }
 
 StringSumHelper & operator + (const StringSumHelper &lhs, const char *rhs)
+{
+	StringSumHelper &a = const_cast<StringSumHelper&>(lhs);
+	if (!a.concat(rhs))	a.invalidate();
+	return a;
+}
+
+StringSumHelper & operator + (const StringSumHelper &lhs, const __FlashStringHelper *rhs)
 {
 	StringSumHelper &a = const_cast<StringSumHelper&>(lhs);
 	if (!a.concat(rhs))	a.invalidate();

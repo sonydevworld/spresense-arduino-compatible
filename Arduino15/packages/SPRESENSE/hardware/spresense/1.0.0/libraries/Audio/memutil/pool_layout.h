@@ -46,14 +46,16 @@ extern const PoolAttr MemoryPoolLayouts[NUM_MEM_LAYOUTS][NUM_MEM_POOLS] = {
  {/* Layout:0 */
   /* pool_ID          type       seg fence  addr        size         */
   { DEC_ES_MAIN_BUF_POOL, BasicType,   4, true, 0x000c0008, 0x00006000 },  /* AUDIO_WORK_AREA */
-  { REND_PCM_BUF_POOL, BasicType,   9, true, 0x000c6010, 0x00012000 },  /* AUDIO_WORK_AREA */
-  { REND_PCM_SUB_BUF_POOL, BasicType,   9, true, 0x000d8018, 0x00012000 },  /* AUDIO_WORK_AREA */
-  { DEC_APU_CMD_POOL, BasicType,  10, true, 0x000ea020, 0x00000398 },  /* AUDIO_WORK_AREA */
-  { DEC_ES_SUB_BUF_POOL, BasicType,   4, true, 0x000ea3c0, 0x00003000 },  /* AUDIO_WORK_AREA */
-  { PF0_PCM_BUF_POOL, BasicType,   1, true, 0x000ed3c8, 0x00002008 },  /* AUDIO_WORK_AREA */
-  { PF1_PCM_BUF_POOL, BasicType,   1, true, 0x000ef3d8, 0x00002008 },  /* AUDIO_WORK_AREA */
-  { PF0_APU_CMD_POOL, BasicType,  10, true, 0x000f13e8, 0x00000398 },  /* AUDIO_WORK_AREA */
-  { PF1_APU_CMD_POOL, BasicType,  10, true, 0x000f1788, 0x00000398 },  /* AUDIO_WORK_AREA */
+  { REND_PCM_BUF_POOL, BasicType,   5, true, 0x000c6010, 0x00015f90 },  /* AUDIO_WORK_AREA */
+  { SRC_WORK_MAIN_BUF_POOL, BasicType,   1, true, 0x000dbfa8, 0x00002000 },  /* AUDIO_WORK_AREA */
+  { DEC_ES_SUB_BUF_POOL, BasicType,   4, true, 0x000ddfb0, 0x00006000 },  /* AUDIO_WORK_AREA */
+  { REND_PCM_SUB_BUF_POOL, BasicType,   5, true, 0x000e3fb8, 0x0000a028 },  /* AUDIO_WORK_AREA */
+  { SRC_WORK_SUB_BUF_POOL, BasicType,   1, true, 0x000edfe8, 0x00002000 },  /* AUDIO_WORK_AREA */
+  { DEC_APU_CMD_POOL, BasicType,  10, true, 0x000efff0, 0x00000398 },  /* AUDIO_WORK_AREA */
+  { PF0_PCM_BUF_POOL, BasicType,   1, true, 0x000f0390, 0x00004650 },  /* AUDIO_WORK_AREA */
+  { PF1_PCM_BUF_POOL, BasicType,   1, true, 0x000f49e8, 0x00004650 },  /* AUDIO_WORK_AREA */
+  { PF0_APU_CMD_POOL, BasicType,  10, true, 0x000f9040, 0x00000398 },  /* AUDIO_WORK_AREA */
+  { PF1_APU_CMD_POOL, BasicType,  10, true, 0x000f93e0, 0x00000398 },  /* AUDIO_WORK_AREA */
  },
  {/* Layout:1 */
   /* pool_ID          type       seg fence  addr        size         */

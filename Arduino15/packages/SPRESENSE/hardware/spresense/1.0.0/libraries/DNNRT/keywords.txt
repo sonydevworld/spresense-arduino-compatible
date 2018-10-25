@@ -1,0 +1,31 @@
+#######################################
+# Syntax Coloring Map For EEPROM
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+DNNRT	KEYWORD1
+DNNVariable	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+forward	KEYWORD2
+inputVariable	KEYWORD2
+outputVariable	KEYWORD2
+numOfInput	KEYWORD2
+inputSize	KEYWORD2
+inputDimension	KEYWORD2
+inputShapeSize	KEYWORD2
+numOfOutput	KEYWORD2
+outputSize	KEYWORD2
+outputDimension	KEYWORD2
+outputShapeSize	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+

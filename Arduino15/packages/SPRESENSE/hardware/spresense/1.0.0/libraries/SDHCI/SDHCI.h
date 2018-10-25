@@ -124,7 +124,7 @@ public:
   * @param [in] nbyte The number of elements in buf.
   * @return The total number of bytes successfully read, or -1 if none is available 
   */
-  int read(void *buf, uint16_t nbyte);
+  int read(void *buf, size_t nbyte);
 
  /**
   * @brief Seek to a new position in the file.
@@ -199,6 +199,25 @@ class SDClass {
 
 public:
   SDClass() : mshandle(NULL) {};
+
+  /**
+   * @brief  Initialize the SD library
+   *
+   * @details This will check that the SD card is inserted and mounted or not.
+   *          This needs to be called to set up the connection to the SD card
+   *          before other methods are used.
+   * @param [in] dummy dummy argument to keep compatibility with Arduino SD library
+   * @return true if the SD card is inserted and mounted, false if not
+   */
+  boolean begin(uint8_t dummy = 0);
+  boolean begin(uint32_t dummy1, uint8_t dummy2) { (void)dummy1; (void)dummy2; return begin(); }
+
+  /**
+   * @brief  Finalize the SD library
+   *
+   * @details This is nothing to do.
+   */
+    void end() {}
 
   /**
   * @brief Opens a file on the SD card.
