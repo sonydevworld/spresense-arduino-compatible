@@ -1,0 +1,10 @@
+# Class
+WatchdogClass	KEYWORD1
+
+# Constants
+Watchdog	LITERAL1
+
+# Function
+start	KEYWORD2
+stop	KEYWORD2
+kick	KEYWORD2
