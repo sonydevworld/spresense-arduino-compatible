@@ -40,6 +40,15 @@
 #include <Arduino.h>
 
 
+/*
+  For debug kernel
+ */
+#if BRD_DEBUG
+#define watchdog_printf(...) printf(__VA_ARGS__)
+#else
+#define watchdog_printf(x...)
+#endif
+
 /**
  * @class WatchdogClass
  * @brief Watchdog controller

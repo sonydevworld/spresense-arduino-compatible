@@ -52,14 +52,14 @@ void WatchdogClass::begin(uint32_t timeout)
   wd_fd = open(WATCHDOG_DEVPATH, O_RDONLY);
   if (wd_fd < 0)
     {
-      printf("watchdog: open %s failed\n",
+      watchdog_printf("watchdog: open %s failed\n",
              WATCHDOG_DEVPATH);
     }
 
   ret = ioctl(wd_fd, WDIOC_SETTIMEOUT, (unsigned long)timeout);
   if (ret < 0)
     {
-      printf("watchdog: ioctl(WDIOC_SETTIMEOUT) failed\n");
+      watchdog_printf("watchdog: ioctl(WDIOC_SETTIMEOUT) failed\n");
     }
 }
 
@@ -70,7 +70,7 @@ void WatchdogClass::start(void) {
   ret = ioctl(wd_fd, WDIOC_START, 0);
   if (ret < 0)
     {
-      printf("wdog_main: ioctl(WDIOC_START) failed\n");
+      watchdog_printf("wdog_main: ioctl(WDIOC_START) failed\n");
     }
 }
 
@@ -81,7 +81,7 @@ void WatchdogClass::kick(void) {
   ret = ioctl(wd_fd, WDIOC_KEEPALIVE, 0);
   if (ret < 0)
     {
-      printf("wdog_main: ioctl(WDIOC_KEEPALIVE) failed\n");
+      watchdog_printf("wdog_main: ioctl(WDIOC_KEEPALIVE) failed\n");
     }
 }
 
@@ -92,7 +92,7 @@ void WatchdogClass::stop(void) {
   ret = ioctl(wd_fd, WDIOC_STOP, 0);
   if (ret < 0)
     {
-      printf("wdog_main: ioctl(WDIOC_STOP) failed\n");
+      watchdog_printf("wdog_main: ioctl(WDIOC_STOP) failed\n");
     }
 }
 
