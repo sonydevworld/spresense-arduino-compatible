@@ -16,7 +16,7 @@
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
- *  This is a test app for the camera library.
+ *  This is a test app for the watchdog library.
  *  This library can only be used on the Spresense with the FCBGA chip package.
  */
 
@@ -50,14 +50,23 @@ void setup() {
 
 void loop() {
   static int delay_ms = 1000;
-  
+
+  /**
+   * Kick a watchdog
+   */
   Serial.println("Kick!");
   Watchdog.kick();
 
+  /**
+   * Wait for next loop
+   */
   Serial.print("Sleep ");
   Serial.print(delay_ms);
   Serial.println("ms");
   usleep(1000 * delay_ms);
 
+  /**
+   * Increase wati time
+   */
   delay_ms += 100;
 }

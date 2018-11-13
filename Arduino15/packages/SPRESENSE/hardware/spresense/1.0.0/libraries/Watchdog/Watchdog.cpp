@@ -22,23 +22,29 @@
  * @author Sony Semiconductor Solutions Corporation
  * @brief Spresense Arduino Watchdog library 
  * 
- * @details It is a library for using watchdog for user program, with the 
- *          Spresense as the master device. 
+ * @details It is a library for using watchdog for user program, and
+ *          user can reset if program is freezed.
  */
 
 #include <sdk/config.h>
 
 #include <fcntl.h>
 #include <sys/ioctl.h>
+
 #include "Watchdog.h"
 
+#define WATCHDOG_DEVPATH "/dev/watchdog0"
+
+// Public instance
 WatchdogClass Watchdog;
 
+// Public : Constructor
 WatchdogClass::WatchdogClass(void)
-:wd_fd(0)
+:wd_fd(-1)
 {
 }
 
+// Public : Initialize to use the Watchdog
 void WatchdogClass::begin(uint32_t timeout)
 {
   int ret;
@@ -57,6 +63,7 @@ void WatchdogClass::begin(uint32_t timeout)
     }
 }
 
+// Public : Start the Watchdog
 void WatchdogClass::start(void) {
   int ret;
   
@@ -67,6 +74,7 @@ void WatchdogClass::start(void) {
     }
 }
 
+// Public : Send kick to avoid bite
 void WatchdogClass::kick(void) {
   int ret;
   
@@ -77,6 +85,7 @@ void WatchdogClass::kick(void) {
     }
 }
 
+// Public : Stop the Watchdog
 void WatchdogClass::stop(void) {
   int ret;
   
@@ -87,6 +96,7 @@ void WatchdogClass::stop(void) {
     }
 }
 
+// Public : Finalize to use the Watchdog
 void WatchdogClass::end(void)
 {
     stop();

@@ -25,8 +25,8 @@
  * @author Sony Semiconductor Solutions Corporation
  * @brief Spresense Arduino Watchdog library 
  * 
- * @details It is a library for using watchdog for user program, with the 
- *          Spresense as the master device. 
+ * @details It is a library for using watchdog for user program, and
+ *          user can reset if program is freezed.
  */
 
 /*
@@ -39,62 +39,50 @@
 #include <nuttx/timers/watchdog.h>
 #include <Arduino.h>
 
-#define WATCHDOG_DEVPATH "/dev/watchdog0"
-
 
 /**
  * @class WatchdogClass
  * @brief Watchdog controller
  *
- * @details You can control SPI comunication by operating WatchdogClass objects 
- *          instantiated in your app.
+ * @details You can reset your application when application freezed
+ *          by operating WatchdogClass objects instantiated in your app.
  */
 class WatchdogClass {
 public:
     /**
-     * @brief Create SPIClass object
-     * 
-     * @param [in] port The default port is 4. You can control SPI4 using object SPI\n
-     *                  e.g. SPI.begin();\n SPI5 is also supported. You can control
-     *                  SPI5 using object SPI5\n e.g. SPI5.begin();
+     * @brief Create WatchdogClass object
      */
     WatchdogClass(void);
 
     /**
-     * @brief Initialize the SPI library
+     * @brief Initialize the Watchdog library
+     *
+     * @param [in] Timeout value for bite a watchdog
      */
     void begin(uint32_t);
 
     /**
-     * @brief Disable the SPI bus
+     * @brief Disable the Watchdog
      */
     void end(void);
 
     /**
-     * @brief Before using SPI.transfer() or asserting chip select pins,
-     *        this function is used to gain exclusive access to the SPI bus
-     *        and configure the correct settings.
-     * 
-     * @param [in] settings SPISettings object
+     * @brief Start to check timer for bite watchdog
      */
     void start(void);
 
     /**
-     * @brief After performing a group of transfers and releasing the chip select
-     *        signal, this function allows others to access the SPI bus
+     * @brief Stop to check timer for bite watchdog
      */
     void stop(void);
 
     /**
-     * @brief This function is deprecated.  New applications should use
-     *        beginTransaction() to configure SPI settings.
-     * 
-     * @param [in] bitOrder Bit order
+     * @brief Kick to avoid bite a watchdog
      */
     void kick(void);
 
 private:
-    int wd_fd;                  /**< SPI port number */
+    int wd_fd;                  /**< File descriptor for use watchdog device file */
 };
 
 extern WatchdogClass Watchdog;
