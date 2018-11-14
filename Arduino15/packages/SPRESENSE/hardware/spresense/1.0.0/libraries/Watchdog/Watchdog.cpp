@@ -85,6 +85,20 @@ void WatchdogClass::kick(void) {
     }
 }
 
+// Public : Get remain time for bite a watchdog
+uint32_t WatchdogClass::get_status(void) {
+  struct watchdog_status_s status;
+  int ret;
+
+  ret = ioctl(wd_fd, WDIOC_GETSTATUS, (unsigned long)&status);
+  if (ret < 0)
+    {
+      watchdog_printf("wdog_main: ioctl(WDIOC_GETSTATUS) failed\n");
+    }
+
+  return status.timeleft;
+}
+
 // Public : Stop the Watchdog
 void WatchdogClass::stop(void) {
   int ret;

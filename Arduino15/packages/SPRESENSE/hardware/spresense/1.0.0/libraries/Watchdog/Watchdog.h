@@ -66,7 +66,7 @@ public:
     /**
      * @brief Initialize the Watchdog library
      *
-     * @param [in] Timeout value for bite a watchdog
+     * @param [in] Timeout value in milliseconds for bite a watchdog
      */
     void begin(uint32_t);
 
@@ -86,9 +86,15 @@ public:
     void stop(void);
 
     /**
-     * @brief Kick to avoid bite a watchdog
+     * @brief Kick the dog to avoid bite a watchdog, it mean "Keep alive".
+     * If expire a timeout, device will reboot.
      */
     void kick(void);
+
+    /**
+     * @brief Get a remain time for bite watchdog.
+     */
+    uint32_t get_status(void);
 
 private:
     int wd_fd;                  /**< File descriptor for use watchdog device file */
