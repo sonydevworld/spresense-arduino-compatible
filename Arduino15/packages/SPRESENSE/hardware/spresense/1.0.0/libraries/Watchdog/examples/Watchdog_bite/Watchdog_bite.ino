@@ -40,16 +40,31 @@ void setup() {
   /**
    * Initialize a watchdog
    */
-  Watchdog.begin(2000);
-
-  /**
-   * Start a watchdog
-   */
-  Watchdog.start();
+  Watchdog.begin();
 }
 
 void loop() {
   static int delay_ms = 1000;
+
+  /**
+   * Start a watchdog
+   */
+  Watchdog.start(2000);
+
+  /**
+   * Wait for next loop
+   * (If delay_ms exceeds delay_ms, watchdog will bite)
+   */
+  Serial.print("Sleep ");
+  Serial.print(delay_ms);
+  Serial.println("ms");
+  usleep(1000 * delay_ms);
+
+  /**
+   * Check remain time for watchdog bite
+   */
+  Serial.print(Watchdog.get_status());
+  Serial.println("ms left for watchdog bite");
 
   /**
    * Kick a watchdog
@@ -58,15 +73,12 @@ void loop() {
   Watchdog.kick();
 
   /**
-   * Wait for next loop
-   */
-  Serial.print("Sleep ");
-  Serial.print(delay_ms);
-  Serial.println("ms");
-  usleep(1000 * delay_ms);
-
-  /**
    * Increase wati time
    */
   delay_ms += 100;
+
+  /**
+   * Stop a watchdog
+   */
+  Watchdog.stop();
 }
