@@ -45,7 +45,7 @@ WatchdogClass::WatchdogClass(void)
 }
 
 // Public : Initialize to use the Watchdog
-void WatchdogClass::begin(uint32_t timeout)
+void WatchdogClass::begin(void)
 {
   int ret;
   
@@ -55,17 +55,17 @@ void WatchdogClass::begin(uint32_t timeout)
       watchdog_printf("watchdog: open %s failed\n",
              WATCHDOG_DEVPATH);
     }
+}
+
+// Public : Start the Watchdog
+void WatchdogClass::start(uint32_t timeout) {
+  int ret;
 
   ret = ioctl(wd_fd, WDIOC_SETTIMEOUT, (unsigned long)timeout);
   if (ret < 0)
     {
       watchdog_printf("watchdog: ioctl(WDIOC_SETTIMEOUT) failed\n");
     }
-}
-
-// Public : Start the Watchdog
-void WatchdogClass::start(void) {
-  int ret;
   
   ret = ioctl(wd_fd, WDIOC_START, 0);
   if (ret < 0)

@@ -65,10 +65,8 @@ public:
 
     /**
      * @brief Initialize the Watchdog library
-     *
-     * @param [in] Timeout value in milliseconds for bite a watchdog
      */
-    void begin(uint32_t);
+    void begin(void);
 
     /**
      * @brief Disable the Watchdog
@@ -77,8 +75,10 @@ public:
 
     /**
      * @brief Start to check timer for bite watchdog
+     *
+     * @param [in] Timeout value in milliseconds for bite a watchdog
      */
-    void start(void);
+    void start(uint32_t);
 
     /**
      * @brief Stop to check timer for bite watchdog
