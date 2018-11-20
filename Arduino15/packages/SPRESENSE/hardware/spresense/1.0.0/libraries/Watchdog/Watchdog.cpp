@@ -86,7 +86,7 @@ void WatchdogClass::kick(void) {
 }
 
 // Public : Get remain time for bite a watchdog
-uint32_t WatchdogClass::get_status(void) {
+uint32_t WatchdogClass::timeleft(void) {
   struct watchdog_status_s status;
   int ret;
 

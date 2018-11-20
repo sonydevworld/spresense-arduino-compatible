@@ -8,4 +8,4 @@ Watchdog	LITERAL1
 start	KEYWORD2
 stop	KEYWORD2
 kick	KEYWORD2
-get_status	KEYWORD2
+timeleft	KEYWORD2

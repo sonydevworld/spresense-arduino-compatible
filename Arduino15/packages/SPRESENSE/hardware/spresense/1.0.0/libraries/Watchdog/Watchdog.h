@@ -94,7 +94,7 @@ public:
     /**
      * @brief Get a remain time for bite watchdog.
      */
-    uint32_t get_status(void);
+    uint32_t timeleft(void);
 
 private:
     int wd_fd;                  /**< File descriptor for use watchdog device file */

@@ -63,7 +63,7 @@ void loop() {
   /**
    * Check remain time for watchdog bite
    */
-  Serial.print(Watchdog.get_status());
+  Serial.print(Watchdog.timeleft());
   Serial.println("ms left for watchdog bite");
 
   /**
