@@ -54,7 +54,7 @@ err_t MediaPlayer::begin(void)
 {
   m_player0_simple_fifo_buf =
     (uint32_t*)(0xfffffffc & ((uint32_t)(malloc(MEDIAPLAYER_BUF_SIZE + 3)) + 3));
-   
+
   m_player1_simple_fifo_buf =
     (uint32_t*)(0xfffffffc & ((uint32_t)(malloc(MEDIAPLAYER_BUF_SIZE + 3)) + 3));
 
@@ -63,6 +63,12 @@ err_t MediaPlayer::begin(void)
 
 /*--------------------------------------------------------------------------*/
 err_t MediaPlayer::create(PlayerId id)
+{
+  return create(id, NULL);
+}
+
+/*--------------------------------------------------------------------------*/
+err_t MediaPlayer::create(PlayerId id, AudioAttentionCb attcb)
 {
   AsCreatePlayerParam_t player_create_param;
 
@@ -79,11 +85,11 @@ err_t MediaPlayer::create(PlayerId id)
 
   if (id == Player0)
     {
-      result = AS_CreatePlayerMulti(AS_PLAYER_ID_0, &player_create_param, attentionCallback);
+      result = AS_CreatePlayerMulti(AS_PLAYER_ID_0, &player_create_param, (attcb) ? attcb : attentionCallback);
     }
   else
     {
-      result = AS_CreatePlayerMulti(AS_PLAYER_ID_1, &player_create_param, attentionCallback);
+      result = AS_CreatePlayerMulti(AS_PLAYER_ID_1, &player_create_param, (attcb) ? attcb : attentionCallback);
     }
 
   if (!result)
@@ -121,7 +127,7 @@ err_t MediaPlayer::activate(PlayerId id, uint8_t output_device, MediaPlayerCallb
   AsPlayerInputDeviceHdlrForRAM *p_input_dev_handler =
     (id == Player0) ?
       &m_player0_input_device_handler : &m_player1_input_device_handler;
-  
+
   p_input_dev_handler->simple_fifo_handler = (void*)(handle);
   p_input_dev_handler->callback_function   = input_device_callback;
 
@@ -290,12 +296,12 @@ err_t MediaPlayer::deactivate(PlayerId id)
 }
 
 
-#define WRITE_FRAME_NUM 5 
+#define WRITE_FRAME_NUM 5
 /*--------------------------------------------------------------------------*/
 err_t MediaPlayer::writeFrames(PlayerId id, File& myFile)
 {
   int ret = MEDIAPLAYER_ECODE_OK;
-  char *buf = (id == Player0) ? m_es_player0_buf : m_es_player1_buf; 
+  char *buf = (id == Player0) ? m_es_player0_buf : m_es_player1_buf;
 
   CMN_SimpleFifoHandle *handle =
     (id == Player0) ?
@@ -353,13 +359,56 @@ err_t MediaPlayer::write_fifo(File& myFile, char *p_es_buf, CMN_SimpleFifoHandle
 }
 
 /*--------------------------------------------------------------------------*/
+err_t MediaPlayer::writeFrames(PlayerId id, uint8_t *data, uint32_t size)
+{
+  int ret = MEDIAPLAYER_ECODE_OK;
+  char *buf = (id == Player0) ? m_es_player0_buf : m_es_player1_buf;
+
+  CMN_SimpleFifoHandle *handle =
+    (id == Player0) ?
+      &m_player0_simple_fifo_handle : &m_player1_simple_fifo_handle;
+
+  ret = write_fifo(data, size, buf, handle);
+
+  return ret;
+}
+
+/*--------------------------------------------------------------------------*/
+err_t MediaPlayer::write_fifo(uint8_t *data, uint32_t size, char *p_es_buf, CMN_SimpleFifoHandle *handle)
+{
+  uint32_t vacant_size = CMN_SimpleFifoGetVacantSize(handle);
+
+  if (vacant_size < size)
+    {
+      return MEDIAPLAYER_ECODE_OK;
+    }
+
+  if (!data || !size)
+    {
+      return MEDIAPLAYER_ECODE_COMMAND_ERROR;
+    }
+  else
+    {
+      memcpy(p_es_buf, data, size);
+    }
+
+  if (CMN_SimpleFifoOffer(handle, (const void*)(p_es_buf), size) == 0)
+    {
+      print_err("Simple FIFO is full!\n");
+      return MEDIAPLAYER_ECODE_SIMPLEFIFO_ERROR;
+    }
+
+  return MEDIAPLAYER_ECODE_OK;
+}
+
+/*--------------------------------------------------------------------------*/
 bool MediaPlayer::check_decode_dsp(uint8_t codec_type, const char *path)
 {
   char fullpath[32];
   struct stat buf;
   int retry;
   int ret = 0;
-  
+
   switch (codec_type)
     {
       case AS_CODECTYPE_MP3:

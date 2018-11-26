@@ -50,23 +50,23 @@ extern const MsgQueDef MsgqPoolDefs[NUM_MSGQ_POOLS] = {
   { 0xfdd08, 48, 5, 0xffffffff, 0, 0 }, /* MSGQ_AUD_SUB_PLY */
   { 0xfddf8, 48, 8, 0xffffffff, 0, 0 }, /* MSGQ_AUD_OUTPUT_MIX */
   { 0xfdf78, 32, 16, 0xffffffff, 0, 0 }, /* MSGQ_AUD_RND_PLY */
-  { 0xfe178, 16, 8, 0xffffffff, 0, 0 }, /* MSGQ_AUD_RND_PLY_SYNC */
-  { 0xfe1f8, 32, 16, 0xffffffff, 0, 0 }, /* MSGQ_AUD_RND_SUB */
-  { 0xfe3f8, 16, 8, 0xffffffff, 0, 0 }, /* MSGQ_AUD_RND_SUB_SYNC */
-  { 0xfe478, 48, 5, 0xffffffff, 0, 0 }, /* MSGQ_AUD_RECORDER */
-  { 0xfe568, 36, 17, 0xffffffff, 0, 0 }, /* MSGQ_AUD_MEDIA_REC_SINK */
-  { 0xfe7cc, 24, 16, 0xffffffff, 0, 0 }, /* MSGQ_AUD_CAP */
-  { 0xfe94c, 16, 8, 0xffffffff, 0, 0 }, /* MSGQ_AUD_CAP_SYNC */
-  { 0xfe9cc, 52, 5, 0xffffffff, 0, 0 }, /* MSGQ_AUD_SOUND_EFFECT */
-  { 0xfead0, 20, 5, 0xffffffff, 0, 0 }, /* MSGQ_AUD_RCG_CMD */
-  { 0xfeb34, 24, 16, 0xffffffff, 0, 0 }, /* MSGQ_AUD_CAP_MIC */
-  { 0xfecb4, 16, 8, 0xffffffff, 0, 0 }, /* MSGQ_AUD_CAP_MIC_SYNC */
-  { 0xfed34, 24, 16, 0xffffffff, 0, 0 }, /* MSGQ_AUD_CAP_I2S */
-  { 0xfeeb4, 16, 8, 0xffffffff, 0, 0 }, /* MSGQ_AUD_CAP_I2S_SYNC */
-  { 0xfef34, 32, 16, 0xffffffff, 0, 0 }, /* MSGQ_AUD_RND_SPHP */
-  { 0xff134, 16, 8, 0xffffffff, 0, 0 }, /* MSGQ_AUD_RND_SPHP_SYNC */
-  { 0xff1b4, 32, 16, 0xffffffff, 0, 0 }, /* MSGQ_AUD_RND_I2S */
-  { 0xff3b4, 16, 8, 0xffffffff, 0, 0 }, /* MSGQ_AUD_RND_I2S_SYNC */
+  { 0xfe178, 16, 2, 0xffffffff, 0, 0 }, /* MSGQ_AUD_RND_PLY_SYNC */
+  { 0xfe198, 32, 16, 0xffffffff, 0, 0 }, /* MSGQ_AUD_RND_SUB */
+  { 0xfe398, 16, 2, 0xffffffff, 0, 0 }, /* MSGQ_AUD_RND_SUB_SYNC */
+  { 0xfe3b8, 48, 5, 0xffffffff, 0, 0 }, /* MSGQ_AUD_RECORDER */
+  { 0xfe4a8, 36, 17, 0xffffffff, 0, 0 }, /* MSGQ_AUD_MEDIA_REC_SINK */
+  { 0xfe70c, 24, 16, 0xffffffff, 0, 0 }, /* MSGQ_AUD_CAP */
+  { 0xfe88c, 16, 2, 0xffffffff, 0, 0 }, /* MSGQ_AUD_CAP_SYNC */
+  { 0xfe8ac, 52, 5, 0xffffffff, 0, 0 }, /* MSGQ_AUD_SOUND_EFFECT */
+  { 0xfe9b0, 20, 5, 0xffffffff, 0, 0 }, /* MSGQ_AUD_RCG_CMD */
+  { 0xfea14, 24, 16, 0xffffffff, 0, 0 }, /* MSGQ_AUD_CAP_MIC */
+  { 0xfeb94, 16, 2, 0xffffffff, 0, 0 }, /* MSGQ_AUD_CAP_MIC_SYNC */
+  { 0xfebb4, 24, 16, 0xffffffff, 0, 0 }, /* MSGQ_AUD_CAP_I2S */
+  { 0xfed34, 16, 2, 0xffffffff, 0, 0 }, /* MSGQ_AUD_CAP_I2S_SYNC */
+  { 0xfed54, 32, 16, 0xffffffff, 0, 0 }, /* MSGQ_AUD_RND_SPHP */
+  { 0xfef54, 16, 2, 0xffffffff, 0, 0 }, /* MSGQ_AUD_RND_SPHP_SYNC */
+  { 0xfef74, 32, 16, 0xffffffff, 0, 0 }, /* MSGQ_AUD_RND_I2S */
+  { 0xff174, 16, 2, 0xffffffff, 0, 0 }, /* MSGQ_AUD_RND_I2S_SYNC */
 };
 
 #endif /* MSGQ_POOL_H_INCLUDED */

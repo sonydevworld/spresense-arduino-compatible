@@ -59,10 +59,10 @@ extern const PoolAttr MemoryPoolLayouts[NUM_MEM_LAYOUTS][NUM_MEM_POOLS] = {
  },
  {/* Layout:1 */
   /* pool_ID          type       seg fence  addr        size         */
-  { OUTPUT_BUF_POOL , BasicType,   2, true, 0x000c0008, 0x00003000 },  /* AUDIO_WORK_AREA */
-  { MIC_IN_BUF_POOL , BasicType,   5, true, 0x000c3010, 0x00014000 },  /* AUDIO_WORK_AREA */
-  { ENC_APU_CMD_POOL, BasicType,   3, true, 0x000d7018, 0x00000114 },  /* AUDIO_WORK_AREA */
-  { SRC_APU_CMD_POOL, BasicType,   3, true, 0x000d7138, 0x00000114 },  /* AUDIO_WORK_AREA */
+  { OUTPUT_BUF_POOL , BasicType,   2, true, 0x000c0008, 0x00006000 },  /* AUDIO_WORK_AREA */
+  { MIC_IN_BUF_POOL , BasicType,   5, true, 0x000c6010, 0x00014000 },  /* AUDIO_WORK_AREA */
+  { ENC_APU_CMD_POOL, BasicType,   3, true, 0x000da018, 0x00000114 },  /* AUDIO_WORK_AREA */
+  { SRC_APU_CMD_POOL, BasicType,   3, true, 0x000da138, 0x00000114 },  /* AUDIO_WORK_AREA */
  },
  {/* Layout:2 */
   /* pool_ID          type       seg fence  addr        size         */
@@ -71,6 +71,24 @@ extern const PoolAttr MemoryPoolLayouts[NUM_MEM_LAYOUTS][NUM_MEM_POOLS] = {
   { HP_OUT_BUF_POOL , BasicType,   5, true, 0x000c1c38, 0x000012c0 },  /* AUDIO_WORK_AREA */
   { I2S_OUT_BUF_POOL, BasicType,   5, true, 0x000c2f00, 0x000012c0 },  /* AUDIO_WORK_AREA */
   { MFE_OUT_BUF_POOL, BasicType,   8, true, 0x000c41c8, 0x00000500 },  /* AUDIO_WORK_AREA */
+ },
+ {/* Layout:3 */
+  /* pool_ID          type       seg fence  addr        size         */
+  { DEC_ES_MAIN_BUF_POOL, BasicType,   4, true, 0x000c0008, 0x00006000 },  /* AUDIO_WORK_AREA */
+  { REND_PCM_BUF_POOL, BasicType,   5, true, 0x000c6010, 0x00005014 },  /* AUDIO_WORK_AREA */
+  { SRC_WORK_MAIN_BUF_POOL, BasicType,   1, true, 0x000cb030, 0x00001000 },  /* AUDIO_WORK_AREA */
+  { DEC_ES_SUB_BUF_POOL, BasicType,   4, true, 0x000cc038, 0x00004000 },  /* AUDIO_WORK_AREA */
+  { REND_PCM_SUB_BUF_POOL, BasicType,   5, true, 0x000d0040, 0x00005014 },  /* AUDIO_WORK_AREA */
+  { SRC_WORK_SUB_BUF_POOL, BasicType,   1, true, 0x000d5060, 0x00001000 },  /* AUDIO_WORK_AREA */
+  { DEC_APU_CMD_POOL, BasicType,  10, true, 0x000d6068, 0x00000398 },  /* AUDIO_WORK_AREA */
+  { PF0_PCM_BUF_POOL, BasicType,   1, true, 0x000d6408, 0x00001004 },  /* AUDIO_WORK_AREA */
+  { PF1_PCM_BUF_POOL, BasicType,   1, true, 0x000d7418, 0x00001004 },  /* AUDIO_WORK_AREA */
+  { PF0_APU_CMD_POOL, BasicType,  10, true, 0x000d8428, 0x00000398 },  /* AUDIO_WORK_AREA */
+  { PF1_APU_CMD_POOL, BasicType,  10, true, 0x000d87c8, 0x00000398 },  /* AUDIO_WORK_AREA */
+  { OUTPUT_BUF_POOL , BasicType,   2, true, 0x000d8b68, 0x00001800 },  /* AUDIO_WORK_AREA */
+  { MIC_IN_BUF_POOL , BasicType,   5, true, 0x000da370, 0x00003c00 },  /* AUDIO_WORK_AREA */
+  { ENC_APU_CMD_POOL, BasicType,   3, true, 0x000ddf78, 0x00000114 },  /* AUDIO_WORK_AREA */
+  { SRC_APU_CMD_POOL, BasicType,   3, true, 0x000de098, 0x00000114 },  /* AUDIO_WORK_AREA */
  },
 }; /* end of MemoryPoolLayouts */
 

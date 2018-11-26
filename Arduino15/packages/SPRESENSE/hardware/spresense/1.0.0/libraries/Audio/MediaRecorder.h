@@ -63,7 +63,7 @@
 #define MEDIARECORDER_ECODE_BUFFER_SIZE_ERROR 6
 #define MEDIARECORDER_ECODE_BUFFER_AREA_ERROR 7
 #define MEDIARECORDER_ECODE_INSUFFICIENT_BUFFER_AREA 8
-#define MEDIARECORDER_ECODE_BASEBAND_ERROR 8
+#define MEDIARECORDER_ECODE_BASEBAND_ERROR 9
 
 /**
  * MediaRecorder buffer size definition.
@@ -111,6 +111,15 @@ public:
    */
 
   err_t begin(void);
+
+  /**
+   * @brief Initialize the MediaRecorder.
+   *
+   * @details This function can set callback funtion which receive attention notify.
+   *
+   */
+
+  err_t begin(AudioAttentionCb attcb);
 
   /**
    * @brief Finalize the MediaRecorder.

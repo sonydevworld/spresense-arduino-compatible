@@ -24,6 +24,24 @@ AudioClass *theAudio;
 
 File myFile;
 
+bool ErrEnd = false;
+
+/**
+ * @brief Audio attention callback
+ *
+ * When audio internal error occurc, this function will be called back.
+ */
+
+static void audio_attention_cb(const ErrorAttentionParam *atprm)
+{
+  puts("Attention!");
+  
+  if (atprm->error_code >= AS_ATTENTION_CODE_WARNING)
+    {
+      ErrEnd = true;
+   }
+}
+
 /**
  * @brief Setup audio player to play wav file
  *
@@ -40,7 +58,7 @@ void setup()
   /* start audio system */
   theAudio = AudioClass::getInstance();
 
-  theAudio->begin();
+  theAudio->begin(audio_attention_cb);
 
   puts("initialization Audio Library");
 
@@ -123,6 +141,12 @@ void loop()
         {
           printf("Main player error code: %d\n", err);
         }
+      goto stop_player;
+    }
+
+  if (ErrEnd)
+    {
+      printf("Error End\n");
       goto stop_player;
     }
 

@@ -17,6 +17,7 @@ startStreaming             KEYWORD2
 setAutoWhiteBalance        KEYWORD2
 setAutoExposure            KEYWORD2
 setAutoISOSensitive        KEYWORD2
+setAutoISOSensitivity      KEYWORD2
 setISOSensitivity          KEYWORD2
 setAutoWhiteBalanceMode    KEYWORD2
 setSceneMode               KEYWORD2

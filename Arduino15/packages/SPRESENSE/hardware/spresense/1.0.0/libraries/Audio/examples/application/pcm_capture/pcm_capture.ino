@@ -21,9 +21,27 @@
 
 AudioClass *theAudio;
 
-const int32_t recoding_frames = 400;
-const int32_t buffer_size = 6144;
-char buffer[buffer_size];
+static const int32_t recoding_frames = 400;
+static const int32_t buffer_size = 6144; /*768sample,4ch,16bit*/
+static char          s_buffer[buffer_size];
+
+bool ErrEnd = false;
+
+/**
+ * @brief Audio attention callback
+ *
+ * When audio internal error occurc, this function will be called back.
+ */
+
+void audio_attention_cb(const ErrorAttentionParam *atprm)
+{
+  puts("Attention!");
+  
+  if (atprm->error_code >= AS_ATTENTION_CODE_WARNING)
+    {
+      ErrEnd = true;
+   }
+}
 
 /**
  *  @brief Setup audio device to capture PCM stream
@@ -37,7 +55,7 @@ void setup()
 {
   theAudio = AudioClass::getInstance();
 
-  theAudio->begin();
+  theAudio->begin(audio_attention_cb);
 
   puts("initialization Audio Library");
 
@@ -56,45 +74,114 @@ void setup()
 }
 
 /**
+ * @brief Audio signal process for your application
+ */
+
+void signal_process(uint32_t size)
+{
+  /* The actual signal processing will be coding here.
+     For example, prints capture data. */
+
+  printf("Size %d [%02x %02x %02x %02x %02x %02x %02x %02x ...]\n",
+         size,
+         s_buffer[0],
+         s_buffer[1],
+         s_buffer[2],
+         s_buffer[3],
+         s_buffer[4],
+         s_buffer[5],
+         s_buffer[6],
+         s_buffer[7]);
+}
+
+/**
+ * @brief Execute frames for FIFO empty
+ */
+
+void execute_frames()
+{
+  uint32_t read_size = 0;
+  do
+    {
+      err_t err = execute_aframe(&read_size);
+      if ((err != AUDIOLIB_ECODE_OK)
+       && (err != AUDIOLIB_ECODE_INSUFFICIENT_BUFFER_AREA))
+        {
+          break;
+        }
+    }
+  while (read_size > 0);
+}
+
+/**
+ * @brief Execute one frame
+ */
+
+err_t execute_aframe(uint32_t* size)
+{
+  err_t err = theAudio->readFrames(s_buffer, buffer_size, size);
+
+  if(((err == AUDIOLIB_ECODE_OK) || (err == AUDIOLIB_ECODE_INSUFFICIENT_BUFFER_AREA)) && (*size > 0)) 
+    {
+      signal_process(*size);
+    }
+
+  return err;
+}
+
+/**
  * @brief Capture frames of PCM data into buffer
  */
 void loop() {
 
-  static int cnt = 0;
-  uint32_t read_size;
+  static int32_t total_size = 0;
+  uint32_t read_size =0;
 
-  /* recording end condition */
-  if (cnt > recoding_frames)
-    {
-      puts("End Recording");
-      theAudio->stopRecorder();
-      exit(1);
-    }
-
-  /* Read frames to record in buffer */
-  err_t err = theAudio->readFrames(buffer, buffer_size, &read_size);
-
+  /* Execute audio data */
+  err_t err = execute_aframe(&read_size);
   if (err != AUDIOLIB_ECODE_OK && err != AUDIOLIB_ECODE_INSUFFICIENT_BUFFER_AREA)
     {
-      printf("Error End! =%d\n",err);
-      sleep(1);
       theAudio->stopRecorder();
-      exit(1);
+      goto exitRecording;
+    }
+  else if (read_size>0)
+    {
+      total_size += read_size;
     }
 
-  /* The actual signal processing will be coding here.
-     For example, prints capture data. */
-  if (read_size != 0)
-  {
-    printf("Record Data: 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x\n", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5], buffer[6], buffer[7]);
-  }
+  /* This sleep is adjusted by the time to write the audio stream file.
+     Please adjust in according with the processing contents
+     being processed at the same time by Application.
+  */
+//  usleep(10000);
 
-  /* The actual signal processing will be done here.
-     Adjust the waiting time as necessary. */
+  /* Stop Recording */
+  if (total_size > (recoding_frames*buffer_size))
+    {
+      theAudio->stopRecorder();
 
-  volatile int i;  
-  for(i=0; i<100000;i++);
+      /* Get ramaining data(flushing) */
+      sleep(1); /* For data pipline stop */
+      execute_frames();
+      
+      goto exitRecording;
+    }
 
-  cnt++;
+  if (ErrEnd)
+    {
+      printf("Error End\n");
+      theAudio->stopRecorder();
+      goto exitRecording;
+    }
+
+  return;
+
+exitRecording:
+
+  theAudio->setReadyMode();
+  theAudio->end();
+  
+  puts("End Recording");
+  exit(1);
 
 }

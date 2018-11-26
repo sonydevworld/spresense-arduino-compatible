@@ -1,5 +1,5 @@
 /*
-  leds.h - LED control include file for the Sparduino SDK
+  leds.h - LED control include file for the Spresense SDK
   Copyright (C) 2018 Sony Semiconductor Solutions Corp.
   Copyright (c) 2017 Sony Corporation  All right reserved.
 
@@ -18,6 +18,9 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#ifndef Leds_h
+#define Leds_h
+
 #include <Arduino.h>
 #include <assert.h>
 
@@ -33,3 +36,5 @@ extern "C"
 #ifdef __cplusplus
 }
 #endif
+
+#endif // Leds_h

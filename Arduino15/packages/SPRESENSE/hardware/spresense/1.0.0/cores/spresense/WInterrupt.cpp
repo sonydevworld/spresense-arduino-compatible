@@ -1,5 +1,5 @@
 /*
-  WInterrupt.cpp - Interrupts API implementation file for the Sparduino SDK
+  WInterrupt.cpp - Interrupts API implementation file for the Spresense SDK
   Copyright (C) 2018 Sony Semiconductor Solutions Corp.
   Copyright (c) 2017 Sony Corporation  All right reserved.
 

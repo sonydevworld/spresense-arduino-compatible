@@ -114,6 +114,18 @@ public:
   );
 
   /**
+   * @brief Creation of the MediaPlayer.
+   *
+   * @details This function can set callback funtion which receive attention notify.
+   *
+   */
+
+  err_t create(
+      PlayerId id,           /**< Select Player ID. */
+      AudioAttentionCb attcb /**< Attention callback */
+  );
+
+  /**
    * @brief Activate the MediaPlayer
    *
    * @details This function activates media player system.
@@ -288,6 +300,19 @@ public:
       File& myfile /**< */
   );
 
+  /**
+   * @brief Write(Supply) audio data to play
+   *
+   * @details This function works as same as above writeFrames(PlayerId, File &).
+   *          However, take audio data from buffer, not from file.
+   *
+   */
+
+  err_t writeFrames(
+      PlayerId id,   /**< Select Player ID. */
+      uint8_t *data, /**< Pointer to audio data which would like to sound */
+      uint32_t size  /**< Size of audio data */
+  );
 
 private:
 
@@ -314,6 +339,8 @@ private:
   char m_es_player1_buf[MEDIAPLAYER_BUF_FRAME_SIZE];
 
   err_t write_fifo(File& myFile, char *p_es_buf, CMN_SimpleFifoHandle *handle);
+  err_t write_fifo(uint8_t *data, uint32_t size, char *p_es_buf, CMN_SimpleFifoHandle *handle);
+
   bool check_decode_dsp(uint8_t codec_type, const char *path);
 };
 

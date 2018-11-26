@@ -35,6 +35,24 @@ AudioClass *theAudio;
 
 File myFile;
 
+bool ErrEnd = false;
+
+/**
+ * @brief Audio attention callback
+ *
+ * When audio internal error occurc, this function will be called back.
+ */
+
+static void audio_attention_cb(const ErrorAttentionParam *atprm)
+{
+  puts("Attention!");
+  
+  if (atprm->error_code >= AS_ATTENTION_CODE_WARNING)
+    {
+      ErrEnd = true;
+   }
+}
+
 /**
  * @brief Set up audio library to record and play
  *
@@ -46,7 +64,7 @@ void setup()
   // start audio system
   theAudio = AudioClass::getInstance();
 
-  theAudio->begin();
+  theAudio->begin(audio_attention_cb);
 
   puts("initialization Audio Library");
 
@@ -240,6 +258,12 @@ void loop()
   if (fcnt >= 5)
     {
       puts("End application");
+      exit(1);
+    }
+
+  if (ErrEnd)
+    {
+      printf("Error End\n");
       exit(1);
     }
 

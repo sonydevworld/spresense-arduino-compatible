@@ -20,12 +20,29 @@
 #include <MediaRecorder.h>
 #include <MemoryUtil.h>
 
-#define RECORD_LOOP 400
-
 MediaRecorder *theRecorder;
 
-static const int32_t sc_buffer_size = 6144;
-static uint8_t s_buffer[sc_buffer_size];
+static const int32_t recoding_frames = 400;
+static const int32_t buffer_size = 6144;
+static uint8_t       s_buffer[buffer_size];
+
+bool ErrEnd = false;
+
+/**
+ * @brief Audio attention callback
+ *
+ * When audio internal error occurc, this function will be called back.
+ */
+
+void mediarecorder_attention_cb(const ErrorAttentionParam *atprm)
+{
+  puts("Attention!");
+  
+  if (atprm->error_code >= AS_ATTENTION_CODE_WARNING)
+    {
+      ErrEnd = true;
+   }
+}
 
 /**
  * @brief Recorder done callback procedure
@@ -63,7 +80,7 @@ void setup()
 
   theRecorder = MediaRecorder::getInstance();
 
-  theRecorder->begin();
+  theRecorder->begin(mediarecorder_attention_cb);
 
   puts("initialization MediaRecorder");
 
@@ -75,7 +92,7 @@ void setup()
 
   theRecorder->activate(AS_SETRECDR_STS_INPUTDEVICE_MIC, mediarecorder_done_callback);
 
-  usleep(100 * 1000);
+  usleep(100 * 1000); /* waiting for Mic startup */
 
   /*
    * Initialize recorder to decode stereo wav stream with 48kHz sample rate
@@ -89,13 +106,13 @@ void setup()
                     AS_BITRATE_8000, /* Bitrate is effective only when mp3 recording */
                     "/mnt/sd0/BIN");
 
-  puts("Rec!");
-
   theRecorder->start();
+  puts("Recording Start!");
+  
 }
 
 /**
- * @brief Audio signal process
+ * @brief Audio signal process (Modify for your application)
  */
 
 void signal_process(uint32_t size)
@@ -115,30 +132,38 @@ void signal_process(uint32_t size)
 }
 
 /**
- * @brief Get audio data
+ * @brief Execute frames for FIFO empty
  */
 
-void getEs()
+void execute_frames()
 {
   uint32_t read_size = 0;
-  err_t err = MEDIARECORDER_ECODE_OK;
-
   do
     {
-      err = theRecorder->readFrames(s_buffer, sc_buffer_size, &read_size);
-
+      err_t err = execute_aframe(&read_size);
       if ((err != MEDIARECORDER_ECODE_OK)
        && (err != MEDIARECORDER_ECODE_INSUFFICIENT_BUFFER_AREA))
         {
           break;
         }
-
-      if (read_size > 0)
-        {
-          signal_process(read_size);
-        }
     }
   while (read_size > 0);
+}
+
+/**
+ * @brief Execute one frame
+ */
+
+err_t execute_aframe(uint32_t* size)
+{
+  err_t err = theRecorder->readFrames(s_buffer, buffer_size, size);
+
+  if(((err == MEDIARECORDER_ECODE_OK) || (err == MEDIARECORDER_ECODE_INSUFFICIENT_BUFFER_AREA)) && (*size > 0)) 
+    {
+      signal_process(*size);
+    }
+
+  return err;
 }
 
 /**
@@ -147,40 +172,56 @@ void getEs()
 
 void loop() {
 
-  static int cnt = 0;
+  static int32_t total_size = 0;
+  uint32_t read_size = 0;
 
-  if (cnt > RECORD_LOOP)
+  /* Execute audio data */
+  err_t err = execute_aframe(&read_size);
+  if (err != MEDIARECORDER_ECODE_OK && err != MEDIARECORDER_ECODE_INSUFFICIENT_BUFFER_AREA)
     {
-      /* Recording end condition */
-
-      puts("End Recording");
-      goto exitRecording;
+      puts("Recording Error!");
+      theRecorder->stop();
+      goto exitRecording;      
     }
-
-  /* Get audio data */
-
-  getEs();
+  else if (read_size>0)
+    {
+      total_size += read_size;
+    }
 
   /* This sleep is adjusted by the time to write the audio stream file.
      Please adjust in according with the processing contents
      being processed at the same time by Application.
   */
-  usleep(10000);
-  cnt++;
+//  usleep(10000);
+
+
+  /* Stop Recording */
+  if (total_size > (recoding_frames*buffer_size))
+    {
+      theRecorder->stop();
+
+      /* Get ramaining data(flushing) */
+      sleep(1); /* For data pipline stop */
+      execute_frames();
+      
+      goto exitRecording;
+    }
+
+  if (ErrEnd)
+    {
+      printf("Error End\n");
+      theRecorder->stop();
+      goto exitRecording;
+    }
 
   return;
 
 exitRecording:
 
-  theRecorder->stop();
-
-  /* Get ramaining data(flushing) */
-
-  sleep(1);
-  getEs();
-
   theRecorder->deactivate();
   theRecorder->end();
-
+  
+  puts("End Recording");
   exit(1);
+
 }

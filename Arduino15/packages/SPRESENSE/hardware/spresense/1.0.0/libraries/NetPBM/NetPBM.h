@@ -17,6 +17,9 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#ifndef Netpbm_h
+#define Netpbm_h
+
 #include <SDHCI.h> // tentative, import SDHCILib::File class
 
 class NetPBM {
@@ -42,3 +45,5 @@ private:
   unsigned char  _maxvalue;
   bool           _isascii;
 };
+
+#endif // Netpbm_h

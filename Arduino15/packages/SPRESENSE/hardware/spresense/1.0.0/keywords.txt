@@ -26,6 +26,9 @@ SKIP_NONE	LITERAL1
 SKIP_WHITESPACE	LITERAL1
 
 # Function
+analogWriteGetDefaultFreq	KEYWORD2
+analogWriteSetDefaultFreq	KEYWORD2
+analogWriteFreq	KEYWORD2
 arrayForEach	KEYWORD2
 arrayLength	KEYWORD2
 beginMulticast	KEYWORD2

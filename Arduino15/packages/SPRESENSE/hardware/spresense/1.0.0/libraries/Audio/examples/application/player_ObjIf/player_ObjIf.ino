@@ -29,6 +29,24 @@ OutputMixer *theMixer;
 
 File myFile;
 
+bool ErrEnd = false;
+
+/**
+ * @brief Audio attention callback
+ *
+ * When audio internal error occurc, this function will be called back.
+ */
+
+static void attention_cb(const ErrorAttentionParam *atprm)
+{
+  puts("Attention!");
+  
+  if (atprm->error_code >= AS_ATTENTION_CODE_WARNING)
+    {
+      ErrEnd = true;
+   }
+}
+
 /**
  * @brief Mixer done callback procedure
  *
@@ -133,9 +151,9 @@ void setup()
 
   /* Create Objects */
 
-  thePlayer->create(MediaPlayer::Player0);
+  thePlayer->create(MediaPlayer::Player0, attention_cb);
 
-  theMixer->create();
+  theMixer->create(attention_cb);
 
   /* Set rendering clock */
 
@@ -207,6 +225,12 @@ void loop()
       goto stop_player;
     }
     
+  if (ErrEnd)
+    {
+      printf("Error End\n");
+      goto stop_player;
+    }
+
   /* This sleep is adjusted by the time to read the audio stream file.
      Please adjust in according with the processing contents
      being processed at the same time by Application.
