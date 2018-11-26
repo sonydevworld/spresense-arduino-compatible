@@ -40,6 +40,20 @@
 #include <nuttx/spi/spi.h>
 #include <Arduino.h>
 
+// SPI_HAS_TRANSACTION means SPI has beginTransaction(), endTransaction(),
+// usingInterrupt(), and SPISetting(clock, bitOrder, dataMode)
+#define SPI_HAS_TRANSACTION 1
+
+// SPI_HAS_NOTUSINGINTERRUPT means that SPI has notUsingInterrupt() method
+#define SPI_HAS_NOTUSINGINTERRUPT 1
+
+// SPI_ATOMIC_VERSION means that SPI has atomicity fixes and what version.
+// This way when there is a bug fix you can check this define to alert users
+// of your code if it uses better version of this library.
+// This also implies everything that SPI_HAS_TRANSACTION as documented above is
+// available too.
+#define SPI_ATOMIC_VERSION 1
+
 #define SPI_MODE0 SPIDEV_MODE0  /**< SPI mode 0 */
 #define SPI_MODE1 SPIDEV_MODE1  /**< SPI mode 1 */
 #define SPI_MODE2 SPIDEV_MODE2  /**< SPI mode 2 */
