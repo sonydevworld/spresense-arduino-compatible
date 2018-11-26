@@ -114,7 +114,15 @@ const char* error_msg[] =
  ****************************************************************************/
 err_t AudioClass::begin(void)
 {
+  return begin(NULL);
+}
+
+/*--------------------------------------------------------------------------*/
+err_t AudioClass::begin(AudioAttentionCb attcb)
+{
   int ret;
+
+  m_attention_callback = attcb;
 
   ret = begin_manager();
   if (ret != AUDIOLIB_ECODE_OK)
@@ -330,7 +338,7 @@ err_t AudioClass::activateAudio(void)
   ids.effector    = 0xFF;
   ids.recognizer  = 0xFF;
 
-  AS_CreateAudioManager(ids, attentionCallback);
+  AS_CreateAudioManager(ids, (m_attention_callback) ? m_attention_callback : attentionCallback);
 
   ret = powerOn();
   if (ret != AUDIOLIB_ECODE_OK)
@@ -420,12 +428,18 @@ err_t AudioClass::setReadyMode(void)
  ****************************************************************************/
 err_t AudioClass::setPlayerMode(uint8_t device)
 {
+  return setPlayerMode(device, AS_SP_DRV_MODE_LINEOUT);
+}
+
+/*--------------------------------------------------------------------------*/
+err_t AudioClass::setPlayerMode(uint8_t device, uint8_t sp_drv)
+{
   const NumLayout layout_no = MEM_LAYOUT_PLAYER;
 
   assert(layout_no < NUM_MEM_LAYOUTS);
   createStaticPools(layout_no);
 
-  AudioClass::set_output(device);
+  AudioClass::set_output(device, sp_drv);
 
   print_dbg("set output cmplt\n");
 
@@ -841,9 +855,9 @@ err_t AudioClass::init_recorder_wav(AudioCommand* command, uint32_t sampling_rat
   m_wav_format.format   = AUDIO_FORMAT_PCM;
   m_wav_format.channel  = channel_number;
   m_wav_format.rate     = sampling_rate;
-  m_wav_format.avgbyte  = sampling_rate * channel_number * 2;
-  m_wav_format.block    = channel_number * 2;
-  m_wav_format.bit      = 2 * 8;
+  m_wav_format.avgbyte  = sampling_rate * channel_number * (bit_length / 8);
+  m_wav_format.block    = channel_number * (bit_length / 8);
+  m_wav_format.bit      = bit_length;
   memcpy(m_wav_format.data, SUBCHUNKID_DATA, strlen(SUBCHUNKID_DATA));
 
   return AUDIOLIB_ECODE_OK;
@@ -1040,25 +1054,6 @@ err_t AudioClass::stopRecorder(void)
 }
 
 /*--------------------------------------------------------------------------*/
-#if 0
-err_t AudioClass::closeOutputFile(int fd)
-{
-  do
-    {
-    } while (read_frames(fd) == 0);
-
-  if (m_codec_type == AS_CODECTYPE_WAV)
-    {
-      writeWavHeader(fd);
-    }
-
-  fclose(fd);
-
-  return true;
-}
-#endif
-
-/*--------------------------------------------------------------------------*/
 err_t AudioClass::closeOutputFile(File& myFile)
 {
   do
@@ -1078,24 +1073,6 @@ err_t AudioClass::closeOutputFile(File& myFile)
 }
 
 /*--------------------------------------------------------------------------*/
-/*err_t AudioClass::writeWavHeader(int fd)
-{
-  ssize_t ret;
-
-  m_wav_format.total_size = m_es_size + sizeof(WavFormat_t) - 8;
-  m_wav_format.data_size = m_es_size;
-  fseek(fd, 0, SEEK_SET);
-
-  int ret = fwrite(&m_wav_format, 1, sizeof(WavFormat_t), fd);
-  if (ret < 0)
-    {
-      print_err("Fail to write file(wav header)\n");
-      return false;
-    }
-
-  return AUDIOLIB_ECODE_OK;
-}*/
-/*--------------------------------------------------------------------------*/
 err_t AudioClass::writeWavHeader(File& myFile)
 {
   myFile.seek(0);
@@ -1114,38 +1091,6 @@ err_t AudioClass::writeWavHeader(File& myFile)
 }
 
 /*--------------------------------------------------------------------------*/
-#if 0
-err_t AudioClass::readFrames(int fd)
-{
-  size_t data_size = CMN_SimpleFifoGetOccupiedSize(&m_recorder_simple_fifo_handle);
-
-  while (data_size > 0)
-    {
-      int size = (data_size > FIFO_FRAME_SIZE) ? FIFO_FRAME_SIZE : data_size;
-
-      /* TODO assert で良いよね…。*/
-      if (CMN_SimpleFifoPoll(&m_recorder_simple_fifo_handle, (void*)m_es_recorder_buf, size) == 0)
-        {
-          print_err("ERROR: Fail to get data from simple FIFO.\n");
-          return AUDIOLIB_ECODE_SIMPLEFIFO_ERROR;
-        }
-
-      int ret = fwrite(&m_es_recorder_buf, 1, size, fd);
-      m_es_size += ret;
-      deta_size -= size;
-
-      if (ret < 0)
-        {
-          print_err("ERROR: Cannot write recorded data to output file.\n");
-          fclose(fd);
-          return AUDIOLIB_ECODE_FILEACCESS_ERROR;
-        }
-    }
-
-  return 0;
-}
-#endif
-/*--------------------------------------------------------------------------*/
 err_t AudioClass::readFrames(File& myFile)
 {
   size_t data_size = CMN_SimpleFifoGetOccupiedSize(&m_recorder_simple_fifo_handle);
@@ -1155,7 +1100,6 @@ err_t AudioClass::readFrames(File& myFile)
     {
       int size = (data_size > FIFO_FRAME_SIZE) ? FIFO_FRAME_SIZE : data_size;
 
-      /* TODO: assert で良いよね…。*/
       if (CMN_SimpleFifoPoll(&m_recorder_simple_fifo_handle, (void*)m_es_recorder_buf, size) == 0)
         {
           print_err("ERROR: Fail to get data from simple FIFO.\n");
@@ -1267,9 +1211,11 @@ void  output_device_callback(uint32_t size)
 }
 
 /*--------------------------------------------------------------------------*/
-err_t AudioClass::set_output(int device)
+err_t AudioClass::set_output(uint8_t device, uint8_t sp_drv)
 {
   AudioCommand command;
+
+  /* Set output device. */
 
   command.header.packet_length = LENGTH_INITOUTPUTSELECT;
   command.header.command_code  = AUDCMD_INITOUTPUTSELECT;
@@ -1296,7 +1242,24 @@ err_t AudioClass::set_output(int device)
 
   if (result.header.result_code != AUDRLT_INITOUTPUTSELECTCMPLT)
     {
-      sleep(1);
+      print_err("ERROR: Command (%x) fails. Result code(%x), subcode = %x\n", command.header.command_code, result.header.result_code,result.error_response_param.error_code);
+      print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
+      return AUDIOLIB_ECODE_AUDIOCOMMAND_ERROR;
+    }
+
+  /* Set speaker driver mode. */
+
+  command.header.packet_length = LENGTH_SETSPDRVMODE;
+  command.header.command_code  = AUDCMD_SETSPDRVMODE;
+  command.header.sub_code      = 0;
+  command.set_sp_drv_mode.mode = sp_drv;
+
+  AS_SendAudioCommand(&command);
+
+  AS_ReceiveAudioResult(&result);
+
+  if (result.header.result_code != AUDRLT_SETSPDRVMODECMPLT)
+    {
       print_err("ERROR: Command (%x) fails. Result code(%x), subcode = %x\n", command.header.command_code, result.header.result_code,result.error_response_param.error_code);
       print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
       return AUDIOLIB_ECODE_AUDIOCOMMAND_ERROR;

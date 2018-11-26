@@ -628,7 +628,7 @@ CamErr CameraClass::begin(int buff_num, CAM_VIDEO_FPS fps, int video_width, int 
       return CAM_ERR_INVALID_PARAM;
     }
 
-  if (buff_num <= 0)
+  if (buff_num < 0)
     {
       return CAM_ERR_INVALID_PARAM;
     }
@@ -647,6 +647,11 @@ CamErr CameraClass::begin(int buff_num, CAM_VIDEO_FPS fps, int video_width, int 
   if (video_fd < 0)
     {
       return CAM_ERR_NO_DEVICE;
+    }
+
+  if (buff_num == 0)
+    {
+      return CAM_ERR_SUCCESS;
     }
 
   // Start Dequeue Buff thread.
@@ -775,7 +780,7 @@ CamErr CameraClass::setAutoWhiteBalance(bool enable)
                        V4L2_CID_AUTO_WHITE_BALANCE,
                        enable ? 1 : 0 );
 }
-#if 0 /* To Be Supported */
+
 // Public : Turn on/off Auto Exposure.
 CamErr CameraClass::setAutoExposure(bool enable)
 {
@@ -783,14 +788,20 @@ CamErr CameraClass::setAutoExposure(bool enable)
                        V4L2_CID_EXPOSURE_AUTO,
                        enable ? V4L2_EXPOSURE_AUTO : V4L2_EXPOSURE_MANUAL);
 }
-#endif
+
 // Public : Turn on/off Auto ISO Sensitivity.
-CamErr CameraClass::setAutoISOSensitive(bool enable)
+CamErr CameraClass::setAutoISOSensitivity(bool enable)
 {
   return set_ext_ctrls(V4L2_CTRL_CLASS_CAMERA,
                        V4L2_CID_ISO_SENSITIVITY_AUTO,
                        enable ? V4L2_ISO_SENSITIVITY_AUTO
                         : V4L2_ISO_SENSITIVITY_MANUAL );
+}
+
+/* Will obsolete after v1.2.0 */
+CamErr CameraClass::setAutoISOSensitive(bool enable)
+{
+  return setAutoISOSensitivity(enable);
 }
 
 // Public : Set ISO Sensitivity value in manual.

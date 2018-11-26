@@ -25,8 +25,8 @@
 typedef struct
 {
     unsigned long                       MagicNumber;
-    struct cxd56_gnss_positiondata_s    Data;
     unsigned long                       CRC;
+    struct cxd56_gnss_positiondata_s    Data;
 }GnssPositionData;
 
 #endif // GnssPositionData_h

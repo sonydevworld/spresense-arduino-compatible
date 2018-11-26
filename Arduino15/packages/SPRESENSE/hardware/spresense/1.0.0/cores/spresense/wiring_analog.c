@@ -1,5 +1,5 @@
 /*
-  wiring_analog.c - analog I/O for the Sparduino SDK
+  wiring_analog.c - analog I/O for the Spresense SDK
   Copyright (C) 2018 Sony Semiconductor Solutions Corp.
   Copyright (c) 2017 Sony Corporation  All right reserved.
 
@@ -171,6 +171,8 @@ static adc_t s_adcs[] __attribute__((aligned (4))) = {
 };
 
 static int s_timer_fd = -1;
+
+static uint32_t default_pwm_freq = ANALOG_FREQUENCY;
 
 static int sim_pin2slot(uint8_t pin)
 {
@@ -567,9 +569,28 @@ out:
   return ret;
 }
 
-void analogWrite(uint8_t pin, int value)
+void analogWriteSetDefaultFreq(uint32_t freq)
+{
+  /* Change default frequency.
+   * This frequency will apply next analogWrite
+   */
+
+  default_pwm_freq = freq;
+}
+
+uint32_t analogWriteGetDefaultFreq(void)
+{
+  return default_pwm_freq;
+}
+
+void analogWriteFreq(uint8_t pin, int value, uint32_t freq)
 {
   value = value < 0   ? 0   :
           value > 255 ? 255 : value;
-  analog_write(pin, GET_ON_DURATION(value, ANALOG_FREQUENCY), ANALOG_FREQUENCY);
+  analog_write(pin, GET_ON_DURATION(value, freq), freq);
+}
+
+void analogWrite(uint8_t pin, int value)
+{
+  analogWriteFreq(pin, value, default_pwm_freq);
 }

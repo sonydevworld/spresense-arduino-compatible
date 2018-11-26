@@ -1,5 +1,5 @@
 /*
-  WCharacter.h - Character utility functions for Wiring & Sparduino
+  WCharacter.h - Character utility functions for Wiring & Spresense
   Copyright (C) 2018 Sony Semiconductor Solutions Corp.
   Copyright (c) 2017 Sony Corporation  All right reserved.
 

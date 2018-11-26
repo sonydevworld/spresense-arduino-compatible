@@ -47,6 +47,12 @@ static void attentionCallback(const ErrorAttentionParam *attparam)
 
 err_t OutputMixer::create(void)
 {
+  return create(NULL);
+}
+
+/*--------------------------------------------------------------------------*/
+err_t OutputMixer::create(AudioAttentionCb attcb)
+{
   /* Activate mixer feature. */
 
   AsCreateOutputMixParam_t output_mix_create_param;
@@ -58,7 +64,7 @@ err_t OutputMixer::create(void)
   output_mix_create_param.pool_id.render_path0_filter_dsp = PF0_APU_CMD_POOL;
   output_mix_create_param.pool_id.render_path1_filter_dsp = PF1_APU_CMD_POOL;
 
-  bool result = AS_CreateOutputMixer(&output_mix_create_param, attentionCallback);
+  bool result = AS_CreateOutputMixer(&output_mix_create_param, (attcb) ? attcb : attentionCallback);
 
   if (!result)
     {
@@ -132,12 +138,15 @@ err_t OutputMixer::activateBaseband(void)
 
   CXD56_AUDIO_ECODE error_code;
 
-  error_code = cxd56_audio_poweron();
-
-  if (error_code != CXD56_AUDIO_ECODE_OK)
+  if (cxd56_audio_get_status() == CXD56_AUDIO_POWER_STATE_OFF)
     {
-      print_err("cxd56_audio_poweron() error!\n");
-      return OUTPUTMIXER_ECODE_COMMAND_ERROR;
+      error_code = cxd56_audio_poweron();
+
+      if (error_code != CXD56_AUDIO_ECODE_OK)
+        {
+          print_err("cxd56_audio_poweron() error!\n");
+          return OUTPUTMIXER_ECODE_COMMAND_ERROR;
+        }
     }
 
   error_code = cxd56_audio_set_spout(true);
@@ -155,14 +164,6 @@ err_t OutputMixer::activateBaseband(void)
       print_err("cxd56_audio_en_output() error!\n");
       return OUTPUTMIXER_ECODE_COMMAND_ERROR;
     }
-
-  //error_code = AS_SetOutputSelect(AS_OUT_DEV_SP);
-
-  // if (error_code != E_AS_OK)
-  //  {
-  //    print_err("AS_SetOutputSelect() error!\n");
-  //    return OUTPUTMIXER_ECODE_COMMAND_ERROR;
-  //  }
 
   return OUTPUTMIXER_ECODE_OK;
 }
@@ -184,12 +185,15 @@ err_t OutputMixer::deactivateBaseband(void)
 
   /* Power Off Baseband */
 
-  error_code = cxd56_audio_poweroff();
-
-  if (error_code != CXD56_AUDIO_ECODE_OK)
+  if (cxd56_audio_get_status() == CXD56_AUDIO_POWER_STATE_ON)
     {
-      print_err("cxd56_audio_poweroff() error!\n");
-      return OUTPUTMIXER_ECODE_COMMAND_ERROR;
+      error_code = cxd56_audio_poweroff();
+
+      if (error_code != CXD56_AUDIO_ECODE_OK)
+        {
+          print_err("cxd56_audio_poweroff() error!\n");
+          return OUTPUTMIXER_ECODE_COMMAND_ERROR;
+        }
     }
 
   return OUTPUTMIXER_ECODE_OK;

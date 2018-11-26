@@ -25,6 +25,24 @@ AudioClass *theAudio;
 
 File myFile;
 
+bool ErrEnd = false;
+
+/**
+ * @brief Audio attention callback
+ *
+ * When audio internal error occurc, this function will be called back.
+ */
+
+static void audio_attention_cb(const ErrorAttentionParam *atprm)
+{
+  puts("Attention!");
+  
+  if (atprm->error_code >= AS_ATTENTION_CODE_WARNING)
+    {
+      ErrEnd = true;
+   }
+}
+
 /**
  * @brief Setup audio player to play mp3 file
  *
@@ -40,18 +58,22 @@ void setup()
   // start audio system
   theAudio = AudioClass::getInstance();
 
-  theAudio->begin();
+  theAudio->begin(audio_attention_cb);
 
   puts("initialization Audio Library");
 
   /* Set clock mode to normal */
   theAudio->setRenderingClockMode(AS_CLKMODE_NORMAL);
 
-  /* Set output device to speaker.
+  /* Set output device to speaker with first argument.
    * If you want to change the output device to I2S,
    * specify "AS_SETPLAYER_OUTPUTDEVICE_I2SOUTPUT" as an argument.
+   * Set speaker driver mode to LineOut with second argument.
+   * If you want to change the speaker driver mode to other,
+   * specify "AS_SP_DRV_MODE_1DRIVER" or "AS_SP_DRV_MODE_2DRIVER" or "AS_SP_DRV_MODE_4DRIVER"
+   * as an argument.
    */
-  theAudio->setPlayerMode(AS_SETPLAYER_OUTPUTDEVICE_SPHP);
+  theAudio->setPlayerMode(AS_SETPLAYER_OUTPUTDEVICE_SPHP, AS_SP_DRV_MODE_LINEOUT);
 
   /*
    * Set main player to decode stereo mp3. Stream sample rate is set to "auto detect"
@@ -80,7 +102,7 @@ void setup()
   /* Send first frames to be decoded */
   err = theAudio->writeFrames(AudioClass::Player0, myFile);
 
-  if (err != AUDIOLIB_ECODE_OK)
+  if ((err != AUDIOLIB_ECODE_OK) && (err != AUDIOLIB_ECODE_FILEEND))
     {
       printf("File Read Error! =%d\n",err);
       myFile.close();
@@ -116,6 +138,12 @@ void loop()
   if (err)
     {
       printf("Main player error code: %d\n", err);
+      goto stop_player;
+    }
+
+  if (ErrEnd)
+    {
+      printf("Error End\n");
       goto stop_player;
     }
 

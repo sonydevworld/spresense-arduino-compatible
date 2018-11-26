@@ -1,5 +1,5 @@
 /*
-  wiring.h - digital I/O for the Sparduino SDK
+  wiring.h - digital I/O for the Spresense SDK
   Copyright (C) 2018 Sony Semiconductor Solutions Corp.
   Copyright (c) 2017 Sony Corporation  All right reserved.
 

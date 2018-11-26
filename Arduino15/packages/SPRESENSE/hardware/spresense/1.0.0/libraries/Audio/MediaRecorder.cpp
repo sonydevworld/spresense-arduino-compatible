@@ -53,6 +53,12 @@ static void attentionCallback(const ErrorAttentionParam *attparam)
 
 err_t MediaRecorder::begin(void)
 {
+  return begin(NULL);
+}
+
+/*--------------------------------------------------------------------------*/
+err_t MediaRecorder::begin(AudioAttentionCb attcb)
+{
   /* Allocate ES buffer */
 
   m_recorder_simple_fifo_buf =
@@ -71,7 +77,7 @@ err_t MediaRecorder::begin(void)
   recorder_create_param.pool_id.output   = OUTPUT_BUF_POOL;
   recorder_create_param.pool_id.dsp      = ENC_APU_CMD_POOL;
 
-  result = AS_CreateMediaRecorder(&recorder_create_param, attentionCallback);
+  result = AS_CreateMediaRecorder(&recorder_create_param, (attcb) ? attcb : attentionCallback);
   if (!result)
     {
       print_err("Error: AS_CreateMediaRecorder() failure!\n");
@@ -364,7 +370,6 @@ err_t MediaRecorder::readFrames(uint8_t* p_buffer, uint32_t buffer_size, uint32_
     }
 
   size_t data_size = CMN_SimpleFifoGetOccupiedSize(&m_recorder_simple_fifo_handle);
-  print_dbg("dsize = %d\n", data_size);
 
   *read_size = 0;
   size_t poll_size = 0;
@@ -483,12 +488,15 @@ bool MediaRecorder::activateBaseband(void)
 
   /* Power on audio device */
 
-  error_code = cxd56_audio_poweron();
-
-  if (error_code != CXD56_AUDIO_ECODE_OK)
+  if (cxd56_audio_get_status() == CXD56_AUDIO_POWER_STATE_OFF)
     {
-      print_err("cxd56_audio_poweron() error! [%d]\n", error_code);
-      return false;
+      error_code = cxd56_audio_poweron();
+
+      if (error_code != CXD56_AUDIO_ECODE_OK)
+        {
+          print_err("cxd56_audio_poweron() error! [%d]\n", error_code);
+          return false;
+        }
     }
 
   /* Enable input */
@@ -521,12 +529,15 @@ bool MediaRecorder::deactivateBaseband(void)
 
   /* Power off audio device */
 
-  error_code = cxd56_audio_poweroff();
-
-  if (error_code != CXD56_AUDIO_ECODE_OK)
+  if (cxd56_audio_get_status() == CXD56_AUDIO_POWER_STATE_ON)
     {
-      print_err("cxd56_audio_poweroff() error! [%d]\n", error_code);
-      return false;
+      error_code = cxd56_audio_poweroff();
+
+      if (error_code != CXD56_AUDIO_ECODE_OK)
+        {
+          print_err("cxd56_audio_poweroff() error! [%d]\n", error_code);
+          return false;
+        }
     }
 
   return true;

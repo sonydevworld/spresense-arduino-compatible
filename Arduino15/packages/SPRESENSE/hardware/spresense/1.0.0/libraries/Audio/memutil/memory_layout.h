@@ -1,5 +1,5 @@
 /****************************************************************************
- * memory_layout.h
+ * audio_player/include/memory_layout.h
  *
  *   Copyright 2018 Sony Semiconductor Solutions Corporation
  *
@@ -38,5 +38,6 @@
 #define MEM_LAYOUT_PLAYER   (0)
 #define MEM_LAYOUT_RECORDER (1)
 #define MEM_LAYOUT_SOUNDEFFECT  (2)
+#define MEM_LAYOUT_RECORDINGPLAYER (3)
 
 #endif /* __AUDIO_LAYOUT_H_INCLUDED__ */

@@ -86,6 +86,15 @@ public:
   err_t create(void);
 
   /**
+   * @brief Creation of the OutputMixer.
+   *
+   * @details This function can set callback funtion which receive attention notify.
+   *
+   */
+
+  err_t create(AudioAttentionCb attcb);
+
+  /**
    * @brief Activate the OutputMixer 
    *
    * @details This function activates output mixer system.

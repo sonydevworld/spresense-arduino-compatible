@@ -21,14 +21,32 @@
 #include <MediaRecorder.h>
 #include <MemoryUtil.h>
 
-#define RECORD_LOOP 400
-
 MediaRecorder *theRecorder;
 SDClass theSD;
+
 File s_myFile;
 
-static const int32_t sc_buffer_size = 6144;
-static uint8_t s_buffer[sc_buffer_size];
+bool ErrEnd = false;
+
+/**
+ * @brief Audio attention callback
+ *
+ * When audio internal error occurc, this function will be called back.
+ */
+
+static void mediarecorder_attention_cb(const ErrorAttentionParam *atprm)
+{
+  puts("Attention!");
+  
+  if (atprm->error_code >= AS_ATTENTION_CODE_WARNING)
+    {
+      ErrEnd = true;
+   }
+}
+
+static const int32_t recoding_frames = 400;
+static const int32_t buffer_size = 3072;  /*Now WAV is 768sample,16bit,stereo. so, One frame is 3072 bytes */
+static uint8_t       s_buffer[buffer_size];
 
 /**
  * @brief Recorder done callback procedure
@@ -67,7 +85,7 @@ void setup()
 
   theRecorder = MediaRecorder::getInstance();
 
-  theRecorder->begin();
+  theRecorder->begin(mediarecorder_attention_cb);
 
   puts("initialization MediaRecorder");
 
@@ -79,7 +97,7 @@ void setup()
 
   theRecorder->activate(AS_SETRECDR_STS_INPUTDEVICE_MIC, mediarecorder_done_callback);
 
-  usleep(100 * 1000);
+  usleep(100 * 1000); /* waiting for Mic startup */
 
   /*
    * Initialize recorder to decode stereo wav stream with 48kHz sample rate
@@ -108,39 +126,67 @@ void setup()
   /* Write wav header (Write to top of file. File size is tentative.) */
 
   theRecorder->writeWavHeader(s_myFile);
-
+  puts("Write Header!");
+  
   /* Start Recorder */
 
   theRecorder->start();
+  puts("Recording Start!");
+
+}
+/**
+ * @brief Audio signal process (Modify for your application)
+ */
+void signal_process(uint32_t size)
+{
+  /* Put any signal process */
+
+  printf("Size %d [%02x %02x %02x %02x %02x %02x %02x %02x ...]\n",
+         size,
+         s_buffer[0],
+         s_buffer[1],
+         s_buffer[2],
+         s_buffer[3],
+         s_buffer[4],
+         s_buffer[5],
+         s_buffer[6],
+         s_buffer[7]);
 }
 
 /**
- * @brief Get audio data
+ * @brief Execute one frame
  */
+err_t execute_aframe(uint32_t* size)
+{
+  err_t err = theRecorder->readFrames(s_buffer, buffer_size, size);
 
-void getEs()
+  if(((err == MEDIARECORDER_ECODE_OK) || (err == MEDIARECORDER_ECODE_INSUFFICIENT_BUFFER_AREA)) && (*size > 0))
+    {
+      signal_process(*size);
+    }
+  int ret = s_myFile.write((uint8_t*)&s_buffer, *size);
+  if (ret < 0)
+    {
+      puts("File write error.");
+      err = MEDIARECORDER_ECODE_FILEACCESS_ERROR;
+    }
+
+  return err;
+}
+
+/**
+ * @brief Execute frames for FIFO empty
+ */
+void execute_frames()
 {
   uint32_t read_size = 0;
-  err_t err = MEDIARECORDER_ECODE_OK;
-
   do
     {
-      err = theRecorder->readFrames(s_buffer, sc_buffer_size, &read_size);
-
+      err_t err = execute_aframe(&read_size);
       if ((err != MEDIARECORDER_ECODE_OK)
        && (err != MEDIARECORDER_ECODE_INSUFFICIENT_BUFFER_AREA))
         {
           break;
-        }
-
-      if (read_size > 0)
-        {
-          int ret = s_myFile.write((uint8_t*)&s_buffer, read_size);
-
-          if (ret < 0)
-            {
-              puts("File write error.");
-            }
         }
     }
   while (read_size > 0);
@@ -152,47 +198,59 @@ void getEs()
 
 void loop()
 {
-  static int cnt = 0;
+    static int32_t total_size = 0;
+    uint32_t read_size = 0;
 
-  if (cnt > RECORD_LOOP)
+  /* Execute audio data */
+  err_t err = execute_aframe(&read_size);
+  if (err != MEDIARECORDER_ECODE_OK && err != MEDIARECORDER_ECODE_INSUFFICIENT_BUFFER_AREA)
     {
-      /* Recording end condition */
-
-      puts("Stop Recording");
+      puts("Recording Error!");
+      theRecorder->stop();
       goto exitRecording;
     }
-
-  /* Get audio data */
-
-  getEs();
-
+  else if (read_size>0)
+    {
+      total_size += read_size;
+    }
   /* This sleep is adjusted by the time to write the audio stream file.
      Please adjust in according with the processing contents
      being processed at the same time by Application.
   */
-  usleep(10000);
+//  usleep(10000);
 
-  cnt++;
+  /* Stop Recording */
+  if (total_size > (recoding_frames*buffer_size))
+    {
+      theRecorder->stop();
+
+      /* Get ramaining data(flushing) */
+      sleep(1); /* For data pipline stop */
+      execute_frames();
+      
+      goto exitRecording;
+    }
+
+  if (ErrEnd)
+    {
+      printf("Error End\n");
+      theRecorder->stop();
+      goto exitRecording;
+    }
 
   return;
 
 exitRecording:
 
-  theRecorder->stop();
-
-  /* Get ramaining data(flushing) */
-
-  sleep(1);
-  getEs();
-
-  /* Overwrite wav header to write file size */
-
   theRecorder->writeWavHeader(s_myFile);
+  puts("Update Header!");
 
   s_myFile.close();
 
   theRecorder->deactivate();
   theRecorder->end();
-
+  
+  puts("End Recording");
   exit(1);
+
 }

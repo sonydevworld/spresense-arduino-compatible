@@ -1,5 +1,5 @@
 /*
- *  recorder.ino - Recorder example application
+ *  recorder_wav.ino - Recorder example application for WAV(PCM)
  *  Copyright 2018 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
@@ -18,75 +18,129 @@
  */
 
 #include <SDHCI.h>
-
 #include <Audio.h>
-//#include <fcntl.h>
-#include <arch/board/board.h>
 
+#include <arch/board/board.h>
 
 SDClass theSD;
 AudioClass *theAudio;
 
 File myFile;
 
+bool ErrEnd = false;
 
+/**
+ * @brief Audio attention callback
+ *
+ * When audio internal error occurc, this function will be called back.
+ */
+
+static void audio_attention_cb(const ErrorAttentionParam *atprm)
+{
+  puts("Attention!");
+  
+  if (atprm->error_code >= AS_ATTENTION_CODE_WARNING)
+    {
+      ErrEnd = true;
+   }
+}
+
+/**
+ * @brief Setup recording of mp3 stream to file
+ *
+ * Select input device as microphone <br>
+ * Initialize filetype to stereo wav with 48 Kb/s sampling rate <br>
+ * Open "Sound.wav" file in write mode
+ */
+
+static const int32_t recoding_frames = 400;
+static const int32_t recoding_size = recoding_frames*3072; /* 2ch, 16bit, 768sample */
 
 void setup()
 {
   theAudio = AudioClass::getInstance();
 
-  theAudio->begin();
+  theAudio->begin(audio_attention_cb);
 
   puts("initialization Audio Library");
 
+  /* Select input device as microphone */
   theAudio->setRecorderMode(AS_SETRECDR_STS_INPUTDEVICE_MIC);
+
+  /*
+   * Initialize filetype to stereo wav with 48 Kb/s sampling rate
+   * Search for WAVDEC codec in "/mnt/sd0/BIN" directory
+   */
   theAudio->initRecorder(AS_CODECTYPE_WAV,"/mnt/sd0/BIN",AS_SAMPLINGRATE_48000,AS_CHANNEL_STEREO);
   puts("Init Recorder!");
 
+  /* Open file for data write on SD card */
   myFile = theSD.open("Sound.wav", FILE_WRITE);
-  puts("Open!");
+  /* Verify file open */
+  if (!myFile)
+    {
+      printf("File open error\n");
+      exit(1);
+    }
 
   theAudio->writeWavHeader(myFile);
   puts("Write Header!");
 
   theAudio->startRecorder();
-  puts("Start Rec!");
+  puts("Recording Start!");
 
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
-
-  // for Example, Chack Bottom
-
-  static int cnt = 0;
-
-  if (cnt>400)
+void loop() 
+{
+  err_t err;
+  /* recording end condition */
+  if (theAudio->getRecordingSize() > recoding_size)
     {
-      puts("End Recording");
       theAudio->stopRecorder();
-      theAudio->closeOutputFile(myFile);
-      exit(1);
+      sleep(1);
+      err = theAudio->readFrames(myFile);
+
+      goto exitRecording;
     }
 
-  err_t err = theAudio->readFrames(myFile);
+
+  /* Read frames to record in file */
+  err = theAudio->readFrames(myFile);
 
   if (err != AUDIOLIB_ECODE_OK)
     {
       printf("File End! =%d\n",err);
-      sleep(1);
       theAudio->stopRecorder();
-      theAudio->closeOutputFile(myFile);
-      exit(1);
+      goto exitRecording;
+    }
+
+  if (ErrEnd)
+    {
+      printf("Error End\n");
+      theAudio->stopRecorder();
+      goto exitRecording;
     }
 
   /* This sleep is adjusted by the time to write the audio stream file.
      Please adjust in according with the processing contents
      being processed at the same time by Application.
   */
-  usleep(10000);
+//  usleep(10000);
 
-  cnt++;
+  return;
+
+exitRecording:
+
+  theAudio->closeOutputFile(myFile);
+  myFile.close();
+  
+  theAudio->setReadyMode();
+  theAudio->end();
+  
+  puts("End Recording");
+  exit(1);
+
 }
 
 

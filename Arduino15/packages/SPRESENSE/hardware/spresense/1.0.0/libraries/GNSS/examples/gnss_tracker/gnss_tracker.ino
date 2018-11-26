@@ -438,33 +438,33 @@ static int ReadParameter(ConfigParam *pConfigParam)
     }
     else if (!ParamCompare(pParamName, "SatelliteSystem="))
     {
-      if (!ParamCompare(pParamData, "GPS"))
+      if (!ParamCompare(pParamData, "GPS+GLONASS+QZSS_L1CA"))
       {
-        pConfigParam->SatelliteSystem = eSatGps;
-      }
-      else if (!ParamCompare(pParamData, "GPS+SBAS"))
-      {
-        pConfigParam->SatelliteSystem = eSatGpsSbas;
-      }
-      else if (!ParamCompare(pParamData, "GLONASS"))
-      {
-        pConfigParam->SatelliteSystem = eSatGlonass;
-      }
-      else if (!ParamCompare(pParamData, "GPS+GLONASS"))
-      {
-        pConfigParam->SatelliteSystem = eSatGpsGlonass;
-      }
-      else if (!ParamCompare(pParamData, "GPS+QZSS_L1CA"))
-      {
-        pConfigParam->SatelliteSystem = eSatGpsQz1c;
+        pConfigParam->SatelliteSystem = eSatGpsGlonassQz1c;
       }
       else if (!ParamCompare(pParamData, "GPS+QZSS_L1CA+QZSS_L1S"))
       {
         pConfigParam->SatelliteSystem = eSatGpsQz1cQz1S;
       }
-      else if (!ParamCompare(pParamData, "GPS+GLONASS+QZSS_L1CA"))
+      else if (!ParamCompare(pParamData, "GPS+QZSS_L1CA"))
       {
-        pConfigParam->SatelliteSystem = eSatGpsGlonassQz1c;
+        pConfigParam->SatelliteSystem = eSatGpsQz1c;
+      }
+      else if (!ParamCompare(pParamData, "GPS+GLONASS"))
+      {
+        pConfigParam->SatelliteSystem = eSatGpsGlonass;
+      }
+      else if (!ParamCompare(pParamData, "GLONASS"))
+      {
+        pConfigParam->SatelliteSystem = eSatGlonass;
+      }
+      else if (!ParamCompare(pParamData, "GPS+SBAS"))
+      {
+        pConfigParam->SatelliteSystem = eSatGpsSbas;
+      }
+      else if (!ParamCompare(pParamData, "GPS"))
+      {
+        pConfigParam->SatelliteSystem = eSatGps;
       }
       else
       {

@@ -1,5 +1,5 @@
 /*
-  Arduino.h - Main include file for the Sparduino SDK
+  Arduino.h - Main include file for the Spresense SDK
   Copyright (C) 2018 Sony Semiconductor Solutions Corp.
   Copyright (c) 2017 Sony Corporation  All right reserved.
 
@@ -83,6 +83,9 @@ int digitalRead(uint8_t);
 /* Analog I/O */
 void analogReference(uint8_t mode);
 int analogRead(uint8_t);
+void analogWriteSetDefaultFreq(uint32_t);
+uint32_t analogWriteGetDefaultFreq(void);
+void analogWriteFreq(uint8_t, int, uint32_t);
 void analogWrite(uint8_t, int);
 
 /* Advanced I/O */
