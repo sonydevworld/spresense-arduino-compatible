@@ -39,47 +39,47 @@ uint32_t get_gpio_regaddr(uint32_t pin)
     return CXD56_TOPREG_GP_I2C4_BCK + ((pin - base) * 4);
 }
 
+static const struct {
+    uint8_t pin;
+    uint8_t mapped;
+} pin_maps[] = {
+    { PIN_D00, PIN_UART2_RXD     },
+    { PIN_D01, PIN_UART2_TXD     },
+    { PIN_D02, PIN_HIF_IRQ_OUT   },
+    { PIN_D03, PIN_PWM3          },
+    { PIN_D04, PIN_SPI2_MOSI     },
+    { PIN_D05, PIN_PWM1          },
+    { PIN_D06, PIN_PWM0          },
+    { PIN_D07, PIN_SPI3_CS1_X    },
+    { PIN_D08, PIN_SPI2_MISO     },
+    { PIN_D09, PIN_PWM2          },
+    { PIN_D10, PIN_SPI4_CS_X     },
+    { PIN_D11, PIN_SPI4_MOSI     },
+    { PIN_D12, PIN_SPI4_MISO     },
+    { PIN_D13, PIN_SPI4_SCK      },
+    { PIN_D14, PIN_I2C0_BDT      },
+    { PIN_D15, PIN_I2C0_BCK      },
+    { PIN_D16, PIN_EMMC_DATA0    },
+    { PIN_D17, PIN_EMMC_DATA1    },
+    { PIN_D18, PIN_I2S0_DATA_OUT },
+    { PIN_D19, PIN_I2S0_DATA_IN  },
+    { PIN_D20, PIN_EMMC_DATA2    },
+    { PIN_D21, PIN_EMMC_DATA3    },
+    { PIN_D22, PIN_SEN_IRQ_IN    },
+    { PIN_D23, PIN_EMMC_CLK      },
+    { PIN_D24, PIN_EMMC_CMD      },
+    { PIN_D25, PIN_I2S0_LRCK     },
+    { PIN_D26, PIN_I2S0_BCK      },
+    { PIN_D27, PIN_UART2_CTS     },
+    { PIN_D28, PIN_UART2_RTS     },
+    { PIN_LED0, PIN_I2S1_BCK     },
+    { PIN_LED1, PIN_I2S1_LRCK    },
+    { PIN_LED2, PIN_I2S1_DATA_IN },
+    { PIN_LED3, PIN_I2S1_DATA_OUT},
+};
+
 uint8_t pin_convert(uint8_t pin)
 {
-    static const struct {
-        uint8_t pin;
-        uint8_t mapped;
-    } pin_maps[] = {
-        { PIN_D00, PIN_UART2_RXD     },
-        { PIN_D01, PIN_UART2_TXD     },
-        { PIN_D02, PIN_HIF_IRQ_OUT   },
-        { PIN_D03, PIN_PWM3          },
-        { PIN_D04, PIN_SPI2_MOSI     },
-        { PIN_D05, PIN_PWM1          },
-        { PIN_D06, PIN_PWM0          },
-        { PIN_D07, PIN_SPI3_CS1_X    },
-        { PIN_D08, PIN_SPI2_MISO     },
-        { PIN_D09, PIN_PWM2          },
-        { PIN_D10, PIN_SPI4_CS_X     },
-        { PIN_D11, PIN_SPI4_MOSI     },
-        { PIN_D12, PIN_SPI4_MISO     },
-        { PIN_D13, PIN_SPI4_SCK      },
-        { PIN_D14, PIN_I2C0_BDT      },
-        { PIN_D15, PIN_I2C0_BCK      },
-        { PIN_D16, PIN_EMMC_DATA0    },
-        { PIN_D17, PIN_EMMC_DATA1    },
-        { PIN_D18, PIN_I2S0_DATA_OUT },
-        { PIN_D19, PIN_I2S0_DATA_IN  },
-        { PIN_D20, PIN_EMMC_DATA2    },
-        { PIN_D21, PIN_EMMC_DATA3    },
-        { PIN_D22, PIN_SEN_IRQ_IN    },
-        { PIN_D23, PIN_EMMC_CLK      },
-        { PIN_D24, PIN_EMMC_CMD      },
-        { PIN_D25, PIN_I2S0_LRCK     },
-        { PIN_D26, PIN_I2S0_BCK      },
-        { PIN_D27, PIN_UART2_CTS     },
-        { PIN_D28, PIN_UART2_RTS     },
-        { PIN_LED0, PIN_I2S1_BCK     },
-        { PIN_LED1, PIN_I2S1_LRCK    },
-        { PIN_LED2, PIN_I2S1_DATA_IN },
-        { PIN_LED3, PIN_I2S1_DATA_OUT},
-    };
-
     arrayForEach(pin_maps, i) {
         if (pin_maps[i].pin == pin)
             return pin_maps[i].mapped;
@@ -89,6 +89,17 @@ uint8_t pin_convert(uint8_t pin)
     if ((pin & PINTYPE_MASK) == PINTYPE_ANALOG) {
         printf("\tspresense dose not support using analog pin as digital.\n");
     }
+    return PIN_NOT_ASSIGNED;
+}
+
+uint8_t pin_invert(uint8_t pin)
+{
+    arrayForEach(pin_maps, i) {
+        if (pin_maps[i].mapped == pin)
+            return pin_maps[i].pin;
+    }
+
+    printf("ERROR: Invalid pin number [%u]\n", pin);
     return PIN_NOT_ASSIGNED;
 }
 
