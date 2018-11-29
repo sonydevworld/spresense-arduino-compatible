@@ -41,9 +41,9 @@
 // #ifdef __cplusplus
 
 #include <audio/audio_high_level_api.h>
+#include <audio/utilities/audio_wav_containerformat.h>
+#include <audio/utilities/audio_wav_containerformat_parser.h>
 #include <memutils/simple_fifo/CMN_SimpleFifo.h>
-
-#include "WavHeaderdef.h"
 
 #define WRITE_FIFO_FRAME_NUM  (8)
 #define WRITE_FIFO_FRAME_SIZE (1024*2*3)
@@ -91,6 +91,7 @@ extern "C" void  outputDeviceCallback(uint32_t);
 #define AUDIOLIB_ECODE_BUFFER_AREA_ERROR   6  /**< */
 #define AUDIOLIB_ECODE_BUFFER_SIZE_ERROR   7  /**< */
 #define AUDIOLIB_ECODE_INSUFFICIENT_BUFFER_AREA   8  /**< */
+#define AUDIOLIB_ECODE_WAV_PARSE_ERROR     9  /**< */
 
 /*--------------------------------------------------------------------------*/
 /**
@@ -739,7 +740,7 @@ private:
 
   AsRecorderOutputDeviceHdlr    m_output_device_handler;
   int                           m_es_size;
-  WavFormat_t                   m_wav_format;
+  WAVHEADER                     m_wav_format;
   int                           m_codec_type;
 
   AudioAttentionCb m_attention_callback;

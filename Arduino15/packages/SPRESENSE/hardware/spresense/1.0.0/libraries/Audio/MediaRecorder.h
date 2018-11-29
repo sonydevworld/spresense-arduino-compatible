@@ -30,9 +30,8 @@
 
 #include <SDHCI.h>
 #include <audio/audio_high_level_api.h>
+#include <audio/utilities/audio_wav_containerformat.h>
 #include <memutils/simple_fifo/CMN_SimpleFifo.h>
-
-#include "WavHeaderdef.h"
 
 /*--------------------------------------------------------------------------*/
 
@@ -300,7 +299,7 @@ private:
 
   AsRecorderOutputDeviceHdlr m_output_device_handler;
   int                        m_es_size;
-  WavFormat_t               m_wav_format;
+  WAVHEADER                  m_wav_format;
 
   bool check_encode_dsp(uint8_t codec_type, const char *path, uint32_t sampling_rate);
 

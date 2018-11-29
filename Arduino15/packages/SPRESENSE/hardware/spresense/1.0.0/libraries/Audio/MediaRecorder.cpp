@@ -271,17 +271,17 @@ void MediaRecorder::init_wav(AsInitRecorderParam *param)
 
   /* Create WAV header information */
 
-  memcpy(m_wav_format.riff, CHUNKID_RIFF, strlen(CHUNKID_RIFF));
-  memcpy(m_wav_format.wave, FORMAT_WAVE, strlen(FORMAT_WAVE));
-  memcpy(m_wav_format.fmt, SUBCHUNKID_FMT, strlen(SUBCHUNKID_FMT));
-  m_wav_format.fmt_size = FMT_SIZE;
-  m_wav_format.format   = AUDIO_FORMAT_PCM;
+  m_wav_format.riff     = CHUNKID_RIFF;
+  m_wav_format.wave     = FORMAT_WAVE;
+  m_wav_format.fmt      = SUBCHUNKID_FMT;
+  m_wav_format.fmt_size = FMT_CHUNK_SIZE;
+  m_wav_format.format   = FORMAT_ID_PCM;
   m_wav_format.channel  = param->channel_number;
   m_wav_format.rate     = param->sampling_rate;
   m_wav_format.avgbyte  = param->sampling_rate * param->channel_number * (param->bit_length / 8);
   m_wav_format.block    = param->channel_number * (param->bit_length / 8);
   m_wav_format.bit      = param->bit_length;
-  memcpy(m_wav_format.data, SUBCHUNKID_DATA, strlen(SUBCHUNKID_DATA));
+  m_wav_format.data     = SUBCHUNKID_DATA;
 }
 
 /*--------------------------------------------------------------------------*/
@@ -404,10 +404,10 @@ err_t MediaRecorder::writeWavHeader(File& myfile)
 {
   myfile.seek(0);
 
-  m_wav_format.total_size = m_es_size + sizeof(WavFormat_t) - 8;
+  m_wav_format.total_size = m_es_size + sizeof(WAVHEADER) - 8;
   m_wav_format.data_size  = m_es_size;
 
-  int ret = myfile.write((uint8_t*)&m_wav_format, sizeof(WavFormat_t));
+  int ret = myfile.write((uint8_t*)&m_wav_format, sizeof(WAVHEADER));
   if (ret < 0)
     {
       print_err("Fail to write file(wav header)\n");

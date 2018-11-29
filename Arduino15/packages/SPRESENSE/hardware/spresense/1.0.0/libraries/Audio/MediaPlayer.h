@@ -25,6 +25,7 @@
 // #ifdef __cplusplus
 
 #include <audio/audio_high_level_api.h>
+#include <audio/utilities/audio_wav_containerformat_parser.h>
 #include <memutils/simple_fifo/CMN_SimpleFifo.h>
 
 /*--------------------------------------------------------------------------*/
@@ -52,6 +53,7 @@
 #define MEDIAPLAYER_ECODE_FILEACCESS_ERROR 3
 #define MEDIAPLAYER_ECODE_FILEEND 4
 #define MEDIAPLAYER_ECODE_SHARED_MEMORY_ERROR 5
+#define MEDIAPLAYER_ECODE_WAV_PARSER_ERROR 6
 
 #define MEDIAPLAYER_BUF_FRAME_NUM  8
 #define MEDIAPLAYER_BUF_FRAME_SIZE 6144
