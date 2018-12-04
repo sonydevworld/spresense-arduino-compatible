@@ -23,14 +23,15 @@
 /**
  * @file Watchdog.h
  * @author Sony Semiconductor Solutions Corporation
- * @brief Spresense Arduino Watchdog library 
+ * @brief Spresense Arduino Watchdog Library 
  * 
- * @details It is a library for using watchdog for user program, and
- *          user can reset if program is freezed.
+ * @details This is a library about watchdog for user application, and
+ *          application can check what application is alive and reset if freezed.
  */
 
 /**
- * @defgroup Watchdog Library API
+ * @defgroup watchdog Watchdog Library API
+ * @brief API for using Watchdog
  * @{
  */
 
@@ -59,45 +60,63 @@
  * @brief Watchdog controller
  *
  * @details You can reset your application when application freezed
- *          by operating WatchdogClass objects instantiated in your app.
+ *          by operating WatchdogClass objects instantiated in your application.
  */
 class WatchdogClass {
 public:
     /**
      * @brief Create WatchdogClass object
+     *
+     * @details Application need to take instance for using watchdog.
      */
     WatchdogClass(void);
 
     /**
      * @brief Initialize the Watchdog library
+     *
+     * @details Open the hardware watchdog device file and keep it.
      */
     void begin(void);
 
     /**
      * @brief Disable the Watchdog
+     *
+     * @details Stop the hardware watchdog and close device file for release it.
      */
     void end(void);
 
     /**
      * @brief Start to check timer for bite watchdog
      *
+     * @details Start to count and check time for bite watchdog. And if it expire timeout value,
+     *          device will reboot by hardware trigger.
+     *
      * @param [in] Timeout value in milliseconds for bite a watchdog
      */
     void start(uint32_t);
 
     /**
-     * @brief Stop to check timer for bite watchdog
+     * @brief Stop to check timer for avoid bite watchdog
+     *
+     * @details Stop to count and check timer. After call this function, device will not reboot
+     *          by watchdog.
      */
     void stop(void);
 
     /**
-     * @brief Kick the dog to avoid bite a watchdog, it mean "Keep alive".
-     * If expire a timeout, device will reboot.
+     * @brief Kick to watchdog for notify keep alive
+     *
+     * @details Kick the dog to avoid bite a watchdog, it mean "Keep alive".
+     * If expire a timeout, device will reboot by hardware trigger.
      */
     void kick(void);
 
     /**
      * @brief Get a remain time for bite watchdog.
+     *
+     * @details Get a remain time to expire timeout.
+     *
+     * @return Remain time in milliseconds >= 0
      */
     uint32_t timeleft(void);
 
@@ -107,6 +126,6 @@ private:
 
 extern WatchdogClass Watchdog;
 
-/** @} Watchdog Library API */
+/** @} watchdog */
 
 #endif // Watchdog_h
