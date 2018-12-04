@@ -29,6 +29,11 @@
  *          user can reset if program is freezed.
  */
 
+/**
+ * @defgroup Watchdog Library API
+ * @{
+ */
+
 /*
   This header file maybe inclued in plain C file.
   To avoid compiling error all C++ stuff should be ignored
@@ -101,5 +106,7 @@ private:
 };
 
 extern WatchdogClass Watchdog;
+
+/** @} Watchdog Library API */
 
 #endif // Watchdog_h
