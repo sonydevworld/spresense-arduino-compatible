@@ -21,6 +21,11 @@
 #define __RTCTIME_H__
 
 /**
+ * @defgroup rtc RTC Library API
+ * @{
+ */
+
+/**
  * @class RtcTime
  * @brief RTC time definitions
  *
@@ -96,5 +101,7 @@ private:
   int      _minute; /* Minutes (0-59) */
   int      _second; /* Seconds (0-61, allows for leap seconds) */
 };
+
+/** @} rtc */
 
 #endif // __RTCETIME_H__
