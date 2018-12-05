@@ -32,6 +32,12 @@
 #ifndef __SPRESENSE_CAMERA_CLASS_H__
 #define __SPRESENSE_CAMERA_CLASS_H__
 
+/**
+ * @defgroup camera Camera Library API
+ * @brief API for using Camera
+ * @{
+ */
+
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -636,6 +642,8 @@ public:
 };
 
 extern CameraClass theCamera;
+
+/** @} camera */
 
 #endif // __SPRESENSE_CAMERA_CLASS_H__
 
