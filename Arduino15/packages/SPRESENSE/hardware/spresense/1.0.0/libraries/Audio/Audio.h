@@ -29,6 +29,12 @@
 #ifndef Audio_h
 #define Audio_h
 
+/**
+ * @defgroup audio Audio Library API
+ * @brief API for using Audio
+ * @{
+ */
+
 #include <pins_arduino.h>
 #include <SDHCI.h>
 
@@ -777,6 +783,8 @@ private:
 };
 
 extern AudioClass Audio;
+
+/** @} audio */
 
 // #endif //__cplusplus
 #endif //Audio_h

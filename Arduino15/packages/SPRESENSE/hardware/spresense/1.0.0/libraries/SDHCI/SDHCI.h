@@ -28,6 +28,12 @@
  * @details The SDHCI library allows for reading from and writing to SD cards
  */
 
+/**
+ * @defgroup sdhci SDHCI Library API
+ * @brief API for using SD Card
+ * @{
+ */
+
 #include <Arduino.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -331,5 +337,7 @@ private:
 
 /* This ensure compatibility with sketches that uses only SD library */
 using namespace SDHCILib;
+
+/** @} sdhci */
 
 #endif

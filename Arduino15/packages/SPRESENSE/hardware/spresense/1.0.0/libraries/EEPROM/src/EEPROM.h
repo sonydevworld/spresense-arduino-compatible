@@ -22,6 +22,12 @@
 #ifndef EEPROM_h
 #define EEPROM_h
 
+/**
+ * @defgroup eeprom EEPROM Library API
+ * @brief API for using EEPROM
+ * @{
+ */
+
 #include <stdint.h>
 #include <inttypes.h>
 #include <sys/stat.h>
@@ -245,4 +251,7 @@ struct EEPROMClass{
 };
 
 extern EEPROMClass EEPROM;
+
+/** @} eeprom */
+
 #endif

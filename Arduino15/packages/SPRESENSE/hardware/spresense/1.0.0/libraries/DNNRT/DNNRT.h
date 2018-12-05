@@ -20,6 +20,12 @@
 #ifndef Dnnrt_h
 #define Dnnrt_h
 
+/**
+ * @defgroup dnnrt DNN Library API
+ * @brief API for using Deep Neural Network Library
+ * @{
+ */
+
 #include <Arduino.h>
 #include <SDHCI.h> // tentative
 
@@ -209,5 +215,7 @@ private:
   unsigned int _size;
   bool _allocated;
 };
+
+/** @} dnnrt */
 
 #endif

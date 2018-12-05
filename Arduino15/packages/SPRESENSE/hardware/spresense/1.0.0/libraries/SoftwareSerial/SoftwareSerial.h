@@ -30,6 +30,12 @@
  *          to communicate with speeds up to 250,000 bps.
  */
 
+/**
+ * @defgroup sw_serial Software Serial Library API
+ * @brief API for using Software Serial
+ * @{
+ */
+
 #include <inttypes.h>
 #include <Stream.h>
 
@@ -207,5 +213,7 @@ public:
    */
   static inline int handle_interrupt(int irq, FAR void* context, FAR void *arg);
 };
+
+/** @} sw_serial */
 
 #endif

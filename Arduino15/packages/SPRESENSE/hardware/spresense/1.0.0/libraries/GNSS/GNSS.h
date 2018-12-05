@@ -32,6 +32,12 @@
  */
 
 /**
+ * @defgroup gnss GNSS Library API
+ * @brief API for using GNSS
+ * @{
+ */
+
+/**
  * @enum SpFixMode
  * @brief status of pos fix
  */
@@ -434,5 +440,7 @@ private:
             DebugOut.print(str);
     }
 };
+
+/** @} gnss */
 
 #endif // Gnss_h

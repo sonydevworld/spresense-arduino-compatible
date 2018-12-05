@@ -29,6 +29,12 @@
  *          time or the alarm of Real-Time Clock.
  */
 
+/**
+ * @defgroup rtc RTC Library API
+ * @brief API for using Real Time Clock library API
+ * @{
+ */
+
 #include "RtcTime.h"
 
 /**
@@ -103,5 +109,7 @@ private:
 };
 
 extern RtcClass RTC;
+
+/** @} rtc */
 
 #endif // __RTC_H__

@@ -28,6 +28,12 @@
  * @details The Low Power library can manage the low power states of Spresense.
  */
 
+/**
+ * @defgroup lowpower Low Power Library API
+ * @brief API for using Low Power API
+ * @{
+ */
+
 #include <Arduino.h>
 
 typedef enum {
@@ -150,5 +156,7 @@ public:
 };
 
 extern LowPowerClass LowPower;
+
+/** @} lowpower */
 
 #endif
