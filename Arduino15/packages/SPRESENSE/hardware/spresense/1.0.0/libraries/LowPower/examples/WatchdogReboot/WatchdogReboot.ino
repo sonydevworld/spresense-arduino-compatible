@@ -23,7 +23,7 @@
 #include <EEPROM.h>
 
 const char* boot_cause_strings[] = {
-  "Power On Reset in DeadBattery state",
+  "Power On Reset with Power Supplied",
   "System WDT expired or Self Reboot",
   "Chip WDT expired",
   "WKUPL signal detected in deep sleep",
@@ -81,8 +81,9 @@ void setup()
   // Get the boot cause
   bootcause_e bc = LowPower.bootCause();
 
-  if ((bc == POR_DEADBATT) || (bc == POR_NORMAL)) {
+  if ((bc == POR_SUPPLY) || (bc == POR_NORMAL)) {
     Serial.println("Example for system reboot by watchdog");
+    EEPROM[0] = 0;
   } else {
     Serial.println("rebooted by watchdog");
   }
@@ -95,7 +96,11 @@ void setup()
     EEPROM[0]++;
   }
 
+  Serial.print("Watchdog count = ");
+  Serial.println(EEPROM[0]);
+
   // Print the current clock
+  RTC.begin();
   RtcTime now = RTC.getTime();
   printf("%04d/%02d/%02d %02d:%02d:%02d\n",
          now.year(), now.month(), now.day(),

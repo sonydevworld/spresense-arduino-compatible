@@ -21,7 +21,7 @@
 #include <RTC.h>
 
 const char* boot_cause_strings[] = {
-  "Power On Reset in DeadBattery state",
+  "Power On Reset with Power Supplied",
   "System WDT expired or Self Reboot",
   "Chip WDT expired",
   "WKUPL signal detected in deep sleep",
@@ -69,12 +69,17 @@ void printBootCause(bootcause_e bc)
 }
 
 // Pin used to trigger a wakeup
-const int buttonA = 2;
-const int buttonB = 3;
+const uint8_t button2 = PIN_D02;
+const uint8_t button3 = PIN_D03;
 
-void pushed()
+void pushed2()
 {
-  Serial.println("pushd");
+  Serial.println("Pushed D02!");
+}
+
+void pushed3()
+{
+  Serial.println("Pushed D03!");
 }
 
 void setup()
@@ -88,7 +93,7 @@ void setup()
   // Get the boot cause
   bootcause_e bc = LowPower.bootCause();
 
-  if ((bc == POR_DEADBATT) || (bc == POR_NORMAL)) {
+  if ((bc == POR_SUPPLY) || (bc == POR_NORMAL)) {
     Serial.println("Example for GPIO wakeup from cold sleep");
   } else {
     Serial.println("wakeup from cold sleep");
@@ -98,16 +103,25 @@ void setup()
   printBootCause(bc);
 
   // Print the current clock
+  RTC.begin();
   RtcTime now = RTC.getTime();
   printf("%04d/%02d/%02d %02d:%02d:%02d\n",
          now.year(), now.month(), now.day(),
          now.hour(), now.minute(), now.second());
 
   // Button pin setting
-  pinMode(buttonA, INPUT_PULLUP);
-  attachInterrupt(buttonA, pushed, FALLING);
-  pinMode(buttonB, INPUT_PULLUP);
-  attachInterrupt(buttonB, pushed, FALLING);
+  pinMode(button2, INPUT_PULLUP);
+  attachInterrupt(button2, pushed2, FALLING);
+
+  pinMode(button3, INPUT_PULLUP);
+  attachInterrupt(button3, pushed3, FALLING);
+
+  delay(5000);
+
+  // Enable wakeup by pushing button2
+  LowPower.enableBootCause(button2);
+  // Disable wakeup by pushing button3
+  LowPower.disableBootCause(button3);
 
   // Cold sleep
   Serial.print("Go to cold sleep...");

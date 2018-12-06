@@ -21,7 +21,7 @@
 #include <RTC.h>
 
 const char* boot_cause_strings[] = {
-  "Power On Reset in DeadBattery state",
+  "Power On Reset with Power Supplied",
   "System WDT expired or Self Reboot",
   "Chip WDT expired",
   "WKUPL signal detected in deep sleep",
@@ -79,7 +79,7 @@ void setup()
   // Get the boot cause
   bootcause_e bc = LowPower.bootCause();
 
-  if ((bc == POR_DEADBATT) || (bc == POR_NORMAL)) {
+  if ((bc == POR_SUPPLY) || (bc == POR_NORMAL)) {
     Serial.println("Example for RTC wakeup from cold sleep");
   } else {
     Serial.println("wakeup from cold sleep");
@@ -89,6 +89,7 @@ void setup()
   printBootCause(bc);
 
   // Print the current clock
+  RTC.begin();
   RtcTime now = RTC.getTime();
   printf("%04d/%02d/%02d %02d:%02d:%02d\n",
          now.year(), now.month(), now.day(),

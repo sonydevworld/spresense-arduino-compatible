@@ -101,6 +101,13 @@ bool LowPowerClass::isEnabledBootCause(bootcause_e bc)
   }
 }
 
+bool LowPowerClass::isEnabledBootCause(uint8_t pin)
+{
+  bootcause_e bc = pin2bootcause(pin);
+
+  return isEnabledBootCause(bc);
+}
+
 void LowPowerClass::enableBootCause(bootcause_e bc)
 {
   if (bc < POR_NORMAL) {
@@ -108,11 +115,25 @@ void LowPowerClass::enableBootCause(bootcause_e bc)
   }
 }
 
+void LowPowerClass::enableBootCause(uint8_t pin)
+{
+  bootcause_e bc = pin2bootcause(pin);
+
+  enableBootCause(bc);
+}
+
 void LowPowerClass::disableBootCause(bootcause_e bc)
 {
   if (bc < POR_NORMAL) {
     up_pm_clr_bootmask(1 << bc);
   }
+}
+
+void LowPowerClass::disableBootCause(uint8_t pin)
+{
+  bootcause_e bc = pin2bootcause(pin);
+
+  disableBootCause(bc);
 }
 
 uint8_t LowPowerClass::getWakeupPin(bootcause_e bc)
@@ -126,6 +147,20 @@ uint8_t LowPowerClass::getWakeupPin(bootcause_e bc)
   }
 
   return pin;
+}
+
+bootcause_e LowPowerClass::pin2bootcause(uint8_t pin)
+{
+  bootcause_e bc = POR_NORMAL;
+
+  uint8_t _pin = pin_convert(pin);
+  int irq = cxd56_gpioint_irq(_pin);
+
+  if (irq > 0) {
+    bc = (bootcause_e)(irq - CXD56_IRQ_EXDEVICE_0 + COLD_GPIO_IRQ36);
+  }
+
+  return bc;
 }
 
 LowPowerClass LowPower;

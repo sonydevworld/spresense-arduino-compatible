@@ -37,7 +37,7 @@
 #include <Arduino.h>
 
 typedef enum {
-  POR_DEADBATT    = 0,  /** Power On Reset in DeadBattery state */
+  POR_SUPPLY      = 0,  /** Power On Reset with Power Supplied */
   WDT_REBOOT      = 1,  /** System WDT expired or Self Reboot */
   WDT_RESET       = 2,  /** Chip WDT expired */
   DEEP_WKUPL      = 3,  /** In DeepSleep state, Detected WKUPL signal */
@@ -66,7 +66,7 @@ typedef enum {
   COLD_PMIC_INT   = 29, /** In ColdSleep state, Detected PMIC Interrupt */
   COLD_USB_DETACH = 30, /** In ColdSleep state, USB Disconnected */
   COLD_USB_ATTACH = 31, /** In ColdSleep state, USB Connected */
-  POR_NORMAL      = 32, /** Power On Reset as battery attached */
+  POR_NORMAL      = 32, /** Power On Reset */
 } bootcause_e;
 
 /**
@@ -130,9 +130,17 @@ public:
 
   /**
    * @brief Check if the specified cause is permitted or not
+   * @param [in] bc - a boot cause
    * @return true if permitted, otherwise return false
    */
   bool isEnabledBootCause(bootcause_e bc);
+
+  /**
+   * @brief Check if the cause by the specified pin is permitted or not
+   * @param [in] pin - a pin number
+   * @return true if permitted, otherwise return false
+   */
+  bool isEnabledBootCause(uint8_t pin);
 
   /**
    * @brief Enable the specified cause as the boot cause
@@ -141,10 +149,22 @@ public:
   void enableBootCause(bootcause_e bc);
 
   /**
+   * @brief Enable the cause by the specified pin as the boot cause
+   * @param [in] pin - a pin number
+   */
+  void enableBootCause(uint8_t pin);
+
+  /**
    * @brief Disable the specified cause as the boot cause
    * @param [in] bc - a boot cause
    */
   void disableBootCause(bootcause_e bc);
+
+  /**
+   * @brief Disable the cause by the specified pin as the boot cause
+   * @param [in] pin - a pin number
+   */
+  void disableBootCause(uint8_t pin);
 
   /**
    * @brief Get a wakeup pin number from the boot cause
@@ -152,6 +172,9 @@ public:
    * @return a pin number.
    */
   uint8_t getWakeupPin(bootcause_e bc);
+
+private:
+  bootcause_e pin2bootcause(uint8_t pin);
 
 };
 
