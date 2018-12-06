@@ -21,7 +21,7 @@ compiler.cpreprocessor.flags= "-I{compiler.sdk.path}/include" "-I{compiler.sdk.p
 
 
 compiler.c.cmd=arm-none-eabi-gcc
-compiler.c.flags=-c {compiler.warning_flags} -MMD -std=gnu99 -c -fno-builtin -mabi=aapcs -Wall -Os -fno-strict-aliasing -fno-strength-reduce -fomit-frame-pointer -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -pipe -ggdb -gdwarf-3 -ffunction-sections -fdata-sections
+compiler.c.flags=-c {compiler.warning_flags} -MMD -std=gnu11 -c -fno-builtin -mabi=aapcs -Wall -Os -fno-strict-aliasing -fno-strength-reduce -fomit-frame-pointer -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -pipe -ggdb -gdwarf-3 -ffunction-sections -fdata-sections
 
 compiler.S.cmd=arm-none-eabi-gcc
 compiler.S.flags=-c {compiler.warning_flags} -MMD -std=gnu99 -c -fno-builtin -mabi=aapcs -Wall -Os -fno-strict-aliasing -fno-strength-reduce -fomit-frame-pointer -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -pipe -ggdb -gdwarf-3 -D__ASSEMBLY__ -x assembler-with-cpp
@@ -32,7 +32,7 @@ compiler.c.elf.cmd=arm-none-eabi-g++
 compiler.c.elf.libs= "{build.libpath}/libs/libapps.a" "{build.libpath}/libs/libnuttx.a" -lgcc -lm
 
 compiler.cpp.cmd=arm-none-eabi-g++
-compiler.cpp.flags=-c {compiler.warning_flags} -MMD -std=gnu++98 -c -fno-builtin -mabi=aapcs -Wall -Os -fno-strict-aliasing -fno-strength-reduce -fomit-frame-pointer -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -pipe -ffunction-sections -fno-exceptions -fno-rtti -ggdb -gdwarf-3 -ffunction-sections -fdata-sections
+compiler.cpp.flags=-c {compiler.warning_flags} -MMD -std=gnu++11 -c -fno-builtin -mabi=aapcs -Wall -Os -fno-strict-aliasing -fno-strength-reduce -fomit-frame-pointer -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -pipe -ffunction-sections -fno-exceptions -fno-rtti -ggdb -gdwarf-3 -ffunction-sections -fdata-sections -fpermissive
 
 
 compiler.as.cmd=arm-none-eabi-as
