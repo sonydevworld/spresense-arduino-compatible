@@ -1145,7 +1145,7 @@ err_t AudioClass::readFrames(char* p_buffer, uint32_t buffer_size, uint32_t* rea
     {
       if (data_size > buffer_size)
         {
-          print_err("WARNING: Insufficient buffer area.\n");
+          print_dbg("WARNING: Insufficient buffer area.\n");
           poll_size = (size_t)buffer_size;
           rst = AUDIOLIB_ECODE_INSUFFICIENT_BUFFER_AREA;
         }
