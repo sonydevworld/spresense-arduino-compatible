@@ -1,5 +1,5 @@
 /*
- *  recording_player.ino - Object I/F based recording and play example application
+ *  recorder_with_rendering.ino - Recording with rendering application
  *  Copyright 2018 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
@@ -17,10 +17,14 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,  MA 02110-1301  USA
  */
 
+#include <SDHCI.h>
 #include <MediaRecorder.h>
 #include <MediaPlayer.h>
 #include <OutputMixer.h>
 #include <MemoryUtil.h>
+
+SDClass theSD;
+File s_myFile;
 
 MediaRecorder *theRecorder;
 MediaPlayer *thePlayer;
@@ -28,6 +32,7 @@ OutputMixer *theMixer;
 
 const int32_t sc_buffer_size = 6144;
 uint8_t s_buffer[sc_buffer_size];
+const int32_t sc_dummy_frame_num = 5;
 
 bool ErrEnd = false;
 
@@ -122,113 +127,11 @@ static bool mediaplayer_done_callback(AsPlayerEvent event, uint32_t result, uint
 void mediaplayer_decode_callback(AsPcmDataParam pcm_param)
 {
   /* You can imprement any audio signal process */
-  {
-    static uint32_t s_frame_cnt = 0;
-
-    uint8_t sel = (s_frame_cnt++ / 1000) % 3;
-
-    if (sel == 1)
-      {
-        rc_filter(pcm_param);
-      }
-    else if (sel == 2)
-      {
-        distortion_filter(pcm_param);
-      }
-    else
-      {
-        /* No filter */
-      }
-  }
-
+   
   /* Output and sound audio data */
-
   theMixer->sendData(OutputMixer0,
                      outmixer_send_callback,
                      pcm_param);
-}
-
-/**
- * @brief RC-Filter function
- *
- * @param [in] pcm_param    AsPcmDataParam type
- */
-void rc_filter(AsPcmDataParam pcm_param)
-{
-  /* Example : RC filter for 16bit PCM */
-
-  static const int PeakLevel = 32700;
-  static const int LevelGain = 2;
-
-  int16_t *ls = (int16_t*)pcm_param.mh.getPa();
-  int16_t *rs = ls + 1;
-
-  static int16_t ls_l = 0;
-  static int16_t rs_l = 0;
-
-  if (!ls_l && !rs_l)
-    {
-      ls_l = *ls * LevelGain;
-      rs_l = *rs * LevelGain;
-    }
-
-  for (uint32_t cnt = 0; cnt < pcm_param.size; cnt += 4)
-    {
-      int32_t tmp;
-
-      *ls = *ls * LevelGain;
-      *rs = *rs * LevelGain;
-
-      tmp = (ls_l * 98 / 100) + (*ls * 2 / 100);
-      *ls = clip(tmp, PeakLevel);
-      tmp = (rs_l * 98 / 100) + (*rs * 2 / 100);
-      *rs = clip(tmp, PeakLevel);
-
-      ls_l = *ls;
-      rs_l = *rs;
-
-      ls += 2;
-      rs += 2;
-    }
-}
-
-/**
- * @brief Distortion(Peak-cut)-Filter function
- *
- * @param [in] pcm_param    AsPcmDataParam type
- */
-void distortion_filter(AsPcmDataParam pcm_param)
-{
-  /* Example : Distortion filter for 16bit PCM */
-
-  static const int PeakLevel = 170;
-
-  int16_t *ls = (int16_t*)pcm_param.mh.getPa();
-  int16_t *rs = ls + 1;
-
-  for (uint32_t cnt = 0; cnt < pcm_param.size; cnt += 4)
-    {
-      int32_t tmp;
-
-      tmp = *ls * 4 / 3;
-      *ls = clip(tmp, PeakLevel);
-      tmp = *rs * 4 / 3;
-      *rs = clip(tmp, PeakLevel);
-
-      ls += 2;
-      rs += 2;
-    }
-}
-
-/**
- * @brief clip function
- *
- * @param [in] val   source value
- * @param [in] peak  clip point value
- */
-inline int16_t clip(int32_t val, int32_t peak)
-{
-  return (val > 0) ? ((val < peak) ? val : peak) : ((val > (-1 * peak)) ? val : (-1 * peak));
 }
 
 /**
@@ -242,6 +145,8 @@ inline int16_t clip(int32_t val, int32_t peak)
 
 void setup()
 {
+  theSD.begin();
+
   /* Initialize memory pools and message libs */
 
   initMemoryPools();
@@ -278,12 +183,29 @@ void setup()
    * Search for SRC filter in "/mnt/sd0/BIN" directory
    */
 
-  theRecorder->init(AS_CODECTYPE_LPCM, AS_CHANNEL_STEREO, AS_SAMPLINGRATE_16000, AS_BITLENGTH_16, AS_BITRATE_8000);
+  theRecorder->init(AS_CODECTYPE_WAV, AS_CHANNEL_STEREO, AS_SAMPLINGRATE_48000, AS_BITLENGTH_16, AS_BITRATE_8000);
   puts("recorder init");
-  thePlayer->init(MediaPlayer::Player0, AS_CODECTYPE_WAV, AS_SAMPLINGRATE_16000, AS_CHANNEL_STEREO);
+  thePlayer->init(MediaPlayer::Player0, AS_CODECTYPE_WAV, AS_SAMPLINGRATE_48000, AS_CHANNEL_STEREO);
   puts("player init");
 
   theMixer->setVolume(0, 0, 0);
+
+  /* Open file to record */
+  
+  s_myFile = theSD.open("Sound.wav", FILE_WRITE);
+  
+  puts("Open!");
+  
+  /* Verify file open */
+  
+  if (!s_myFile)
+    {
+      printf("File open error\n");
+      exit(1);
+    }
+
+  theRecorder->writeWavHeader(s_myFile);
+  puts("Write Header!");
 }
 
 /**
@@ -298,6 +220,7 @@ typedef enum
 
 void loop()
 {
+  static int s_cnt = 0;
   static State s_state = StateReady;
 
   if (s_state == StateReady)
@@ -305,8 +228,11 @@ void loop()
       /* Prestore audio dummy data to start player */
 
       memset(s_buffer, 0, sizeof(s_buffer));
-      thePlayer->writeFrames(MediaPlayer::Player0, s_buffer, sizeof(s_buffer));
-
+      for (int i = 0; i < sc_dummy_frame_num; i++)
+        {
+          thePlayer->writeFrames(MediaPlayer::Player0, s_buffer, sizeof(s_buffer));
+        }
+      
       /* Start play */
       
       thePlayer->start(MediaPlayer::Player0, mediaplayer_decode_callback);
@@ -327,9 +253,21 @@ void loop()
           if (read_size > 0)
             {
               thePlayer->writeFrames(MediaPlayer::Player0, s_buffer, read_size);
+
+              /* Write captured data to the file too */
+              
+              if (s_myFile.write((uint8_t*)s_buffer, read_size) < 0)
+                {
+                  puts("File write error!");
+                }
             }
         }
       while (read_size != 0);
+
+      if (s_cnt++ > 400)
+        {
+          goto exitRecording;
+        }
     }
   else
     {
@@ -350,6 +288,11 @@ exitRecording:
   thePlayer->stop(MediaPlayer::Player0);
   theRecorder->stop();
 
+  theRecorder->writeWavHeader(s_myFile);
+  puts("Update Header!");
+  
+  s_myFile.close();
+ 
   puts("Exit.");
 
   exit(1);
