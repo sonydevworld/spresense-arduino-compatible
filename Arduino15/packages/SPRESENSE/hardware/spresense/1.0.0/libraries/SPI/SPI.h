@@ -232,10 +232,40 @@ public:
     /**
      * @brief Write data to the SPI bus and also receive data
      * 
-     * @param [in] data Buffer to send
+     * @param [in,out] buf Buffer to send and receive
      * @param [in] count The number of bytes to transmit 
      */
     void transfer(void *buf, size_t count);
+
+    /**
+     * @brief Write 16-bit data to the SPI bus and also receive data
+     *
+     * @param [in,out] buf Buffer to send and receive
+     * @param [in] count The number of 16-bit data to transmit
+     */
+    void transfer16(void *buf, size_t count);
+
+    /**
+     * @brief Write buffer to the SPI bus (only write transfer)
+     *
+     * @note  This supports only Tx transfer. There is no Rx received data.
+     *        It assumes that this is used for LCD display.
+     *
+     * @param [in] buf Buffer to send
+     * @param [in] count The number of bytes to transmit
+     */
+    void send(void *buf, size_t count);
+
+    /**
+     * @brief Write 16-bit buffer the SPI bus (only write transfer)
+     *
+     * @note  This supports only Tx transfer. There is no Rx received data.
+     *        It assumes that this is used for LCD display.
+     *
+     * @param [in] buf Buffer to send
+     * @param [in] count The number of 16-bit data to transmit
+     */
+    void send16(void *buf, size_t count);
 
 private:
     int spi_port;                  /**< SPI port number */

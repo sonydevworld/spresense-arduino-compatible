@@ -308,3 +308,46 @@ void SPIClass::transfer(void *buf, size_t count)
     if (do_free)
         free(recv);
 }
+
+void SPIClass::transfer16(void *buf, size_t count)
+{
+    bool do_free = false;
+    uint16_t *recv = NULL;
+    if (ref_count == 0 || !buf || count == 0)
+        return;
+
+    if ((count * sizeof(uint16_t)) > 256) {
+        recv = (uint16_t*)malloc(count * sizeof(uint16_t));
+        do_free = true;
+        if (!recv)
+            return;
+    }
+    else {
+        recv = (uint16_t*)__builtin_alloca(count * sizeof(uint16_t));
+    }
+
+    SPI_SETBITS(spi_dev, 16);
+    SPI_EXCHANGE(spi_dev, buf, recv, count);
+
+    memcpy(buf, recv, count * sizeof(uint16_t));
+    if (do_free)
+        free(recv);
+}
+
+void SPIClass::send(void *buf, size_t count)
+{
+    if (ref_count == 0 || !buf || count == 0)
+        return;
+
+    SPI_SETBITS(spi_dev, 8);
+    SPI_EXCHANGE(spi_dev, buf, NULL, count);
+}
+
+void SPIClass::send16(void *buf, size_t count)
+{
+    if (ref_count == 0 || !buf || count == 0)
+        return;
+
+    SPI_SETBITS(spi_dev, 16);
+    SPI_EXCHANGE(spi_dev, buf, NULL, count);
+}

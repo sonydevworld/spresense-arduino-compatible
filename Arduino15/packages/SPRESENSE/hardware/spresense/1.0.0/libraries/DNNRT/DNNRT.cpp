@@ -94,7 +94,7 @@ DNNRT::begin(File& nnbfile)
   // Allocate input and output data array from network model
 
   _input = (void **)malloc(sizeof(void *) * _nr_inputs);
-  _output = (DNNVariable *)malloc(sizeof(DNNVariable) * _nr_outputs);
+  _output = new DNNVariable[_nr_outputs];
 
   return 0;
 }
@@ -119,14 +119,14 @@ DNNRT::end()
     }
   if (_output)
     {
-      free(_output);
+      delete[] _output;
     }
 
   return 0;
 }
 
 int
-DNNRT::inputVariable(DNNVariable var, unsigned int index)
+DNNRT::inputVariable(DNNVariable &var, unsigned int index)
 {
   if (index >= (unsigned int)_nr_inputs)
     {
