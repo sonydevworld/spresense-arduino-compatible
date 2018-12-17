@@ -45,16 +45,14 @@ public:
 
   /**
    * Initialize runtime object from .nnb file
-   *  
-   * User must be generate a network model data file (.nnb) by NNabla before
-   * run this library.
-   *  
-   * About NNabla:
-   *  https://nnabla.readthedocs.io/en/latest/python/index.html
-   * About NNB file:
-   *  https://nnabla.readthedocs.io/en/latest/python/file_format_converter/file_format_converter.html
    *
-   * @param nnbfile nnb network model database file
+   * User must be generate a network model data file (.nnb) by Neural Network
+   * Console (NNC) before use this library.
+   *
+   * About Neural Network Console:
+   *  https://dl.sony.com/
+   *
+   * @param nnbfile nnb network model binary file
    * @return 0 on success, otherwise error.
    */  
   int begin(SDHCILib::File &nnbfile);
@@ -74,7 +72,7 @@ public:
    * @return 0 on success, otherwise error.
    * @note Number of input data is depends on the network model.
    */
-  int inputVariable(DNNVariable var, unsigned int index);
+  int inputVariable(DNNVariable &var, unsigned int index);
 
   /**
    * Get output data at index
@@ -170,7 +168,6 @@ class DNNVariable {
   friend class DNNRT;
 
 public:
-  DNNVariable();
   DNNVariable(unsigned int size);
   ~DNNVariable();
 
@@ -207,6 +204,7 @@ public:
   int maxIndex();
 
 private:
+  DNNVariable();
   float *_data;
   unsigned int _size;
   bool _allocated;
