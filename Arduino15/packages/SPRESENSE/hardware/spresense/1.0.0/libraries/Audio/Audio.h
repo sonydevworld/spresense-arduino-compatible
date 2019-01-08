@@ -619,7 +619,28 @@ public:
    */
   err_t writeFrames(
       PlayerId id, /**< Select Player ID. */
-      int fd  /**< file pointer of the audio file. */
+      int fd       /**< file pointer of the audio file. */
+  );
+
+  /**
+   * @brief Write Stream Data from buffer
+   *
+   * @details This function writes from the buffer
+   *          to the Stream  data FIFO in the Audio library.
+   *          It writes for several frames data (now five frames).
+   *          It can be called on PlayerMode.
+   *
+   *          This FIFO is cleared when calling StopPlayer or setReadyMode.
+   *
+   *          During music playback, please call this function periodically.
+   *          When an error occurs, you should error handling as properly
+   *
+   */
+
+  err_t writeFrames(
+      PlayerId id,        /** Select Player ID. */
+      uint8_t *data,      /** Buffer address of the audio data. */
+      uint32_t write_size /** Size of the audio data. */
   );
 
   /** APIs for Recorder Mode */

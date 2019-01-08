@@ -765,6 +765,35 @@ err_t AudioClass::writeFrames(PlayerId id, File& myFile)
   return ret;
 }
 
+/*--------------------------------------------------------------------------*/
+err_t AudioClass::writeFrames(PlayerId id, uint8_t *data, uint32_t write_size)
+{
+  int ret = AUDIOLIB_ECODE_OK;
+
+  CMN_SimpleFifoHandle *handle =
+    (id == Player0) ?
+      &m_player0_simple_fifo_handle : &m_player1_simple_fifo_handle;
+
+  size_t vacant_size = CMN_SimpleFifoGetVacantSize(handle);
+
+  if (write_size <= 0)
+    {
+      return AUDIOLIB_ECODE_OK;
+    }
+
+  if (vacant_size < write_size)
+    {
+      return AUDIOLIB_ECODE_SIMPLEFIFO_ERROR;
+    }
+
+  if (CMN_SimpleFifoOffer(handle, (const void*)(data), write_size) == 0)
+    {
+      print_err("Simple FIFO is full!\n");
+      return AUDIOLIB_ECODE_SIMPLEFIFO_ERROR;
+    }
+
+  return ret;
+}
 
 /****************************************************************************
  * Recoder API on Audio Class
