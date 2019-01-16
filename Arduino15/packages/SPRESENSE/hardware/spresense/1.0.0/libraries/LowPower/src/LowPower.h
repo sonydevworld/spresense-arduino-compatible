@@ -37,36 +37,36 @@
 #include <Arduino.h>
 
 typedef enum {
-  POR_SUPPLY      = 0,  /** Power On Reset with Power Supplied */
-  WDT_REBOOT      = 1,  /** System WDT expired or Self Reboot */
-  WDT_RESET       = 2,  /** Chip WDT expired */
-  DEEP_WKUPL      = 3,  /** In DeepSleep state, Detected WKUPL signal */
-  DEEP_WKUPS      = 4,  /** In DeepSleep state, Detected WKUPS signal */
-  DEEP_RTC        = 5,  /** In DeepSleep state, RTC Alarm expired */
-  DEEP_USB_ATTACH = 6,  /** In DeepSleep state, USB Connected */
-  DEEP_OTHERS     = 7,  /** In DeepSleep state, Reserved others cause occurred */
-  COLD_SCU_INT    = 8,  /** In ColdSleep state, Detected SCU Interrupt */
-  COLD_RTC_ALM0   = 9,  /** In ColdSleep state, RTC Alarm0 expired */
-  COLD_RTC_ALM1   = 10, /** In ColdSleep state, RTC Alarm1 expired */
-  COLD_RTC_ALM2   = 11, /** In ColdSleep state, RTC Alarm2 expired */
-  COLD_RTC_ALMERR = 12, /** In ColdSleep state, RTC Alarm Error occurred */
-  COLD_GPIO_IRQ36 = 16, /** In ColdSleep state, Detected GPIO IRQ 36 */
-  COLD_GPIO_IRQ37 = 17, /** In ColdSleep state, Detected GPIO IRQ 37 */
-  COLD_GPIO_IRQ38 = 18, /** In ColdSleep state, Detected GPIO IRQ 38 */
-  COLD_GPIO_IRQ39 = 19, /** In ColdSleep state, Detected GPIO IRQ 39 */
-  COLD_GPIO_IRQ40 = 20, /** In ColdSleep state, Detected GPIO IRQ 40 */
-  COLD_GPIO_IRQ41 = 21, /** In ColdSleep state, Detected GPIO IRQ 41 */
-  COLD_GPIO_IRQ42 = 22, /** In ColdSleep state, Detected GPIO IRQ 42 */
-  COLD_GPIO_IRQ43 = 23, /** In ColdSleep state, Detected GPIO IRQ 43 */
-  COLD_GPIO_IRQ44 = 24, /** In ColdSleep state, Detected GPIO IRQ 44 */
-  COLD_GPIO_IRQ45 = 25, /** In ColdSleep state, Detected GPIO IRQ 45 */
-  COLD_GPIO_IRQ46 = 26, /** In ColdSleep state, Detected GPIO IRQ 46 */
-  COLD_GPIO_IRQ47 = 27, /** In ColdSleep state, Detected GPIO IRQ 47 */
-  COLD_SEN_INT    = 28, /** In ColdSleep state, Detected SEN_INT Interrupt */
-  COLD_PMIC_INT   = 29, /** In ColdSleep state, Detected PMIC Interrupt */
-  COLD_USB_DETACH = 30, /** In ColdSleep state, USB Disconnected */
-  COLD_USB_ATTACH = 31, /** In ColdSleep state, USB Connected */
-  POR_NORMAL      = 32, /** Power On Reset */
+  POR_SUPPLY      = 0,  /**< Power On Reset with Power Supplied */
+  WDT_REBOOT      = 1,  /**< System WDT expired or Self Reboot */
+  WDT_RESET       = 2,  /**< Chip WDT expired */
+  DEEP_WKUPL      = 3,  /**< In DeepSleep state, Detected WKUPL signal */
+  DEEP_WKUPS      = 4,  /**< In DeepSleep state, Detected WKUPS signal */
+  DEEP_RTC        = 5,  /**< In DeepSleep state, RTC Alarm expired */
+  DEEP_USB_ATTACH = 6,  /**< In DeepSleep state, USB Connected */
+  DEEP_OTHERS     = 7,  /**< In DeepSleep state, Reserved others cause occurred */
+  COLD_SCU_INT    = 8,  /**< In ColdSleep state, Detected SCU Interrupt */
+  COLD_RTC_ALM0   = 9,  /**< In ColdSleep state, RTC Alarm0 expired */
+  COLD_RTC_ALM1   = 10, /**< In ColdSleep state, RTC Alarm1 expired */
+  COLD_RTC_ALM2   = 11, /**< In ColdSleep state, RTC Alarm2 expired */
+  COLD_RTC_ALMERR = 12, /**< In ColdSleep state, RTC Alarm Error occurred */
+  COLD_GPIO_IRQ36 = 16, /**< In ColdSleep state, Detected GPIO IRQ 36 */
+  COLD_GPIO_IRQ37 = 17, /**< In ColdSleep state, Detected GPIO IRQ 37 */
+  COLD_GPIO_IRQ38 = 18, /**< In ColdSleep state, Detected GPIO IRQ 38 */
+  COLD_GPIO_IRQ39 = 19, /**< In ColdSleep state, Detected GPIO IRQ 39 */
+  COLD_GPIO_IRQ40 = 20, /**< In ColdSleep state, Detected GPIO IRQ 40 */
+  COLD_GPIO_IRQ41 = 21, /**< In ColdSleep state, Detected GPIO IRQ 41 */
+  COLD_GPIO_IRQ42 = 22, /**< In ColdSleep state, Detected GPIO IRQ 42 */
+  COLD_GPIO_IRQ43 = 23, /**< In ColdSleep state, Detected GPIO IRQ 43 */
+  COLD_GPIO_IRQ44 = 24, /**< In ColdSleep state, Detected GPIO IRQ 44 */
+  COLD_GPIO_IRQ45 = 25, /**< In ColdSleep state, Detected GPIO IRQ 45 */
+  COLD_GPIO_IRQ46 = 26, /**< In ColdSleep state, Detected GPIO IRQ 46 */
+  COLD_GPIO_IRQ47 = 27, /**< In ColdSleep state, Detected GPIO IRQ 47 */
+  COLD_SEN_INT    = 28, /**< In ColdSleep state, Detected SEN_INT Interrupt */
+  COLD_PMIC_INT   = 29, /**< In ColdSleep state, Detected PMIC Interrupt */
+  COLD_USB_DETACH = 30, /**< In ColdSleep state, USB Disconnected */
+  COLD_USB_ATTACH = 31, /**< In ColdSleep state, USB Connected */
+  POR_NORMAL      = 32, /**< Power On Reset */
 } bootcause_e;
 
 /**
