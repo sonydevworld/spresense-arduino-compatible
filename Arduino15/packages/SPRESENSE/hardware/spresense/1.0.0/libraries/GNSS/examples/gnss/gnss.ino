@@ -23,7 +23,7 @@
  * @brief GNSS example application
  * @details Spresense has an built in GNSS receiver which supports GPS and other
  *          GNSS satellites. This skecth provides an example the GNSS operation.
- *          Simply upload the sketch, reset the board and check the USB serial 
+ *          Simply upload the sketch, reset the board and check the USB serial
  *          output. After 3 seconds status information should start to appear.\n\n
  *
  *          This example code is in the public domain.
@@ -37,6 +37,23 @@
 #define RESTART_CYCLE       (60 * 5)  /**< positioning test term */
 
 static SpGnss Gnss;                   /**< SpGnss object */
+
+/**
+ * @enum ParamSat
+ * @brief Satellite system
+ */
+enum ParamSat {
+  eSatGps,            /**< GPS                     World wide coverage  */
+  eSatGlonass,        /**< GLONASS                 World wide coverage  */
+  eSatGpsSbas,        /**< GPS+SBAS                North America        */
+  eSatGpsGlonass,     /**< GPS+Glonass             World wide coverage  */
+  eSatGpsQz1c,        /**< GPS+QZSS_L1CA           East Asia & Oceania  */
+  eSatGpsGlonassQz1c, /**< GPS+Glonass+QZSS_L1CA   East Asia & Oceania  */
+  eSatGpsQz1cQz1S,    /**< GPS+QZSS_L1CA+QZSS_L1S  Japan                */
+};
+
+/* Set this parameter depending on your current region. */
+static enum ParamSat satType =  eSatGps;
 
 /**
  * @brief Turn on / off the LED0 for CPU active notification.
@@ -58,7 +75,7 @@ static void Led_isActive(void)
 
 /**
  * @brief Turn on / off the LED1 for positioning state notification.
- * 
+ *
  * @param [in] state Positioning state
  */
 static void Led_isPosfix(bool state)
@@ -75,7 +92,7 @@ static void Led_isPosfix(bool state)
 
 /**
  * @brief Turn on / off the LED3 for error notification.
- * 
+ *
  * @param [in] state Error state
  */
 static void Led_isError(bool state)
@@ -125,9 +142,51 @@ void setup() {
   }
   else
   {
-    /* Setup GNSS */
-    Gnss.select(QZ_L1CA);  // Michibiki complement
-    Gnss.select(QZ_L1S);   // Michibiki augmentation(Valid only in Japan)
+    /* Setup GNSS
+     *  It is possible to setup up to two GNSS satellites systems.
+     *  Depending on your location you can improve your accuracy by selecting different GNSS system than the GPS system.
+     *  See: https://developer.sony.com/develop/spresense/developer-tools/get-started-using-nuttx/nuttx-developer-guide#_gnss
+     *  for detailed information.
+    */
+    switch (satType)
+    {
+    case eSatGps:
+      Gnss.select(GPS);
+      break;
+
+    case eSatGpsSbas:
+      Gnss.select(GPS);
+      Gnss.select(SBAS);
+      break;
+
+    case eSatGlonass:
+      Gnss.select(GLONASS);
+      break;
+
+    case eSatGpsGlonass:
+      Gnss.select(GPS);
+      Gnss.select(GLONASS);
+      break;
+
+    case eSatGpsQz1c:
+      Gnss.select(GPS);
+      Gnss.select(QZ_L1CA);
+      break;
+
+    case eSatGpsQz1cQz1S:
+      Gnss.select(GPS);
+      Gnss.select(QZ_L1CA);
+      Gnss.select(QZ_L1S);
+      break;
+
+    case eSatGpsGlonassQz1c:
+    default:
+      Gnss.select(GPS);
+      Gnss.select(GLONASS);
+      Gnss.select(QZ_L1CA);
+      break;
+    }
+
 
     /* Start positioning */
     result = Gnss.start(COLD_START);
@@ -222,7 +281,7 @@ static void print_condition(SpNavData *pNavData)
       case GPS:
         pType = "GPS";
         break;
-      
+
       case GLONASS:
         pType = "GLN";
         break;
@@ -259,8 +318,8 @@ static void print_condition(SpNavData *pNavData)
 
 /**
  * @brief %Print position information and satellite condition.
- * 
- * @details When the loop count reaches the RESTART_CYCLE value, GNSS device is 
+ *
+ * @details When the loop count reaches the RESTART_CYCLE value, GNSS device is
  *          restarted.
  */
 void loop()
@@ -353,3 +412,4 @@ void loop()
     }
   }
 }
+
