@@ -24,48 +24,12 @@
 
 #include "EEPROM.h"
 
-// Create a eeprom emulation file if it doesn't exist
-void EERef::createInitialFile() const
-{
-  int ret;
-  FILE *fp = NULL;
-  struct stat statBuf;
-  long filesize = -1;
-  long eepromsize = E2END;
-
-  /* Check whether the eeprom emulation file has already existed or not */
-  if (0 == stat(EEPROM_EMU, &statBuf)) {
-    filesize = statBuf.st_size;
-  }
-
-  if (eepromsize == filesize) {
-    /* Already existed if the file size is equal to the eeprom size */
-    return;
-  }
-
-  /* Create a new file */
-  if ((fp = fopen(EEPROM_EMU, "wb")) == NULL) {
-    printf("ERROR: eeprom open failure\n");
-  }
-  uint8_t *ptr = (uint8_t*)zalloc(eepromsize);
-  ret = fwrite(ptr, 1, eepromsize, fp);
-  if (ret != eepromsize) {
-    printf("ERROR: eeprom init failure (%d)\n", ret);
-  }
-
-  fclose(fp);
-  return;
-}
-
 // Read a byte from the address specified by index on a eeprom emulation file
 uint8_t EERef::operator*() const
 {
   int ret;
   FILE *fp = NULL;
   uint8_t value = 0;
-
-  /* Create a new file if the emulation file doesn't exist */
-  createInitialFile();
 
   if ((fp = fopen(EEPROM_EMU, "rb")) == NULL) {
     printf("ERROR: eeprom open failure\n");
@@ -94,9 +58,6 @@ EERef& EERef::operator=( uint8_t in )
   int ret;
   FILE *fp = NULL;
 
-  /* Create a new file if the emulation file doesn't exist */
-  createInitialFile();
-
   if ((fp = fopen(EEPROM_EMU, "ab+")) == NULL) {
     printf("ERROR: eeprom open failure\n");
     goto errout;
@@ -118,3 +79,5 @@ errout_with_close:
 errout:
   return *this;
 }
+
+EEPROMClass EEPROM;

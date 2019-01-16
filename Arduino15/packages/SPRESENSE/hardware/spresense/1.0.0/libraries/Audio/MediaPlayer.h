@@ -129,8 +129,6 @@ public:
    * @brief Activate the MediaPlayer
    *
    * @details This function activates media player system.
-   *          You should specify output device which you would like to sound.
-   *          You can set "Speaker/HeadPhone-out" or "I2S-out".
    *          The result of APIs will be returnd by callback function which is
    *          specified by this function.
    *
@@ -138,7 +136,21 @@ public:
 
   err_t activate(
       PlayerId id,             /**< Select Player ID. */
-      uint8_t output_device,   /**< Set output device. AS_SETPLAYER_OUTPUTDEVICE_SPHP, AS_SETPLAYER_OUTPUTDEVICE_I2SOUTPUT*/
+      MediaPlayerCallback mpcb /**< Sepcify callback function which is called to notify API results. */
+  );
+
+  /**
+   * @brief Activate the MediaPlayer (old interface)
+   *
+   * @details This function activates media player system.
+   *          The result of APIs will be returnd by callback function which is
+   *          specified by this function.
+   *
+   */
+
+  err_t activate(
+      PlayerId id,             /**< Select Player ID. */
+      uint8_t output_device,   /**< Set output device.(_not supported_)*/
       MediaPlayerCallback mpcb /**< Sepcify callback function which is called to notify API results. */
   );
 

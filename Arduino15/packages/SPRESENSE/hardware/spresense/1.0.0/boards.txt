@@ -26,12 +26,14 @@ spresense.build.stack=-Wl,--defsym,__stack=_vectors+{upload.maximum_size}
 
 spresense.menu.Debug.Disabled=Disabled
 spresense.menu.Debug.Disabled.build.debug=
-spresense.menu.Debug.Disabled.build.kernel={runtime.tools.spresense-sdk.path}/spresense/release
+spresense.menu.Debug.Disabled.build.type=release
+spresense.menu.Debug.Disabled.build.kernel={runtime.tools.spresense-sdk.path}/spresense/{build.type}
 spresense.menu.Debug.Disabled.build.libpath={build.kernel}/prebuilt
 
 spresense.menu.Debug.Enabled=Enabled
 spresense.menu.Debug.Enabled.build.debug=-DBRD_DEBUG
-spresense.menu.Debug.Enabled.build.kernel={runtime.tools.spresense-sdk.path}/spresense/debug
+spresense.menu.Debug.Enabled.build.type=debug
+spresense.menu.Debug.Enabled.build.kernel={runtime.tools.spresense-sdk.path}/spresense/{build.type}
 spresense.menu.Debug.Enabled.build.libpath={build.kernel}/prebuilt
 
 spresense.menu.UploadSpeed.115200=115200

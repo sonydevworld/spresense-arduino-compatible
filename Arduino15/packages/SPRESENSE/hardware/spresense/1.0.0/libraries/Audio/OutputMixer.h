@@ -100,11 +100,26 @@ public:
    * @details This function activates output mixer system.
    *          The result of APIs will be returnd by callback function which is
    *          specified by this function.
-   *
+   *          Output device is speaker output fixed.
    */
 
   err_t activate(
       AsOutputMixerHandle handle, /**< Select output mixer handle. OutputMixer0 or OutputMixer1 */
+      OutputMixerCallback omcb    /**< Sepcify callback function which is called to notify API results. */
+  );
+
+  /**
+   * @brief Activate the OutputMixer with specify output device
+   *
+   * @details This function activates output mixer system.
+   *          The result of APIs will be returnd by callback function which is
+   *          specified by this function.
+   *          This I/F can specify output device as speaker or i2s.
+   */
+
+  err_t activate(
+      AsOutputMixerHandle handle, /**< Select output mixer handle. OutputMixer0 or OutputMixer1 */
+      uint8_t output_device,      /**< Select output device. HPOutputDevice or I2SOutputDevice */
       OutputMixerCallback omcb    /**< Sepcify callback function which is called to notify API results. */
   );
 

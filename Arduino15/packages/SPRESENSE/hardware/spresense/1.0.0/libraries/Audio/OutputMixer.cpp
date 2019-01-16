@@ -94,9 +94,16 @@ err_t OutputMixer::create(AudioAttentionCb attcb)
 /*--------------------------------------------------------------------------*/
 err_t OutputMixer::activate(AsOutputMixerHandle handle, OutputMixerCallback omcb)
 {
+  return activate(handle, HPOutputDevice, omcb);
+}
+
+err_t OutputMixer::activate(AsOutputMixerHandle handle,
+                            uint8_t output_device,
+                            OutputMixerCallback omcb)
+{
   AsActivateOutputMixer mixer_act;
 
-  mixer_act.output_device = HPOutputDevice;
+  mixer_act.output_device = output_device;
   mixer_act.mixer_type    = MainOnly;
   mixer_act.cb            = omcb;
 

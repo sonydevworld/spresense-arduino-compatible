@@ -102,6 +102,11 @@ err_t MediaPlayer::create(PlayerId id, AudioAttentionCb attcb)
 }
 
 /*--------------------------------------------------------------------------*/
+err_t MediaPlayer::activate(PlayerId id, MediaPlayerCallback mpcb)
+{
+  return MediaPlayer::activate(id, AS_SETPLAYER_OUTPUTDEVICE_SPHP, mpcb);
+}
+
 err_t MediaPlayer::activate(PlayerId id, uint8_t output_device, MediaPlayerCallback mpcb)
 {
   CMN_SimpleFifoHandle *handle =
