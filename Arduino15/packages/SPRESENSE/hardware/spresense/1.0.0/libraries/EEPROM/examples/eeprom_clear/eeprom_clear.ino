@@ -15,9 +15,9 @@ void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
 
 #if defined(ARDUINO_ARCH_SPRESENSE)
-  // Just remove a eeprom emulation file. When EEPROM is used later,
-  // the a zero-filled eeprom file is newly generated.
-  unlink(EEPROM_EMU);
+  // After removing a eeprom emulation file, the a zero-filled eeprom file
+  // is newly generated.
+  EEPROM.clear();
 #else
   /***
     Iterate through each byte of the EEPROM storage.

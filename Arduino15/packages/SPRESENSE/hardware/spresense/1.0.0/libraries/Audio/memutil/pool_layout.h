@@ -59,10 +59,10 @@ extern const PoolAttr MemoryPoolLayouts[NUM_MEM_LAYOUTS][NUM_MEM_POOLS] = {
  },
  {/* Layout:1 */
   /* pool_ID          type       seg fence  addr        size         */
-  { OUTPUT_BUF_POOL , BasicType,   2, true, 0x000c0008, 0x00006000 },  /* AUDIO_WORK_AREA */
-  { MIC_IN_BUF_POOL , BasicType,   5, true, 0x000c6010, 0x00014000 },  /* AUDIO_WORK_AREA */
-  { ENC_APU_CMD_POOL, BasicType,   3, true, 0x000da018, 0x00000114 },  /* AUDIO_WORK_AREA */
-  { SRC_APU_CMD_POOL, BasicType,   3, true, 0x000da138, 0x00000114 },  /* AUDIO_WORK_AREA */
+  { OUTPUT_BUF_POOL , BasicType,   5, true, 0x000c0008, 0x0000f000 },  /* AUDIO_WORK_AREA */
+  { MIC_IN_BUF_POOL , BasicType,   5, true, 0x000cf010, 0x00014000 },  /* AUDIO_WORK_AREA */
+  { ENC_APU_CMD_POOL, BasicType,   3, true, 0x000e3018, 0x00000114 },  /* AUDIO_WORK_AREA */
+  { SRC_APU_CMD_POOL, BasicType,   3, true, 0x000e3138, 0x00000114 },  /* AUDIO_WORK_AREA */
  },
  {/* Layout:2 */
   /* pool_ID          type       seg fence  addr        size         */

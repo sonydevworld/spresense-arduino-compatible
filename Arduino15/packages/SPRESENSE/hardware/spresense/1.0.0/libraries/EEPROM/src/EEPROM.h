@@ -24,6 +24,8 @@
 
 #include <stdint.h>
 #include <inttypes.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 // Emulate EEPROM through a below file on SPI-Flash
 #define EEPROM_EMU "/mnt/spif/eeprom.emu"
@@ -123,12 +125,60 @@ struct EEPtr{
 
 struct EEPROMClass{
 
+    EEPROMClass() : initialized(0) {}
+    //Create a eeprom emulation file if it doesn't exist
+    void init() {
+        int ret;
+        FILE *fp = NULL;
+        struct stat statBuf;
+        long filesize = -1;
+        long eepromsize = E2END;
+
+        if (initialized != 0) {
+            /* Already initialized */
+            return;
+        }
+
+        /* Check whether the eeprom emulation file has already existed or not */
+        if (0 == stat(EEPROM_EMU, &statBuf)) {
+            filesize = statBuf.st_size;
+        }
+
+        if (eepromsize == filesize) {
+            /* Already existed if the file size is equal to the eeprom size */
+            initialized = 1;
+            return;
+        }
+
+        /* Create a new file */
+        if ((fp = fopen(EEPROM_EMU, "wb")) == NULL) {
+            printf("ERROR: eeprom open failure\n");
+        }
+
+        uint8_t *ptr = (uint8_t*)zalloc(eepromsize);
+        ret = fwrite(ptr, 1, eepromsize, fp);
+        if (ret != eepromsize) {
+            printf("ERROR: eeprom init failure (%d)\n", ret);
+        }
+
+        fclose(fp);
+
+        initialized = 1;
+        return;
+    }
+    //Remove the eeprom file and create the a zero-filled eeprom file
+    void clear() {
+        unlink(EEPROM_EMU);
+        initialized = 0;
+        init();
+    }
+
     //Basic user access methods.
     EERef operator[]( const int idx )    { return idx; }
-    uint8_t read( int idx )              { return EERef( idx ); }
-    void write( int idx, uint8_t val )   { (EERef( idx )) = val; }
-    void update( int idx, uint8_t val )  { EERef( idx ).update( val ); }
-    
+    uint8_t read( int idx )              { init(); return EERef( idx ); }
+    void write( int idx, uint8_t val )   { init(); (EERef( idx )) = val; }
+    void update( int idx, uint8_t val )  { init(); EERef( idx ).update( val ); }
+
     //STL and C++11 iteration capability.
     EEPtr begin()                        { return 0x00; }
     EEPtr end()                          { return length(); } //Standards requires this to be the item after the last valid entry. The returned pointer is invalid.
@@ -136,18 +186,62 @@ struct EEPROMClass{
     
     //Functionality to 'get' and 'put' objects to and from EEPROM.
     template< typename T > T &get( int idx, T &t ){
-        EEPtr e = idx;
-        uint8_t *ptr = (uint8_t*) &t;
-        for( int count = sizeof(T) ; count ; --count, ++e )  *ptr++ = *e;
+        int ret;
+        FILE *fp = NULL;
+
+        init();
+
+        if ((fp = fopen(EEPROM_EMU, "rb")) == NULL) {
+            printf("ERROR: eeprom open failure\n");
+            goto errout;
+        }
+
+        ret = fseek(fp, idx, SEEK_SET);
+        if (ret) {
+            printf("ERROR: eeprom seek failure\n");
+            goto errout_with_close;
+        }
+
+        ret = fread((uint8_t*)&t, 1, sizeof(T), fp);
+        if (ret != sizeof(T)) {
+            printf("ERROR: eeprom read failure (%d)\n", ret);
+        }
+
+    errout_with_close:
+        fclose(fp);
+    errout:
         return t;
     }
-    
+
     template< typename T > const T &put( int idx, const T &t ){
-        EEPtr e = idx;
-        const uint8_t *ptr = (const uint8_t*) &t;
-        for( int count = sizeof(T) ; count ; --count, ++e )  (*e).update( *ptr++ );
+        int ret;
+        FILE *fp = NULL;
+
+        init();
+
+        if ((fp = fopen(EEPROM_EMU, "ab+")) == NULL) {
+            printf("ERROR: eeprom open failure\n");
+            goto errout;
+        }
+
+        ret = fseek(fp, idx, SEEK_SET);
+        if (ret) {
+            printf("ERROR: eeprom seek failure\n");
+            goto errout_with_close;
+        }
+
+        ret = fwrite((uint8_t*)&t, 1, sizeof(T), fp);
+        if (ret != sizeof(T)) {
+            printf("ERROR: eeprom write failure (%d)\n", ret);
+        }
+
+    errout_with_close:
+        fclose(fp);
+    errout:
         return t;
     }
+
+    int initialized;
 };
 
 extern EEPROMClass EEPROM;

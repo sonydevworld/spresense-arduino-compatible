@@ -159,10 +159,17 @@ void setup()
 
   theMixer->setRenderingClkMode(OUTPUTMIXER_RNDCLK_NORMAL);
 
-  /* Activate Objects. Set output device to Speakers/Headphones */
-  thePlayer->activate(MediaPlayer::Player0, AS_SETPLAYER_OUTPUTDEVICE_SPHP, mediaplayer_done_callback);
+  /* Activate Player Object */
 
-  theMixer->activate(OutputMixer0, outputmixer_done_callback);
+  thePlayer->activate(MediaPlayer::Player0, mediaplayer_done_callback);
+
+  /* Activate Mixer Object.
+   * Set output device to speaker with 2nd argument.
+   * If you want to change the output device to I2S,
+   * specify "I2SOutputDevice" as an argument.
+   */
+
+  theMixer->activate(OutputMixer0, HPOutputDevice, outputmixer_done_callback);
 
   usleep(100 * 1000);
 

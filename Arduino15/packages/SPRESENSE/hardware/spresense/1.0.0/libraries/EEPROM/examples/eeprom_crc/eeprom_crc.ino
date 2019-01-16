@@ -32,6 +32,10 @@ void loop() {
   /* Empty loop */
 }
 
+#if defined(ARDUINO_ARCH_SPRESENSE)
+uint8_t eeprom[E2END];
+#endif
+
 unsigned long eeprom_crc(void) {
 
   const unsigned long crc_table[16] = {
@@ -43,10 +47,19 @@ unsigned long eeprom_crc(void) {
 
   unsigned long crc = ~0L;
 
+#if defined(ARDUINO_ARCH_SPRESENSE)
+  EEPROM.get(0, eeprom);
+  for (int index = 0 ; index < EEPROM.length()  ; ++index) {
+    crc = crc_table[(crc ^ eeprom[index]) & 0x0f] ^ (crc >> 4);
+    crc = crc_table[(crc ^ (eeprom[index] >> 4)) & 0x0f] ^ (crc >> 4);
+    crc = ~crc;
+  }
+#else
   for (int index = 0 ; index < EEPROM.length()  ; ++index) {
     crc = crc_table[(crc ^ EEPROM[index]) & 0x0f] ^ (crc >> 4);
     crc = crc_table[(crc ^ (EEPROM[index] >> 4)) & 0x0f] ^ (crc >> 4);
     crc = ~crc;
   }
+#endif
   return crc;
 }
