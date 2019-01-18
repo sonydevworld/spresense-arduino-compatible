@@ -61,7 +61,7 @@ public:
    * @param nnbfile nnb network model binary file
    * @return 0 on success, otherwise error.
    */  
-  int begin(SDHCILib::File &nnbfile);
+  int begin(File &nnbfile);
 
   /**
    * Finalize runtime object
