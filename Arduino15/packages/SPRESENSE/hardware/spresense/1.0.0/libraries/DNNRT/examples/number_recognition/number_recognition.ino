@@ -33,6 +33,7 @@
 #include <DNNRT.h>
 
 DNNRT dnnrt;
+SDClass SD;
 
 void setup() {
 
@@ -41,7 +42,7 @@ void setup() {
     ; // wait for serial port to connect. Needed for native USB port only
   }
 
-  File nnbfile("network.nnb");
+  File nnbfile = SD.open("network.nnb");
   if (!nnbfile) {
     Serial.print("nnb not found");
     return;
