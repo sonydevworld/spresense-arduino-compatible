@@ -21,18 +21,18 @@ compiler.cpreprocessor.flags= "-I{compiler.sdk.path}/include" "-I{compiler.sdk.p
 
 
 compiler.c.cmd=arm-none-eabi-gcc
-compiler.c.flags=-c {compiler.warning_flags} -MMD -std=gnu99 -c -fno-builtin -mabi=aapcs -Wall -Os -fno-strict-aliasing -fno-strength-reduce -fomit-frame-pointer -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -pipe -ggdb -gdwarf-3
+compiler.c.flags=-c {compiler.warning_flags} -MMD -std=gnu99 -c -fno-builtin -mabi=aapcs -Wall -Os -fno-strict-aliasing -fno-strength-reduce -fomit-frame-pointer -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -pipe -ggdb -gdwarf-3 -ffunction-sections -fdata-sections
 
 compiler.S.cmd=arm-none-eabi-gcc
 compiler.S.flags=-c {compiler.warning_flags} -MMD -std=gnu99 -c -fno-builtin -mabi=aapcs -Wall -Os -fno-strict-aliasing -fno-strength-reduce -fomit-frame-pointer -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -pipe -ggdb -gdwarf-3 -D__ASSEMBLY__ -x assembler-with-cpp
 
-compiler.c.elf.flags=-ggdb -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -Xlinker --entry=__start -nodefaultlibs -nostartfiles "{build.stack}" "-T{build.libpath}/build/ramconfig.ld"
+compiler.c.elf.flags=-ggdb -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -Xlinker --entry=__start -nodefaultlibs -nostartfiles "{build.stack}" "-T{build.libpath}/build/ramconfig.ld" -Wl,--gc-sections
 
 compiler.c.elf.cmd=arm-none-eabi-g++
 compiler.c.elf.libs= "{build.libpath}/libs/libapps.a" "{build.libpath}/libs/libnuttx.a" -lgcc
 
 compiler.cpp.cmd=arm-none-eabi-g++
-compiler.cpp.flags=-c {compiler.warning_flags} -MMD -std=gnu++98 -c -fno-builtin -mabi=aapcs -Wall -Os -fno-strict-aliasing -fno-strength-reduce -fomit-frame-pointer -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -pipe -ffunction-sections -fno-exceptions -fno-rtti -ggdb -gdwarf-3
+compiler.cpp.flags=-c {compiler.warning_flags} -MMD -std=gnu++98 -c -fno-builtin -mabi=aapcs -Wall -Os -fno-strict-aliasing -fno-strength-reduce -fomit-frame-pointer -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -pipe -ffunction-sections -fno-exceptions -fno-rtti -ggdb -gdwarf-3 -ffunction-sections -fdata-sections
 
 
 compiler.as.cmd=arm-none-eabi-as
