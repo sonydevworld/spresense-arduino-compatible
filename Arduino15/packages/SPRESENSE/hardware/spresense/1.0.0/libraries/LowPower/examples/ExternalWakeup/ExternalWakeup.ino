@@ -34,6 +34,9 @@ const char* boot_cause_strings[] = {
   "RTC Alarm1 expired in cold sleep",
   "RTC Alarm2 expired in cold sleep",
   "RTC Alarm Error occurred in cold sleep",
+  "",
+  "",
+  "",
   "GPIO detected in cold sleep",
   "GPIO detected in cold sleep",
   "GPIO detected in cold sleep",
@@ -122,6 +125,7 @@ void setup()
   LowPower.enableBootCause(button2);
   // Disable wakeup by pushing button3
   LowPower.disableBootCause(button3);
+  Serial.println("Wait until PIN_D02 is low.");
 
   // Cold sleep
   Serial.print("Go to cold sleep...");
