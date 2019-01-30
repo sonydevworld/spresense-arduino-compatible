@@ -19,6 +19,7 @@
 
 #include <sdk/config.h>
 
+#include <stdio.h>
 #include <unistd.h>
 #include <nuttx/irq.h>
 #include <sys/boardctl.h>
@@ -33,6 +34,7 @@
 
 #include <arch/chip/battery_ioctl.h>
 #include <arch/board/board.h>
+#include <arch/chip/pm.h>
 
 #include <RTC.h>
 #include "LowPower.h"
@@ -40,16 +42,26 @@
 
 #define DEV_BATT "/dev/bat"
 
+#define ERRMSG(format, ...) printf("ERROR: " format, ##__VA_ARGS__)
+
 void LowPowerClass::begin()
 {
+  if (isInitialized) {
+    return;
+  }
+
   RTC.begin();
 
   board_charger_initialize(DEV_BATT);
+
+  isInitialized = true;
 }
 
 void LowPowerClass::end()
 {
   board_charger_uninitialize(DEV_BATT);
+
+  isInitialized = false;
 }
 
 void LowPowerClass::sleep(uint32_t seconds)
@@ -162,11 +174,51 @@ uint8_t LowPowerClass::getWakeupPin(bootcause_e bc)
   return pin;
 }
 
+void LowPowerClass::clockMode(clockmode_e mode)
+{
+  int count;
+
+  if (!isEnabledDVFS) {
+    board_clock_enable();
+    isEnabledDVFS = true;
+  }
+
+  switch (mode) {
+  case CLOCK_MODE_HIGH:
+    up_pm_acquire_freqlock(&hvlock);
+    break;
+  case CLOCK_MODE_MIDDLE:
+    up_pm_acquire_freqlock(&lvlock);
+    count = up_pm_get_freqlock_count(&hvlock);
+    while (count--) {
+      up_pm_release_freqlock(&hvlock);
+    }
+    break;
+  case CLOCK_MODE_LOW:
+    count = up_pm_get_freqlock_count(&hvlock);
+    while (count--) {
+      up_pm_release_freqlock(&hvlock);
+    }
+    count = up_pm_get_freqlock_count(&lvlock);
+    while (count--) {
+      up_pm_release_freqlock(&lvlock);
+    }
+    break;
+  default:
+    break;
+  }
+}
+
 int LowPowerClass::getVoltage(void)
 {
   int fd;
   int voltage;
   int ret;
+
+  if (!isInitialized) {
+    ERRMSG("ERROR: begin() not called\n");
+    return 0;
+  }
 
   fd = open(DEV_BATT, O_RDWR);
   if (fd < 0) {
@@ -186,6 +238,11 @@ int LowPowerClass::getCurrent(void)
   int fd;
   int current;
   int ret;
+
+  if (!isInitialized) {
+    ERRMSG("ERROR: begin() not called\n");
+    return 0;
+  }
 
   fd = open(DEV_BATT, O_RDWR);
   if (fd < 0) {
