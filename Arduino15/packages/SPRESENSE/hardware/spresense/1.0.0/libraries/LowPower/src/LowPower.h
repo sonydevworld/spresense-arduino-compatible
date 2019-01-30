@@ -173,6 +173,21 @@ public:
    */
   uint8_t getWakeupPin(bootcause_e bc);
 
+  /**
+   * @brief Get the sensed battery voltage on CXD5247
+   * @return sensed voltage [mV]
+   */
+  int getVoltage(void);
+
+  /**
+   * @brief Get the sensed battery current on CXD5247
+   * @return sensed current [mA]. Negative value means discharge.
+   * @attention The returned value isn't time-averaged and just instantaneous
+   *     value. Therefore, you can not get the strict current consumption.
+   *     Please use this value as a guide.
+   */
+  int getCurrent(void);
+
 private:
   bootcause_e pin2bootcause(uint8_t pin);
 

@@ -24,19 +24,32 @@
 #include <sys/boardctl.h>
 #include <arch/chip/pm.h>
 #include <cxd56_gpioint.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <nuttx/power/battery_charger.h>
+#include <nuttx/power/battery_ioctl.h>
+
+#include <arch/chip/battery_ioctl.h>
+#include <arch/board/board.h>
 
 #include <RTC.h>
 #include "LowPower.h"
 #include "wiring_private.h"
 
+#define DEV_BATT "/dev/bat"
+
 void LowPowerClass::begin()
 {
   RTC.begin();
+
+  board_charger_initialize(DEV_BATT);
 }
 
 void LowPowerClass::end()
 {
-  ;
+  board_charger_uninitialize(DEV_BATT);
 }
 
 void LowPowerClass::sleep(uint32_t seconds)
@@ -147,6 +160,44 @@ uint8_t LowPowerClass::getWakeupPin(bootcause_e bc)
   }
 
   return pin;
+}
+
+int LowPowerClass::getVoltage(void)
+{
+  int fd;
+  int voltage;
+  int ret;
+
+  fd = open(DEV_BATT, O_RDWR);
+  if (fd < 0) {
+    return fd;
+  }
+  ret = ioctl(fd, BATIOC_GET_VOLTAGE, (unsigned long)(uintptr_t)&voltage);
+  if (ret < 0) {
+    return ret;
+  }
+  close(fd);
+
+  return voltage;
+}
+
+int LowPowerClass::getCurrent(void)
+{
+  int fd;
+  int current;
+  int ret;
+
+  fd = open(DEV_BATT, O_RDWR);
+  if (fd < 0) {
+    return fd;
+  }
+  ret = ioctl(fd, BATIOC_GET_CURRENT, (unsigned long)(uintptr_t)&current);
+  if (ret < 0) {
+    return ret;
+  }
+  close(fd);
+
+  return current;
 }
 
 bootcause_e LowPowerClass::pin2bootcause(uint8_t pin)
