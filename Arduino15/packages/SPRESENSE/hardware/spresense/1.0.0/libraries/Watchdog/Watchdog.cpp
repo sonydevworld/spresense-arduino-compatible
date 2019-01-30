@@ -63,6 +63,7 @@ void WatchdogClass::start(uint32_t timeout) {
   if (ret < 0)
     {
       watchdog_printf("watchdog: ioctl(WDIOC_SETTIMEOUT) failed\n");
+      return;
     }
   
   ret = ioctl(wd_fd, WDIOC_START, 0);

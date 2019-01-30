@@ -91,7 +91,7 @@ public:
      * @details Start to count and check time for bite watchdog. And if it expire timeout value,
      *          device will reboot by hardware trigger.
      *
-     * @param [in] Timeout value in milliseconds for bite a watchdog
+     * @param [in] Timeout value in milliseconds for bite a watchdog (1 ~ 40000)
      */
     void start(uint32_t);
 
