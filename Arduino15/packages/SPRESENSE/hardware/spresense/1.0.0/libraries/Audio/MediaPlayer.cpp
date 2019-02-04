@@ -409,7 +409,7 @@ err_t MediaPlayer::write_fifo(uint8_t *data, uint32_t size, char *p_es_buf, CMN_
 /*--------------------------------------------------------------------------*/
 bool MediaPlayer::check_decode_dsp(uint8_t codec_type, const char *path)
 {
-  char fullpath[32];
+  char fullpath[32] = { 0 };
   struct stat buf;
   int retry;
   int ret = 0;
@@ -435,7 +435,8 @@ bool MediaPlayer::check_decode_dsp(uint8_t codec_type, const char *path)
         break;
 
       default:
-        break;
+        print_err("Codec type %d is invalid value.\n", codec_type);
+        return false;
     }
 
   if (0 == strncmp("/mnt/sd0", path, 8))

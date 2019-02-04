@@ -1420,7 +1420,7 @@ err_t AudioClass::init_mic_gain(int dev, int gain)
  ****************************************************************************/
 bool AudioClass::check_decode_dsp(uint8_t codec_type, const char *path)
 {
-  char fullpath[32];
+  char fullpath[32] = { 0 };
   struct stat buf;
   int retry;
   int ret = 0;
@@ -1446,7 +1446,8 @@ bool AudioClass::check_decode_dsp(uint8_t codec_type, const char *path)
         break;
 
       default:
-        break;
+        print_err("Codec type %d is invalid value.\n", codec_type);
+        return false;
     }
 
   if (0 == strncmp("/mnt/sd0", path, 8))
@@ -1482,7 +1483,7 @@ bool AudioClass::check_decode_dsp(uint8_t codec_type, const char *path)
 /*--------------------------------------------------------------------------*/
 bool AudioClass::check_encode_dsp(uint8_t codec_type, const char *path, uint32_t fs)
 {
-  char fullpath[32];
+  char fullpath[32] = { 0 };
   struct stat buf;
   int retry;
   int ret = 0;
@@ -1510,7 +1511,8 @@ bool AudioClass::check_encode_dsp(uint8_t codec_type, const char *path, uint32_t
         break;
 
       default:
-        break;
+        print_err("Codec type %d is invalid value.\n", codec_type);
+        return false;
     }
 
   if (0 == strncmp("/mnt/sd0", path, 8))

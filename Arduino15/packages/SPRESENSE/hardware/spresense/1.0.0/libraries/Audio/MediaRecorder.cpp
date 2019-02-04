@@ -420,7 +420,7 @@ err_t MediaRecorder::writeWavHeader(File& myfile)
 /*--------------------------------------------------------------------------*/
 bool MediaRecorder::check_encode_dsp(uint8_t codec_type, const char *path, uint32_t sampling_rate)
 {
-  char fullpath[32];
+  char fullpath[32] = { 0 };
   cxd56_audio_clkmode_t clk = CXD56_AUDIO_CLKMODE_NORMAL;
   struct stat buf;
   int retry;
@@ -448,7 +448,8 @@ bool MediaRecorder::check_encode_dsp(uint8_t codec_type, const char *path, uint3
         break;
 
       default:
-        break;
+        print_err("Codec type %d is invalid value.\n", codec_type);
+        return false;
     }
 
   if (0 == strncmp("/mnt/sd0", path, 8))
