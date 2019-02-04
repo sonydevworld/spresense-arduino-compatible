@@ -354,6 +354,26 @@ err_t MediaRecorder::deactivate(void)
 }
 
 /*--------------------------------------------------------------------------*/
+err_t MediaRecorder::setMicGain(int16_t mic_gain)
+{
+  AsRecorderMicGainParam micgain_param;
+
+  for (int i = 0; i < AS_MIC_CHANNEL_MAX; i++)
+    {
+      micgain_param.mic_gain[i] = mic_gain;
+    }
+
+  bool result = AS_SetMicGainMediaRecorder(&micgain_param);
+  if (!result)
+    {
+      print_err("Error: AS_SetMicGainMediaRecorder() failure!\n");
+      return MEDIARECORDER_ECODE_COMMAND_ERROR;
+    }
+
+  return MEDIARECORDER_ECODE_OK;
+}
+
+/*--------------------------------------------------------------------------*/
 err_t MediaRecorder::readFrames(uint8_t* p_buffer, uint32_t buffer_size, uint32_t* read_size)
 {
   err_t rst = MEDIARECORDER_ECODE_OK;

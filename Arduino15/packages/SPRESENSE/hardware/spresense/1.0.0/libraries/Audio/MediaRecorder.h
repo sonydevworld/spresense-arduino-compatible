@@ -241,6 +241,18 @@ public:
   err_t deactivate(void);
 
   /**
+   * @brief Set MicActivate the .
+   *
+   * @details The gain set when microphone is used can be specified
+   *          by the "mic_gain" argument.
+   *          You can set every 0.5 dB between 0 dB and 21 dB.
+   *          In this parameter, a value from 0 to 210 is set for every 5.
+   *
+   */
+
+  err_t setMicGain(int16_t mic_gain);
+
+  /**
    * @brief Read a recorded audio data
    *
    * @details This function reads encoded audio data from media recorder.

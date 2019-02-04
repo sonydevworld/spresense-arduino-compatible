@@ -21,6 +21,7 @@
 #include <MediaRecorder.h>
 #include <MemoryUtil.h>
 
+#define ANALOG_MIC_GAIN  0 /* +0dB */
 
 SDClass theSD;
 MediaRecorder *theRecorder;
@@ -123,6 +124,10 @@ void setup()
     }
 
   printf("Open! %d\n", s_myFile);
+
+  /* Set Gain */
+
+  theRecorder->setMicGain(ANALOG_MIC_GAIN);
 
   /* Start Recorder */
 
