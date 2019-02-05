@@ -214,6 +214,119 @@ CamErr CamImage::convertPixFormat(CAM_IMAGE_PIX_FMT to_fmt)
   return CAM_ERR_SUCCESS;
 }
 
+// Check resize limitation of HW in GE2D of CXD5602.
+#define IS_INVALID_SIZE(w, h) ((w) < 12 || (w) > 768 || (h) < 12 || (h) > 1024)
+
+// Check resize magnification limitation.
+// range can set as 1/2^n to 2^n (n=0..5)
+bool CamImage::check_resize_magnification(int in, int out)
+{
+  unsigned int ratio;
+  if(in > out)
+    {
+      ratio = in / out;
+    }
+  else
+    {
+      int tmp;
+      ratio = out / in;
+
+      // Swap "in" and "out".
+      // Because "in" must be bigger than "out" for below logic.
+      tmp = in;
+      in = out;
+      out = tmp;
+    }
+
+  unsigned int check_ratio = 64;
+  while(check_ratio)
+    {
+      if( !(check_ratio ^ ratio) ) // Check ratio a power of 2.
+        {
+          // To check this, "in" must be bigger than "out".
+          if( (out*ratio) == (unsigned int)in )
+            {
+              return true;
+            }
+          else
+            {
+              return false;
+            }
+        }
+      check_ratio >>= 1;
+    }
+  return false;
+}
+
+#define CHECK_LSBONE(p) ((p)&0x01)
+
+bool CamImage::check_hw_resize_param(int iw, int ih, int ow, int oh)
+{
+  // Size must be "Even number"
+  if( CHECK_LSBONE(iw) || CHECK_LSBONE(ih) || CHECK_LSBONE(ow) || CHECK_LSBONE(oh) )
+    {
+      return false;
+    }
+
+  // Check resize limitation.
+  if(IS_INVALID_SIZE(iw, ih) || IS_INVALID_SIZE(ow, oh))
+    {
+      return false;
+    }
+
+  // Check resize magnification limitation.
+  return    check_resize_magnification(iw, ow)
+         && check_resize_magnification(ih, oh);
+}
+
+
+CamErr CamImage::resizeImageByHW(CamImage &img, int width, int height)
+{
+  // Input instance must be empty.
+  if(img.is_valid())
+    {
+      return CAM_ERR_INVALID_PARAM;
+    }
+
+  // Format check.
+  if( getPixFormat() != CAM_IMAGE_PIX_FMT_YUV422 )
+    {
+      return CAM_ERR_INVALID_PARAM;
+    }
+
+  // HW limitation check.
+  if( !check_hw_resize_param( img_buff->width, img_buff->height, width, height ) )
+    {
+      return CAM_ERR_INVALID_PARAM;
+    }
+
+  CamImage *tmp_img = new CamImage(V4L2_BUF_TYPE_VIDEO_CAPTURE, width, height, getPixFormat(), NULL);
+  if( tmp_img == NULL || !tmp_img->is_valid() )
+    {
+      if(tmp_img != NULL) delete tmp_img;
+      return CAM_ERR_NO_MEMORY;
+    }
+
+  // Execute resizing.
+  int ret = imageproc_resize(getImgBuff(), getWidth(), getHeight(),
+                  tmp_img->getImgBuff(), tmp_img->getWidth(), tmp_img->getHeight(), 16);
+  if( ret != 0 )
+    {
+      delete tmp_img;
+      return CAM_ERR_ILLIGAL_DEVERR;
+    }
+
+  // Set resized image buffer into input parameter.
+  img.img_buff = tmp_img->img_buff;
+  img.img_buff->incRef();
+
+  tmp_img->img_buff = NULL;
+  delete tmp_img;
+
+  return CAM_ERR_SUCCESS;
+}
+
+
 bool CamImage::isAvailable(void)
 {
    return (img_buff != NULL && img_buff->actual_size > 0);

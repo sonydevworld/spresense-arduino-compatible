@@ -285,6 +285,10 @@ private:
   int getType(){ return (img_buff != NULL) ? img_buff->buf_type : -1; }
   bool is_valid(){ return (img_buff != NULL); };
 
+  bool check_hw_resize_param(int iw, int ih, int ow, int oh);
+  bool check_resize_magnification(int in, int out);
+
+
 public:
   /**
    * @brief Get Image Width
@@ -376,22 +380,35 @@ public:
    */
   CamErr convertPixFormat(CAM_IMAGE_PIX_FMT to_fmt /**< [en] Pixcel format which is convert to. <BR> [ja] 変換するピクセルフォーマット */);
 
-#if 0 /* To Be Supported */
   /*
-   * @brief Resize Image.
-   * @details [en] Resize the image. Internaly, new CamImage instance is created.
-   *               If any error occured such as zero size case, it returns empty CamImage instance. <BR>
-   *          [ja] 画像のリサイズを行う。内部で新たにCamImageインスタンスが生成される。
+   * @brief Resize Image with HW 2D accelerator.
+   * @details [en] Resize the image with 2D accelerator HW in CXD5602.
+   *               Internaly, new image buffer is created, and the resized image is in it.
+   *               After resized, CamImage instance of 1st argument stores it.
+   *               If any error occured such as zero size case, this returns error code.
+   *               This HW accelerator has limitation as below: <BR>
+   *               - Minimum width and height is 12 pixcels.
+   *               - Maximum width is 768 pixcels.
+   *               - Maximum height is 1024 pixcels.
+   *               - Resizing magnification is 2^n or 1/2^n, and resized image size must be integer. <BR>
+   *          [ja] CXD5602が持つ2Dアクセラレータを用いた画像のリサイズを行う。
+   *               内部で新たにImage用のバッファを生成したうえで、第1引数に指定された
+   *               CamImageインスタンスに結果を格納する。
    *               指定されたサイズがゼロの場合など、何らかのエラーが起きた場合、空の
-   *               CamImageインスタンスを返す。
-   * @return [en] Instance of CamImage with new Image size. <BR>
-   *         [jp] 新たな画像サイズのCamImageインスタンス
+   *               CamImageインスタンスを格納し、エラーコードを返す。
+   *               このHWアクセラレータには、以下の仕様制限が付く。<BR>
+   *               イメージの幅、高さの最小ピクセル数は12ピクセル。
+   *               イメージの幅の最大ピクセル数は768ピクセル。
+   *               イメージの高さの最大ピクセル数は1024ピクセル。
+   *               リサイズする場合の倍率は2^n倍もしくは1/2^nとなり、リサイズ後のサイズは整数になる必要がある。 <BR>
+   * @return [en] Error codes in #CamErr <BR>
+   *         [jp] #CamErr で定義されているエラーコード
    */
-  CamImage resizeImage(
+  CamErr resizeImageByHW(
+    CamImage &img, /**< [en] Instance of CamImage with result of resizing. <BR> [ja] リサイズ後の新しいCamImageが格納されるインスタンス */
     int width, /**< [en] Width to resize  <BR> [ja] リサイズする画像の横サイズ */
     int height /**< [en] Height to resize <BR> [ja] リサイズする画像の縦サイズ */
   );
-#endif
 
   /**
    * @brief Check valid image data.
