@@ -68,8 +68,8 @@ namespace SDHCILib {
 static char* fullpathname(char* buf, int bufsize, const char * filepath)
 {
   if ((strlen(filepath) + sizeof(SD_MOUNT_POINT) <= (size_t)bufsize) && (bufsize >= 0)) {
-    strcpy(buf, SD_MOUNT_POINT);
-    strcat(buf, filepath);
+    strncpy(buf, SD_MOUNT_POINT, sizeof(SD_MOUNT_POINT));
+    strncat(buf, filepath, bufsize - strlen(buf) - 1);
     return buf;
   }
 
@@ -486,10 +486,10 @@ File File::openNextFile(uint8_t mode) {
       char* name = (char*)malloc(sz);
 
       if (name) {
-        strcpy(name, _name);
+        strncpy(name, _name, l + 1);
         if (name[l - 1] != '/')
-            strcat(name, "/");
-        strcat(name, ent->d_name);
+            strncat(name, "/", 2);
+        strncat(name, ent->d_name, sz - strlen(name) - 1);
 
         File f(name, mode);
         free(name);
