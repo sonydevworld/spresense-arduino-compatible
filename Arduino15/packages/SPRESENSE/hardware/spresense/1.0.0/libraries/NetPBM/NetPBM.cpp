@@ -37,6 +37,11 @@ NetPBM::NetPBM(File& file) :
   uint32_t size = file.size() + 1;
 
   _filebuf = (unsigned char *)malloc(size);
+  if (_filebuf == NULL)
+    {
+      return;
+    }
+
   file.read(_filebuf, size);
   _filebuf[size - 1] = '\0';
 
@@ -58,7 +63,10 @@ NetPBM::NetPBM(File& file) :
 
 NetPBM::~NetPBM()
 {
-  free(_filebuf);
+  if (_filebuf)
+    {
+      free(_filebuf);
+    }
 }
 
 char *
@@ -170,6 +178,14 @@ unsigned int
 NetPBM::getpixel(unsigned short row, unsigned short col)
 {
   size_t offset = (row * _width) + col;
-  // XXX: 8 bpp gray map only
-  return (unsigned int)_pixbuf[offset];
+
+  if (_pixbuf)
+    {
+      // XXX: 8 bpp gray map only
+      return (unsigned int)_pixbuf[offset];
+    }
+  else
+    {
+      return 0;
+    }
 }
