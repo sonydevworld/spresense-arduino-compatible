@@ -45,7 +45,7 @@ void HardwareSerial::begin(unsigned long baud, uint8_t config)
     int ret;
     struct termios tio;
     const char* dev = 0;
-    char node[8];
+    char node[16];
     uint8_t tty;
 
     if (_fd >= 0) {
@@ -61,7 +61,7 @@ void HardwareSerial::begin(unsigned long baud, uint8_t config)
     if ((ret = ch_to_tty(&tty)))
         return;
 
-    sprintf(node, "/dev/ttyS%1u", tty);
+    snprintf(node, sizeof(node), "/dev/ttyS%1u", tty);
     dev = node;
 
 #if defined(CONFIG_UART1_SERIAL_CONSOLE) || defined(CONFIG_UART2_SERIAL_CONSOLE)
