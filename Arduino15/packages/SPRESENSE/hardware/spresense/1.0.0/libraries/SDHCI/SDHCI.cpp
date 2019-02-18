@@ -277,6 +277,9 @@ File::File(const char *name, uint8_t mode)
     usleep(100 * 1000); // 100 msec
   }
 
+  /* initialize variable in case stat() returns an error */
+  stat.st_size = 0;
+
   stat_ret = ::stat(fpname, &stat);
 
   if ((stat_ret == 0) && S_ISDIR(stat.st_mode)) {
