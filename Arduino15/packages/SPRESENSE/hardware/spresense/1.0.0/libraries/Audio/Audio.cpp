@@ -421,6 +421,12 @@ err_t AudioClass::setReadyMode(void)
       return AUDIOLIB_ECODE_AUDIOCOMMAND_ERROR;
     }
 
+  free(m_player0_simple_fifo_buf);
+  free(m_player1_simple_fifo_buf);
+
+  m_player0_simple_fifo_buf = NULL;
+  m_player1_simple_fifo_buf = NULL;
+
   destroyStaticPools();
 
   return AUDIOLIB_ECODE_OK;
@@ -430,11 +436,23 @@ err_t AudioClass::setReadyMode(void)
  ****************************************************************************/
 err_t AudioClass::setPlayerMode(uint8_t device)
 {
-  return setPlayerMode(device, AS_SP_DRV_MODE_LINEOUT);
+  return setPlayerMode(device, AS_SP_DRV_MODE_LINEOUT, SIMPLE_FIFO_BUF_SIZE, WRITE_BUF_SIZE);
+}
+
+/*--------------------------------------------------------------------------*/
+err_t AudioClass::setPlayerMode(uint8_t device, uint32_t player0bufsize, uint32_t player1bufsize)
+{
+  return setPlayerMode(device, AS_SP_DRV_MODE_LINEOUT, player0bufsize, player1bufsize);
 }
 
 /*--------------------------------------------------------------------------*/
 err_t AudioClass::setPlayerMode(uint8_t device, uint8_t sp_drv)
+{
+  return setPlayerMode(device, sp_drv, SIMPLE_FIFO_BUF_SIZE, WRITE_BUF_SIZE);
+}
+
+/*--------------------------------------------------------------------------*/
+err_t AudioClass::setPlayerMode(uint8_t device, uint8_t sp_drv, uint32_t player0bufsize, uint32_t player1bufsize)
 {
   const NumLayout layout_no = MEM_LAYOUT_PLAYER;
 
@@ -445,19 +463,47 @@ err_t AudioClass::setPlayerMode(uint8_t device, uint8_t sp_drv)
 
   print_dbg("set output cmplt\n");
 
-  if (CMN_SimpleFifoInitialize(&m_player0_simple_fifo_handle, m_player0_simple_fifo_buf, SIMPLE_FIFO_BUF_SIZE, NULL) != 0)
-    {
-      print_err("Fail to initialize simple FIFO.\n");
-      return AUDIOLIB_ECODE_SIMPLEFIFO_ERROR;
-    }
-  CMN_SimpleFifoClear(&m_player0_simple_fifo_handle);
+  /* Allocate ES buffer */
 
-  if (CMN_SimpleFifoInitialize(&m_player1_simple_fifo_handle, m_player1_simple_fifo_buf, WRITE_BUF_SIZE, NULL) != 0)
+  if (player0bufsize)
     {
-      print_err("Fail to initialize simple FIFO.\n");
-      return AUDIOLIB_ECODE_SIMPLEFIFO_ERROR;
+      m_player0_simple_fifo_buf =
+        (uint32_t*)(0xfffffffc & ((uint32_t)(malloc(player0bufsize + 3)) + 3));
+
+      if (m_player0_simple_fifo_buf)
+        {
+          if (CMN_SimpleFifoInitialize(&m_player0_simple_fifo_handle,
+                                       m_player0_simple_fifo_buf,
+                                       player0bufsize,
+                                       NULL) != 0)
+            {
+              print_err("Fail to initialize simple FIFO.\n");
+              return AUDIOLIB_ECODE_SIMPLEFIFO_ERROR;
+            }
+
+          CMN_SimpleFifoClear(&m_player0_simple_fifo_handle);
+        }
     }
-  CMN_SimpleFifoClear(&m_player1_simple_fifo_handle);
+
+  if (player1bufsize)
+    {
+      m_player1_simple_fifo_buf =
+        (uint32_t*)(0xfffffffc & ((uint32_t)(malloc(player1bufsize + 3)) + 3));
+
+      if (m_player1_simple_fifo_buf)
+        {
+          if (CMN_SimpleFifoInitialize(&m_player1_simple_fifo_handle,
+                                       m_player1_simple_fifo_buf,
+                                       player1bufsize,
+                                       NULL) != 0)
+            {
+              print_err("Fail to initialize simple FIFO.\n");
+              return AUDIOLIB_ECODE_SIMPLEFIFO_ERROR;
+            }
+
+          CMN_SimpleFifoClear(&m_player1_simple_fifo_handle);
+        }
+    }
 
   m_player0_input_device_handler.simple_fifo_handler = (void*)(&m_player0_simple_fifo_handle);
   m_player0_input_device_handler.callback_function = input_device_callback; /*??*/
@@ -737,13 +783,23 @@ err_t AudioClass::setLRgain(PlayerId id, unsigned char l_gain, unsigned char r_g
 err_t AudioClass::writeFrames(PlayerId id, int fd)
 {
   int ret = AUDIOLIB_ECODE_OK;
+
+  uint32_t *p_fifo = (id == Player0)
+    ? m_player0_simple_fifo_buf : m_player1_simple_fifo_buf;
+
+  if (!p_fifo)
+    {
+      printf("Buffer is not allocated.\n");
+      return AUDIOLIB_ECODE_SIMPLEFIFO_ERROR;
+    }
+
   char *buf = (id == Player0) ? m_es_player0_buf : m_es_player1_buf;
   CMN_SimpleFifoHandle *handle = (id == Player0) ? &m_player0_simple_fifo_handle : &m_player1_simple_fifo_handle;
   uint32_t write_size = (id == Player0) ? FIFO_FRAME_SIZE : WRITE_FIFO_FRAME_SIZE;
 
   for (int i = 0; i < WRITE_FRAME_NUM; i++)
     {
-        ret = write_fifo(fd, buf, write_size, handle);
+      ret = write_fifo(fd, buf, write_size, handle);
       if(ret != AUDIOLIB_ECODE_OK) break;
     }
 
@@ -754,6 +810,16 @@ err_t AudioClass::writeFrames(PlayerId id, int fd)
 err_t AudioClass::writeFrames(PlayerId id, File& myFile)
 {
   int ret = AUDIOLIB_ECODE_OK;
+
+  uint32_t *p_fifo = (id == Player0)
+    ? m_player0_simple_fifo_buf : m_player1_simple_fifo_buf;
+
+  if (!p_fifo)
+    {
+      printf("Buffer is not allocated.\n");
+      return AUDIOLIB_ECODE_SIMPLEFIFO_ERROR;
+    }
+
   char *buf = (id == Player0) ? m_es_player0_buf : m_es_player1_buf;
   CMN_SimpleFifoHandle *handle = (id == Player0) ? &m_player0_simple_fifo_handle : &m_player1_simple_fifo_handle;
   uint32_t write_size = (id == Player0) ? FIFO_FRAME_SIZE : WRITE_FIFO_FRAME_SIZE;
@@ -771,6 +837,15 @@ err_t AudioClass::writeFrames(PlayerId id, File& myFile)
 err_t AudioClass::writeFrames(PlayerId id, uint8_t *data, uint32_t write_size)
 {
   int ret = AUDIOLIB_ECODE_OK;
+
+  uint32_t *p_fifo = (id == Player0)
+    ? m_player0_simple_fifo_buf : m_player1_simple_fifo_buf;
+
+  if (!p_fifo)
+    {
+      printf("Buffer is not allocated.\n");
+      return AUDIOLIB_ECODE_SIMPLEFIFO_ERROR;
+    }
 
   CMN_SimpleFifoHandle *handle =
     (id == Player0) ?
@@ -806,12 +881,33 @@ err_t AudioClass::writeFrames(PlayerId id, uint8_t *data, uint32_t write_size)
 
 err_t AudioClass::setRecorderMode(uint8_t input_device, int32_t input_gain)
 {
+  return setRecorderMode(input_device, input_gain, SIMPLE_FIFO_BUF_SIZE);
+}
+
+/*--------------------------------------------------------------------------*/
+err_t AudioClass::setRecorderMode(uint8_t input_device, int32_t input_gain, uint32_t bufsize)
+{
   const NumLayout layout_no = MEM_LAYOUT_RECORDER;
 
   assert(layout_no < NUM_MEM_LAYOUTS);
   createStaticPools(layout_no);
 
-  if (CMN_SimpleFifoInitialize(&m_recorder_simple_fifo_handle, m_recorder_simple_fifo_buf, SIMPLE_FIFO_BUF_SIZE, NULL) != 0)
+  if (!bufsize)
+    {
+      print_err("Invalid buffer size.\n");
+      return AUDIOLIB_ECODE_BUFFER_SIZE_ERROR;
+    }
+
+  m_recorder_simple_fifo_buf =
+    (uint32_t*)(0xfffffffc & ((uint32_t)(malloc(bufsize + 3)) + 3));
+
+  if (!m_recorder_simple_fifo_buf)
+    {
+      print_err("Fail to allocate memory.\n");
+      return AUDIOLIB_ECODE_BUFFER_AREA_ERROR;
+    }
+
+  if (CMN_SimpleFifoInitialize(&m_recorder_simple_fifo_handle, m_recorder_simple_fifo_buf, bufsize, NULL) != 0)
     {
       print_err("Fail to initialize simple FIFO.\n");
       return AUDIOLIB_ECODE_SIMPLEFIFO_ERROR;
@@ -857,7 +953,7 @@ err_t AudioClass::setRecorderMode(uint8_t input_device, int32_t input_gain)
 /*--------------------------------------------------------------------------*/
 err_t AudioClass::setRecorderMode(uint8_t input_device)
 {
-  return setRecorderMode(input_device, 0);
+  return setRecorderMode(input_device, 0, SIMPLE_FIFO_BUF_SIZE);
 }
 
 /*--------------------------------------------------------------------------*/
@@ -1124,6 +1220,12 @@ err_t AudioClass::writeWavHeader(File& myFile)
 /*--------------------------------------------------------------------------*/
 err_t AudioClass::readFrames(File& myFile)
 {
+  if (!m_recorder_simple_fifo_buf)
+    {
+      print_err("ERROR: FIFO area is not allocated.\n");
+      return AUDIOLIB_ECODE_SIMPLEFIFO_ERROR;
+    }
+
   size_t data_size = CMN_SimpleFifoGetOccupiedSize(&m_recorder_simple_fifo_handle);
   print_dbg("dsize = %d\n", data_size);
 
@@ -1161,10 +1263,17 @@ err_t AudioClass::readFrames(char* p_buffer, uint32_t buffer_size, uint32_t* rea
       print_err("ERROR: Buffer area not specified.\n");
       return AUDIOLIB_ECODE_BUFFER_AREA_ERROR;
     }
+
   if (buffer_size == 0)
     {
       print_err("ERROR: Buffer area size error.\n");
       return AUDIOLIB_ECODE_BUFFER_SIZE_ERROR;
+    }
+
+  if (!m_recorder_simple_fifo_buf)
+    {
+      print_err("ERROR: FIFO area is not allocated.\n");
+      return AUDIOLIB_ECODE_SIMPLEFIFO_ERROR;
     }
 
   size_t data_size = CMN_SimpleFifoGetOccupiedSize(&m_recorder_simple_fifo_handle);

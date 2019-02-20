@@ -63,6 +63,7 @@
 #define MEDIARECORDER_ECODE_BUFFER_AREA_ERROR 7
 #define MEDIARECORDER_ECODE_INSUFFICIENT_BUFFER_AREA 8
 #define MEDIARECORDER_ECODE_BASEBAND_ERROR 9
+#define MEDIARECORDER_ECODE_BUFFER_ALLOC_ERROR 10
 
 /**
  * MediaRecorder buffer size definition.
@@ -143,6 +144,20 @@ public:
   err_t activate(
       AsSetRecorderStsInputDevice input_device, /**< Select input device. AS_SETRECDR_STS_INPUTDEVICE_MIC or AS_SETRECDR_STS_INPUTDEVICE_I2S*/
       MediaRecorderCallback mrcb                /**< Sepcify callback function which is called to notify API results. */
+  );
+
+  /**
+   * @brief Activate the MediaRecorder.
+   *
+   * @details This function works as same as above activate(input_device, mrcb).
+   *          But is able to set buffer size of recorder.
+   *
+   */
+
+  err_t activate(
+      AsSetRecorderStsInputDevice input_device, /**< Select input device. AS_SETRECDR_STS_INPUTDEVICE_MIC or AS_SETRECDR_STS_INPUTDEVICE_I2S*/
+      MediaRecorderCallback mrcb,               /**< Sepcify callback function which is called to notify API results. */
+      uint32_t recorder_bufsize
   );
 
   /**
@@ -296,7 +311,9 @@ private:
    * To avoid create multiple instance
    */
 
-  MediaRecorder() {}
+  MediaRecorder()
+    : m_recorder_simple_fifo_buf(NULL)
+  {}
   MediaRecorder(const MediaRecorder&);
   MediaRecorder& operator=(const MediaRecorder&);
   ~MediaRecorder() {}

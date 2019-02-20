@@ -52,12 +52,6 @@ static void attentionCallback(const ErrorAttentionParam *attparam)
 
 err_t MediaPlayer::begin(void)
 {
-  m_player0_simple_fifo_buf =
-    (uint32_t*)(0xfffffffc & ((uint32_t)(malloc(MEDIAPLAYER_BUF_SIZE + 3)) + 3));
-
-  m_player1_simple_fifo_buf =
-    (uint32_t*)(0xfffffffc & ((uint32_t)(malloc(MEDIAPLAYER_BUF_SIZE + 3)) + 3));
-
   return MEDIAPLAYER_ECODE_OK;
 }
 
@@ -107,34 +101,73 @@ err_t MediaPlayer::activate(PlayerId id, MediaPlayerCallback mpcb)
   return MediaPlayer::activate(id, AS_SETPLAYER_OUTPUTDEVICE_SPHP, mpcb);
 }
 
+/*--------------------------------------------------------------------------*/
+err_t MediaPlayer::activate(PlayerId id, MediaPlayerCallback mpcb, uint32_t player_bufsize)
+{
+  return MediaPlayer::activate(id, AS_SETPLAYER_OUTPUTDEVICE_SPHP, mpcb, player_bufsize);
+}
+
+/*--------------------------------------------------------------------------*/
 err_t MediaPlayer::activate(PlayerId id, uint8_t output_device, MediaPlayerCallback mpcb)
 {
-  CMN_SimpleFifoHandle *handle =
-    (id == Player0) ?
-      &m_player0_simple_fifo_handle : &m_player1_simple_fifo_handle;
+  return MediaPlayer::activate(id, output_device, mpcb, MEDIAPLAYER_BUF_SIZE);
+}
 
-  void *p_buffer =
-    (id == Player0) ?
-      m_player0_simple_fifo_buf : m_player1_simple_fifo_buf;
+/*--------------------------------------------------------------------------*/
+err_t MediaPlayer::activate(PlayerId id, uint8_t output_device, MediaPlayerCallback mpcb, uint32_t player_bufsize)
+{
+  /* Buffer size check */
 
+  if (!player_bufsize)
+    {
+      print_err("Invalid buffer size.\n");
+      return MEDIAPLAYER_ECODE_BUFFERSIZE_ERROR;
+    }
 
-  if (CMN_SimpleFifoInitialize(handle,
+  /* Alloc buffer */
+
+  CMN_SimpleFifoHandle handle = { 0 };
+
+  uint32_t *p_buffer =
+    (uint32_t*)(0xfffffffc & ((uint32_t)(malloc(player_bufsize + 3)) + 3));
+
+  if (!p_buffer)
+    {
+      print_err("Buffer allocate error.\n");
+      return MEDIAPLAYER_ECODE_BUFFERALLOC_ERROR;
+    }
+
+  if (CMN_SimpleFifoInitialize(&handle,
                                p_buffer,
-                               MEDIAPLAYER_BUF_SIZE,
+                               player_bufsize,
                                NULL) != 0)
     {
       print_err("Fail to initialize simple FIFO.\n");
       return MEDIAPLAYER_ECODE_SIMPLEFIFO_ERROR;
     }
 
-  CMN_SimpleFifoClear(handle);
+  CMN_SimpleFifoClear(&handle);
+
+  if (id == Player0)
+    {
+      m_player0_simple_fifo_handle = handle;
+      m_player0_simple_fifo_buf    = p_buffer;
+      m_player0_input_device_handler.simple_fifo_handler = &m_player0_simple_fifo_handle; 
+      m_player0_input_device_handler.callback_function   = input_device_callback; 
+    }
+  else
+    {
+      m_player1_simple_fifo_handle = handle;
+      m_player1_simple_fifo_buf    = p_buffer;
+      m_player1_input_device_handler.simple_fifo_handler = &m_player1_simple_fifo_handle; 
+      m_player1_input_device_handler.callback_function   = input_device_callback; 
+    }
+
+  /* Activate */
 
   AsPlayerInputDeviceHdlrForRAM *p_input_dev_handler =
     (id == Player0) ?
       &m_player0_input_device_handler : &m_player1_input_device_handler;
-
-  p_input_dev_handler->simple_fifo_handler = (void*)(handle);
-  p_input_dev_handler->callback_function   = input_device_callback;
 
   AsActivatePlayer player_act;
 
@@ -297,6 +330,23 @@ err_t MediaPlayer::deactivate(PlayerId id)
       AS_DeactivatePlayer(AS_PLAYER_ID_1, &player_deact);
     }
 
+  /* Free buffer */
+  
+  void *p_buffer = NULL;
+
+  if (id == Player0)
+    {
+      p_buffer = m_player0_simple_fifo_buf;
+      m_player0_simple_fifo_buf = NULL;
+    }
+  else
+    {
+      p_buffer = m_player1_simple_fifo_buf;
+      m_player1_simple_fifo_buf = NULL;
+    }
+
+  free(p_buffer);
+
   return MEDIAPLAYER_ECODE_OK;
 }
 
@@ -306,6 +356,16 @@ err_t MediaPlayer::deactivate(PlayerId id)
 err_t MediaPlayer::writeFrames(PlayerId id, File& myFile)
 {
   int ret = MEDIAPLAYER_ECODE_OK;
+
+  uint32_t *p_fifo = (id == Player0)
+    ? m_player0_simple_fifo_buf : m_player1_simple_fifo_buf;
+
+  if (!p_fifo)
+    {
+      print_err("FIFO area is not allocated.\n");
+      return MEDIAPLAYER_ECODE_SIMPLEFIFO_ERROR;
+    }
+
   char *buf = (id == Player0) ? m_es_player0_buf : m_es_player1_buf;
 
   CMN_SimpleFifoHandle *handle =
@@ -367,6 +427,16 @@ err_t MediaPlayer::write_fifo(File& myFile, char *p_es_buf, CMN_SimpleFifoHandle
 err_t MediaPlayer::writeFrames(PlayerId id, uint8_t *data, uint32_t size)
 {
   int ret = MEDIAPLAYER_ECODE_OK;
+
+  uint32_t *p_fifo = (id == Player0)
+    ? m_player0_simple_fifo_buf : m_player1_simple_fifo_buf;
+
+  if (!p_fifo)
+    {
+      print_err("FIFO area is not allocated.\n");
+      return MEDIAPLAYER_ECODE_SIMPLEFIFO_ERROR;
+    }
+
   char *buf = (id == Player0) ? m_es_player0_buf : m_es_player1_buf;
 
   CMN_SimpleFifoHandle *handle =

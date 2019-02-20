@@ -191,6 +191,20 @@ public:
   /**
    * @brief Set Audio Library Mode to Music Player.
    *
+   * @details This API has same function as setPlayerMode(device).
+   *          But you can set buffer size of players.
+   *
+   */
+  err_t setPlayerMode(
+      uint8_t device,          /**< Select output device. AS_SETPLAYER_OUTPUTDEVICE_SPHP or
+                                    AS_SETPLAYER_OUTPUTDEVICE_I2SOUTPUT. */
+      uint32_t player0bufsize, /**< Buffer size of player 0. Must be n > 0. */
+      uint32_t player1bufsize  /**< Buffer size of player 1. Must be n > 0. */
+  );
+
+  /**
+   * @brief Set Audio Library Mode to Music Player.
+   *
    * @details This function works as same as "setPlayerMode(uint8_t)",
    *          but you are able to set speaker drive mode by parameter "sp_drv".
    *          If you would like to set speaker drive mode, use this API instead of setPlayerMode(uint8_t).
@@ -201,6 +215,22 @@ public:
                            AS_SETPLAYER_OUTPUTDEVICE_I2SOUTPUT. */
       uint8_t sp_drv /**< Select audio speaker driver mode. AS_SP_DRV_MODE_LINEOUT or
                           AS_SP_DRV_MODE_1DRIVER or AS_SP_DRV_MODE_2DRIVER or AS_SP_DRV_MODE_4DRIVER */
+  );
+
+  /**
+   * @brief Set Audio Library Mode to Music Player.
+   *
+   * @details This API has same function as setPlayerMode(device, sp_drv).
+   *          But you can set buffer size of players.
+   *
+   */
+  err_t setPlayerMode(
+      uint8_t device,          /**< Select output device. AS_SETPLAYER_OUTPUTDEVICE_SPHP or 
+                                    AS_SETPLAYER_OUTPUTDEVICE_I2SOUTPUT. */
+      uint8_t sp_drv,          /**< Select audio speaker driver mode. AS_SP_DRV_MODE_LINEOUT or
+                                    AS_SP_DRV_MODE_1DRIVER or AS_SP_DRV_MODE_2DRIVER or AS_SP_DRV_MODE_4DRIVER */
+      uint32_t player0bufsize, /**< Buffer size of player 0. Must be n > 0. */
+      uint32_t player1bufsize  /**< Buffer size of player 1. Must be n > 0. */
   );
 
   /**
@@ -238,7 +268,6 @@ public:
    *          If you would like to set recording mic-gain, use this API instead of  setRecorderMode(uint8_t).
    *
    */
-
   err_t setRecorderMode(
       uint8_t input_device, /**< Select input device. AS_SETRECDR_STS_INPUTDEVICE_MIC or
                                  AS_SETRECDR_STS_INPUTDEVICE_I2S. */
@@ -248,6 +277,22 @@ public:
                                  set #AS_MICGAIN_HOLD is keep setting. */
   );
 
+  /**
+   * @brief Set Audio Library Mode to Sound Recorder.
+   *
+   * @details This function works as same as "setRecorderMode(input_device, input_gain)",
+   *          But you can set buffer size of recorder.
+   *
+   */
+  err_t setRecorderMode(
+      uint8_t input_device, /**< Select input device. AS_SETRECDR_STS_INPUTDEVICE_MIC or
+                                 AS_SETRECDR_STS_INPUTDEVICE_I2S. */
+      int32_t input_gain,   /**< Input gain : value range
+                                 Analog Mic  -7850:-78.50dB, ... , -5:-0.05dB, 0:0dB, 5:+0.5dB, ... , 210:+21.0dB
+                                 Digital Mic -7850:-78.50dB, ... , -5:-0.05dB, 0:0dB (Max is 0dB.)
+                                 set #AS_MICGAIN_HOLD is keep setting. */
+      uint32_t bufsize      /**< Buffer size of recorder. */
+  );
 
   /**
    * @enum Input select parameter at baseband through mode
@@ -260,7 +305,6 @@ public:
     I2sIn,  /**< Use I2S input only. */
     BothIn  /**< Use Microphone and I2S input. */
   } ThroughInput;
-
 
   /**
    * @enum I2S output select parameter at baseband through mode
@@ -301,7 +345,7 @@ public:
                           AS_SP_DRV_MODE_1DRIVER or AS_SP_DRV_MODE_2DRIVER or AS_SP_DRV_MODE_4DRIVER */
   );
 
-/**
+  /**
    * @brief Set Audio Library Mode to Ready.
    *
    * @details This function switches the mode of the Audio library to the initial state.
@@ -796,7 +840,9 @@ private:
    */
 
   AudioClass()
-    : m_attention_callback(NULL)
+    : m_player0_simple_fifo_buf(NULL)
+    , m_player1_simple_fifo_buf(NULL)
+    , m_attention_callback(NULL)
   {}
   AudioClass(const AudioClass&);
   AudioClass& operator=(const AudioClass&);
@@ -807,8 +853,8 @@ private:
 
   CMN_SimpleFifoHandle m_player0_simple_fifo_handle;
   CMN_SimpleFifoHandle m_player1_simple_fifo_handle;
-  uint32_t m_player0_simple_fifo_buf[SIMPLE_FIFO_BUF_SIZE/sizeof(uint32_t)];
-  uint32_t m_player1_simple_fifo_buf[WRITE_BUF_SIZE/sizeof(uint32_t)];
+  uint32_t *m_player0_simple_fifo_buf;
+  uint32_t *m_player1_simple_fifo_buf;
 
   AsPlayerInputDeviceHdlrForRAM m_player0_input_device_handler;
   AsPlayerInputDeviceHdlrForRAM m_player1_input_device_handler;
