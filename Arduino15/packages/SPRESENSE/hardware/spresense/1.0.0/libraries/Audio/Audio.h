@@ -41,8 +41,8 @@
 // #ifdef __cplusplus
 
 #include <audio/audio_high_level_api.h>
-#include <audio/utilities/audio_wav_containerformat.h>
-#include <audio/utilities/audio_wav_containerformat_parser.h>
+#include <audio/utilities/wav_containerformat.h>
+#include <audio/utilities/wav_containerformat_parser.h>
 #include <memutils/simple_fifo/CMN_SimpleFifo.h>
 
 #define WRITE_FIFO_FRAME_NUM  (8)

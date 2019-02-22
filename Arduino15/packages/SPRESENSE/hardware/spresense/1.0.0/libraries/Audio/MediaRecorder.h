@@ -30,7 +30,7 @@
 
 #include <SDHCI.h>
 #include <audio/audio_high_level_api.h>
-#include <audio/utilities/audio_wav_containerformat.h>
+#include <audio/utilities/wav_containerformat.h>
 #include <memutils/simple_fifo/CMN_SimpleFifo.h>
 
 /*--------------------------------------------------------------------------*/
