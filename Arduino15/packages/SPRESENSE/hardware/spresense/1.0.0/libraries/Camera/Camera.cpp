@@ -32,6 +32,7 @@
 #include <Camera.h>
 #include <imageproc/imageproc.h>
 
+
 /****************************************************************************
  * ImgBuff implementation.
  ****************************************************************************/
@@ -282,8 +283,8 @@ bool CamImage::check_hw_resize_param(int iw, int ih, int ow, int oh)
 
 CamErr CamImage::resizeImageByHW(CamImage &img, int width, int height)
 {
-  // Input instance must be empty.
-  if(img.is_valid())
+  // Input instance must not be Capture Frames.
+  if((img.is_valid()) && (img.img_buff->cam_ref != NULL))
     {
       return CAM_ERR_INVALID_PARAM;
     }
@@ -306,6 +307,7 @@ CamErr CamImage::resizeImageByHW(CamImage &img, int width, int height)
       if(tmp_img != NULL) delete tmp_img;
       return CAM_ERR_NO_MEMORY;
     }
+  tmp_img->setActualSize(tmp_img->img_buff->buf_size);
 
   // Execute resizing.
   int ret = imageproc_resize(getImgBuff(), getWidth(), getHeight(),
@@ -314,6 +316,93 @@ CamErr CamImage::resizeImageByHW(CamImage &img, int width, int height)
     {
       delete tmp_img;
       return CAM_ERR_ILLIGAL_DEVERR;
+    }
+
+  // if the image has image buffer, delete it.
+  if( img.is_valid() )
+    {
+      ImgBuff::delete_inst(img.img_buff);
+    }
+
+  // Set resized image buffer into input parameter.
+  img.img_buff = tmp_img->img_buff;
+  img.img_buff->incRef();
+
+  tmp_img->img_buff = NULL;
+  delete tmp_img;
+
+  return CAM_ERR_SUCCESS;
+}
+
+
+CamErr CamImage::clipAndResizeImageByHW(
+    CamImage &img,
+    int lefttop_x,
+    int lefttop_y,
+    int rightbottom_x,
+    int rightbottom_y,
+    int width,
+    int height)
+{
+  int clip_width, clip_height;
+  imageproc_rect_t inrect;
+
+  // Input instance must not be Capture Frames.
+  if((img.is_valid()) && (img.img_buff->cam_ref != NULL))
+    {
+      return CAM_ERR_INVALID_PARAM;
+    }
+
+  // Format check.
+  if( getPixFormat() != CAM_IMAGE_PIX_FMT_YUV422 )
+    {
+      return CAM_ERR_INVALID_PARAM;
+    }
+
+  clip_width  = rightbottom_x - lefttop_x + 1;
+  clip_height = rightbottom_y - lefttop_y + 1;
+
+  // Check clip area.
+  if( (lefttop_x   < 0) || (lefttop_x  > rightbottom_x) ||
+      (lefttop_y   < 0) || (lefttop_y  > rightbottom_y) ||
+      (clip_width  < 0) || (clip_width  > getWidth())   ||
+      (clip_height < 0) || (clip_height > getHeight()) )
+    {
+      return CAM_ERR_INVALID_PARAM;
+    }
+
+  // HW limitation check.
+  if( !check_hw_resize_param( clip_width, clip_height, width, height ) )
+    {
+      return CAM_ERR_INVALID_PARAM;
+    }
+
+  CamImage *tmp_img = new CamImage(V4L2_BUF_TYPE_VIDEO_CAPTURE, width, height, getPixFormat(), NULL);
+  if( tmp_img == NULL || !tmp_img->is_valid() )
+    {
+      if(tmp_img != NULL) delete tmp_img;
+      return CAM_ERR_NO_MEMORY;
+    }
+  tmp_img->setActualSize(tmp_img->img_buff->buf_size);
+
+  inrect.x1 = lefttop_x;
+  inrect.y1 = lefttop_y;
+  inrect.x2 = rightbottom_x;
+  inrect.y2 = rightbottom_y;
+
+  // Execute clip and resize.
+  int ret = imageproc_clip_and_resize(getImgBuff(), getWidth(), getHeight(),
+                  tmp_img->getImgBuff(), tmp_img->getWidth(), tmp_img->getHeight(), 16, &inrect);
+  if( ret != 0 )
+    {
+      delete tmp_img;
+      return CAM_ERR_ILLIGAL_DEVERR;
+    }
+
+  // if the image has image buffer, delete it.
+  if( img.is_valid() )
+    {
+      ImgBuff::delete_inst(img.img_buff);
     }
 
   // Set resized image buffer into input parameter.

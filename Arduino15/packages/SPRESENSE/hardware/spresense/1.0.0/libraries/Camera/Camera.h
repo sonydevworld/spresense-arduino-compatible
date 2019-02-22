@@ -396,7 +396,7 @@ public:
    *               CamImageインスタンスに結果を格納する。
    *               指定されたサイズがゼロの場合など、何らかのエラーが起きた場合、空の
    *               CamImageインスタンスを格納し、エラーコードを返す。
-   *               このHWアクセラレータには、以下の仕様制限が付く。<BR>
+   *               このHWアクセラレータには、以下の仕様制限があります。<BR>
    *               イメージの幅、高さの最小ピクセル数は12ピクセル。
    *               イメージの幅の最大ピクセル数は768ピクセル。
    *               イメージの高さの最大ピクセル数は1024ピクセル。
@@ -409,6 +409,43 @@ public:
     int width, /**< [en] Width to resize  <BR> [ja] リサイズする画像の横サイズ */
     int height /**< [en] Height to resize <BR> [ja] リサイズする画像の縦サイズ */
   );
+
+
+  /*
+   * @brief Clip and resize Image with HW 2D accelerator.
+   * @details [en] Clip and resize the image with 2D accelerator HW in CXD5602.
+   *               First, clip the area specified by the arguments (#lefttop_x, #lefttop_y) - (#rightbottom_x, # rightbottom_y) for the original
+   *               image and specify the clipped image with arguments (#width, # height) resize to the size you made.
+   *               The resized image is stored in the CamImage instance specified as the first argument with new image buffer created internally.
+   *               If any error occured such as zero size case, this returns error code.
+   *               This HW accelerator has limitation for resizing as below: <BR>
+   *               - Minimum width and height is 12 pixcels.
+   *               - Maximum width is 768 pixcels.
+   *               - Maximum height is 1024 pixcels.
+   *               - Resizing magnification is 2^n or 1/2^n, and resized image size must be integer. <BR>
+   *          [ja] CXD5602が持つ2Dアクセラレータを用いた画像のクリッピング及びリサイズを行う。
+   *               まず、元画像に対して、引数 (#lefttop_x, #lefttop_y) - (#rightbottom_x, #rightbottom_y) で指定された領域をクリップし、
+   *               クリップされた画像に対して引数 (#width, #height)で指定されたサイズにリサイズを行う。
+   *               リサイズ後の画像は、内部で新たにImage用のバッファを生成したうえで第1引数に指定されたCamImageインスタンスに結果を格納する。
+   *               指定されたサイズがゼロの場合など、何らかのエラーが起きた場合、空のCamImageインスタンスを格納し、エラーコードを返す。
+   *               なお、このHWアクセラレータには、リサイズ動作に関して以下の仕様制限があります。<BR>
+   *               　　イメージの幅、高さの最小ピクセル数は12ピクセル。<BR>
+   *               　　イメージの幅の最大ピクセル数は768ピクセル。<BR>
+   *               　　イメージの高さの最大ピクセル数は1024ピクセル。<BR>
+   *               　　リサイズする場合の倍率は2^n倍もしくは1/2^nとなり、リサイズ後のサイズは整数になる必要がある。 <BR>
+   * @return [en] Error codes in #CamErr <BR>
+   *         [jp] #CamErr で定義されているエラーコード
+   */
+  CamErr clipAndResizeImageByHW(
+    CamImage &img,     /**< [en] Instance of CamImage with result of resizing. <BR> [ja] リサイズ後の新しいCamImageが格納されるインスタンス */
+    int lefttop_x,     /**< [en] Left top X coodinate in original image for clipping. <BR> [ja] 元画像に対して、クリップする左上のX座標 */
+    int lefttop_y,     /**< [en] Left top Y coodinate in original image for clipping. <BR> [ja] 元画像に対して、クリップする左上のY座標 */
+    int rightbottom_x, /**< [en] Right bottom X coodinate in original image for clipping. <BR> [ja] 元画像に対して、クリップする左上のX座標 */
+    int rightbottom_y, /**< [en] Right bottom Y coodinate in original image for clipping. <BR> [ja] 元画像に対して、クリップする左上のY座標 */
+    int width,         /**< [en] Width to resize from clipping image  <BR> [ja] クリップされた画像に対して、リサイズする画像の横サイズ */
+    int height         /**< [en] Height to resize from clipping image <BR> [ja] クリップされた画像に対して、リサイズする画像の縦サイズ */
+  );
+
 
   /**
    * @brief Check valid image data.
