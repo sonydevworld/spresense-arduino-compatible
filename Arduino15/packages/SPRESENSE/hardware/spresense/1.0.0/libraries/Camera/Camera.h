@@ -292,7 +292,7 @@ private:
 public:
   /**
    * @brief Get Image Width
-   * @details [en] Get Image pixcel width (px). <BR>
+   * @details [en] Get Image pixel width (px). <BR>
    *          [ja] 画像データの横サイズを取得する。(ピクセル単位)
    * @return [en] Width of the Image.(px) <BR>
    *         [ja] 画像データの横サイズ。(ピクセル単位)
@@ -301,7 +301,7 @@ public:
 
   /**
    * @brief Get Image Height
-   * @details [en] Get Image pixcel height (px). <BR>
+   * @details [en] Get Image pixel height (px). <BR>
    *          [ja] 画像データの縦サイズを取得する。(ピクセル単位)
    * @return [en] Width of the Image.(px) <BR>
    *         [ja] 画像データの縦サイズ。(ピクセル単位)
@@ -369,7 +369,7 @@ public:
 
   /**
    * @brief Convert Pixcelformat of the image.
-   * @details [en] Convert own image's pixcel format. Override Image data. So
+   * @details [en] Convert own image's pixel format. Override Image data. So
    *               original image is discarded. If paramter is the same format
    *               as current, no error and no operation. <BR>
    *          [ja] ピクセルフォーマット変換を行う。画像データは上書きされ、元の
@@ -387,9 +387,9 @@ public:
    *               After resized, CamImage instance of 1st argument stores it.
    *               If any error occured such as zero size case, this returns error code.
    *               This HW accelerator has limitation as below: <BR>
-   *               - Minimum width and height is 12 pixcels.
-   *               - Maximum width is 768 pixcels.
-   *               - Maximum height is 1024 pixcels.
+   *               - Minimum width and height is 12 pixels.
+   *               - Maximum width is 768 pixels.
+   *               - Maximum height is 1024 pixels.
    *               - Resizing magnification is 2^n or 1/2^n, and resized image size must be integer. <BR>
    *          [ja] CXD5602が持つ2Dアクセラレータを用いた画像のリサイズを行う。
    *               内部で新たにImage用のバッファを生成したうえで、第1引数に指定された
@@ -419,9 +419,9 @@ public:
    *               The resized image is stored in the CamImage instance specified as the first argument with new image buffer created internally.
    *               If any error occured such as zero size case, this returns error code.
    *               This HW accelerator has limitation for resizing as below: <BR>
-   *               - Minimum width and height is 12 pixcels.
-   *               - Maximum width is 768 pixcels.
-   *               - Maximum height is 1024 pixcels.
+   *               - Minimum width and height is 12 pixels.
+   *               - Maximum width is 768 pixels.
+   *               - Maximum height is 1024 pixels.
    *               - Resizing magnification is 2^n or 1/2^n, and resized image size must be integer. <BR>
    *          [ja] CXD5602が持つ2Dアクセラレータを用いた画像のクリッピング及びリサイズを行う。
    *               まず、元画像に対して、引数 (#lefttop_x, #lefttop_y) - (#rightbottom_x, #rightbottom_y) で指定された領域をクリップし、
@@ -563,7 +563,7 @@ public:
     CAM_VIDEO_FPS fps = CAM_VIDEO_FPS_30,   /**< [en] Frame rate of video stream. Choose one in #CAM_VIDEO_FPS (Default : 30FPS) <BR> [ja] Videoストリームのフレームレート。 #CAM_VIDEO_FPS の中から選択 (デ>フォルト 30FPS) */ 
     int video_width   = CAM_IMGSIZE_QVGA_H, /**< [en] Image buffer width of video stream.(px)(Default : QVGA)                    <BR> [ja] Videoストリーム画像の横サイズ (単位ピクセル)(デフォルト QVGA) */
     int video_height  = CAM_IMGSIZE_QVGA_V, /**< [en] Image buffer height of video stream.(px)(Default : QVGA)                   <BR> [ja] Videoストリーム画像の縦サイズ (単位ピクセル)(デフォルト QVGA) */
-    CAM_IMAGE_PIX_FMT video_fmt = CAM_IMAGE_PIX_FMT_YUV422  /**< [en] Video stream image buffer pixcel format.(Default : YUV422) <BR> [ja] Videoストリームで利用するバッファのピクセルフォーマット (デフォルト YUV422) */
+    CAM_IMAGE_PIX_FMT video_fmt = CAM_IMAGE_PIX_FMT_YUV422  /**< [en] Video stream image buffer pixel format.(Default : YUV422) <BR> [ja] Videoストリームで利用するバッファのピクセルフォーマット (デフォルト YUV422) */
   ); 
 
   /**
@@ -671,7 +671,7 @@ public:
   CamErr setStillPictureImageFormat(
     int img_width,                                    /**< [en] Image width of Still picture.(px)   <BR> [ja] 静止画写真の横サイズ (単位ピクセル) */
     int img_height,                                   /**< [en] Image height of Still picture.(px)  <BR> [ja] 静止画写真の縦サイズ (単位ピクセル) */
-    CAM_IMAGE_PIX_FMT img_fmt = CAM_IMAGE_PIX_FMT_JPG /**< [en] Image pixcel format. (Default JPEG) <BR> [ja] 静止画ピクセルフォーマット (デフォルト JPEG) */
+    CAM_IMAGE_PIX_FMT img_fmt = CAM_IMAGE_PIX_FMT_JPG /**< [en] Image pixel format. (Default JPEG) <BR> [ja] 静止画ピクセルフォーマット (デフォルト JPEG) */
   );
 
   /**
