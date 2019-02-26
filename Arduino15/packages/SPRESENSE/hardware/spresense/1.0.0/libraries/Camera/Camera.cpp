@@ -32,7 +32,6 @@
 #include <Camera.h>
 #include <imageproc/imageproc.h>
 
-
 /****************************************************************************
  * ImgBuff implementation.
  ****************************************************************************/
@@ -483,6 +482,7 @@ CameraClass::CameraClass(const char *path)
   loop_dqbuf_en = false;
   video_cb = NULL;
   dq_tid = -1;
+  frame_tid = -1;
   sem_init(&video_cb_access_sem, 0, 1);
 }
 
@@ -783,7 +783,7 @@ CamErr CameraClass::create_dq_thread()
 
   loop_dqbuf_en = true;
   if (pthread_create(
-        &dq_tid,
+        &frame_tid,
         &tattr,
         (pthread_startroutine_t)CameraClass::frame_handle_thread,
         (void *)this))
@@ -791,6 +791,10 @@ CamErr CameraClass::create_dq_thread()
       loop_dqbuf_en = false;
       mq_close(frame_exchange_mq);
       return CAM_ERR_CANT_CREATE_THREAD;
+    }
+  else
+    {
+      pthread_setname_np(frame_tid, "frame_hdr_thread");
     }
 
   // thread for dqbuf from video driver.
@@ -808,6 +812,10 @@ CamErr CameraClass::create_dq_thread()
       loop_dqbuf_en = false;
       mq_close(frame_exchange_mq);
       err = CAM_ERR_CANT_CREATE_THREAD;
+    }
+  else
+    {
+      pthread_setname_np(dq_tid, "cam_dq_thread");
     }
 
   return err;
