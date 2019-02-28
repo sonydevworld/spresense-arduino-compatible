@@ -92,6 +92,7 @@ extern "C" void  outputDeviceCallback(uint32_t);
 #define AUDIOLIB_ECODE_BUFFER_SIZE_ERROR   7  /**< */
 #define AUDIOLIB_ECODE_INSUFFICIENT_BUFFER_AREA   8  /**< */
 #define AUDIOLIB_ECODE_WAV_PARSE_ERROR     9  /**< */
+#define AUDIOLIB_ECODE_PARAMETER_ERROR    10  /**< */
 
 /*--------------------------------------------------------------------------*/
 /**
@@ -247,7 +248,60 @@ public:
                                  set #AS_MICGAIN_HOLD is keep setting. */
   );
 
+
   /**
+   * @enum Input select parameter at baseband through mode
+   *
+   */
+
+  typedef enum
+  {
+    MicIn,  /**< Use Microphone only. */
+    I2sIn,  /**< Use I2S input only. */
+    BothIn  /**< Use Microphone and I2S input. */
+  } ThroughInput;
+
+
+  /**
+   * @enum I2S output select parameter at baseband through mode
+   *
+   */
+
+  typedef enum
+  {
+    None,   /**< I2S Output is nothing. */
+    Mixer,  /**< I2S Output is Mixer output data. */
+    Mic     /**< I2S Output is Microphone. */
+  } ThroughI2sOut;
+
+  /**
+   * @brief Set Audio Library Mode to BaseBand Through.
+   *
+   * @details This function switches the mode of the Audio library to the Baseband through state.
+   *  (For low power, low latency, small memory)
+   *
+   *          For mode details, follow the state transition chart on the developer guide.
+   *
+   *          You can chose input and I2S output data, but speaker output is always mixer data.
+   *          And, in this mode, output starts as soon as the state changes.
+   *
+   *          This function cannot be called after transition to "BaseBand Through mode".
+   *          To return to the original state, please call setReadyMode ().
+   *
+   */
+  err_t setThroughMode(
+      ThroughInput input,     /**< Set input source. Use ThroughInput enum type. */
+      ThroughI2sOut i2s_out,  /**< Set I2S output source. Use ThroughI2sOut enum type. */
+      bool sp_out,            /**< sp_out : Use speaker output. */
+      int32_t input_gain,     /**< Input gain : value range
+                                 Analog Mic  -7850:-78.50dB, ... , -5:-0.05dB, 0:0dB, 5:+0.5dB, ... , 210:+21.0dB
+                                 Digital Mic -7850:-78.50dB, ... , -5:-0.05dB, 0:0dB (Max is 0dB.)
+                                 set #AS_MICGAIN_HOLD is keep setting. */
+      uint8_t sp_drv /**< Select audio speaker driver mode. AS_SP_DRV_MODE_LINEOUT or
+                          AS_SP_DRV_MODE_1DRIVER or AS_SP_DRV_MODE_2DRIVER or AS_SP_DRV_MODE_4DRIVER */
+  );
+
+/**
    * @brief Set Audio Library Mode to Ready.
    *
    * @details This function switches the mode of the Audio library to the initial state.
@@ -799,6 +853,9 @@ private:
 
   /* Functions for initialization on recorder mode. */
   err_t init_mic_gain(int, int);
+
+  /* Functions for initialization on through mode. */
+  err_t send_set_through(void);
 
   bool check_decode_dsp(uint8_t codec_type, const char *path);
   bool check_encode_dsp(uint8_t codec_type, const char *path, uint32_t fs);

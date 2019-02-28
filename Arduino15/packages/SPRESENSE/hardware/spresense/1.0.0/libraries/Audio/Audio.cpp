@@ -1225,6 +1225,118 @@ err_t AudioClass::setRenderingClockMode(AsClkMode mode)
 }
 
 /****************************************************************************
+ * Baseband through API on Audio Class
+ ****************************************************************************/
+err_t AudioClass::setThroughMode(ThroughInput input, ThroughI2sOut i2s_out, bool sp_out, int32_t input_gain, uint8_t sp_drv)
+{
+  if (i2s_out == None)
+    {
+      AudioClass::set_output(AS_SETPLAYER_OUTPUTDEVICE_SPHP, sp_drv);
+    }
+  else
+    {
+      AudioClass::set_output(AS_SETPLAYER_OUTPUTDEVICE_I2SOUTPUT, sp_drv);
+    }
+
+  AudioCommand command;
+  command.header.packet_length = LENGTH_SET_THROUGH_PATH;
+  command.header.command_code  = AUDCMD_SETTHROUGHPATH;
+  command.header.sub_code      = 0x00;
+
+  switch (input)
+    {
+      case MicIn:
+        init_mic_gain(AS_SETRECDR_STS_INPUTDEVICE_MIC,input_gain);
+        send_set_through();
+
+        command.set_through_path.path1.en  = true;
+        command.set_through_path.path1.in  = AS_THROUGH_PATH_IN_MIC;
+        command.set_through_path.path2.en  = false;
+        break;
+
+      case I2sIn:
+        send_set_through();
+
+        command.set_through_path.path1.en  = false;
+        command.set_through_path.path2.en  = true;
+        command.set_through_path.path2.in  = AS_THROUGH_PATH_IN_I2S1;
+        command.set_through_path.path2.out = AS_THROUGH_PATH_OUT_MIXER1;
+        break;
+
+      case BothIn:
+        init_mic_gain(AS_SETRECDR_STS_INPUTDEVICE_MIC,input_gain);
+        send_set_through();
+
+        command.set_through_path.path1.en  = true;
+        command.set_through_path.path1.in  = AS_THROUGH_PATH_IN_MIC;
+        command.set_through_path.path2.en  = true;
+        command.set_through_path.path2.in  = AS_THROUGH_PATH_IN_I2S1;
+        command.set_through_path.path2.out = AS_THROUGH_PATH_OUT_MIXER1;
+        break;
+
+      default:
+        return AUDIOLIB_ECODE_PARAMETER_ERROR; /* error. tentative. */
+    }
+
+  if (i2s_out == Mic)
+    {
+      command.set_through_path.path1.out = AS_THROUGH_PATH_OUT_I2S1;
+    }
+  else
+    {
+      command.set_through_path.path1.out = AS_THROUGH_PATH_OUT_MIXER1;
+    }
+
+  AS_SendAudioCommand(&command);
+
+  AudioResult result;
+  AS_ReceiveAudioResult(&result);
+
+  if (result.header.result_code != AUDRLT_SETTHROUGHPATHCMPLT)
+    {
+      print_err("ERROR: Command (0x%x) fails. Result code(0x%x) Module id(0x%x) Error code(0x%x)\n",
+                command.header.command_code,
+                result.header.result_code,
+                result.error_response_param.module_id,
+                result.error_response_param.error_code);
+      print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
+
+      return AUDIOLIB_ECODE_AUDIOCOMMAND_ERROR;
+    }
+
+  if (i2s_out == Mixer)
+    {
+      command.set_through_path.path1.en  = true;
+      command.set_through_path.path1.in  = AS_THROUGH_PATH_IN_MIXER;
+      command.set_through_path.path1.out = AS_THROUGH_PATH_OUT_I2S1;
+      command.set_through_path.path2.en  = false;
+
+      AS_SendAudioCommand(&command);
+
+      AS_ReceiveAudioResult(&result);
+
+      if (result.header.result_code != AUDRLT_SETTHROUGHPATHCMPLT)
+        {
+          print_err("ERROR: Command (0x%x) fails. Result code(0x%x) Module id(0x%x) Error code(0x%x)\n",
+                    command.header.command_code,
+                    result.header.result_code,
+                    result.error_response_param.module_id,
+                    result.error_response_param.error_code);
+          print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
+
+          return AUDIOLIB_ECODE_AUDIOCOMMAND_ERROR;
+        }
+    }
+
+  if (sp_out)
+    {
+      board_external_amp_mute_control(false);
+    }
+
+  return AUDIOLIB_ECODE_OK;
+}
+
+/****************************************************************************
  * Private API on Audio Player
  ****************************************************************************/
 extern "C" {
@@ -1388,9 +1500,9 @@ err_t AudioClass::init_mic_gain(int dev, int gain)
   command.header.command_code  = AUDCMD_INITMICGAIN;
   command.header.sub_code      = 0;
 
-  /* devで、アナログ、デジタルの選択。
-  現在、未対応。
-  各マイクのGainを個別に調整はしない方向。
+  /* dev�ŁA�A�i���O�A�f�W�^���̑I���B
+  ���݁A���Ή��B
+  �e�}�C�N��Gain���ʂɒ����͂��Ȃ������B
   */
   command.init_mic_gain_param.mic_gain[0] = gain;
   command.init_mic_gain_param.mic_gain[1] = gain;
@@ -1407,6 +1519,33 @@ err_t AudioClass::init_mic_gain(int dev, int gain)
   AS_ReceiveAudioResult(&result);
 
   if (result.header.result_code != AUDRLT_INITMICGAINCMPLT)
+    {
+      print_err("ERROR: Command (0x%x) fails. Result code(0x%x) Module id(0x%x) Error code(0x%x)\n",
+              command.header.command_code, result.header.result_code, result.error_response_param.module_id, result.error_response_param.error_code);
+      print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
+      return AUDIOLIB_ECODE_AUDIOCOMMAND_ERROR;
+    }
+
+  return AUDIOLIB_ECODE_OK;
+}
+
+/****************************************************************************
+ * Private API on Audio BaseBand
+ ****************************************************************************/
+err_t AudioClass::send_set_through(void)
+{
+  AudioCommand command;
+
+  command.header.packet_length = LENGTH_SET_THROUGH_STATUS;
+  command.header.command_code = AUDCMD_SETTHROUGHSTATUS;
+  command.header.sub_code = 0x00;
+
+  AS_SendAudioCommand(&command);
+
+  AudioResult result;
+  AS_ReceiveAudioResult(&result);
+
+  if (result.header.result_code != AUDRLT_STATUSCHANGED)
     {
       print_err("ERROR: Command (0x%x) fails. Result code(0x%x) Module id(0x%x) Error code(0x%x)\n",
               command.header.command_code, result.header.result_code, result.error_response_param.module_id, result.error_response_param.error_code);
