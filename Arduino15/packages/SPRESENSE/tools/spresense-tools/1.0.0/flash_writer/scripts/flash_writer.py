@@ -413,13 +413,8 @@ class FlashWriter:
 				self.wait_for_prompt()
 
 	def delete_files(self, files) :
-		self.send("ls")
-		lines = self.read_output("updater")
-		for line in lines :
-			binfile = line.strip().split(' ')[0]
-			for file in files :
-				if fnmatch.fnmatch(binfile, file):
-					self.delete_binary(binfile)
+		for file in files :
+			self.delete_binary(file)
 
 	def delete_binary(self, bin_name) :
 		self.send("rm " + bin_name)
