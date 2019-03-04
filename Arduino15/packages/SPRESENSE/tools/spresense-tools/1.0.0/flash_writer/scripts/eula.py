@@ -4,86 +4,164 @@ import json
 import os
 import sys
 import time
-import webbrowser
 import zipfile
 
 import wx
+import wx.html
 
-# Name       : EULAFileDropHandler
-# Description: For handle file drop event
-class EULAFileDropHandler(wx.FileDropTarget):
+WINDOW_WIDTH  = 700
+WINDOW_HEIGHT = 500
 
-	# Name       : __init__
-	# Description: Initialize
-	def __init__(self, window, updater):
-		wx.FileDropTarget.__init__(self)
-		self.window = window
-		self.updater = updater
+# String definitions
+TITLE            = "End-User License Agreement"
+SUBJECT          = "License Agreement"
+EXPLAIN          = "Please read the folowing license agreement carefuly."
+ACCEPT_CHK       = "I Accept the terms in the license agreement"
 
-	# Name       : OnDropFiles
-	# Description: Recieve file drop event
-	def OnDropFiles(self, x, y, files):
-		# Check all files
-		for file in files:
-			if self.updater.update(file):
-				# If this is update file, drop a window
-				self.window.Destroy()
-				return True
-		# There are nothing updater, send retry event
-		self.window.retry()
-		return False
+# File path
+EULA_DESCRIPTION = "text/eula_description.txt"
+LOGO_IMAGE       = "image/SPRESENSE.png"
 
-TUTRIAL_IMAGE = "image/tutrial_image.png"
+# Event ID definitions
+OK_BTN_ID        = 1
+CANCEL_BTN_ID    = 2
+ACCEPT_CHK_ID    = 3
 
 # Name       : EULAWindow
 # Description: Show EULA binary Update Window
 class EULAWindow(wx.Frame):
 	def __init__(self, updater):
-		wx.Frame.__init__(self, None, -1, "End User License Agreement", style=wx.STAY_ON_TOP|wx.DEFAULT_FRAME_STYLE)
+
+		# EULA description file path
+		if hasattr(sys, '_MEIPASS'):
+			eula_desc_file = os.path.join(sys._MEIPASS, EULA_DESCRIPTION)
+			logo_image_file = os.path.join(sys._MEIPASS, LOGO_IMAGE)
+		else:
+			eula_desc_file = EULA_DESCRIPTION
+			logo_image_file = LOGO_IMAGE
+
+		# store accept checkbox status
+		self.is_accepted = False
+
+		wx.Frame.__init__(self, None, -1, TITLE, style=wx.STAY_ON_TOP|wx.DEFAULT_FRAME_STYLE^wx.RESIZE_BORDER)
 		self.updater = updater
 
-		# TODO: Layout will be update with layout manager
+		# Get current display size
 		display_size = wx.GetDisplaySize()
 
-		# Image file path
-		if hasattr(sys, '_MEIPASS'):
-			tutrial_image_file = os.path.join(sys._MEIPASS, TUTRIAL_IMAGE)
-		else:
-			tutrial_image_file = TUTRIAL_IMAGE
+		# Set window size for layout
+		window_width = WINDOW_WIDTH
+		window_height = WINDOW_HEIGHT
 
-		# Load label image
-		image = wx.Image(tutrial_image_file)
-		image_size = image.GetSize()
-
-		window_width = image_size[0]
-		window_height = image_size[1] + 50
-
+		# Centering in display
 		window_pos_x = (display_size[0] - window_width) / 2
 		window_pos_y = (display_size[1] - window_height) / 2
 
-		# parts
-		image_bitmap = image.ConvertToBitmap()
-		label = wx.StaticBitmap(self, -1, image_bitmap, (0,0))
-
-		web_button = wx.Button(self, -1, "Go to download page")
-
-		# Set Event hander
-		label.SetDropTarget(EULAFileDropHandler(self, self.updater))
-		self.Bind(wx.EVT_BUTTON, self.jumpToDOwnloadURL, web_button)
-
-		# Set Layout
+		# Set main window layout
 		self.SetSize(window_width, window_height)
-		web_button.SetSize(window_width, 50)
-		web_button.SetPosition((0, window_height - 50))
-
 		self.SetPosition((window_pos_x, window_pos_y))
+
+		# Define 3 panels layout
+		(top_x, top_y, top_w, top_h) = (0, 0, window_width, window_height / 10)
+		(htm_x, htm_y, htm_w, htm_h) = (0, top_y + top_h, window_width, window_height * 7.5 / 10)
+		(ope_x, ope_y, ope_w, ope_h) = (0, htm_y + htm_h, window_width, window_height - top_h - htm_h)
+
+		# Top panel (for subject)
+		top_panel = wx.Window(self, -1, style=wx.SIMPLE_BORDER)
+		top_panel.SetBackgroundColour(wx.WHITE)
+		top_panel.SetSize(top_w, top_h)
+		top_panel.SetPosition((top_x, top_y))
+
+		subject_txt = wx.StaticText(top_panel, -1, SUBJECT)
+		font = subject_txt.GetFont()
+		font.SetWeight(wx.FONTWEIGHT_BOLD)
+		font.SetPointSize(14)
+		subject_txt.SetFont(font)
+		subject_txt.SetSize(top_w, top_h / 2)
+		subject_txt.SetPosition((20, 0))
+
+		desc_txt = wx.StaticText(top_panel, -1, EXPLAIN)
+		font = desc_txt.GetFont()
+		font.SetPointSize(14)
+		desc_txt.SetFont(font)
+		desc_txt.SetSize(top_w, top_h / 2)
+		desc_txt.SetPosition((40, top_h / 2))
+
+		s_logo_img = wx.Image(logo_image_file)
+		image_size = s_logo_img.GetSize()
+		image_bitmap = s_logo_img.ConvertToBitmap()
+		logo_l = wx.StaticBitmap(top_panel, -1, image_bitmap)
+		logo_l.SetSize(image_size[0], image_size[1])
+		logo_l.SetPosition((top_w - image_size[0] - 10, 5))
+
+		# HTML panel (for display EULA description)
+		htm_panel = wx.Window(self, -1, style=wx.SIMPLE_BORDER)
+		htm_panel.SetBackgroundColour(wx.Colour(0xF3, 0xEC, 0xD8, 0xFF))
+		htm_panel.SetSize(htm_w, htm_h)
+		htm_panel.SetPosition((htm_x, htm_y))
+
+		# Operation panel (for take event)
+		ope_panel = wx.Window(self, -1, style=wx.SIMPLE_BORDER)
+		ope_panel.SetBackgroundColour(wx.Colour(0xF3, 0xEC, 0xD8, 0xFF))
+		ope_panel.SetSize(ope_w, ope_h)
+		ope_panel.SetPosition((ope_x, ope_y))
+
+		accept_chk = wx.CheckBox(ope_panel, ACCEPT_CHK_ID, ACCEPT_CHK)
+		accept_chk.SetValue(False)
+		font = accept_chk.GetFont()
+		font.SetPointSize(14)
+		accept_chk.SetFont(font)
+		accept_chk.SetSize(ope_w, ope_h / 2 - 10)
+		accept_chk.SetPosition((20, 0))
+
+		ok_btn = wx.Button(ope_panel, OK_BTN_ID, "OK")
+		font = ok_btn.GetFont()
+		font.SetPointSize(14)
+		ok_btn.SetFont(font)
+		ok_btn.SetSize(70, 40)
+		ok_btn.SetPosition((ope_w - 180, ope_h / 2 - 10))
+
+		cn_btn = wx.Button(ope_panel, CANCEL_BTN_ID, "Cancel")
+		font = cn_btn.GetFont()
+		font.SetPointSize(14)
+		cn_btn.SetFont(font)
+		cn_btn.SetSize(70, 40)
+		cn_btn.SetPosition((ope_w - 100, ope_h / 2 - 10))
+
+		# Set event handler
+		self.Bind(wx.EVT_BUTTON, self.eulaEventHandler, ok_btn)
+		self.Bind(wx.EVT_BUTTON, self.eulaEventHandler, cn_btn)
+		self.Bind(wx.EVT_CHECKBOX, self.eulaEventHandler, accept_chk)
+
+		# Create HTML view
+		html = wx.html.HtmlWindow(htm_panel)
+		html.SetSize(htm_w, htm_h)
+		html.SetPosition((0, 0))
+
+		# Set EULA HTML view from file
+		eula_file = open(eula_desc_file, encoding='utf-8')
+		html.SetPage(eula_file.read())
+		eula_file.close()
+
+		# Show
 		self.Fit()
 		self.Show()
-	def retry(self):
-		print("Retry")
 
-	def jumpToDOwnloadURL(self, evt):
-		webbrowser.open(self.updater.getDownloadURL())
+	# Name       : eulaEventHandler
+	# Description: Handle EULA window events
+	def eulaEventHandler(self, evt):
+		if evt.Id == ACCEPT_CHK_ID:
+			self.is_accepted = evt.IsChecked()
+		elif evt.Id == OK_BTN_ID:
+			if self.is_accepted:
+				print("License agreement accepted.")
+				self.updater.update()
+				self.Destroy()
+			else:
+				print("License agreement not accepted yet.")
+		elif evt.Id == CANCEL_BTN_ID:
+			print("License agreement canceled.")
+			self.Destroy()
 
 # Name       : EULABinaryUpdater
 # Description: Handle EULA binaries update from version.json
@@ -134,8 +212,9 @@ class EULABinaryUpdater():
 	# Description: Update EULA binaries from zip archive
 	#   True     : Update succeed
 	#   False    : Update failed
-	def update(self, file_path):
+	def update(self):
 		ret = False
+		file_path = os.path.join(self.firmware_path, "firmware.zip")
 		print("FIle: %s" % file_path)
 		# Check file is zip archive or not
 		if file_path.endswith(".zip"):
