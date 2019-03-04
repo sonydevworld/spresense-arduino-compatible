@@ -472,9 +472,9 @@ def main():
 	if ConfigArgs.PKGSYS_NAME :
 		eula_handler = eula.EULAMain(os.path.dirname(ConfigArgs.PKGSYS_NAME[0]))
 		eula_handler.main()
-		writer.install_files(ConfigArgs.PKGSYS_NAME, "install -k sys.key")
+		writer.install_files(ConfigArgs.PKGSYS_NAME, "install")
 	if ConfigArgs.PKGAPP_NAME :
-		writer.install_files(ConfigArgs.PKGAPP_NAME, "install -k app.key")
+		writer.install_files(ConfigArgs.PKGAPP_NAME, "install")
 
 	# Save files
 	if ConfigArgs.FILE_NAME :
