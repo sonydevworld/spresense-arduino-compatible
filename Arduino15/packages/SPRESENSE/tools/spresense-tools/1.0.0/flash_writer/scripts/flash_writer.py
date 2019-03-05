@@ -43,6 +43,8 @@ except:
 PROTOCOL_SERIAL = 0
 PROTOCOL_TELNET = 1
 
+MAX_DOT_COUNT = 50
+
 # configure parameters and default value
 class ConfigArgs:
 	PROTOCOL_TYPE = None
@@ -231,17 +233,32 @@ class TelnetDev:
 
 	def getc(self, size, timeout=1):
 		c = self.getc_raw(size, timeout)
-		if PRINT_RAW_COMMAND :
-			print('.',end='')
-		sys.stdout.flush()
 		return c
 
 	def putc(self, buffer, timeout=1):
 		self.telnet.write(buffer)
+		self.show_progress(len(buffer))
 
 	def reboot(self):
 		# no-op
 		pass
+
+	def set_file_size(self, filesize):
+		self.bytes_transfered = 0
+		self.filesize = filesize
+		self.count = 0
+
+	def show_progress(self, sendsize):
+		if PRINT_RAW_COMMAND:
+			if self.count < MAX_DOT_COUNT:
+				self.bytes_transfered = self.bytes_transfered + sendsize
+				cur_count = int(self.bytes_transfered * MAX_DOT_COUNT / self.filesize)
+				for idx in range(cur_count - self.count):
+					print('.',end='')
+					sys.stdout.flush()
+				self.count = cur_count
+				if self.count == MAX_DOT_COUNT:
+					print("\n")
 
 class SerialDev:
 	def __init__(self):
@@ -278,9 +295,6 @@ class SerialDev:
 		self.serial.timeout = timeout
 		c = self.serial.read(size)
 		self.serial.timeout = 0.1
-		if PRINT_RAW_COMMAND :
-			print('.',end='')
-		sys.stdout.flush()
 		return c
 
 	def putc(self, buffer, timeout=1):
@@ -288,10 +302,12 @@ class SerialDev:
 		self.serial.write(buffer)
 		self.serial.flush()
 		self.serial.timeout = 0.1
+		self.show_progress(len(buffer))
 
 	# Note: windows platform dependent code
 	def putc_win(self, buffer, timeout=1):
 		self.serial.write(buffer)
+		self.show_progress(len(buffer))
 		while True:
 			if self.serial.out_waiting == 0:
 				break
@@ -305,6 +321,23 @@ class SerialDev:
 		self.serial.setDTR(False)
 		self.serial.setDTR(True)
 		self.serial.setDTR(False)
+
+	def set_file_size(self, filesize):
+		self.bytes_transfered = 0
+		self.filesize = filesize
+		self.count = 0
+
+	def show_progress(self, sendsize):
+		if PRINT_RAW_COMMAND:
+			if self.count < MAX_DOT_COUNT:
+				self.bytes_transfered = self.bytes_transfered + sendsize
+				cur_count = int(self.bytes_transfered * MAX_DOT_COUNT / self.filesize)
+				for idx in range(cur_count - self.count):
+					print('.',end='')
+					sys.stdout.flush()
+				self.count = cur_count
+				if self.count == MAX_DOT_COUNT:
+					print("\n")
 
 class FlashWriter:
 	def __init__(self, protocol_sel=PROTOCOL_SERIAL):
@@ -386,6 +419,7 @@ class FlashWriter:
 				if ConfigArgs.XMODEM_BAUD:
 					self.serial.setBaudrate(ConfigArgs.XMODEM_BAUD)
 					self.serial.discard_inputs() # Clear input buffer to sync
+				self.serial.set_file_size(os.path.getsize(file))
 				modem.send(bin)
 				if ConfigArgs.XMODEM_BAUD:
 					self.serial.setBaudrate(115200)
@@ -408,6 +442,7 @@ class FlashWriter:
 				if ConfigArgs.XMODEM_BAUD:
 					self.serial.setBaudrate(ConfigArgs.XMODEM_BAUD)
 					self.serial.discard_inputs() # Clear input buffer to sync
+				self.serial.set_file_size(os.path.getsize(file))
 				modem.send(bin)
 				if ConfigArgs.XMODEM_BAUD:
 					self.serial.setBaudrate(115200)
