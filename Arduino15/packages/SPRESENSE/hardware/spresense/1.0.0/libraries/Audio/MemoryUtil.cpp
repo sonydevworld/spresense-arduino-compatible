@@ -27,6 +27,8 @@
 
 using namespace MemMgrLite;
 
+static mpshm_t s_shm;
+
 /*--------------------------------------------------------------------------*/
 const PoolAttr *getPoolLayout(int layout_no)
 {
@@ -36,7 +38,6 @@ const PoolAttr *getPoolLayout(int layout_no)
 /*--------------------------------------------------------------------------*/
 int initMemoryPools(void)
 {
-  mpshm_t s_shm;
 
   int ret = mpshm_init(&s_shm, 1,  RAM_TILE_SIZE * 2); /* Used 2 Tile */
   if (ret < 0)
@@ -87,6 +88,41 @@ int createStaticPools(uint8_t layout_no)
 int destroyStaticPools(void)
 {
   Manager::destroyStaticPools();
+
+  return 0;
+}
+
+/*--------------------------------------------------------------------------*/
+int finalizeMemoryPools(void)
+{
+  /* Finalize MessageLib. */
+
+  MsgLib::finalize();
+
+  /* Destroy static pools. */
+
+  MemMgrLite::Manager::destroyStaticPools();
+
+  /* Finalize memory manager. */
+
+  MemMgrLite::Manager::finalize();
+
+  /* Destroy shared memory. */
+
+  int ret;
+  ret = mpshm_detach(&s_shm);
+  if (ret < 0)
+    {
+      printf("Error: mpshm_detach() failure. %d\n", ret);
+      return 1;
+    }
+
+  ret = mpshm_destroy(&s_shm);
+  if (ret < 0)
+    {
+      printf("Error: mpshm_destroy() failure. %d\n", ret);
+      return 1;
+    }
 
   return 0;
 }

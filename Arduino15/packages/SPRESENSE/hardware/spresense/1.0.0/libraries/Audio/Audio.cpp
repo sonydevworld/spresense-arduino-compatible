@@ -300,6 +300,8 @@ err_t AudioClass::end_manager(void)
 {
   AS_DeleteAudioManager();
 
+  finalizeMemoryPools();
+
   return AUDIOLIB_ECODE_OK;
 }
 
