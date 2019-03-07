@@ -114,12 +114,15 @@ class EULAWindow(wx.Frame):
 		accept_chk.SetSize(ope_w, ope_h / 2 - 10)
 		accept_chk.SetPosition((20, 0))
 
-		ok_btn = wx.Button(ope_panel, OK_BTN_ID, "OK")
-		font = ok_btn.GetFont()
+		self.ok_btn = wx.Button(ope_panel, OK_BTN_ID, "OK")
+		font = self.ok_btn.GetFont()
 		font.SetPointSize(14)
-		ok_btn.SetFont(font)
-		ok_btn.SetSize(70, 40)
-		ok_btn.SetPosition((ope_w - 180, ope_h / 2 - 10))
+		self.ok_btn.SetFont(font)
+		self.ok_btn.SetSize(70, 40)
+		self.ok_btn.SetPosition((ope_w - 180, ope_h / 2 - 10))
+
+		# Disable 'OK' button by default
+		self.ok_btn.Disable()
 
 		cn_btn = wx.Button(ope_panel, CANCEL_BTN_ID, "Cancel")
 		font = cn_btn.GetFont()
@@ -129,7 +132,7 @@ class EULAWindow(wx.Frame):
 		cn_btn.SetPosition((ope_w - 100, ope_h / 2 - 10))
 
 		# Set event handler
-		self.Bind(wx.EVT_BUTTON, self.eulaEventHandler, ok_btn)
+		self.Bind(wx.EVT_BUTTON, self.eulaEventHandler, self.ok_btn)
 		self.Bind(wx.EVT_BUTTON, self.eulaEventHandler, cn_btn)
 		self.Bind(wx.EVT_CHECKBOX, self.eulaEventHandler, accept_chk)
 
@@ -152,6 +155,10 @@ class EULAWindow(wx.Frame):
 	def eulaEventHandler(self, evt):
 		if evt.Id == ACCEPT_CHK_ID:
 			self.is_accepted = evt.IsChecked()
+			if self.is_accepted:
+				self.ok_btn.Enable()
+			else:
+				self.ok_btn.Disable()
 		elif evt.Id == OK_BTN_ID:
 			if self.is_accepted:
 				print("License agreement accepted.")
