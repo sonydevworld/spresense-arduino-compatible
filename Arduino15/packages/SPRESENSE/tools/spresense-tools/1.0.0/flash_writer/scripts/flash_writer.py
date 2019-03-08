@@ -254,6 +254,8 @@ class TelnetDev:
 			if self.count < MAX_DOT_COUNT:
 				self.bytes_transfered = self.bytes_transfered + sendsize
 				cur_count = int(self.bytes_transfered * MAX_DOT_COUNT / self.filesize)
+				if MAX_DOT_COUNT < cur_count:
+					cur_count = MAX_DOT_COUNT
 				for idx in range(cur_count - self.count):
 					print('#',end='')
 					sys.stdout.flush()
@@ -333,6 +335,8 @@ class SerialDev:
 			if self.count < MAX_DOT_COUNT:
 				self.bytes_transfered = self.bytes_transfered + sendsize
 				cur_count = int(self.bytes_transfered * MAX_DOT_COUNT / self.filesize)
+				if MAX_DOT_COUNT < cur_count:
+					cur_count = MAX_DOT_COUNT
 				for idx in range(cur_count - self.count):
 					print('#',end='')
 					sys.stdout.flush()
