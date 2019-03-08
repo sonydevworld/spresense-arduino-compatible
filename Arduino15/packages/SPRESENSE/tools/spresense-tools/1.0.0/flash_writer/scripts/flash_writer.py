@@ -43,7 +43,7 @@ except:
 PROTOCOL_SERIAL = 0
 PROTOCOL_TELNET = 1
 
-MAX_DOT_COUNT = 50
+MAX_DOT_COUNT = 70
 
 # configure parameters and default value
 class ConfigArgs:
@@ -65,6 +65,7 @@ class ConfigArgs:
 	PKGUPD_NAME = []
 
 ROM_MSG = [b"Welcome to nash"]
+XMDM_MSG = "Waiting for XMODEM (CRC or 1K) transfer. Ctrl-X to cancel."
 
 class ConfigArgsLoader():
 	def __init__(self):
@@ -254,7 +255,7 @@ class TelnetDev:
 				self.bytes_transfered = self.bytes_transfered + sendsize
 				cur_count = int(self.bytes_transfered * MAX_DOT_COUNT / self.filesize)
 				for idx in range(cur_count - self.count):
-					print('.',end='')
+					print('#',end='')
 					sys.stdout.flush()
 				self.count = cur_count
 				if self.count == MAX_DOT_COUNT:
@@ -333,7 +334,7 @@ class SerialDev:
 				self.bytes_transfered = self.bytes_transfered + sendsize
 				cur_count = int(self.bytes_transfered * MAX_DOT_COUNT / self.filesize)
 				for idx in range(cur_count - self.count):
-					print('.',end='')
+					print('#',end='')
 					sys.stdout.flush()
 				self.count = cur_count
 				if self.count == MAX_DOT_COUNT:
@@ -368,8 +369,9 @@ class FlashWriter:
 	def recv(self):
 		rx = self.serial.readline()
 		if PRINT_RAW_COMMAND :
-			if rx.decode(errors="replace").strip() != "" :
-				print(rx.decode(errors="replace"), end="")
+			serial_line = rx.decode(errors="replace")
+			if serial_line.strip() != "" and not serial_line.startswith(XMDM_MSG):
+				print(serial_line, end="")
 		return rx
 
 	def wait(self, string):
@@ -415,7 +417,12 @@ class FlashWriter:
 			with open(file, "rb") as bin :
 				self.send(command)
 				print("Install " + file)
-				self.wait("Waiting for XMODEM (CRC or 1K) transfer. Ctrl-X to cancel.")
+				self.wait(XMDM_MSG)
+				print("|0%" + 
+						"-" * (int(MAX_DOT_COUNT / 2) - 6) +
+						"50%" +
+						"-" * (MAX_DOT_COUNT - int(MAX_DOT_COUNT / 2) - 5) +
+						"100%|")
 				if ConfigArgs.XMODEM_BAUD:
 					self.serial.setBaudrate(ConfigArgs.XMODEM_BAUD)
 					self.serial.discard_inputs() # Clear input buffer to sync
@@ -438,7 +445,7 @@ class FlashWriter:
 			with open(file, "rb") as bin :
 				self.send(command + os.path.basename(file))
 				print("Save " + file)
-				self.wait("Waiting for XMODEM (CRC or 1K) transfer. Ctrl-X to cancel.")
+				self.wait(XMDM_MSG)
 				if ConfigArgs.XMODEM_BAUD:
 					self.serial.setBaudrate(ConfigArgs.XMODEM_BAUD)
 					self.serial.discard_inputs() # Clear input buffer to sync
