@@ -569,7 +569,7 @@ public:
    */
   err_t stopPlayer(
       PlayerId id, /**< Select Player ID. */
-      uint8_t mode /**< Stop mode. AS_STOPPLAYER_NOMAL, AS_STOPPLAYER_ESEND */
+      uint8_t mode /**< Stop mode. AS_STOPPLAYER_NORMAL, AS_STOPPLAYER_ESEND */
   );
 
   /**
