@@ -48,13 +48,13 @@ static void audio_attention_cb(const ErrorAttentionParam *atprm)
 }
 
 /**
- * @brief Setup audio player to play mp3 file
+ * @brief Setup audio player to play wav file
  *
  * Set clock mode to normal <br>
  * Set output device to speaker <br>
- * Set main player to decode stereo mp3. Stream sample rate is set to "auto detect" <br>
- * System directory "/mnt/sd0/BIN" will be searched for MP3 decoder (MP3DEC file)
- * Open "Sound.mp3" file <br>
+ * Set main player to decode stereo wav. Stream sample rate is auto detect. <br>
+ * System directory "/mnt/sd0/BIN" will be searched for WAV decoder (WAVDEC file)
+ * Open "Sound.wav" file <br>
  * Set master volume to -16.0 dB
  */
 
@@ -103,7 +103,7 @@ void setup()
 
   /*
    * Set main player to decode wav. Initialize parameters are taken from wav header.
-   * Search for MP3 decoder in "/mnt/sd0/BIN" directory
+   * Search for WAV decoder in "/mnt/sd0/BIN" directory
    */
   err_t err = theAudio->initPlayer(AudioClass::Player0, AS_CODECTYPE_WAV, "/mnt/sd0/BIN", fmt.rate, fmt.bit, fmt.channel);
 
