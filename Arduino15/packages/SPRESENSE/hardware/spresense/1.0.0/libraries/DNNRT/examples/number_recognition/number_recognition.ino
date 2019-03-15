@@ -33,6 +33,7 @@
 #include <DNNRT.h>
 
 DNNRT dnnrt;
+SDClass SD;
 
 void setup() {
 
@@ -41,7 +42,7 @@ void setup() {
     ; // wait for serial port to connect. Needed for native USB port only
   }
 
-  File nnbfile("network.nnb");
+  File nnbfile = SD.open("network.nnb");
   if (!nnbfile) {
     Serial.print("nnb not found");
     return;
@@ -49,8 +50,11 @@ void setup() {
   int ret = dnnrt.begin(nnbfile);
   if (ret < 0) {
     Serial.print("Runtime initialization failure. ");
-    Serial.print(ret);
-    Serial.println();
+    if (ret == -16) {
+      Serial.println("Please update bootloader!");
+    } else {
+      Serial.println(ret);
+    }
     return;
   }
 

@@ -20,6 +20,12 @@
 #ifndef Servo_h
 #define Servo_h
 
+/**
+ * @defgroup servo Servo Library API
+ * @brief API for using Servo
+ * @{
+ */
+
 // #ifdef __cplusplus
 
 #include <stdbool.h>
@@ -162,4 +168,7 @@ private:
 };
 
 // #endif // __cplusplus
+
+/** @} servo */
+
 #endif //Servo_h

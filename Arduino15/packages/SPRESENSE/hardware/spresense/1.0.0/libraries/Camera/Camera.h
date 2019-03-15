@@ -32,6 +32,12 @@
 #ifndef __SPRESENSE_CAMERA_CLASS_H__
 #define __SPRESENSE_CAMERA_CLASS_H__
 
+/**
+ * @defgroup camera Camera Library API
+ * @brief API for using Camera
+ * @{
+ */
+
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -279,10 +285,14 @@ private:
   int getType(){ return (img_buff != NULL) ? img_buff->buf_type : -1; }
   bool is_valid(){ return (img_buff != NULL); };
 
+  bool check_hw_resize_param(int iw, int ih, int ow, int oh);
+  bool check_resize_magnification(int in, int out);
+
+
 public:
   /**
    * @brief Get Image Width
-   * @details [en] Get Image pixcel width (px). <BR>
+   * @details [en] Get Image pixel width (px). <BR>
    *          [ja] 画像データの横サイズを取得する。(ピクセル単位)
    * @return [en] Width of the Image.(px) <BR>
    *         [ja] 画像データの横サイズ。(ピクセル単位)
@@ -291,7 +301,7 @@ public:
 
   /**
    * @brief Get Image Height
-   * @details [en] Get Image pixcel height (px). <BR>
+   * @details [en] Get Image pixel height (px). <BR>
    *          [ja] 画像データの縦サイズを取得する。(ピクセル単位)
    * @return [en] Width of the Image.(px) <BR>
    *         [ja] 画像データの縦サイズ。(ピクセル単位)
@@ -359,7 +369,7 @@ public:
 
   /**
    * @brief Convert Pixcelformat of the image.
-   * @details [en] Convert own image's pixcel format. Override Image data. So
+   * @details [en] Convert own image's pixel format. Override Image data. So
    *               original image is discarded. If paramter is the same format
    *               as current, no error and no operation. <BR>
    *          [ja] ピクセルフォーマット変換を行う。画像データは上書きされ、元の
@@ -370,22 +380,72 @@ public:
    */
   CamErr convertPixFormat(CAM_IMAGE_PIX_FMT to_fmt /**< [en] Pixcel format which is convert to. <BR> [ja] 変換するピクセルフォーマット */);
 
-#if 0 /* To Be Supported */
   /*
-   * @brief Resize Image.
-   * @details [en] Resize the image. Internaly, new CamImage instance is created.
-   *               If any error occured such as zero size case, it returns empty CamImage instance. <BR>
-   *          [ja] 画像のリサイズを行う。内部で新たにCamImageインスタンスが生成される。
+   * @brief Resize Image with HW 2D accelerator.
+   * @details [en] Resize the image with 2D accelerator HW in CXD5602.
+   *               Internaly, new image buffer is created, and the resized image is in it.
+   *               After resized, CamImage instance of 1st argument stores it.
+   *               If any error occured such as zero size case, this returns error code.
+   *               This HW accelerator has limitation as below: <BR>
+   *               - Minimum width and height is 12 pixels.
+   *               - Maximum width is 768 pixels.
+   *               - Maximum height is 1024 pixels.
+   *               - Resizing magnification is 2^n or 1/2^n, and resized image size must be integer. <BR>
+   *          [ja] CXD5602が持つ2Dアクセラレータを用いた画像のリサイズを行う。
+   *               内部で新たにImage用のバッファを生成したうえで、第1引数に指定された
+   *               CamImageインスタンスに結果を格納する。
    *               指定されたサイズがゼロの場合など、何らかのエラーが起きた場合、空の
-   *               CamImageインスタンスを返す。
-   * @return [en] Instance of CamImage with new Image size. <BR>
-   *         [jp] 新たな画像サイズのCamImageインスタンス
+   *               CamImageインスタンスを格納し、エラーコードを返す。
+   *               このHWアクセラレータには、以下の仕様制限があります。<BR>
+   *               イメージの幅、高さの最小ピクセル数は12ピクセル。
+   *               イメージの幅の最大ピクセル数は768ピクセル。
+   *               イメージの高さの最大ピクセル数は1024ピクセル。
+   *               リサイズする場合の倍率は2^n倍もしくは1/2^nとなり、リサイズ後のサイズは整数になる必要がある。 <BR>
+   * @return [en] Error codes in #CamErr <BR>
+   *         [jp] #CamErr で定義されているエラーコード
    */
-  CamImage resizeImage(
+  CamErr resizeImageByHW(
+    CamImage &img, /**< [en] Instance of CamImage with result of resizing. <BR> [ja] リサイズ後の新しいCamImageが格納されるインスタンス */
     int width, /**< [en] Width to resize  <BR> [ja] リサイズする画像の横サイズ */
     int height /**< [en] Height to resize <BR> [ja] リサイズする画像の縦サイズ */
   );
-#endif
+
+
+  /*
+   * @brief Clip and resize Image with HW 2D accelerator.
+   * @details [en] Clip and resize the image with 2D accelerator HW in CXD5602.
+   *               First, clip the area specified by the arguments (#lefttop_x, #lefttop_y) - (#rightbottom_x, # rightbottom_y) for the original
+   *               image and specify the clipped image with arguments (#width, # height) resize to the size you made.
+   *               The resized image is stored in the CamImage instance specified as the first argument with new image buffer created internally.
+   *               If any error occured such as zero size case, this returns error code.
+   *               This HW accelerator has limitation for resizing as below: <BR>
+   *               - Minimum width and height is 12 pixels.
+   *               - Maximum width is 768 pixels.
+   *               - Maximum height is 1024 pixels.
+   *               - Resizing magnification is 2^n or 1/2^n, and resized image size must be integer. <BR>
+   *          [ja] CXD5602が持つ2Dアクセラレータを用いた画像のクリッピング及びリサイズを行う。
+   *               まず、元画像に対して、引数 (#lefttop_x, #lefttop_y) - (#rightbottom_x, #rightbottom_y) で指定された領域をクリップし、
+   *               クリップされた画像に対して引数 (#width, #height)で指定されたサイズにリサイズを行う。
+   *               リサイズ後の画像は、内部で新たにImage用のバッファを生成したうえで第1引数に指定されたCamImageインスタンスに結果を格納する。
+   *               指定されたサイズがゼロの場合など、何らかのエラーが起きた場合、空のCamImageインスタンスを格納し、エラーコードを返す。
+   *               なお、このHWアクセラレータには、リサイズ動作に関して以下の仕様制限があります。<BR>
+   *               　　イメージの幅、高さの最小ピクセル数は12ピクセル。<BR>
+   *               　　イメージの幅の最大ピクセル数は768ピクセル。<BR>
+   *               　　イメージの高さの最大ピクセル数は1024ピクセル。<BR>
+   *               　　リサイズする場合の倍率は2^n倍もしくは1/2^nとなり、リサイズ後のサイズは整数になる必要がある。 <BR>
+   * @return [en] Error codes in #CamErr <BR>
+   *         [jp] #CamErr で定義されているエラーコード
+   */
+  CamErr clipAndResizeImageByHW(
+    CamImage &img,     /**< [en] Instance of CamImage with result of resizing. <BR> [ja] リサイズ後の新しいCamImageが格納されるインスタンス */
+    int lefttop_x,     /**< [en] Left top X coodinate in original image for clipping. <BR> [ja] 元画像に対して、クリップする左上のX座標 */
+    int lefttop_y,     /**< [en] Left top Y coodinate in original image for clipping. <BR> [ja] 元画像に対して、クリップする左上のY座標 */
+    int rightbottom_x, /**< [en] Right bottom X coodinate in original image for clipping. <BR> [ja] 元画像に対して、クリップする左上のX座標 */
+    int rightbottom_y, /**< [en] Right bottom Y coodinate in original image for clipping. <BR> [ja] 元画像に対して、クリップする左上のY座標 */
+    int width,         /**< [en] Width to resize from clipping image  <BR> [ja] クリップされた画像に対して、リサイズする画像の横サイズ */
+    int height         /**< [en] Height to resize from clipping image <BR> [ja] クリップされた画像に対して、リサイズする画像の縦サイズ */
+  );
+
 
   /**
    * @brief Check valid image data.
@@ -503,7 +563,7 @@ public:
     CAM_VIDEO_FPS fps = CAM_VIDEO_FPS_30,   /**< [en] Frame rate of video stream. Choose one in #CAM_VIDEO_FPS (Default : 30FPS) <BR> [ja] Videoストリームのフレームレート。 #CAM_VIDEO_FPS の中から選択 (デ>フォルト 30FPS) */ 
     int video_width   = CAM_IMGSIZE_QVGA_H, /**< [en] Image buffer width of video stream.(px)(Default : QVGA)                    <BR> [ja] Videoストリーム画像の横サイズ (単位ピクセル)(デフォルト QVGA) */
     int video_height  = CAM_IMGSIZE_QVGA_V, /**< [en] Image buffer height of video stream.(px)(Default : QVGA)                   <BR> [ja] Videoストリーム画像の縦サイズ (単位ピクセル)(デフォルト QVGA) */
-    CAM_IMAGE_PIX_FMT video_fmt = CAM_IMAGE_PIX_FMT_YUV422  /**< [en] Video stream image buffer pixcel format.(Default : YUV422) <BR> [ja] Videoストリームで利用するバッファのピクセルフォーマット (デフォルト YUV422) */
+    CAM_IMAGE_PIX_FMT video_fmt = CAM_IMAGE_PIX_FMT_YUV422  /**< [en] Video stream image buffer pixel format.(Default : YUV422) <BR> [ja] Videoストリームで利用するバッファのピクセルフォーマット (デフォルト YUV422) */
   ); 
 
   /**
@@ -611,7 +671,7 @@ public:
   CamErr setStillPictureImageFormat(
     int img_width,                                    /**< [en] Image width of Still picture.(px)   <BR> [ja] 静止画写真の横サイズ (単位ピクセル) */
     int img_height,                                   /**< [en] Image height of Still picture.(px)  <BR> [ja] 静止画写真の縦サイズ (単位ピクセル) */
-    CAM_IMAGE_PIX_FMT img_fmt = CAM_IMAGE_PIX_FMT_JPG /**< [en] Image pixcel format. (Default JPEG) <BR> [ja] 静止画ピクセルフォーマット (デフォルト JPEG) */
+    CAM_IMAGE_PIX_FMT img_fmt = CAM_IMAGE_PIX_FMT_JPG /**< [en] Image pixel format. (Default JPEG) <BR> [ja] 静止画ピクセルフォーマット (デフォルト JPEG) */
   );
 
   /**
@@ -636,6 +696,8 @@ public:
 };
 
 extern CameraClass theCamera;
+
+/** @} camera */
 
 #endif // __SPRESENSE_CAMERA_CLASS_H__
 

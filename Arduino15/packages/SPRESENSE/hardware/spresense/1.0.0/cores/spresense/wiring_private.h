@@ -41,6 +41,9 @@ extern "C"{
 // convert physical pin number to CXD5602 internal pin number
 uint8_t pin_convert(uint8_t pin);
 
+// invert CXD5602 internal pin number to physical pin number
+uint8_t pin_invert(uint8_t pin);
+
 // get gpio register address via CXD5602 internal pin number
 uint32_t get_gpio_regaddr(uint32_t pin);
 

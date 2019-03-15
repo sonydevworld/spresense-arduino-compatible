@@ -30,9 +30,8 @@
 
 #include <SDHCI.h>
 #include <audio/audio_high_level_api.h>
+#include <audio/utilities/audio_wav_containerformat.h>
 #include <memutils/simple_fifo/CMN_SimpleFifo.h>
-
-#include "WavHeaderdef.h"
 
 /*--------------------------------------------------------------------------*/
 
@@ -242,6 +241,18 @@ public:
   err_t deactivate(void);
 
   /**
+   * @brief Set MicActivate the .
+   *
+   * @details The gain set when microphone is used can be specified
+   *          by the "mic_gain" argument.
+   *          You can set every 0.5 dB between 0 dB and 21 dB.
+   *          In this parameter, a value from 0 to 210 is set for every 5.
+   *
+   */
+
+  err_t setMicGain(int16_t mic_gain);
+
+  /**
    * @brief Read a recorded audio data
    *
    * @details This function reads encoded audio data from media recorder.
@@ -300,7 +311,7 @@ private:
 
   AsRecorderOutputDeviceHdlr m_output_device_handler;
   int                        m_es_size;
-  WavFormat_t               m_wav_format;
+  WAVHEADER                  m_wav_format;
 
   bool check_encode_dsp(uint8_t codec_type, const char *path, uint32_t sampling_rate);
 

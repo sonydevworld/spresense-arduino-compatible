@@ -21,18 +21,18 @@ compiler.cpreprocessor.flags= "-I{compiler.sdk.path}/include" "-I{compiler.sdk.p
 
 
 compiler.c.cmd=arm-none-eabi-gcc
-compiler.c.flags=-c {compiler.warning_flags} -MMD -std=gnu99 -c -fno-builtin -mabi=aapcs -Wall -Os -fno-strict-aliasing -fno-strength-reduce -fomit-frame-pointer -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -pipe -ggdb -gdwarf-3
+compiler.c.flags=-c {compiler.warning_flags} -MMD -std=gnu99 -c -fno-builtin -mabi=aapcs -Wall -Os -fno-strict-aliasing -fno-strength-reduce -fomit-frame-pointer -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -pipe -ggdb -gdwarf-3 -ffunction-sections -fdata-sections
 
 compiler.S.cmd=arm-none-eabi-gcc
-compiler.S.flags=
+compiler.S.flags=-c {compiler.warning_flags} -MMD -std=gnu99 -c -fno-builtin -mabi=aapcs -Wall -Os -fno-strict-aliasing -fno-strength-reduce -fomit-frame-pointer -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -pipe -ggdb -gdwarf-3 -D__ASSEMBLY__ -x assembler-with-cpp
 
-compiler.c.elf.flags=-ggdb -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -Xlinker --entry=__start -nodefaultlibs -nostartfiles "{build.stack}" "-T{build.libpath}/build/ramconfig.ld"
+compiler.c.elf.flags=-ggdb -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -Xlinker --entry=__start -nodefaultlibs -nostartfiles "{build.stack}" "-T{build.libpath}/build/ramconfig.ld" -Wl,--gc-sections
 
 compiler.c.elf.cmd=arm-none-eabi-g++
 compiler.c.elf.libs= "{build.libpath}/libs/libapps.a" "{build.libpath}/libs/libnuttx.a" -lgcc
 
 compiler.cpp.cmd=arm-none-eabi-g++
-compiler.cpp.flags=-c {compiler.warning_flags} -MMD -std=gnu++98 -c -fno-builtin -mabi=aapcs -Wall -Os -fno-strict-aliasing -fno-strength-reduce -fomit-frame-pointer -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -pipe -ffunction-sections -fno-exceptions -fno-rtti -ggdb -gdwarf-3
+compiler.cpp.flags=-c {compiler.warning_flags} -MMD -std=gnu++98 -c -fno-builtin -mabi=aapcs -Wall -Os -fno-strict-aliasing -fno-strength-reduce -fomit-frame-pointer -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -pipe -ffunction-sections -fno-exceptions -fno-rtti -ggdb -gdwarf-3 -ffunction-sections -fdata-sections
 
 
 compiler.as.cmd=arm-none-eabi-as
@@ -70,13 +70,15 @@ recipe.c.o.pattern="{compiler.path}{compiler.c.cmd}" {compiler.cpreprocessor.fla
 recipe.cpp.o.pattern="{compiler.path}{compiler.cpp.cmd}" {compiler.cpreprocessor.flags} {compiler.cpp.flags} -DF_CPU={build.f_cpu} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} -DARDUINO_BOARD="{build.board}" {compiler.cpp.extra_flags} {build.extra_flags} {includes} "{source_file}" -o "{object_file}"
 
 ## Compile S files
-#recipe.S.o.pattern="{compiler.path}{compiler.c.cmd}" {compiler.cpreprocessor.flags} {compiler.S.flags} -DF_CPU={build.f_cpu}  -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} -DARDUINO_BOARD="{build.board}" {compiler.c.extra_flags} {build.extra_flags} {includes} "{source_file}" -o "{object_file}"
+recipe.S.o.pattern="{compiler.path}{compiler.S.cmd}" {compiler.cpreprocessor.flags} {compiler.S.flags} -DF_CPU={build.f_cpu} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} -DARDUINO_BOARD="{build.board}" {compiler.S.extra_flags} {build.extra_flags} {includes} "{source_file}" -o "{object_file}"
 
 ## Create archives
-recipe.ar.pattern="{compiler.path}{compiler.ar.cmd}" {compiler.ar.flags} {compiler.ar.extra_flags} "{build.path}/arduino.ar" "{object_file}"
+# archive_file_path is needed for backwards compatibility with IDE 1.6.5 or older, IDE 1.6.6 or newer overrides this value
+archive_file_path={build.path}/{archive_file}
+recipe.ar.pattern="{compiler.path}{compiler.ar.cmd}" {compiler.ar.flags} {compiler.ar.extra_flags} "{archive_file_path}" "{object_file}"
 
 ## Combine gc-sections, archives, and objects
-recipe.c.combine.pattern="{compiler.path}{compiler.c.elf.cmd}" {compiler.c.elf.flags} {compiler.c.elf.extra_flags} -Xlinker "-Map={build.path}/output.map" -o  "{build.path}/{build.project_name}.elf" -Wl,--start-group {object_files} "{build.path}/core/main.cpp.o" "{build.path}/arduino.ar" {compiler.c.elf.libs} -Wl,--end-group "-L{build.path}"
+recipe.c.combine.pattern="{compiler.path}{compiler.c.elf.cmd}" {compiler.c.elf.flags} {compiler.c.elf.extra_flags} -Xlinker "-Map={build.path}/output.map" -o  "{build.path}/{build.project_name}.elf" -Wl,--start-group {object_files} -u spresense_main "{build.path}/{archive_file}" {compiler.c.elf.libs} -Wl,--end-group "-L{build.path}"
 
 ## Create hex
 recipe.objcopy.hex.pattern="{runtime.tools.spresense-tools.path}/mkspk/{runtime.os}/mkspk" -c 2 "{build.path}/{build.project_name}.elf" nuttx "{build.path}/{build.project_name}.spk"
@@ -107,4 +109,4 @@ tools.spresense-tools.erase.pattern=
 tools.spresense-tools.bootloader.params.verbose=
 tools.spresense-tools.bootloader.params.quiet=
 tools.spresense-tools.firmware.path={runtime.tools.spresense-sdk.path}/{build.variant}/firmware
-tools.spresense-tools.bootloader.pattern="{cmd.path}" -s -c "{serial.port}" {cmd.opt.baudrate} -d -n -S "{firmware.path}/loader.espk" -S "{firmware.path}/gnssfw.espk"
+tools.spresense-tools.bootloader.pattern="{cmd.path}" -s -c "{serial.port}" {cmd.opt.baudrate} -d -n -S "{firmware.path}/loader.espk" -S "{firmware.path}/gnssfw.espk" -S "{firmware.path}/dnnrt-mp.espk" -S "{firmware.path}/AESM.espk"

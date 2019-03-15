@@ -45,6 +45,10 @@
 uint64_t millis(void)
 {
     struct timespec tp;
+
+    /* Wait until RTC is available */
+    while (g_rtc_enabled == false);
+
     if (clock_gettime(CLOCK_MONOTONIC, &tp)) {
         return 0;
     }
@@ -55,6 +59,10 @@ uint64_t millis(void)
 uint64_t micros(void)
 {
     struct timespec tp;
+
+    /* Wait until RTC is available */
+    while (g_rtc_enabled == false);
+
     if (clock_gettime(CLOCK_MONOTONIC, &tp)) {
         return 0;
     }

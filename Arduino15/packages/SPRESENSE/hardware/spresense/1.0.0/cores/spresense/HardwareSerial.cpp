@@ -45,7 +45,7 @@ void HardwareSerial::begin(unsigned long baud, uint8_t config)
     int ret;
     struct termios tio;
     const char* dev = 0;
-    char node[8];
+    char node[16];
     uint8_t tty;
 
     if (_fd >= 0) {
@@ -61,7 +61,7 @@ void HardwareSerial::begin(unsigned long baud, uint8_t config)
     if ((ret = ch_to_tty(&tty)))
         return;
 
-    sprintf(node, "/dev/ttyS%1u", tty);
+    snprintf(node, sizeof(node), "/dev/ttyS%1u", tty);
     dev = node;
 
 #if defined(CONFIG_UART1_SERIAL_CONSOLE) || defined(CONFIG_UART2_SERIAL_CONSOLE)
@@ -241,65 +241,8 @@ int HardwareSerial::ch_to_tty(uint8_t *tty)
     for (ch = 0; ch < UART_CH_NUM; ch++)
         ttys[ch] = -1;
 
-#if defined(CONFIG_UART0_SERIAL_CONSOLE) || defined(CONFIG_UART1_SERIAL_CONSOLE) || defined(CONFIG_UART2_SERIAL_CONSOLE)
-#define HAVE_CONSOLE 1
-#endif
-
-#ifdef HAVE_CONSOLE
-#  if defined(CONFIG_UART0_SERIAL_CONSOLE)
-    ttys[UART_0] = TTYS_0;
-#    ifdef CONFIG_CXD56_UART1
-    ttys[UART_1] = TTYS_1;
-#      ifdef CONFIG_CXD56_UART2
-    ttys[UART_2] = TTYS_2;
-#      endif
-#    else
-#      ifdef CONFIG_CXD56_UART2
-    ttys[UART_2] = TTYS_1;
-#      endif
-#    endif
-#  elif defined(CONFIG_UART1_SERIAL_CONSOLE)
     ttys[UART_1] = TTYS_0;
-#    ifdef CONFIG_CXD56_UART0
-    ttys[UART_0] = TTYS_1;
-#      ifdef CONFIG_CXD56_UART2
     ttys[UART_2] = TTYS_2;
-#      endif
-#    else
-#      ifdef CONFIG_CXD56_UART2
-    ttys[UART_2] = TTYS_1;
-#      else
-    /* do nothing */
-#      endif
-#    endif
-#  elif defined(CONFIG_UART2_SERIAL_CONSOLE)
-    ttys[UART_2] = TTYS_0;
-#    ifdef CONFIG_CXD56_UART0
-    ttys[UART_0] = TTYS_1;
-#      ifdef CONFIG_CXD56_UART1
-    ttys[UART_1] = TTYS_2;
-#      endif
-#    else
-#      ifdef CONFIG_CXD56_UART1
-    ttys[UART_1] = TTYS_1;
-#      endif
-#    endif
-#  endif
-#else
-    ttys[UART_0] = TTYS_0;
-#  ifdef CONFIG_CXD56_UART1
-    ttys[UART_1] = TTYS_1;
-#    ifdef CONFIG_CXD56_UART2
-    ttys[UART_2] = TTYS_2;
-#    endif
-#  else
-#    ifdef CONFIG_CXD56_UARTUART_2
-    ttys[UART_2] = TTYS_1;
-#    else
-    /* do nothing */
-#    endif
-#  endif
-#endif
 
 	if (ttys[_ch] < 0) {
 		printf("invalid channel.\n");

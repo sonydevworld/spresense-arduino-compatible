@@ -300,6 +300,8 @@ err_t AudioClass::end_manager(void)
 {
   AS_DeleteAudioManager();
 
+  finalizeMemoryPools();
+
   return AUDIOLIB_ECODE_OK;
 }
 
@@ -400,6 +402,8 @@ err_t AudioClass::powerOff(void)
 /*--------------------------------------------------------------------------*/
 err_t AudioClass::setReadyMode(void)
 {
+  board_external_amp_mute_control(true);
+
   AudioCommand command;
   command.header.packet_length = LENGTH_SET_READY_STATUS;
   command.header.command_code  = AUDCMD_SETREADYSTATUS;
@@ -416,8 +420,6 @@ err_t AudioClass::setReadyMode(void)
       print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
       return AUDIOLIB_ECODE_AUDIOCOMMAND_ERROR;
     }
-
-  board_external_amp_mute_control(true);
 
   destroyStaticPools();
 
@@ -765,6 +767,35 @@ err_t AudioClass::writeFrames(PlayerId id, File& myFile)
   return ret;
 }
 
+/*--------------------------------------------------------------------------*/
+err_t AudioClass::writeFrames(PlayerId id, uint8_t *data, uint32_t write_size)
+{
+  int ret = AUDIOLIB_ECODE_OK;
+
+  CMN_SimpleFifoHandle *handle =
+    (id == Player0) ?
+      &m_player0_simple_fifo_handle : &m_player1_simple_fifo_handle;
+
+  size_t vacant_size = CMN_SimpleFifoGetVacantSize(handle);
+
+  if (write_size <= 0)
+    {
+      return AUDIOLIB_ECODE_OK;
+    }
+
+  if (vacant_size < write_size)
+    {
+      return AUDIOLIB_ECODE_SIMPLEFIFO_ERROR;
+    }
+
+  if (CMN_SimpleFifoOffer(handle, (const void*)(data), write_size) == 0)
+    {
+      print_err("Simple FIFO is full!\n");
+      return AUDIOLIB_ECODE_SIMPLEFIFO_ERROR;
+    }
+
+  return ret;
+}
 
 /****************************************************************************
  * Recoder API on Audio Class
@@ -848,17 +879,17 @@ err_t AudioClass::init_recorder_wav(AudioCommand* command, uint32_t sampling_rat
       return AUDIOLIB_ECODE_AUDIOCOMMAND_ERROR;
     }
 
-  memcpy(m_wav_format.riff, CHUNKID_RIFF, strlen(CHUNKID_RIFF));
-  memcpy(m_wav_format.wave, FORMAT_WAVE, strlen(FORMAT_WAVE));
-  memcpy(m_wav_format.fmt, SUBCHUNKID_FMT, strlen(SUBCHUNKID_FMT));
-  m_wav_format.fmt_size = FMT_SIZE;
-  m_wav_format.format   = AUDIO_FORMAT_PCM;
+  m_wav_format.riff     = CHUNKID_RIFF;
+  m_wav_format.wave     = FORMAT_WAVE;
+  m_wav_format.fmt      = SUBCHUNKID_FMT;
+  m_wav_format.fmt_size = FMT_CHUNK_SIZE;
+  m_wav_format.format   = FORMAT_ID_PCM;
   m_wav_format.channel  = channel_number;
   m_wav_format.rate     = sampling_rate;
   m_wav_format.avgbyte  = sampling_rate * channel_number * (bit_length / 8);
   m_wav_format.block    = channel_number * (bit_length / 8);
   m_wav_format.bit      = bit_length;
-  memcpy(m_wav_format.data, SUBCHUNKID_DATA, strlen(SUBCHUNKID_DATA));
+  m_wav_format.data     = SUBCHUNKID_DATA;
 
   return AUDIOLIB_ECODE_OK;
 }
@@ -1077,10 +1108,10 @@ err_t AudioClass::writeWavHeader(File& myFile)
 {
   myFile.seek(0);
 
-  m_wav_format.total_size = m_es_size + sizeof(WavFormat_t) - 8;
+  m_wav_format.total_size = m_es_size + sizeof(WAVHEADER) - 8;
   m_wav_format.data_size  = m_es_size;
 
-  int ret = myFile.write((uint8_t*)&m_wav_format, sizeof(WavFormat_t));
+  int ret = myFile.write((uint8_t*)&m_wav_format, sizeof(WAVHEADER));
   if (ret < 0)
     {
       print_err("Fail to write file(wav header)\n");
@@ -1145,7 +1176,7 @@ err_t AudioClass::readFrames(char* p_buffer, uint32_t buffer_size, uint32_t* rea
     {
       if (data_size > buffer_size)
         {
-          print_err("WARNING: Insufficient buffer area.\n");
+          print_dbg("WARNING: Insufficient buffer area.\n");
           poll_size = (size_t)buffer_size;
           rst = AUDIOLIB_ECODE_INSUFFICIENT_BUFFER_AREA;
         }
@@ -1391,7 +1422,7 @@ err_t AudioClass::init_mic_gain(int dev, int gain)
  ****************************************************************************/
 bool AudioClass::check_decode_dsp(uint8_t codec_type, const char *path)
 {
-  char fullpath[32];
+  char fullpath[32] = { 0 };
   struct stat buf;
   int retry;
   int ret = 0;
@@ -1417,7 +1448,8 @@ bool AudioClass::check_decode_dsp(uint8_t codec_type, const char *path)
         break;
 
       default:
-        break;
+        print_err("Codec type %d is invalid value.\n", codec_type);
+        return false;
     }
 
   if (0 == strncmp("/mnt/sd0", path, 8))
@@ -1453,7 +1485,7 @@ bool AudioClass::check_decode_dsp(uint8_t codec_type, const char *path)
 /*--------------------------------------------------------------------------*/
 bool AudioClass::check_encode_dsp(uint8_t codec_type, const char *path, uint32_t fs)
 {
-  char fullpath[32];
+  char fullpath[32] = { 0 };
   struct stat buf;
   int retry;
   int ret = 0;
@@ -1481,7 +1513,8 @@ bool AudioClass::check_encode_dsp(uint8_t codec_type, const char *path, uint32_t
         break;
 
       default:
-        break;
+        print_err("Codec type %d is invalid value.\n", codec_type);
+        return false;
     }
 
   if (0 == strncmp("/mnt/sd0", path, 8))

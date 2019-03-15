@@ -4,6 +4,9 @@ menu.UploadSpeed=UploadSpeed
 ############## Spresense BOARD ##############
 spresense.name=Spresense
 
+spresense.vid.0=0x10C4
+spresense.pid.0=0xEA60
+
 spresense.upload.tool=spresense-tools
 spresense.upload.speed=115200
 spresense.upload.resetmethod=ck

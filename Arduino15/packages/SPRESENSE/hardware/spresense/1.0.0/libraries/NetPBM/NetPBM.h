@@ -24,7 +24,7 @@
 
 class NetPBM {
 public:
-  NetPBM(SDHCILib::File& file);
+  NetPBM(File& file);
   ~NetPBM();
 
   size_t size();

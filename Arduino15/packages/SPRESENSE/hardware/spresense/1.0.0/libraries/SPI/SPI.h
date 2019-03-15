@@ -29,6 +29,12 @@
  *          Spresense as the master device. 
  */
 
+/**
+ * @defgroup spi SPI Library API
+ * @brief API for using SPI
+ * @{
+ */
+
 /*
   This header file maybe inclued in plain C file.
   To avoid compiling error all C++ stuff should be ignored
@@ -316,4 +322,7 @@ extern SPIClass SPI5;
 
 
 // #endif // __cplusplus
+
+/** @} spi */
+
 #endif // Spi_h

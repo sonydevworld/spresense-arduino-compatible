@@ -43,6 +43,8 @@ except:
 PROTOCOL_SERIAL = 0
 PROTOCOL_TELNET = 1
 
+MAX_DOT_COUNT = 70
+
 # configure parameters and default value
 class ConfigArgs:
 	PROTOCOL_TYPE = None
@@ -60,8 +62,10 @@ class ConfigArgs:
 	ERASE_NAME = []
 	PKGSYS_NAME = []
 	PKGAPP_NAME = []
+	PKGUPD_NAME = []
 
 ROM_MSG = [b"Welcome to nash"]
+XMDM_MSG = "Waiting for XMODEM (CRC or 1K) transfer. Ctrl-X to cancel."
 
 class ConfigArgsLoader():
 	def __init__(self):
@@ -72,6 +76,7 @@ class ConfigArgsLoader():
 
 		self.parser.add_argument("-S", "--sys", dest="pkgsys_name", help="the name of the system package to install", action='append')
 		self.parser.add_argument("-A", "--app", dest="pkgapp_name", help="the name of the application package to install", action='append')
+		self.parser.add_argument("-U", "--upd", dest="pkgupd_name", help="the name of the updater package to install", action='append')
 
 		self.parser.add_argument("-a", "--auto-reset", dest="auto_reset",
 									action="store_true", default=None,
@@ -117,6 +122,7 @@ class ConfigArgsLoader():
 		ConfigArgs.ERASE_NAME = args.erase_name
 		ConfigArgs.PKGSYS_NAME = args.pkgsys_name
 		ConfigArgs.PKGAPP_NAME = args.pkgapp_name
+		ConfigArgs.PKGUPD_NAME = args.pkgupd_name
 
 		# Get serial port or telnet server ip etc
 		if args.serial_protocol == True:
@@ -228,17 +234,34 @@ class TelnetDev:
 
 	def getc(self, size, timeout=1):
 		c = self.getc_raw(size, timeout)
-		if PRINT_RAW_COMMAND :
-			print('.',end='')
-		sys.stdout.flush()
 		return c
 
 	def putc(self, buffer, timeout=1):
 		self.telnet.write(buffer)
+		self.show_progress(len(buffer))
 
 	def reboot(self):
 		# no-op
 		pass
+
+	def set_file_size(self, filesize):
+		self.bytes_transfered = 0
+		self.filesize = filesize
+		self.count = 0
+
+	def show_progress(self, sendsize):
+		if PRINT_RAW_COMMAND:
+			if self.count < MAX_DOT_COUNT:
+				self.bytes_transfered = self.bytes_transfered + sendsize
+				cur_count = int(self.bytes_transfered * MAX_DOT_COUNT / self.filesize)
+				if MAX_DOT_COUNT < cur_count:
+					cur_count = MAX_DOT_COUNT
+				for idx in range(cur_count - self.count):
+					print('#',end='')
+					sys.stdout.flush()
+				self.count = cur_count
+				if self.count == MAX_DOT_COUNT:
+					print("\n")
 
 class SerialDev:
 	def __init__(self):
@@ -275,9 +298,6 @@ class SerialDev:
 		self.serial.timeout = timeout
 		c = self.serial.read(size)
 		self.serial.timeout = 0.1
-		if PRINT_RAW_COMMAND :
-			print('.',end='')
-		sys.stdout.flush()
 		return c
 
 	def putc(self, buffer, timeout=1):
@@ -285,10 +305,12 @@ class SerialDev:
 		self.serial.write(buffer)
 		self.serial.flush()
 		self.serial.timeout = 0.1
+		self.show_progress(len(buffer))
 
 	# Note: windows platform dependent code
 	def putc_win(self, buffer, timeout=1):
 		self.serial.write(buffer)
+		self.show_progress(len(buffer))
 		while True:
 			if self.serial.out_waiting == 0:
 				break
@@ -302,6 +324,25 @@ class SerialDev:
 		self.serial.setDTR(False)
 		self.serial.setDTR(True)
 		self.serial.setDTR(False)
+
+	def set_file_size(self, filesize):
+		self.bytes_transfered = 0
+		self.filesize = filesize
+		self.count = 0
+
+	def show_progress(self, sendsize):
+		if PRINT_RAW_COMMAND:
+			if self.count < MAX_DOT_COUNT:
+				self.bytes_transfered = self.bytes_transfered + sendsize
+				cur_count = int(self.bytes_transfered * MAX_DOT_COUNT / self.filesize)
+				if MAX_DOT_COUNT < cur_count:
+					cur_count = MAX_DOT_COUNT
+				for idx in range(cur_count - self.count):
+					print('#',end='')
+					sys.stdout.flush()
+				self.count = cur_count
+				if self.count == MAX_DOT_COUNT:
+					print("\n")
 
 class FlashWriter:
 	def __init__(self, protocol_sel=PROTOCOL_SERIAL):
@@ -332,8 +373,9 @@ class FlashWriter:
 	def recv(self):
 		rx = self.serial.readline()
 		if PRINT_RAW_COMMAND :
-			if rx.decode(errors="replace").strip() != "" :
-				print(rx.decode(errors="replace"), end="")
+			serial_line = rx.decode(errors="replace")
+			if serial_line.strip() != "" and not serial_line.startswith(XMDM_MSG):
+				print(serial_line, end="")
 		return rx
 
 	def wait(self, string):
@@ -379,10 +421,16 @@ class FlashWriter:
 			with open(file, "rb") as bin :
 				self.send(command)
 				print("Install " + file)
-				self.wait("Waiting for XMODEM (CRC or 1K) transfer. Ctrl-X to cancel.")
+				self.wait(XMDM_MSG)
+				print("|0%" + 
+						"-" * (int(MAX_DOT_COUNT / 2) - 6) +
+						"50%" +
+						"-" * (MAX_DOT_COUNT - int(MAX_DOT_COUNT / 2) - 5) +
+						"100%|")
 				if ConfigArgs.XMODEM_BAUD:
 					self.serial.setBaudrate(ConfigArgs.XMODEM_BAUD)
 					self.serial.discard_inputs() # Clear input buffer to sync
+				self.serial.set_file_size(os.path.getsize(file))
 				modem.send(bin)
 				if ConfigArgs.XMODEM_BAUD:
 					self.serial.setBaudrate(115200)
@@ -401,10 +449,11 @@ class FlashWriter:
 			with open(file, "rb") as bin :
 				self.send(command + os.path.basename(file))
 				print("Save " + file)
-				self.wait("Waiting for XMODEM (CRC or 1K) transfer. Ctrl-X to cancel.")
+				self.wait(XMDM_MSG)
 				if ConfigArgs.XMODEM_BAUD:
 					self.serial.setBaudrate(ConfigArgs.XMODEM_BAUD)
 					self.serial.discard_inputs() # Clear input buffer to sync
+				self.serial.set_file_size(os.path.getsize(file))
 				modem.send(bin)
 				if ConfigArgs.XMODEM_BAUD:
 					self.serial.setBaudrate(115200)
@@ -413,13 +462,8 @@ class FlashWriter:
 				self.wait_for_prompt()
 
 	def delete_files(self, files) :
-		self.send("ls")
-		lines = self.read_output("updater")
-		for line in lines :
-			binfile = line.strip().split(' ')[0]
-			for file in files :
-				if fnmatch.fnmatch(binfile, file):
-					self.delete_binary(binfile)
+		for file in files :
+			self.delete_binary(file)
 
 	def delete_binary(self, bin_name) :
 		self.send("rm " + bin_name)
@@ -470,16 +514,18 @@ def main():
 		writer.delete_files(ConfigArgs.ERASE_NAME)
 
 	# Install files
-	if ConfigArgs.PACKAGE_NAME or ConfigArgs.PKGSYS_NAME or ConfigArgs.PKGAPP_NAME:
+	if ConfigArgs.PACKAGE_NAME or ConfigArgs.PKGSYS_NAME or ConfigArgs.PKGAPP_NAME or ConfigArgs.PKGUPD_NAME:
 		print(">>> Install files ...")
 	if ConfigArgs.PACKAGE_NAME :
 		writer.install_files(ConfigArgs.PACKAGE_NAME, "install")
 	if ConfigArgs.PKGSYS_NAME :
 		eula_handler = eula.EULAMain(os.path.dirname(ConfigArgs.PKGSYS_NAME[0]))
 		eula_handler.main()
-		writer.install_files(ConfigArgs.PKGSYS_NAME, "install -k sys.key")
+		writer.install_files(ConfigArgs.PKGSYS_NAME, "install")
 	if ConfigArgs.PKGAPP_NAME :
-		writer.install_files(ConfigArgs.PKGAPP_NAME, "install -k app.key")
+		writer.install_files(ConfigArgs.PKGAPP_NAME, "install")
+	if ConfigArgs.PKGUPD_NAME :
+		writer.install_files(ConfigArgs.PKGUPD_NAME, "install -k updater.key")
 
 	# Save files
 	if ConfigArgs.FILE_NAME :

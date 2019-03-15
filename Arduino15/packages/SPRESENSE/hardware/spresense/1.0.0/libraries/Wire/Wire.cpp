@@ -80,21 +80,33 @@ void TwoWire::end()
 
 uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity, uint8_t sendStop)
 {
-    unuse(sendStop);
+    struct i2c_msg_s msg;
+    unsigned int flags = 0;
+    int ret;
+
     if (!_dev) return 0;
 
     // clamp to buffer length
     if (quantity > TWI_RX_BUF_LEN)
         quantity = TWI_RX_BUF_LEN;
 
-    // perform blocking read into buffer
-    struct i2c_config_s cfg = {
-        .frequency = _freq,
-        .address = address, // cxd56_i2c.c::cxd56_i2c_transfer only takes the low 7-bit of address,
-                            // so I2C_READADDR8(address) can't be used here
-        .addrlen = TWI_ADDR_LEN_7_BIT
-    };
-    int ret = i2c_read(_dev, &cfg, _rx_buf, quantity);
+    if (_tx_addr_len == TWI_ADDR_LEN_10_BIT) {
+        flags |= I2C_M_TEN;
+    }
+
+    if (!sendStop) {
+        flags |= I2C_M_NOSTOP;
+    }
+
+    // Setup for the transfer
+    msg.frequency = _freq;
+    msg.addr      = address;
+    msg.flags     = (flags | I2C_M_READ);
+    msg.buffer    = _rx_buf;
+    msg.length    = quantity;
+
+    // Then perform the transfer.
+    ret = I2C_TRANSFER(_dev, &msg, 1);
     if (ret < 0) {
         printf("ERROR: Failed to read from i2c (errno = %d)\n", errno);
         return 0;
@@ -131,21 +143,40 @@ void TwoWire::beginTransmission(uint16_t address, uint8_t length)
 
 uint8_t TwoWire::endTransmission(bool sendStop)
 {
-    unuse(sendStop);
+    struct i2c_msg_s msg;
+    unsigned int flags = 0;
+    int ret;
+
     if (!_dev || !_transmitting) return TWI_OTHER_ERROR;
 
-    struct i2c_config_s cfg = {
-        .frequency = _freq,
-        .address = _tx_address,
-        .addrlen = _tx_addr_len
-    };
-    int ret = i2c_write(_dev, &cfg, _tx_buf, _tx_buf_len);
+    if (_tx_addr_len == TWI_ADDR_LEN_10_BIT) {
+        flags |= I2C_M_TEN;
+    }
+
+    if (!sendStop) {
+        flags |= I2C_M_NOSTOP;
+    }
+
+    // Setup for the transfer
+    msg.frequency = _freq;
+    msg.addr      = _tx_address;
+    msg.flags     =  flags;
+    msg.buffer    = _tx_buf;
+    msg.length    = _tx_buf_len;
+
+    // Then perform the transfer.
+    ret = I2C_TRANSFER(_dev, &msg, 1);
     // reset tx buffer iterator vars
     _tx_buf_index = 0;
     _tx_buf_len = 0;
     // indicate that we are done transmitting
     _transmitting = false;
-    return ret ? TWI_OTHER_ERROR : TWI_SUCCESS;
+
+    if (ret == -ENODEV) {
+        // device not found
+        return TWI_NACK_ON_ADDRESS;
+    }
+    return (ret < 0) ? TWI_OTHER_ERROR : TWI_SUCCESS;
 }
 
 // must be called in:

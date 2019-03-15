@@ -1,7 +1,10 @@
 /*
   wiring_pulse.c - pulse implement file for the Spresense SDK
+  Part of Arduino - http://www.arduino.cc/
+
   Copyright (C) 2018 Sony Semiconductor Solutions Corp.
   Copyright (c) 2017 Sony Corporation  All right reserved.
+  Copyright (c) 2005-2006 David A. Mellis
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -13,9 +16,10 @@
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
   Lesser General Public License for more details.
 
-  You should have received a copy of the GNU Lesser General Public
-  License along with this library; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+  You should have received a copy of the GNU Lesser General
+  Public License along with this library; if not, write to the
+  Free Software Foundation, Inc., 59 Temple Place, Suite 330,
+  Boston, MA  02111-1307  USA
 */
 
 #include <stdio.h>

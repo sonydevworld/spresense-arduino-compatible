@@ -271,17 +271,17 @@ void MediaRecorder::init_wav(AsInitRecorderParam *param)
 
   /* Create WAV header information */
 
-  memcpy(m_wav_format.riff, CHUNKID_RIFF, strlen(CHUNKID_RIFF));
-  memcpy(m_wav_format.wave, FORMAT_WAVE, strlen(FORMAT_WAVE));
-  memcpy(m_wav_format.fmt, SUBCHUNKID_FMT, strlen(SUBCHUNKID_FMT));
-  m_wav_format.fmt_size = FMT_SIZE;
-  m_wav_format.format   = AUDIO_FORMAT_PCM;
+  m_wav_format.riff     = CHUNKID_RIFF;
+  m_wav_format.wave     = FORMAT_WAVE;
+  m_wav_format.fmt      = SUBCHUNKID_FMT;
+  m_wav_format.fmt_size = FMT_CHUNK_SIZE;
+  m_wav_format.format   = FORMAT_ID_PCM;
   m_wav_format.channel  = param->channel_number;
   m_wav_format.rate     = param->sampling_rate;
   m_wav_format.avgbyte  = param->sampling_rate * param->channel_number * (param->bit_length / 8);
   m_wav_format.block    = param->channel_number * (param->bit_length / 8);
   m_wav_format.bit      = param->bit_length;
-  memcpy(m_wav_format.data, SUBCHUNKID_DATA, strlen(SUBCHUNKID_DATA));
+  m_wav_format.data     = SUBCHUNKID_DATA;
 }
 
 /*--------------------------------------------------------------------------*/
@@ -354,6 +354,26 @@ err_t MediaRecorder::deactivate(void)
 }
 
 /*--------------------------------------------------------------------------*/
+err_t MediaRecorder::setMicGain(int16_t mic_gain)
+{
+  AsRecorderMicGainParam micgain_param;
+
+  for (int i = 0; i < AS_MIC_CHANNEL_MAX; i++)
+    {
+      micgain_param.mic_gain[i] = mic_gain;
+    }
+
+  bool result = AS_SetMicGainMediaRecorder(&micgain_param);
+  if (!result)
+    {
+      print_err("Error: AS_SetMicGainMediaRecorder() failure!\n");
+      return MEDIARECORDER_ECODE_COMMAND_ERROR;
+    }
+
+  return MEDIARECORDER_ECODE_OK;
+}
+
+/*--------------------------------------------------------------------------*/
 err_t MediaRecorder::readFrames(uint8_t* p_buffer, uint32_t buffer_size, uint32_t* read_size)
 {
   err_t rst = MEDIARECORDER_ECODE_OK;
@@ -377,7 +397,7 @@ err_t MediaRecorder::readFrames(uint8_t* p_buffer, uint32_t buffer_size, uint32_
     {
       if (data_size > buffer_size)
         {
-          print_err("WARNING: Insufficient buffer area.\n");
+          print_dbg("WARNING: Insufficient buffer area.\n");
           poll_size = (size_t)buffer_size;
           rst = MEDIARECORDER_ECODE_INSUFFICIENT_BUFFER_AREA;
         }
@@ -404,10 +424,10 @@ err_t MediaRecorder::writeWavHeader(File& myfile)
 {
   myfile.seek(0);
 
-  m_wav_format.total_size = m_es_size + sizeof(WavFormat_t) - 8;
+  m_wav_format.total_size = m_es_size + sizeof(WAVHEADER) - 8;
   m_wav_format.data_size  = m_es_size;
 
-  int ret = myfile.write((uint8_t*)&m_wav_format, sizeof(WavFormat_t));
+  int ret = myfile.write((uint8_t*)&m_wav_format, sizeof(WAVHEADER));
   if (ret < 0)
     {
       print_err("Fail to write file(wav header)\n");
@@ -420,7 +440,7 @@ err_t MediaRecorder::writeWavHeader(File& myfile)
 /*--------------------------------------------------------------------------*/
 bool MediaRecorder::check_encode_dsp(uint8_t codec_type, const char *path, uint32_t sampling_rate)
 {
-  char fullpath[32];
+  char fullpath[32] = { 0 };
   cxd56_audio_clkmode_t clk = CXD56_AUDIO_CLKMODE_NORMAL;
   struct stat buf;
   int retry;
@@ -448,7 +468,8 @@ bool MediaRecorder::check_encode_dsp(uint8_t codec_type, const char *path, uint3
         break;
 
       default:
-        break;
+        print_err("Codec type %d is invalid value.\n", codec_type);
+        return false;
     }
 
   if (0 == strncmp("/mnt/sd0", path, 8))

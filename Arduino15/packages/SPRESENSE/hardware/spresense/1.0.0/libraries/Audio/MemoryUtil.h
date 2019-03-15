@@ -41,6 +41,7 @@ const PoolAttr *getPoolLayout(int layout_no);
 int initMemoryPools(void);
 int createStaticPools(uint8_t layout_no);
 int destroyStaticPools(void);
+int finalizeMemoryPools(void);
 
 // #endif /* __cplusplus */
 #endif /* MemoryUtis_h */

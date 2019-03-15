@@ -17,13 +17,10 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,  MA 02110-1301  USA
  */
 
-#include <SDHCI.h>
 #include <MediaRecorder.h>
 #include <MediaPlayer.h>
 #include <OutputMixer.h>
 #include <MemoryUtil.h>
-
-SDClass theSD;
 
 MediaRecorder *theRecorder;
 MediaPlayer *thePlayer;
@@ -44,7 +41,7 @@ static void attention_cb(const ErrorAttentionParam *atprm)
 {
   puts("Attention!");
   
-  if (atprm->error_code >= AS_ATTENTION_CODE_WARNING)
+  if (atprm->error_code > AS_ATTENTION_CODE_WARNING)
     {
       ErrEnd = true;
    }
@@ -107,7 +104,7 @@ static void outmixer_send_callback(int32_t identifier, bool is_end)
  */
 static bool mediaplayer_done_callback(AsPlayerEvent event, uint32_t result, uint32_t sub_result)
 {
-  /* If result of "Play", restart recording (It should been stopped when "Play" requested) */
+  /* If result of "Play", Start recording to supply captured data to player */
 
   if (event == AsPlayerEventPlay)
     {
@@ -132,7 +129,7 @@ void mediaplayer_decode_callback(AsPcmDataParam pcm_param)
 
     if (sel == 1)
       {
-        pf_filter(pcm_param);
+        rc_filter(pcm_param);
       }
     else if (sel == 2)
       {
@@ -152,11 +149,11 @@ void mediaplayer_decode_callback(AsPcmDataParam pcm_param)
 }
 
 /**
- * @brief PF-Filter function
+ * @brief RC-Filter function
  *
  * @param [in] pcm_param    AsPcmDataParam type
  */
-void pf_filter(AsPcmDataParam pcm_param)
+void rc_filter(AsPcmDataParam pcm_param)
 {
   /* Example : RC filter for 16bit PCM */
 
@@ -245,8 +242,6 @@ inline int16_t clip(int32_t val, int32_t peak)
 
 void setup()
 {
-  usleep(2000 * 1000);
-
   /* Initialize memory pools and message libs */
 
   initMemoryPools();
@@ -283,64 +278,41 @@ void setup()
    * Search for SRC filter in "/mnt/sd0/BIN" directory
    */
 
-  theRecorder->init(AS_CODECTYPE_LPCM, AS_CHANNEL_STEREO, AS_SAMPLINGRATE_16000, AS_BITLENGTH_16, 0);
+  theRecorder->init(AS_CODECTYPE_LPCM, AS_CHANNEL_STEREO, AS_SAMPLINGRATE_16000, AS_BITLENGTH_16, AS_BITRATE_8000);
   puts("recorder init");
   thePlayer->init(MediaPlayer::Player0, AS_CODECTYPE_WAV, AS_SAMPLINGRATE_16000, AS_CHANNEL_STEREO);
   puts("player init");
 
-  /* Start Recorder */
-
-  theMixer->setVolume(00, 0, 0);
+  theMixer->setVolume(0, 0, 0);
 }
 
 /**
  * @brief Record audio frames
  */
 
-static const int StateReady = 0;
-static const int StatePrepare = 1;
-static const int StateRun = 2;
+typedef enum
+{
+  StateReady = 0,
+  StateRun,
+} State;
 
 void loop()
 {
-  static int s_cnt = 0;
-  static int s_state = StateReady;
+  static State s_state = StateReady;
 
   if (s_state == StateReady)
     {
-      /* Start recording */
+      /* Prestore audio dummy data to start player */
 
-      theRecorder->start();
-      puts("recorder start");
+      memset(s_buffer, 0, sizeof(s_buffer));
+      thePlayer->writeFrames(MediaPlayer::Player0, s_buffer, sizeof(s_buffer));
 
-      s_state = StatePrepare;
-    }
-  else if (s_state == StatePrepare)
-    {
-      /* Prestore recorded audio data */
+      /* Start play */
+      
+      thePlayer->start(MediaPlayer::Player0, mediaplayer_decode_callback);
+      puts("player start");
 
-      uint32_t read_size = 0;
-      static uint32_t read_size_sum = 0;
-
-      theRecorder->readFrames(s_buffer, sc_buffer_size, &read_size);
-
-      if (read_size > 0)
-        {
-          thePlayer->writeFrames(MediaPlayer::Player0, s_buffer, read_size);
-          read_size_sum += read_size;
-        }
-
-      if (read_size_sum > 3000)
-        {
-          /* Stop recorder to avoid time lag between record and play will be get long */
-
-          theRecorder->stop();
-
-          thePlayer->start(MediaPlayer::Player0, mediaplayer_decode_callback);
-          puts("player start");
-
-          s_state = StateRun;
-        }
+      s_state = StateRun;
     }
   else if (s_state == StateRun)
     {
@@ -350,7 +322,6 @@ void loop()
 
       do
         {
-
           theRecorder->readFrames(s_buffer, sc_buffer_size, &read_size);
 
           if (read_size > 0)
@@ -359,11 +330,6 @@ void loop()
             }
         }
       while (read_size != 0);
-
-      if (s_cnt++ > 4000)
-        {
-          goto exitRecording;
-        }
     }
   else
     {
@@ -381,8 +347,8 @@ void loop()
 
 exitRecording:
 
-  theRecorder->stop();
   thePlayer->stop(MediaPlayer::Player0);
+  theRecorder->stop();
 
   puts("Exit.");
 

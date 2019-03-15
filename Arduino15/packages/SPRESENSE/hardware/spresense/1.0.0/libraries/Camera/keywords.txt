@@ -11,6 +11,8 @@ getImgSize                 KEYWORD2
 getPixFormat               KEYWORD2
 isAvailable                KEYWORD2
 convertPixFormat           KEYWORD2
+resizeImageByHW            KEYWORD2
+clipAndResizeImageByHW     KEYWORD2
 
 begin                      KEYWORD2
 startStreaming             KEYWORD2

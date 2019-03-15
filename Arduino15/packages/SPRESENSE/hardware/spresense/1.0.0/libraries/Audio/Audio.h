@@ -29,15 +29,21 @@
 #ifndef Audio_h
 #define Audio_h
 
+/**
+ * @defgroup audio Audio Library API
+ * @brief API for using Audio
+ * @{
+ */
+
 #include <pins_arduino.h>
 #include <SDHCI.h>
 
 // #ifdef __cplusplus
 
 #include <audio/audio_high_level_api.h>
+#include <audio/utilities/audio_wav_containerformat.h>
+#include <audio/utilities/audio_wav_containerformat_parser.h>
 #include <memutils/simple_fifo/CMN_SimpleFifo.h>
-
-#include "WavHeaderdef.h"
 
 #define WRITE_FIFO_FRAME_NUM  (8)
 #define WRITE_FIFO_FRAME_SIZE (1024*2*3)
@@ -85,6 +91,7 @@ extern "C" void  outputDeviceCallback(uint32_t);
 #define AUDIOLIB_ECODE_BUFFER_AREA_ERROR   6  /**< */
 #define AUDIOLIB_ECODE_BUFFER_SIZE_ERROR   7  /**< */
 #define AUDIOLIB_ECODE_INSUFFICIENT_BUFFER_AREA   8  /**< */
+#define AUDIOLIB_ECODE_WAV_PARSE_ERROR     9  /**< */
 
 /*--------------------------------------------------------------------------*/
 /**
@@ -612,7 +619,28 @@ public:
    */
   err_t writeFrames(
       PlayerId id, /**< Select Player ID. */
-      int fd  /**< file pointer of the audio file. */
+      int fd       /**< file pointer of the audio file. */
+  );
+
+  /**
+   * @brief Write Stream Data from buffer
+   *
+   * @details This function writes from the buffer
+   *          to the Stream  data FIFO in the Audio library.
+   *          It writes for several frames data (now five frames).
+   *          It can be called on PlayerMode.
+   *
+   *          This FIFO is cleared when calling StopPlayer or setReadyMode.
+   *
+   *          During music playback, please call this function periodically.
+   *          When an error occurs, you should error handling as properly
+   *
+   */
+
+  err_t writeFrames(
+      PlayerId id,        /** Select Player ID. */
+      uint8_t *data,      /** Buffer address of the audio data. */
+      uint32_t write_size /** Size of the audio data. */
   );
 
   /** APIs for Recorder Mode */
@@ -733,7 +761,7 @@ private:
 
   AsRecorderOutputDeviceHdlr    m_output_device_handler;
   int                           m_es_size;
-  WavFormat_t                   m_wav_format;
+  WAVHEADER                     m_wav_format;
   int                           m_codec_type;
 
   AudioAttentionCb m_attention_callback;
@@ -777,6 +805,8 @@ private:
 };
 
 extern AudioClass Audio;
+
+/** @} audio */
 
 // #endif //__cplusplus
 #endif //Audio_h

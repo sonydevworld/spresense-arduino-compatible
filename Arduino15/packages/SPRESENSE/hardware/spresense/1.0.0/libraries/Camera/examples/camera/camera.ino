@@ -153,8 +153,11 @@ void loop()
           Serial.print(filename);
           Serial.println("");
 
-          /* Save to SD card as the finename */
-    
+          /* Remove the old file with the same file name as new created file,
+           * and create new file.
+           */
+
+          theSD.remove(filename);
           File myFile = theSD.open(filename, FILE_WRITE);
           myFile.write(img.getImgBuff(), img.getImgSize());
           myFile.close();

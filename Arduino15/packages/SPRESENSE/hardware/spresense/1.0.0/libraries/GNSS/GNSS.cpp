@@ -17,6 +17,7 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#include <unistd.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <arch/chip/gnss.h>
@@ -84,10 +85,10 @@ static unsigned int count_bits(unsigned int bits)
     unsigned int num;
 
     num = (bits >> 1) & 03333333333;
-    num = bits - num - ((num >> 1) & 03333333333);  
+    num = bits - num - ((num >> 1) & 03333333333);
     num = ((num + (num >> 3)) & 0707070707) % 077;
 
-    return num;    
+    return num;
 }
 
 #if defined(_ENABLE_TIME_T)
@@ -252,21 +253,13 @@ int SpGnss::begin(void)
 
     int ret;
 
-    if (fd_ >= 0)
-    {
-        ret = OK;
-    }
-    else
+    if (fd_ < 0)
     {
         fd_ = open(SP_GNSS_DEV_NAME, O_RDONLY);
         if (fd_ < 0)
         {
             PRINT_E("SpGnss E: Failed to open gps device\n");
-            ret = -1;
-        }
-        else
-        {
-            ret = OK;
+            return -1;
         }
     }
 
@@ -274,9 +267,11 @@ int SpGnss::begin(void)
 
     sigemptyset(&mask);
     sigaddset(&mask, SP_GNSS_SIG);
-    if (sigprocmask(SIG_UNBLOCK, &mask, NULL) != OK)
+    if ((ret = sigprocmask(SIG_UNBLOCK, &mask, NULL)) < 0)
     {
         PRINT_E("sigprocmask failed.\n");
+        end();
+        return ret;
     }
     else
     {
@@ -289,9 +284,11 @@ int SpGnss::begin(void)
         setting.data    = NULL;
 
         ret = ioctl(fd_, CXD56_GNSS_IOCTL_SIGNAL_SET, (unsigned long)&setting);
-        if(ret != OK)
+        if(ret < 0)
         {
             PRINT_E("SpGnss E: SIGNAL_SET error\n");
+            end();
+            return ret;
         }
 
         struct sigaction sa;
@@ -307,18 +304,19 @@ int SpGnss::begin(void)
 
     /* Alloc buffer. */
 
-    if(ret == OK)
+    if(pPosdat == NULL)
     {
         pPosdat = (struct cxd56_gnss_positiondata_s*)malloc(sizeof(struct cxd56_gnss_positiondata_s));
         if(pPosdat == NULL)
         {
             PRINT_E("SpGnss E: Alloc error\n");
-            ret = -1;
+            end();
+            return -1;
         }
     }
 
     PRINT_I("SpGnss : begin out\n");
-    return ret;
+    return OK;
 }
 
 /**

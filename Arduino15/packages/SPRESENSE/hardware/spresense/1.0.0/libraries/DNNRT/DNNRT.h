@@ -20,6 +20,12 @@
 #ifndef Dnnrt_h
 #define Dnnrt_h
 
+/**
+ * @defgroup dnnrt DNN Library API
+ * @brief API for using Deep Neural Network Library
+ * @{
+ */
+
 #include <Arduino.h>
 #include <SDHCI.h> // tentative
 
@@ -55,7 +61,7 @@ public:
    * @param nnbfile nnb network model binary file
    * @return 0 on success, otherwise error.
    */  
-  int begin(SDHCILib::File &nnbfile);
+  int begin(File &nnbfile);
 
   /**
    * Finalize runtime object
@@ -209,5 +215,7 @@ private:
   unsigned int _size;
   bool _allocated;
 };
+
+/** @} dnnrt */
 
 #endif
