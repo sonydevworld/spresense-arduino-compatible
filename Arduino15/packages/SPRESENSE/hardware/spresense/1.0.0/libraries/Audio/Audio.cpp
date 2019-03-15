@@ -879,11 +879,11 @@ err_t AudioClass::writeFrames(PlayerId id, uint8_t *data, uint32_t write_size)
 
 err_t AudioClass::setRecorderMode(uint8_t input_device, int32_t input_gain)
 {
-  return setRecorderMode(input_device, input_gain, SIMPLE_FIFO_BUF_SIZE);
+  return setRecorderMode(input_device, input_gain, SIMPLE_FIFO_BUF_SIZE, false);
 }
 
 /*--------------------------------------------------------------------------*/
-err_t AudioClass::setRecorderMode(uint8_t input_device, int32_t input_gain, uint32_t bufsize)
+err_t AudioClass::setRecorderMode(uint8_t input_device, int32_t input_gain, uint32_t bufsize, bool use_digi_mic)
 {
   const NumLayout layout_no = MEM_LAYOUT_RECORDER;
 
@@ -914,6 +914,16 @@ err_t AudioClass::setRecorderMode(uint8_t input_device, int32_t input_gain, uint
 
   m_output_device_handler.simple_fifo_handler = (void*)(&m_recorder_simple_fifo_handle);
   m_output_device_handler.callback_function = output_device_callback;
+
+  if ((input_device == AS_SETRECDR_STS_INPUTDEVICE_MIC) && use_digi_mic)
+    {
+      uint8_t dig_map[] = { 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc };
+
+      if (set_mic_map(dig_map) != AUDIOLIB_ECODE_OK)
+        {
+          print_err("Set mic mapping error!\n");
+        }
+    }
 
   AudioCommand command;
 
@@ -948,9 +958,15 @@ err_t AudioClass::setRecorderMode(uint8_t input_device, int32_t input_gain, uint
 }
 
 /*--------------------------------------------------------------------------*/
+err_t AudioClass::setRecorderMode(uint8_t input_device, int32_t input_gain, uint32_t bufsize)
+{
+  return setRecorderMode(input_device, input_gain, bufsize, false);
+}
+
+/*--------------------------------------------------------------------------*/
 err_t AudioClass::setRecorderMode(uint8_t input_device)
 {
-  return setRecorderMode(input_device, 0, SIMPLE_FIFO_BUF_SIZE);
+  return setRecorderMode(input_device, 0, SIMPLE_FIFO_BUF_SIZE, false);
 }
 
 /*--------------------------------------------------------------------------*/
@@ -1598,6 +1614,36 @@ err_t AudioClass::write_fifo(File& myFile, char *p_es_buf, uint32_t write_size, 
  * Private API on Audio Recorder
  ****************************************************************************/
 
+err_t AudioClass::set_mic_map(uint8_t map[AS_MIC_CHANNEL_MAX])
+{
+  AudioCommand command;
+
+  command.header.packet_length = LENGTH_SETMICMAP;
+  command.header.command_code  = AUDCMD_SETMICMAP;
+  command.header.sub_code      = 0;
+
+  memcpy(command.set_mic_map_param.mic_map, map, sizeof(command.set_mic_map_param.mic_map));
+
+  AS_SendAudioCommand( &command );
+
+  AudioResult result;
+  AS_ReceiveAudioResult(&result);
+
+  if (result.header.result_code != AUDRLT_SETMICMAPCMPLT)
+    {
+      print_err("ERROR: Command (0x%x) fails. Result code(0x%x) Module id(0x%x) Error code(0x%x)\n",
+                command.header.command_code,
+                result.header.result_code,
+                result.error_response_param.module_id,
+                result.error_response_param.error_code);
+      print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
+      return AUDIOLIB_ECODE_AUDIOCOMMAND_ERROR;
+    }
+
+  return AUDIOLIB_ECODE_OK;
+}
+
+/*--------------------------------------------------------------------------*/
 err_t AudioClass::init_mic_gain(int dev, int gain)
 {
   AudioCommand command;

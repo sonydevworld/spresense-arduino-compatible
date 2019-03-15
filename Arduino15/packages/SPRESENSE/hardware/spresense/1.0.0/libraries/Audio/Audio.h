@@ -295,6 +295,24 @@ public:
   );
 
   /**
+   * @brief Set Audio Library Mode to Sound Recorder.
+   *
+   * @details This function works as same as "setRecorderMode(input_device, input_gain, bufsize)",
+   *          But you can set buffer size of recorder.
+   *
+   */
+  err_t setRecorderMode(
+      uint8_t input_device, /**< Select input device. AS_SETRECDR_STS_INPUTDEVICE_MIC or
+                                 AS_SETRECDR_STS_INPUTDEVICE_I2S. */
+      int32_t input_gain,   /**< Input gain : value range
+                                 Analog Mic  -7850:-78.50dB, ... , -5:-0.05dB, 0:0dB, 5:+0.5dB, ... , 210:+21.0dB
+                                 Digital Mic -7850:-78.50dB, ... , -5:-0.05dB, 0:0dB (Max is 0dB.)
+                                 set #AS_MICGAIN_HOLD is keep setting. */
+      uint32_t bufsize      /**< Buffer size of recorder. */
+      bool is_digital       /**< Select mic type. true:Digital, false:Analog. */
+  );
+
+  /**
    * @enum Input select parameter at baseband through mode
    *
    */
@@ -898,6 +916,7 @@ private:
   err_t write_fifo(File&, char*, uint32_t, CMN_SimpleFifoHandle*);
 
   /* Functions for initialization on recorder mode. */
+  err_t set_mic_map(uint8_t map[AS_MIC_CHANNEL_MAX]);
   err_t init_mic_gain(int, int);
 
   /* Functions for initialization on through mode. */
