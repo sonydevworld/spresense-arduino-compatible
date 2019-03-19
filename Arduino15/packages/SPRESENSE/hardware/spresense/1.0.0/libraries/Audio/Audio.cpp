@@ -1500,9 +1500,8 @@ err_t AudioClass::init_mic_gain(int dev, int gain)
   command.header.command_code  = AUDCMD_INITMICGAIN;
   command.header.sub_code      = 0;
 
-  /* dev‚ÅAƒAƒiƒƒOAƒfƒWƒ^ƒ‹‚Ì‘I‘ğB
-  Œ»İA–¢‘Î‰B
-  Šeƒ}ƒCƒN‚ÌGain‚ğŒÂ•Ê‚É’²®‚Í‚µ‚È‚¢•ûŒüB
+  /* â€devâ€ can select  analog or digital, but currently not supported. 
+     It's not  suport that the gain of each microphone adjust individually.
   */
   command.init_mic_gain_param.mic_gain[0] = gain;
   command.init_mic_gain_param.mic_gain[1] = gain;
