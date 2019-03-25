@@ -92,12 +92,13 @@ void SPIClass::begin(void)
         if (!spi_dev) {
             spi_dev = cxd56_spibus_initialize(spi_port);
             if (!spi_dev) {
-                printf("Failed to initialize SPI bus on port 4!\n");
+                printf("Failed to initialize SPI bus on port %d!\n", spi_port);
                 return;
             }
-            noInterrupts();
-            spi_base_clock = cxd56_get_spi_baseclock(spi_port);
-            interrupts();
+            /* Set maximum frequency that satisfies AC specification
+             * when SPI clock divider is 2.
+             */
+            spi_base_clock = (spi_port == SPIDEV_PORT_4) ? 78000000 : 26000000;
             spi_bit_order = MSBFIRST;
         }
     }
