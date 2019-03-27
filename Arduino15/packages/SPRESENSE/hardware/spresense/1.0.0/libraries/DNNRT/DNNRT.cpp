@@ -37,6 +37,7 @@
 
 #include <Arduino.h>
 #include <DNNRT.h>
+#include <File.h>
 
 int
 DNNRT::begin(File& nnbfile)

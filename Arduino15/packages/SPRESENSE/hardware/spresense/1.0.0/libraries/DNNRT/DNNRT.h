@@ -27,11 +27,11 @@
  */
 
 #include <Arduino.h>
-#include <SDHCI.h> // tentative
 
 #include <dnnrt/runtime.h>
 
 class DNNVariable; // forward reference
+class File;
 
 /**
  * @file DNNRT.h
