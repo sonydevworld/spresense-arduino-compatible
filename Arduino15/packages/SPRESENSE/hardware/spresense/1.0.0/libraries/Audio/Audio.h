@@ -308,7 +308,7 @@ public:
                                  Analog Mic  -7850:-78.50dB, ... , -5:-0.05dB, 0:0dB, 5:+0.5dB, ... , 210:+21.0dB
                                  Digital Mic -7850:-78.50dB, ... , -5:-0.05dB, 0:0dB (Max is 0dB.)
                                  set #AS_MICGAIN_HOLD is keep setting. */
-      uint32_t bufsize      /**< Buffer size of recorder. */
+      uint32_t bufsize,     /**< Buffer size of recorder. */
       bool is_digital       /**< Select mic type. true:Digital, false:Analog. */
   );
 

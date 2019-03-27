@@ -883,7 +883,7 @@ err_t AudioClass::setRecorderMode(uint8_t input_device, int32_t input_gain)
 }
 
 /*--------------------------------------------------------------------------*/
-err_t AudioClass::setRecorderMode(uint8_t input_device, int32_t input_gain, uint32_t bufsize, bool use_digi_mic)
+err_t AudioClass::setRecorderMode(uint8_t input_device, int32_t input_gain, uint32_t bufsize, bool is_digital)
 {
   const NumLayout layout_no = MEM_LAYOUT_RECORDER;
 
@@ -915,7 +915,7 @@ err_t AudioClass::setRecorderMode(uint8_t input_device, int32_t input_gain, uint
   m_output_device_handler.simple_fifo_handler = (void*)(&m_recorder_simple_fifo_handle);
   m_output_device_handler.callback_function = output_device_callback;
 
-  if ((input_device == AS_SETRECDR_STS_INPUTDEVICE_MIC) && use_digi_mic)
+  if ((input_device == AS_SETRECDR_STS_INPUTDEVICE_MIC) && is_digital)
     {
       uint8_t dig_map[] = { 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc };
 
