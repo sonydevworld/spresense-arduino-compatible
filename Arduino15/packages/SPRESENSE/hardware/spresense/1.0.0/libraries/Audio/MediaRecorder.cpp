@@ -145,8 +145,7 @@ err_t MediaRecorder::activate(AsSetRecorderStsInputDevice input_device,
 
   /* Allocate ES buffer */
 
-  m_recorder_simple_fifo_buf =
-    (uint32_t*)(0xfffffffc & ((uint32_t)(malloc(recorder_bufsize + 3)) + 3));
+  m_recorder_simple_fifo_buf = static_cast<uint32_t *>(malloc(recorder_bufsize));
 
   if (!m_recorder_simple_fifo_buf)
     {

@@ -128,8 +128,7 @@ err_t MediaPlayer::activate(PlayerId id, uint8_t output_device, MediaPlayerCallb
 
   CMN_SimpleFifoHandle handle = { 0 };
 
-  uint32_t *p_buffer =
-    (uint32_t*)(0xfffffffc & ((uint32_t)(malloc(player_bufsize + 3)) + 3));
+  uint32_t *p_buffer = static_cast<uint32_t *>(malloc(player_bufsize));
 
   if (!p_buffer)
     {

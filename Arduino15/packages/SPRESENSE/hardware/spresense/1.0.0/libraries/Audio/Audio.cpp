@@ -467,8 +467,7 @@ err_t AudioClass::setPlayerMode(uint8_t device, uint8_t sp_drv, uint32_t player0
 
   if (player0bufsize)
     {
-      m_player0_simple_fifo_buf =
-        (uint32_t*)(0xfffffffc & ((uint32_t)(malloc(player0bufsize + 3)) + 3));
+      m_player0_simple_fifo_buf = static_cast<uint32_t *>(malloc(player0bufsize));
 
       if (m_player0_simple_fifo_buf)
         {
@@ -487,8 +486,7 @@ err_t AudioClass::setPlayerMode(uint8_t device, uint8_t sp_drv, uint32_t player0
 
   if (player1bufsize)
     {
-      m_player1_simple_fifo_buf =
-        (uint32_t*)(0xfffffffc & ((uint32_t)(malloc(player1bufsize + 3)) + 3));
+      m_player1_simple_fifo_buf = static_cast<uint32_t *>(malloc(player1bufsize));
 
       if (m_player1_simple_fifo_buf)
         {
@@ -898,8 +896,7 @@ err_t AudioClass::setRecorderMode(uint8_t input_device, int32_t input_gain, uint
       return AUDIOLIB_ECODE_BUFFER_SIZE_ERROR;
     }
 
-  m_recorder_simple_fifo_buf =
-    (uint32_t*)(0xfffffffc & ((uint32_t)(malloc(bufsize + 3)) + 3));
+  m_recorder_simple_fifo_buf = static_cast<uint32_t *>(malloc(bufsize));
 
   if (!m_recorder_simple_fifo_buf)
     {
