@@ -20,7 +20,7 @@
 #ifndef MediaPlayer_h
 #define MediaPlayer_h
 
-#include <SDHCI.h>
+class File;
 
 // #ifdef __cplusplus
 

@@ -28,7 +28,7 @@
 #ifndef MediaRecorder_h
 #define MediaRecorder_h
 
-#include <SDHCI.h>
+class File;
 #include <audio/audio_high_level_api.h>
 #include <audio/utilities/wav_containerformat.h>
 #include <memutils/simple_fifo/CMN_SimpleFifo.h>
