@@ -1,5 +1,5 @@
 /*
- *  UsbMsc.ino - Example to Open SD Card on the PC as USB Mass Storage
+ *  Flash.cpp - Spresense Arduino Flash library
  *  Copyright 2019 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
@@ -17,25 +17,25 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <SDHCI.h>
-SDClass SD;
+/**
+ * @file Flash.cpp
+ * @author Sony Semiconductor Solutions Corporation
+ * @brief Spresense Arduino Flash library
+ * 
+ * @details The Flash library allows for creating and removing files and directories
+ *          on the flash. This is derivatived from Storage library. The file
+ *          operations such as writing and reading are performed via File library.
+ */
 
-void setup() {
-  Serial.begin(115200);
+#include <sdk/config.h>
 
-  /* Initialize SD */
-  while (!SD.begin()) {
-    ; /* wait until SD card is mounted. */
-  }
+#include <Arduino.h>
+#include <Flash.h>
 
-  /* Start USB MSC */
-  if (SD.beginUsbMsc()) {
-    Serial.println("USB MSC Failure!");
-  } else {
-    Serial.println("*** USB MSC Prepared! ***");
-    Serial.println("Insert SD and Connect Extension Board USB to PC.");
-  }
+#define FLASH_MOUNT_POINT "/mnt/spif/"
+
+FlashClass::FlashClass() : StorageClass(FLASH_MOUNT_POINT)
+{
 }
 
-void loop() {
-}
+FlashClass Flash;

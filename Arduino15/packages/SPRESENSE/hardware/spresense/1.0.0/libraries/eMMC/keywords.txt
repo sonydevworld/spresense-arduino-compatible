@@ -6,12 +6,14 @@
 # Datatypes (KEYWORD1)
 #######################################
 
-SDClass	KEYWORD1
+eMMCClass	KEYWORD1
+eMMC	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)
 #######################################
 
+begin	KEYWORD2
 beginUsbMsc	KEYWORD2
 endUsbMsc	KEYWORD2
 format	KEYWORD2

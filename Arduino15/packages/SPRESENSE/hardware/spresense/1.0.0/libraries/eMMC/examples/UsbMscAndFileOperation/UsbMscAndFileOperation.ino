@@ -1,5 +1,5 @@
 /*
- *  UsbMscAndFileOperation.ino - Example to SD File access and USB MSC
+ *  UsbMscAndFileOperation.ino - Example to eMMC File access and USB MSC
  *  Copyright 2019 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
@@ -17,27 +17,24 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <SDHCI.h>
-SDClass SD;
+#include <eMMC.h>
 
 void setup() {
   Serial.begin(115200);
 
-  /* Initialize SD */
-  while (!SD.begin()) {
-    ; /* wait until SD card is mounted. */
-  }
+  /* Initialize eMMC */
+  eMMC.begin();
 }
 
 void loop() {
 
   Serial.println(">>> Start File Operation");
 
-  // Record counter into COUNTER.TXT on SD Card
+  // Record counter into COUNTER.TXT on eMMC
   saveCounter();
 
-  // Display SD Card File List
-  listSDFile();
+  // Display eMMC File List
+  listeMMCFile();
 
   Serial.println("<<< Finish File Operation");
 
@@ -46,7 +43,7 @@ void loop() {
   Serial.println(">>> Start USB Mass Storage Operation");
 
   // Start USB Mass Storage
-  if (SD.beginUsbMsc()) {
+  if (eMMC.beginUsbMsc()) {
     Serial.println("UsbMsc connect error");
   }
 
@@ -62,7 +59,7 @@ void loop() {
   }
 
   // Finish USB Mass Storage
-  if (SD.endUsbMsc()) {
+  if (eMMC.endUsbMsc()) {
     Serial.println("UsbMsc disconnect error");
   }
   Serial.println("<<< Finish USB Mass Storage Operation");
@@ -70,10 +67,10 @@ void loop() {
   delay(1000);
 }
 
-void listSDFile() {
+void listeMMCFile() {
   Serial.println("Size\tFilename");
   Serial.println("----\t--------");
-  File root = SD.open("");
+  File root = eMMC.open("");
   listDirectory(root);
 }
 
@@ -97,7 +94,7 @@ void listDirectory(File dir) {
 void saveCounter(void) {
   static int counter = 0;
 
-  File counterFile = SD.open("COUNTER.TXT", FILE_WRITE);
+  File counterFile = eMMC.open("COUNTER.TXT", FILE_WRITE);
 
   if (counterFile) {
     Serial.print("Counter=");

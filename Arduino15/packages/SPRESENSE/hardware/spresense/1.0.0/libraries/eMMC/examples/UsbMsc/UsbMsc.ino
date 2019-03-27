@@ -1,5 +1,5 @@
 /*
- *  UsbMsc.ino - Example to Open SD Card on the PC as USB Mass Storage
+ *  UsbMsc.ino - Example to Open eMMC on the PC as USB Mass Storage
  *  Copyright 2019 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
@@ -17,23 +17,20 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <SDHCI.h>
-SDClass SD;
+#include <eMMC.h>
 
 void setup() {
   Serial.begin(115200);
 
-  /* Initialize SD */
-  while (!SD.begin()) {
-    ; /* wait until SD card is mounted. */
-  }
+  /* Initialize eMMC */
+  eMMC.begin();
 
   /* Start USB MSC */
-  if (SD.beginUsbMsc()) {
+  if (eMMC.beginUsbMsc()) {
     Serial.println("USB MSC Failure!");
   } else {
     Serial.println("*** USB MSC Prepared! ***");
-    Serial.println("Insert SD and Connect Extension Board USB to PC.");
+    Serial.println("Connect Extension Board USB to PC.");
   }
 }
 

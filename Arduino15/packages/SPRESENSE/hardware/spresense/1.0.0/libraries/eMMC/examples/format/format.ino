@@ -1,5 +1,5 @@
 /*
- *  UsbMsc.ino - Example to Open SD Card on the PC as USB Mass Storage
+ *  format.ino - eMMC format sample application
  *  Copyright 2019 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
@@ -17,25 +17,48 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <SDHCI.h>
-SDClass SD;
+/**
+ * @file format.ino
+ * @author Sony Semiconductor Solutions Corporation
+ * @brief eMMC format sample application.
+ */
 
+#include <Arduino.h>
+#include <eMMC.h>
+
+/**
+ * @brief Write to the file and read from the file.
+ * 
+ * @details The file is located on the eMMC.
+ */
 void setup() {
-  Serial.begin(115200);
 
-  /* Initialize SD */
-  while (!SD.begin()) {
-    ; /* wait until SD card is mounted. */
+  /* Open serial communications and wait for port to open */
+  Serial.begin(115200);
+  while (!Serial) {
+    ; /* wait for serial port to connect. Needed for native USB port only */
   }
 
-  /* Start USB MSC */
-  if (SD.beginUsbMsc()) {
-    Serial.println("USB MSC Failure!");
+  /* Initialize eMMC */
+  Serial.println("eMMC Initialize");
+  eMMC.begin();
+
+  /* FAT32 format eMMC*/
+  Serial.println("eMMC FAT32 format");
+  int ret = eMMC.format();
+
+  if (ret) {
+    Serial.println("Failure!!");
   } else {
-    Serial.println("*** USB MSC Prepared! ***");
-    Serial.println("Insert SD and Connect Extension Board USB to PC.");
+    Serial.println("Success!!");
   }
 }
 
+/**
+ * @brief Run repeatedly.
+ * 
+ * @details Does not do anything.
+ */
 void loop() {
+
 }

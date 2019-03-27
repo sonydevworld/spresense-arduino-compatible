@@ -1,5 +1,5 @@
 /*
- *  read_write.ino - SD card read/write sample application
+ *  read_write.ino - eMMC read/write sample application
  *  Copyright 2019 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
@@ -20,21 +20,19 @@
 /**
  * @file read_write.ino
  * @author Sony Semiconductor Solutions Corporation
- * @brief SD card read/write sample application.
+ * @brief eMMC read/write sample application.
  */
 
 #include <Arduino.h>
-#include <SDHCI.h>
 #include <File.h>
-
-SDClass SD;  /**< SDClass object */ 
+#include <eMMC.h>
 
 File myFile; /**< File object */ 
 
 /**
  * @brief Write to the file and read from the file.
  * 
- * @details The file is located on the SD card.
+ * @details The file is located on the eMMC.
  */
 void setup() {
 
@@ -44,18 +42,15 @@ void setup() {
     ; /* wait for serial port to connect. Needed for native USB port only */
   }
 
-  /* Initialize SD */
-  Serial.print("Insert SD card.");
-  while (!SD.begin()) {
-    ; /* wait until SD card is mounted. */
-  }
+  /* Initialize eMMC */
+  eMMC.begin();
 
   /* Create a new directory */
-  SD.mkdir("dir/");
+  eMMC.mkdir("dir/");
 
   /* Open the file. Note that only one file can be open at a time,
      so you have to close this one before opening another. */
-  myFile = SD.open("dir/test.txt", FILE_WRITE);
+  myFile = eMMC.open("dir/test.txt", FILE_WRITE);
 
   /* If the file opened okay, write to it */
   if (myFile) {
@@ -70,7 +65,7 @@ void setup() {
   }
 
   /* Re-open the file for reading */
-  myFile = SD.open("dir/test.txt");
+  myFile = eMMC.open("dir/test.txt");
 
   if (myFile) {
     Serial.println("test.txt:");
