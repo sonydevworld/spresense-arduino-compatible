@@ -66,8 +66,8 @@ SPIClass SPI5(SPIDEV_PORT_5);
 static inline uint8_t reverse_bits(uint8_t data) inline_function;
 static inline uint8_t reverse_bits(uint8_t data)
 {
-    return (((data & 0x1) << 7)  | ((data & 0x2) << 6)  | ((data & 0x4) << 5)  | ((data & 0x8) << 4) |
-            ((data & 0x10) << 3) | ((data & 0x20) << 2) | ((data & 0x40) << 1) | (data & 0x80));
+    return (((data & 0x01) << 7) | ((data & 0x02) << 5) | ((data & 0x04) << 3) | ((data & 0x08) << 1) |
+            ((data & 0x10) >> 1) | ((data & 0x20) >> 3) | ((data & 0x40) >> 5) | ((data & 0x80) >> 7));
 }
 
 #define lsb2msb(d)  reverse_bits(d) /**< Reverse bits (LSB to MSB). */
