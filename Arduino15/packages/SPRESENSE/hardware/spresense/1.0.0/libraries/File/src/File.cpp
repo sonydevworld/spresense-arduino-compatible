@@ -41,14 +41,10 @@
 #  define DebugPrintf(fmt, ...) ((void)0)
 #endif
 
-#define STDIO_BUFFER_SIZE     4096           /**< STDIO buffer size. */
-
 File::File(const char *name, uint8_t mode)
-: _name(NULL), _fd(NULL), _size(0), _curpos(0), _dir(NULL) {
+: _name(NULL), _fd(-1), _size(0), _curpos(0), _dir(NULL) {
   int stat_ret;
   struct stat stat;
-  String fmode = "";
-  String fplus = "";
   char fpbuf[128];
   int retry = 0;
 
@@ -86,64 +82,18 @@ File::File(const char *name, uint8_t mode)
     _dir = opendir(name);
   }
   else {
-     /* mode to string (r/w/a|X|b|+)*/
-
-    /* Check Plus case */
-    if ((mode & O_RDWR) == O_RDWR) {
-      /* Plus */
-      fplus += "+";
-      if ((mode & O_CREAT) == 0) {
-        /* Read */
-        fmode += "r";
-      } else if (mode & O_APPEND) {
-        /* Append */
-        fmode += "a";
-      } else {
-        /* Write */
-        fmode += "w";
-      }
-    } else {
-      /* Not Plus */
-      if (mode & O_RDOK) {
-        /* Read */
-        fmode += "r";
-      } else if (mode & O_APPEND) {
-        /* Append */
-        fmode += "a";
-      } else {
-        /* Write */
-        fmode += "w";
-      }
-    }
-
-    /* Check executable */
-    if (mode & O_EXCL) {
-      fmode += "X";
-    }
-
-    /* Check binary */
-    if (mode & O_BINARY) {
-      fmode += "b";
-    }
-
-    fmode += fplus;
-
-    _fd = ::fopen(name, fmode.c_str());
-    if (_fd != NULL) {
-      setvbuf(_fd, NULL, _IOLBF, STDIO_BUFFER_SIZE);
-    }
+    _fd = ::open(name, mode);
   }
 
   _name = strdup(name);
-  if (_fd != NULL) {
+  if (_fd >= 0) {
     _size = stat.st_size;
-    ::fseek(_fd, 0, SEEK_CUR);
-    _curpos = ::ftell(_fd);
+    _curpos = ::lseek(_fd, 0, SEEK_CUR);
   }
 }
 
 File::File(void):
-_name(NULL), _fd(NULL), _size(0), _curpos(0), _dir(NULL) {
+_name(NULL), _fd(-1), _size(0), _curpos(0), _dir(NULL) {
 }
 
 File::~File() {
@@ -152,12 +102,12 @@ File::~File() {
 size_t File::write(const uint8_t *buf, size_t size) {
   size_t wrote;
 
-  if (!_fd) {
+  if (_fd < 0) {
     setWriteError();
     return 0;
   }
 
-  wrote = (size_t)::fwrite(buf, sizeof(char), size, _fd);
+  wrote = (size_t)::write(_fd, buf, size);
   if (wrote == size) {
     _curpos += size;
     if (_size < _curpos) {
@@ -178,7 +128,7 @@ int File::read() {
   unsigned char byte;
   int ret = read(&byte, 1);
   if (ret == 1) {
-    return (int)(unsigned int)byte;
+    return (int)byte;
   } else {
     return -1;
   }
@@ -188,7 +138,7 @@ int File::peek() {
   int pos;
   int byte = -1;
 
-  if (_fd) {
+  if (_fd >= 0) {
     pos = position();
     byte = read();
     seek(pos);
@@ -198,23 +148,21 @@ int File::peek() {
 }
 
 int File::available() {
-  if (!_fd) return 0;
+  if (_fd < 0) return 0;
 
-  uint32_t n = size() - position();
-
-  return n > 0X7FFF ? 0X7FFF : n;
+  return size() - position();
 }
 
 void File::flush() {
-  if (_fd)
-    fflush(_fd);
+  if (_fd >= 0)
+    fsync(_fd);
 }
 
 int File::read(void *buf, size_t nbyte) {
   int ret;
 
-  if (_fd) {
-    ret = ::fread(buf, sizeof(char), nbyte, _fd);
+  if (_fd >= 0) {
+    ret = ::read(_fd, buf, nbyte);
     if (ret >= 0) {
       _curpos += nbyte;
       return ret;
@@ -227,11 +175,11 @@ int File::read(void *buf, size_t nbyte) {
 boolean File::seek(uint32_t pos) {
   off_t ofs = -1;
 
-  if (!_fd) return false;
+  if (_fd < 0) return false;
 
-  ofs = ::fseek(_fd, pos, SEEK_SET);
+  ofs = ::lseek(_fd, pos, SEEK_SET);
   if (ofs >= 0) {
-    _curpos = ::ftell(_fd);
+    _curpos = ofs;
     return true;
   } else {
     return false;
@@ -241,20 +189,20 @@ boolean File::seek(uint32_t pos) {
 uint32_t File::position() {
   if (!_fd) return 0;
 
-  _curpos = ::ftell(_fd);
+  _curpos = ::lseek(_fd, 0, SEEK_CUR);
 
   return _curpos;
 }
 
 uint32_t File::size() {
-  if (!_fd) return 0;
+  if (_fd < 0) return 0;
   return _size;
 }
 
 void File::close() {
-  if (_fd) {
-    ::fclose(_fd);
-    _fd = NULL;
+  if (_fd >= 0) {
+    ::close(_fd);
+    _fd = -1;
   }
 
   if (_dir) {
@@ -269,7 +217,7 @@ void File::close() {
 }
 
 File::operator bool() {
-  return (_fd) || (_dir);
+  return (_fd >= 0) || (_dir);
 }
 
 char * File::name() {
