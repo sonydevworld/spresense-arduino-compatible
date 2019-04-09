@@ -1,5 +1,5 @@
 /****************************************************************************
- * pool_layout.h
+ * audio_player/include/memory_layout.h
  *
  *   Copyright 2018 Sony Semiconductor Solutions Corporation
  *
@@ -32,24 +32,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  ****************************************************************************/
+#ifndef __AUDIO_LAYOUT_H_INCLUDED__
+#define __AUDIO_LAYOUT_H_INCLUDED__
 
-#ifndef POOL_LAYOUT_H_INCLUDED
-#define POOL_LAYOUT_H_INCLUDED
+#define MEM_LAYOUT_PLAYER   (0)
+#define MEM_LAYOUT_RECORDER (1)
+#define MEM_LAYOUT_SOUNDEFFECT  (2)
+#define MEM_LAYOUT_RECORDINGPLAYER (3)
+#define MEM_LAYOUT_SENSORS  (4)
 
-#include "memutils/memory_manager/MemMgrTypes.h"
-
-namespace MemMgrLite {
-
-MemPool* static_pools[NUM_MEM_POOLS];
-
-extern const PoolAttr MemoryPoolLayouts[NUM_MEM_LAYOUTS][NUM_MEM_POOLS] = {
- {/* Layout:0 */
-  /* pool_ID          type       seg fence  addr        size         */
-  { SENSOR_DSP_CMD_BUF_POOL, BasicType,   8, false, 0x000e0000, 0x00000380 },  /* SENSOR_WORK_AREA */
-  { ACCEL_DATA_BUF_POOL, BasicType,   8, false, 0x000e0380, 0x00000c00 },  /* SENSOR_WORK_AREA */
- },
-}; /* end of MemoryPoolLayouts */
-
-}  /* end of namespace MemMgrLite */
-
-#endif /* POOL_LAYOUT_H_INCLUDED */
+#endif /* __AUDIO_LAYOUT_H_INCLUDED__ */

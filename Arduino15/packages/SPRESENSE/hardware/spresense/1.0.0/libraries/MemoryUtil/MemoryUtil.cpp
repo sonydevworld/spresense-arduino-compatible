@@ -46,7 +46,7 @@ int initMemoryPools(void)
       return 1;
     }
 
-  uint32_t addr = AUD_SRAM_ADDR;
+  uint32_t addr = SHM_SRAM_ADDR;
 
   ret = mpshm_remap(&s_shm, (void *)addr);
   if (ret < 0)

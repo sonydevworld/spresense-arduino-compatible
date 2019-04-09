@@ -17,38 +17,26 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <BMI160Gen.h>
-#include <Sensor.h>
-#include <MemoryUtil.h>
+#include <ApplicationSensor.h>
+#include <AccelSensor.h>
+#include <StepCounterSensor.h>
+#include <App0Sensor.h>
 
-/* Const values */
 
-const int i2c_addr = 0x68;
-const int baudrate = 115200;
+/* Physical & logical Sensor ID */
+enum {
+  ACCEL_ID       = 1,
+  STEPCOUNTER_ID = stepcounterID,
+  APP0_ID,
+};
 
-const int walking_stride = 60; /* 60cm */
-const int running_stride = 80; /* 80cm */
-
-const int accel_range  = 2;  /* 2G */
-const int accel_rate   = 50; /* 50 Hz */
-const int accel_sample = 50; /* 50 sample */
-
-const int step_counter_rate   = 32; /* 32 Hz */
-const int step_counter_sample = 32; /* 32sample/1process */
-
-const int read_duration = 1000 / accel_rate;
 
 /* Static variable */
 
-static SensorClass *theSensor;
+static ApplicationSensor* theAccelSensor;
+static ApplicationSensor* theStepCounterSensor;
+static ApplicationSensor* theApp0Sensor;
 
-/* Convert table 50Hz to 32Hz */
-
-char freq_convert_table[step_counter_rate] =
-{
-  0, 1, 3, 4, 6, 7, 9, 10, 12, 13, 15, 16, 18, 19, 21, 23, 25,
-  26, 28, 29, 31, 32, 34, 35, 37, 38, 40, 41, 43, 44, 46, 48
-};
 
 /**
  * @brief Display result of sensing
@@ -81,109 +69,49 @@ int step_counter_result(StepCounterStepInfo *result)
  return 0;
 }
 
+
+/****************************************************************************
+ * Callback function for Sensor Class
+ ****************************************************************************/
+static bool step_counter_receive_result(sensor_command_data_mh_t& data)
+{
+  FAR SensorCmdStepCounter *result_data =
+    reinterpret_cast<SensorCmdStepCounter *>(data.mh.getVa());
+  if (SensorOK == result_data->result.exec_result)
+    {
+      if (result_data->exec_cmd.cmd_type == 
+            STEP_COUNTER_CMD_UPDATE_ACCELERATION)
+        {
+          /* Call application callback */
+
+          step_counter_result(&result_data->result.steps);
+        }
+    }
+
+  return true;
+}
+
+
 /**
  * @brief Initialize StepCounter
  */
 void setup()
 {
-  /* Initialize Serial communication. */
-
-  Serial.begin(baudrate);
-
-  /* Wait for the serial port to open. */
-
-  while (!Serial);
-
-  /* Initialize device. */
-
-  BMI160.begin(BMI160GenClass::I2C_MODE, i2c_addr);
-
-  /* Set device setting */
-
-  BMI160.setAccelerometerRange(accel_range);
-  BMI160.setAccelerometerRate(accel_rate);
-
   /* Initialize sensor class */
 
-  theSensor = SensorClass::getInstance();
-  theSensor->begin();
-
-  /* Set stride of StepCounter. */
-
-  step_counter_t param;
-  param.callback = step_counter_result;
-  param.walking_stride = walking_stride;
-  param.running_stride = running_stride;
-  theSensor->startStepCounter(param);
-
-  puts("Start sensing...");
-  puts("-------------------------------------------------------------------------------------");
-  puts("      tempo,     stride,      speed,   distance,    t-stamp,       step,  move-type");
+  theAccelSensor       = new AccelSensor(ACCEL_ID);
+  theStepCounterSensor = new StepCounterSensor(
+                                         STEPCOUNTER_ID,
+                                         1 << ACCEL_ID);
+  theApp0Sensor        = new App0Sensor( APP0_ID,
+                                         1 << STEPCOUNTER_ID,
+                                         step_counter_receive_result);
 }
-static int process_flag = 1;
+
 /**
  * @brief Sensing process
  */
 void loop()
 {
-if(process_flag != 1)
-return;
-
-  /* Static variable for sensing process */
-
-  static int cnt = 0;
-  static accel_float_t data[step_counter_rate];
-  static float x[accel_sample];
-  static float y[accel_sample];
-  static float z[accel_sample];
-  static unsigned long previous_time = millis();
-  static unsigned long adjust_time = 0;
-
-  /* Check reading cycle */
-
-  unsigned long now = millis();
-  if ((now - previous_time) <= (read_duration - adjust_time))
-    {
-      return;
-    }
-
-  adjust_time = now - previous_time - read_duration;
-  if (adjust_time > read_duration)
-    {
-      adjust_time = 0;
-    }
-
-  /* Read raw accelerometer measurements from BMI160 */
-
-  BMI160.readAccelerometerScaled(x[cnt], y[cnt], z[cnt]);
-  cnt += 1;
-
-  /* Check if the sample for one process has accumulated */
-
-  if (cnt == accel_sample)
-    {
-      cnt = 0;
-      accel_float_t *p_data = data;
-
-      /* Convert frequency */
-
-      for(int i = 0; i < step_counter_sample; i++, p_data++)
-        {
-          p_data->x = x[freq_convert_table[i]];
-          p_data->y = y[freq_convert_table[i]];
-          p_data->z = z[freq_convert_table[i]];
-        }
-
-      /* Write Accelarometer data to SensorClass */
-
-      theSensor->write_data(accelID,
-                            data,
-                            step_counter_rate,
-                            step_counter_sample,
-                            now);
-    }
-
-  /* Update previous time */
-
-  previous_time = now;
+  theAccelSensor->write_data((void*)millis());
 }
