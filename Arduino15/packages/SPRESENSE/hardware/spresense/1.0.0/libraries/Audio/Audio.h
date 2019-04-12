@@ -735,6 +735,17 @@ public:
      return m_es_size;
    }
 
+    bool isPlayerFinished(PlayerId id)
+    {
+      CMN_SimpleFifoHandle *handle =
+        (id == Player0) ?
+        &m_player0_simple_fifo_handle : &m_player1_simple_fifo_handle;
+
+      size_t occupied_size = CMN_SimpleFifoGetOccupiedSize(handle);
+
+      return (occupied_size == 0);
+    }
+
 private:
 
   /**
