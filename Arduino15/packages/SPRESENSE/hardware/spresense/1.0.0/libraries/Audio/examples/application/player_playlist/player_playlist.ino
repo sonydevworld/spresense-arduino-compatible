@@ -208,13 +208,21 @@ static void audio_attention_cb(const ErrorAttentionParam *atprm)
 
 void setup()
 {
+  const char *playlist_dirname = "/mnt/sd0/PLAYLIST";
+  bool success;
   Serial.begin(115200);
 
   theSD.begin();
 
   /* init playlist */
 
-  thePlaylist.init("/mnt/sd0/PLAYLIST");
+  success = thePlaylist.init(playlist_dirname);
+  if (!success) {
+    printf("Does not exist playlist %s/TRACK_DB.CSV\n",
+           playlist_dirname);
+    while (1);
+  }
+
   thePlaylist.getNextTrack(&currentTrack);
 
   /* start audio system */
