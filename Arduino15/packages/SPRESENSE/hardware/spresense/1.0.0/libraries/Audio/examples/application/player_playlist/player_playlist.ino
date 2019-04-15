@@ -355,7 +355,8 @@ void loop()
     /*  Tell when player file ends */
 
     if (err == AUDIOLIB_ECODE_FILEEND) {
-      stop();
+      theAudio->stopPlayer(AudioClass::Player0, AS_STOPPLAYER_ESEND);
+      myFile.close();
       next();
       s_state = Ready;
     } else if (err != AUDIOLIB_ECODE_OK) {
