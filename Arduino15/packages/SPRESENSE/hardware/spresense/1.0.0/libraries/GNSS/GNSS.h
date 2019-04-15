@@ -150,7 +150,7 @@ public:
     unsigned short posSatelliteType;    /**< using sv system, bit field; bit0:GPS, bit1:GLONASS */
     double  latitude;   /**< Latitude [degree] */
     double  longitude;  /**< Longitude [degree] */
-    double  altitude;   /**< Altitude [degree] */
+    double  altitude;   /**< Altitude [meter] */
     float   velocity;   /**< Velocity [m/s] */
     float   direction;  /**< Direction [degree] */
     float   pdop;       /**< Position DOP [-] */
