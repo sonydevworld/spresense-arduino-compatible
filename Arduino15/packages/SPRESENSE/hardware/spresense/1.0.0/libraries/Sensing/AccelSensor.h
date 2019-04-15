@@ -1,5 +1,5 @@
 /*
- *  ApplicationSensor.h - Sensing include file for the Spresense SDK
+ *  AccelSensor.h - Sensing include file for the Spresense SDK
  *  Copyright 2018 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
@@ -18,7 +18,7 @@
  */
 
 /**
- * @file ApplicationSensor.h
+ * @file AccelSensor.h
  * @author Sony Semiconductor Solutions Corporation
  * @brief Sensor Library Class for Arduino on Spresense.
  * @details By using this library, you can use the follow features
@@ -26,28 +26,43 @@
  *          - Sensing Steps
  */
 
-#ifndef __APPLICATIONSENSOR_H
-#define __APPLICATIONSENSOR_H
+#ifndef __ACCELSENSOR_H
+#define __ACCELSENSOR_H
 
 #include <SensorClient.h>
 
 
-typedef void (*application_sensor_notify)(int publisher_id, FAR void *result);
+#define MAX_SAMPLE_NUM    (128)
 
 
-class ApplicationSensor : public SensorClient
+class AccelSensor : public SensorClient
 {
 public:
-  ApplicationSensor(
-              int                       id,
-              uint32_t                  subscriptions,
-              application_sensor_notify callback);
+  AccelSensor(int      id,
+              uint32_t subscriptions,
+              int      rate,
+              int      sample_watermark_num,
+              int      size_per_sample);
 
-  int subscribe(sensor_command_data_mh_t& data);
+  /**
+   * @brief 1 Sample data write.
+   */
+
+  int write_data(float x, float y, float z);
 
 private:
-  application_sensor_notify m_callback;
+  struct accel_float_s
+    {
+      float x;  /* X axis standard gravity acceleration.[G] */
+      float y;  /* Y axis standard gravity acceleration.[G] */
+      float z;  /* Z axis standard gravity acceleration.[G] */
+    };
+
+  int                   m_cnt;                   /* private counter */
+  struct accel_float_s  m_data[MAX_SAMPLE_NUM];
+  unsigned long         m_previous_time;
+  unsigned long         m_adjust_time;
 
 };
 
-#endif /* __APPLICATIONSENSOR_H */
+#endif /* __ACCELSENSOR_H */

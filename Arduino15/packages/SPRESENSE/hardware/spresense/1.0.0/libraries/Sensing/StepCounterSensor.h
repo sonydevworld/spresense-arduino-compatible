@@ -1,5 +1,5 @@
 /*
- *  ApplicationSensor.h - Sensing include file for the Spresense SDK
+ *  StepCounterSensor.h - Sensing include file for the Spresense SDK
  *  Copyright 2018 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
@@ -18,7 +18,7 @@
  */
 
 /**
- * @file ApplicationSensor.h
+ * @file StepCounterSensor.h
  * @author Sony Semiconductor Solutions Corporation
  * @brief Sensor Library Class for Arduino on Spresense.
  * @details By using this library, you can use the follow features
@@ -26,28 +26,37 @@
  *          - Sensing Steps
  */
 
-#ifndef __APPLICATIONSENSOR_H
-#define __APPLICATIONSENSOR_H
+#ifndef __STEPCOUNTERSENSOR_H
+#define __STEPCOUNTERSENSOR_H
 
 #include <SensorClient.h>
+#include <sensing/logical_sensor/step_counter.h>
 
 
-typedef void (*application_sensor_notify)(int publisher_id, FAR void *result);
-
-
-class ApplicationSensor : public SensorClient
+class StepCounterSensor : public SensorClient
 {
 public:
-  ApplicationSensor(
-              int                       id,
-              uint32_t                  subscriptions,
-              application_sensor_notify callback);
+  StepCounterSensor(
+               int      id,
+               uint32_t subscriptions,
+               int      rate,
+               int      sample_watermark_num,
+               int      size_per_sample,
+               int      input_rate,
+               int      input_sample_watermark_num,
+               int      input_size_per_sample);
 
   int subscribe(sensor_command_data_mh_t& data);
 
+  int set(uint8_t walking_stride, uint8_t running_stride);
+
+public:
+  int m_input_rate;
+  int m_input_sample_watermark_num;
+  int m_input_size_per_sample;
+
 private:
-  application_sensor_notify m_callback;
+  FAR StepCounterClass *step_counter_ins;
 
 };
-
-#endif /* __APPLICATIONSENSOR_H */
+#endif /* __STEPCOUNTERSENSOR_H */
