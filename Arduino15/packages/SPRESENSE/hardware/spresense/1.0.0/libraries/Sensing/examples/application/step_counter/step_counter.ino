@@ -18,6 +18,9 @@
  */
 
 #include <BMI160Gen.h>
+
+#include <MemoryUtil.h>
+#include <SensorSystem.h>
 #include <AccelSensor.h>
 #include <StepCounterSensor.h>
 #include <ApplicationSensor.h>
@@ -35,8 +38,6 @@ const int accel_range             =  2; /* 2G */
 const int accel_rate              = 50; /* 50 Hz */
 const int accel_sample_num        = 50; /* 50 sample */
 const int accel_sample_size       = sizeof(float) * 3;
-
-
 
 /**
  * @brief Call result of sensing
@@ -101,16 +102,17 @@ unsigned char step_counter_cb(sensor_command_data_mh_t &dat)
  */
 void setup()
 {
+
   /* Initialize Serial communication. */
 
   Serial.begin(baudrate);
+
 
   /* Wait for the serial port to open. */
 
   while (!Serial);
 
   /* Initialize device. */
-
   BMI160.begin(BMI160GenClass::I2C_MODE, i2c_addr);
 
   /* Set device setting */
@@ -119,6 +121,11 @@ void setup()
   BMI160.setAccelerometerRate(accel_rate);
 
   /* Initialize sensor class */
+
+  MemoryUtil.begin();
+  MemoryUtil.setLayout(MEM_LAYOUT_SENSORS);
+
+  SensorSystem.begin();
 
   theAccelSensor       = new AccelSensor(APP_accelID,
                                  0,

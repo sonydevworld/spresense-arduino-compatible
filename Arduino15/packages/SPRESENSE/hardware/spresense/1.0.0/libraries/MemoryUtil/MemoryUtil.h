@@ -17,10 +17,9 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef MemoryUtis_h
-#define MemoryUtis_h
+#ifndef MemoryUtil_h
+#define MemoryUtil_h
 
-// #ifdef __cplusplus
 
 #define _POSIX
 #define USE_MEMMGR_FENCE
@@ -37,12 +36,39 @@
 using namespace MemMgrLite;
 
 /*--------------------------------------------------------------------------*/
-const PoolAttr *getPoolLayout(int layout_no);
-int initMemoryPools(void);
-int createStaticPools(uint8_t layout_no);
-int destroyStaticPools(void);
-int finalizeMemoryPools(void);
 
-// #endif /* __cplusplus */
-#endif /* MemoryUtis_h */
+class MemoryUtilClass
+{
+public:
+
+	MemoryUtilClass():m_state(E_Inactive){}
+	
+	int begin();
+	int setLayout(uint8_t layout_no);
+	int clearLayout();
+	int end();
+	const PoolAttr* getLayout(int layout_no);
+
+private:
+	enum E_state{
+		E_Inactive=0,
+		E_Active,
+		STATE_NUM
+	};
+	
+	E_state m_state;
+};
+
+/*--------------------------------------------------------------------------*/
+extern MemoryUtilClass MemoryUtil;
+
+/*--------------------------------------------------------------------------*/
+extern int initMemoryPools(void);
+extern int createStaticPools(uint8_t layout_no);
+extern int destroyStaticPools(void);
+extern int finalizeMemoryPools(void);
+extern const PoolAttr *getPoolLayout(int layout_no);
+
+
+#endif /* MemoryUtil_h */
 

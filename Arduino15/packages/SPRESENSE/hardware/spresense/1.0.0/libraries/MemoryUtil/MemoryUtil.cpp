@@ -30,14 +30,26 @@ using namespace MemMgrLite;
 static mpshm_t s_shm;
 
 /*--------------------------------------------------------------------------*/
-const PoolAttr *getPoolLayout(int layout_no)
+int initMemoryPools(void){ return MemoryUtil.begin(); }
+int createStaticPools(uint8_t layout_no){ return MemoryUtil.setLayout(layout_no); }
+int destroyStaticPools(void) { return MemoryUtil.clearLayout(); }
+int finalizeMemoryPools(void) { return MemoryUtil.end(); }
+const PoolAttr *getPoolLayout(int layout_no){ return MemoryUtil.getLayout(layout_no); }
+
+
+/*--------------------------------------------------------------------------*/
+const PoolAttr* MemoryUtilClass::getLayout(int layout_no)
 {
   return MemoryPoolLayouts[layout_no];
 }
 
 /*--------------------------------------------------------------------------*/
-int initMemoryPools(void)
+int MemoryUtilClass::begin(void)
 {
+
+  if(m_state == E_Active){
+  	return 2;
+  }
 
   int ret = mpshm_init(&s_shm, 1,  RAM_TILE_SIZE * 2); /* Used 2 Tile */
   if (ret < 0)
@@ -68,11 +80,13 @@ int initMemoryPools(void)
 
   Manager::initPerCpu(mml_data_area, NUM_MEM_POOLS);
 
+  m_state = E_Active;
+
   return 0;
 }
 
 /*--------------------------------------------------------------------------*/
-int createStaticPools(uint8_t layout_no)
+int MemoryUtilClass::setLayout(uint8_t layout_no)
 {
   void* work_va = translatePoolAddrToVa(MEMMGR_WORK_AREA_ADDR);
 
@@ -85,7 +99,7 @@ int createStaticPools(uint8_t layout_no)
 }
 
 /*--------------------------------------------------------------------------*/
-int destroyStaticPools(void)
+int MemoryUtilClass::clearLayout(void)
 {
   Manager::destroyStaticPools();
 
@@ -93,8 +107,14 @@ int destroyStaticPools(void)
 }
 
 /*--------------------------------------------------------------------------*/
-int finalizeMemoryPools(void)
+int MemoryUtilClass::end(void)
 {
+
+
+  if(m_state == E_Inactive){
+  	return 2;
+  }
+
   /* Finalize MessageLib. */
 
   MsgLib::finalize();
@@ -124,6 +144,11 @@ int finalizeMemoryPools(void)
       return 1;
     }
 
+  m_state = E_Inactive;
+
   return 0;
 }
+
+/*--------------------------------------------------------------------------*/
+MemoryUtilClass MemoryUtil;
 

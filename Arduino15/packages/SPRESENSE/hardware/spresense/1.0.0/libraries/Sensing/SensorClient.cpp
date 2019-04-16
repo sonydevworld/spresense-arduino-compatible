@@ -18,29 +18,9 @@
  */
 #include <SensorClient.h>
 
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-static bool isFirst = true;  /* First instance */
-
-
 /****************************************************************************
  * Callback function for Sensor Class
  ****************************************************************************/
-static void sensor_manager_api_response(unsigned int code,
-                                        unsigned int ercd,
-                                        unsigned int self)
-{
-  if (ercd != SS_ECODE_OK)
-    {
-      printf("Error: get api response. code %d, ercd %d, self %d\n",
-                code, ercd, self);
-    }
-
-  return;
-}
-
 SensorClient::SensorClient(int      id,
                            uint32_t subscriptions,
                            int      rate,
@@ -52,18 +32,6 @@ SensorClient::SensorClient(int      id,
   m_rate                 = rate;
   m_sample_watermark_num = sample_watermark_num;
   m_size_per_sample      = size_per_sample;
-
-  if (isFirst)
-    {
-      initMemoryPools();
-      createStaticPools(MEM_LAYOUT_SENSORS);
-
-      /* Create sensor manager pthread */
-
-      SS_ActivateSensorSubSystem(MSGQ_SEN_MGR, sensor_manager_api_response);
-
-      isFirst = false;
-    }
 
   /* ID range check */
 

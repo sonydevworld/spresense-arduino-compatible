@@ -53,9 +53,6 @@
 
 #include <MemoryUtil.h>
 
-#include "memutil/msgq_id.h"
-#include "memutil/mem_layout.h"
-
 
 /**
  * Physical and logical sensor ID definitions.
