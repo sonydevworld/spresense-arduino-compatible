@@ -36,14 +36,29 @@ class ApplicationSensor : public SensorClient
 {
 public:
   ApplicationSensor(
-              int                    id,
-              uint32_t               subscriptions,
-              sensor_data_callback_t callback);
+              int                       id,
+              uint32_t                  subscriptions,
+              sensor_data_mh_callback_t callback);
 
-//  int subscribe(sensor_command_data_mh_t& data);
+  int subscribe(sensor_command_data_mh_t& data);
 
 private:
 
 };
+
+class StepCountReader : public ApplicationSensor
+{
+public:
+  StepCountReader(
+              int                       id,
+              uint32_t                  subscriptions,
+              sensor_data_mh_callback_t callback);
+
+  int subscribe(sensor_command_data_mh_t& data);
+
+private:
+
+};
+
 
 #endif /* __APPLICATIONSENSOR_H */

@@ -60,7 +60,6 @@ static void sensor_manager_api_response(unsigned int code,
 
 bool SensorSystemClass::begin()
 {
-
 	return SS_ActivateSensorSubSystem(MSGQ_SEN_MGR, sensor_manager_api_response);
 }
 

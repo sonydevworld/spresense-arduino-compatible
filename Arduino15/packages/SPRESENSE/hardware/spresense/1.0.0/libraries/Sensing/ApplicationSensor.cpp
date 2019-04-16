@@ -18,13 +18,45 @@
  */
 
 #include <ApplicationSensor.h>
+#include <StepCounterSensor.h>
 
 
 ApplicationSensor::ApplicationSensor(
-              int                       id,
-              uint32_t                  subscriptions,
-              sensor_data_callback_t    callback) :
+              int                          id,
+              uint32_t                     subscriptions,
+              sensor_data_mh_callback_t    callback) :
   SensorClient(id, subscriptions, callback)
 {
+}
+
+
+int ApplicationSensor::subscribe(sensor_command_data_mh_t& data)
+{
+	return (int)data.mh.getVa();
+}
+
+StepCountReader::StepCountReader(
+              int                          id,
+              uint32_t                     subscriptions,
+              sensor_data_mh_callback_t    callback) :
+  ApplicationSensor(id, subscriptions, callback)
+{
+}
+
+int StepCountReader::subscribe(sensor_command_data_mh_t& data)
+{
+  FAR SensorCmdStepCounter *result_data = 
+    reinterpret_cast<SensorCmdStepCounter *>(data.mh.getVa());
+  if (SensorOK != result_data->result.exec_result)
+    {
+      return 1;
+    }
+  if (result_data->exec_cmd.cmd_type != 
+            STEP_COUNTER_CMD_UPDATE_ACCELERATION)
+    {
+      return 1;
+    }
+	
+	return (int)&result_data->result.steps;
 }
 

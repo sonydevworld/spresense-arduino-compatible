@@ -60,7 +60,7 @@ SensorClient::SensorClient(int      id,
 
 SensorClient::SensorClient(int      id,
                            uint32_t subscriptions,
-                           sensor_data_callback_t cb)
+                           sensor_data_mh_callback_t cb)
 {
   m_id                   = id;
   m_rate                 = 0;
@@ -79,8 +79,8 @@ SensorClient::SensorClient(int      id,
       reg.header.code     = ResisterClient;
       reg.self            = id;
       reg.subscriptions   = subscriptions; 
-      reg.callback        = cb;
-      reg.callback_mh     = NULL;
+      reg.callback        = NULL;
+      reg.callback_mh     = cb;
       SS_SendSensorResister(&reg);
 
     }

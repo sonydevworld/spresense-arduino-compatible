@@ -39,27 +39,20 @@ const int accel_rate              = 50; /* 50 Hz */
 const int accel_sample_num        = 50; /* 50 sample */
 const int accel_sample_size       = sizeof(float) * 3;
 
+/* Static variable */
+
+static AccelSensor*       theAccelSensor;
+static StepCounterSensor* theStepCounterSensor;
+static StepCountReader*   theStepCountReader;
+
 /**
  * @brief Call result of sensing
  */
-unsigned char step_counter_result(sensor_command_data_t &dat)
+unsigned char step_counter_result(sensor_command_data_mh_t &data)
 {
-  
-  FAR SensorCmdStepCounter *result_data = 
-    reinterpret_cast<SensorCmdStepCounter *>(dat.adr);
-  if (SensorOK != result_data->result.exec_result)
-    {
-      return 1;
-    }
-  if (result_data->exec_cmd.cmd_type != 
-            STEP_COUNTER_CMD_UPDATE_ACCELERATION)
-    {
-      return 1;
-    }
-
   /* Display result of sensing */
 
-  StepCounterStepInfo* steps = &result_data->result.steps;
+  StepCounterStepInfo* steps = (StepCounterStepInfo*)theStepCountReader->subscribe(data);
 
   printf("   %8ld,   %8ld,   %8ld,   %8ld,   %8lld,   %8ld,",
                (uint32_t)steps->tempo,
@@ -86,13 +79,6 @@ unsigned char step_counter_result(sensor_command_data_t &dat)
     }
   return 0;
 }
-
-
-/* Static variable */
-
-static AccelSensor*       theAccelSensor;
-static StepCounterSensor* theStepCounterSensor;
-static ApplicationSensor* theApplicationSensor;
 
 unsigned char step_counter_cb(sensor_command_data_mh_t &dat)
 {
@@ -143,7 +129,7 @@ void setup()
                                  accel_sample_size,
                                  step_counter_cb);
 
-  theApplicationSensor = new ApplicationSensor(
+  theStepCountReader = new StepCountReader(
                                  APP_app0ID,
                                  1 << APP_stepcounterID,
                                  step_counter_result);

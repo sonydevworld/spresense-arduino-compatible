@@ -106,7 +106,7 @@ public:
 
   SensorClient(int      id,
                uint32_t subscriptions,
-	           sensor_data_callback_t cb);
+	           sensor_data_mh_callback_t cb);
 
 /**
    * @brief Write sensing data from buffer
