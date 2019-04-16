@@ -32,21 +32,17 @@
 #include <SensorClient.h>
 
 
-typedef void (*application_sensor_notify)(int publisher_id, FAR void *result);
-
-
 class ApplicationSensor : public SensorClient
 {
 public:
   ApplicationSensor(
-              int                       id,
-              uint32_t                  subscriptions,
-              application_sensor_notify callback);
+              int                    id,
+              uint32_t               subscriptions,
+              sensor_data_callback_t callback);
 
-  int subscribe(sensor_command_data_mh_t& data);
+//  int subscribe(sensor_command_data_mh_t& data);
 
 private:
-  application_sensor_notify m_callback;
 
 };
 

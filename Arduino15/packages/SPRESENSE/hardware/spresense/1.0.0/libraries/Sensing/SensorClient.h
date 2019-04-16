@@ -104,7 +104,11 @@ public:
                int      size_per_sample      = 0,
                sensor_data_mh_callback_t cb  =NULL);
 
-  /**
+  SensorClient(int      id,
+               uint32_t subscriptions,
+	           sensor_data_callback_t cb);
+
+/**
    * @brief Write sensing data from buffer
    *
    * @details This function writes from the buffer

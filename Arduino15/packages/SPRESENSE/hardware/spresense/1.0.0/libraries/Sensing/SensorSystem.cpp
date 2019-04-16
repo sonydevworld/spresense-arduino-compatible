@@ -33,6 +33,7 @@
 
 
 #include <SensorSystem.h>
+#include <MemoryUtil.h>
 
 
 SensorSystemClass SensorSystem;
@@ -59,8 +60,6 @@ static void sensor_manager_api_response(unsigned int code,
 
 bool SensorSystemClass::begin()
 {
-      initMemoryPools();
-      createStaticPools(MEM_LAYOUT_SENSORS);
 
 	return SS_ActivateSensorSubSystem(MSGQ_SEN_MGR, sensor_manager_api_response);
 }

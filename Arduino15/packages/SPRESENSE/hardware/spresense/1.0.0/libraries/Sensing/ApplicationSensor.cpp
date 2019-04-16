@@ -23,16 +23,8 @@
 ApplicationSensor::ApplicationSensor(
               int                       id,
               uint32_t                  subscriptions,
-              application_sensor_notify callback) :
-  SensorClient(id, subscriptions)
+              sensor_data_callback_t    callback) :
+  SensorClient(id, subscriptions, callback)
 {
-  m_callback = callback;
 }
 
-
-int ApplicationSensor::subscribe(sensor_command_data_mh_t& data)
-{
-  (*m_callback)(data.get_self(), data.mh.getVa());
-
-  return 0;
-}

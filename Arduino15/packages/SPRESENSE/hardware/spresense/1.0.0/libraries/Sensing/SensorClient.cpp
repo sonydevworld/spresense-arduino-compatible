@@ -58,6 +58,39 @@ SensorClient::SensorClient(int      id,
     }
 }
 
+SensorClient::SensorClient(int      id,
+                           uint32_t subscriptions,
+                           sensor_data_callback_t cb)
+{
+  m_id                   = id;
+  m_rate                 = 0;
+  m_sample_watermark_num = 0;
+  m_size_per_sample      = 0;
+
+  /* ID range check */
+
+  if (id < APP_ID_MAX)
+    {
+      /* Registed sensor ID */
+
+      sensor_command_register_t reg;
+
+      reg.header.size     = 0;
+      reg.header.code     = ResisterClient;
+      reg.self            = id;
+      reg.subscriptions   = subscriptions; 
+      reg.callback        = cb;
+      reg.callback_mh     = NULL;
+      SS_SendSensorResister(&reg);
+
+    }
+  else
+    {
+      /* Fatal error occured. */
+
+      printf("Fail ID out of range.\n");
+    }
+}
 
 int SensorClient::publish(PoolId    id,
                           FAR void* data,

@@ -42,18 +42,19 @@ const int accel_sample_size       = sizeof(float) * 3;
 /**
  * @brief Call result of sensing
  */
-void step_counter_result(int id, void *result)
+unsigned char step_counter_result(sensor_command_data_t &dat)
 {
-  FAR SensorCmdStepCounter *result_data =
-    reinterpret_cast<SensorCmdStepCounter *>(result);
+  
+  FAR SensorCmdStepCounter *result_data = 
+    reinterpret_cast<SensorCmdStepCounter *>(dat.adr);
   if (SensorOK != result_data->result.exec_result)
     {
-      return;
+      return 1;
     }
   if (result_data->exec_cmd.cmd_type != 
             STEP_COUNTER_CMD_UPDATE_ACCELERATION)
     {
-      return;
+      return 1;
     }
 
   /* Display result of sensing */
@@ -83,6 +84,7 @@ void step_counter_result(int id, void *result)
         puts("   UNKNOWN");
         break;
     }
+  return 0;
 }
 
 
