@@ -19,14 +19,24 @@
 
 #include <SDHCI.h>
 #include <Audio.h>
+#include <EEPROM.h>
 #include <audio/utilities/playlist.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 SDClass theSD;
 AudioClass *theAudio;
 Playlist thePlaylist("TRACK_DB.CSV");
 Track currentTrack;
-int volume = -160;
+
+int eeprom_idx = 0;
+struct SavedObject {
+  int saved;
+  int volume;
+  int random;
+  int repeat;
+  int autoplay;
+} preset;
 
 File myFile;
 
@@ -38,6 +48,7 @@ static void menu()
   printf("p: play  s: stop  +/-: volume up/down\n");
   printf("l: list  n: next  b: back\n");
   printf("r: repeat on/off  R: random on/off\n");
+  printf("a: auto play      m,h,?: menu\n");
   printf("=====================================\n");
 }
 
@@ -68,17 +79,23 @@ static void list()
   }
 }
 
-static void next()
+static bool next()
 {
   if (thePlaylist.getNextTrack(&currentTrack)) {
     show(&currentTrack);
+    return true;
+  } else {
+    return false;
   }
 }
 
-static void prev()
+static bool prev()
 {
   if (thePlaylist.getPrevTrack(&currentTrack)) {
     show(&currentTrack);
+    return true;
+  } else {
+    return false;
   }
 }
 
@@ -155,7 +172,7 @@ static bool start()
   err_t err;
   Track *t = &currentTrack;
 
-  /* Set Player */
+  /* Prepare for playback with the specified track */
 
   err = setPlayer(t);
 
@@ -210,34 +227,73 @@ void setup()
 {
   const char *playlist_dirname = "/mnt/sd0/PLAYLIST";
   bool success;
+
+  /* Display menu */
+
   Serial.begin(115200);
+  menu();
+
+  /* Load preset data */
+
+  EEPROM.get(eeprom_idx, preset);
+  if (!preset.saved) {
+    /* If no preset data, come here */
+    preset.saved = 1;
+    preset.volume = -160; /* default */
+    preset.random = 0;
+    preset.repeat = 0;
+    preset.autoplay = 0;
+    EEPROM.put(eeprom_idx, preset);
+  }
+  printf("Volume=%d\n", preset.volume);
+  printf("Random=%s\n", (preset.random) ? "On" : "Off");
+  printf("Repeat=%s\n", (preset.repeat) ? "On" : "Off");
+  printf("Auto=%s\n", (preset.autoplay) ? "On" : "Off");
+
+  /* Use SD card */
 
   theSD.begin();
 
-  /* init playlist */
+  /* Initialize playlist */
 
   success = thePlaylist.init(playlist_dirname);
   if (!success) {
-    printf("Does not exist playlist %s/TRACK_DB.CSV\n",
+    printf("ERROR: no exist playlist file %s/TRACK_DB.CSV\n",
            playlist_dirname);
     while (1);
   }
 
+  /* Set random seed to use shuffle mode */
+
+  struct timespec ts;
+  clock_systimespec(&ts);
+  srand((unsigned int)ts.tv_nsec);
+
+  /* Restore preset data */
+
+  if (preset.random) {
+    thePlaylist.setPlayMode(Playlist::PlayModeShuffle);
+  }
+
+  if (preset.repeat) {
+    thePlaylist.setRepeatMode(Playlist::RepeatModeOn);
+  }
+
   thePlaylist.getNextTrack(&currentTrack);
 
-  /* start audio system */
+  if (preset.autoplay) {
+    show(&currentTrack);
+  }
+
+  /* Start audio system */
 
   theAudio = AudioClass::getInstance();
 
   theAudio->begin(audio_attention_cb);
 
-  /* Main volume set to default */
+  /* Set main volume */
 
-  theAudio->setVolume(volume);
-
-  /* Menu display */
-
-  menu();
+  theAudio->setVolume(preset.volume);
 
 }
 
@@ -247,9 +303,7 @@ void loop()
     Stopped,
     Ready,
     Active
-  } s_state = Stopped;
-  static bool s_repeat = false;
-  static bool s_random = false;
+  } s_state = preset.autoplay ? Ready : Stopped;
   err_t err = AUDIOLIB_ECODE_OK;
 
   /* Fatal error */
@@ -259,8 +313,18 @@ void loop()
   }
 
   /* Menu operation */
+
   if (Serial.available() > 0) {
     switch (Serial.read()) {
+    case 'a': // autoplay
+      if (preset.autoplay) {
+        preset.autoplay = 0;
+      } else {
+        preset.autoplay = 1;
+      }
+      printf("Auto=%s\n", (preset.autoplay) ? "On" : "Off");
+      EEPROM.put(eeprom_idx, preset);
+      break;
     case 'p': // play
       if (s_state == Stopped) {
         s_state = Ready;
@@ -272,21 +336,27 @@ void loop()
       s_state = Stopped;
       break;
     case '+': // volume up
-      volume += 10;
-      if (volume > 120)
-        volume = 120;
-      printf("Volume=%d\n", volume);
-      theAudio->setVolume(volume);
+      preset.volume += 10;
+      if (preset.volume > 120) {
+        /* set max volume */
+        preset.volume = 120;
+      }
+      printf("Volume=%d\n", preset.volume);
+      theAudio->setVolume(preset.volume);
+      EEPROM.put(eeprom_idx, preset);
       break;
     case '-': // volume down
-      volume -= 10;
-      if (volume < -1020)
-        volume = -1020;
-      printf("Volume=%d\n", volume);
-      theAudio->setVolume(volume);
+      preset.volume -= 10;
+      if (preset.volume < -1020) {
+        /* set min volume */
+        preset.volume = -1020;
+      }
+      printf("Volume=%d\n", preset.volume);
+      theAudio->setVolume(preset.volume);
+      EEPROM.put(eeprom_idx, preset);
       break;
     case 'l': // list
-      if (s_repeat) {
+      if (preset.repeat) {
         thePlaylist.setRepeatMode(Playlist::RepeatModeOff);
         list();
         thePlaylist.setRepeatMode(Playlist::RepeatModeOn);
@@ -299,7 +369,9 @@ void loop()
         stop();
         s_state = Ready;
       }
-      next();
+      if (!next()) {
+        s_state = Stopped;
+      }
       break;
     case 'b': // back
       if (s_state != Stopped) {
@@ -309,33 +381,30 @@ void loop()
       prev();
       break;
     case 'r': // repeat
-      if (s_repeat) {
-        s_repeat = false;
+      if (preset.repeat) {
+        preset.repeat = 0;
         thePlaylist.setRepeatMode(Playlist::RepeatModeOff);
       } else {
-        s_repeat = true;
+        preset.repeat = 1;
         thePlaylist.setRepeatMode(Playlist::RepeatModeOn);
       }
-      printf("Repeat=%s\n", (s_repeat) ? "On" : "Off");
+      printf("Repeat=%s\n", (preset.repeat) ? "On" : "Off");
+      EEPROM.put(eeprom_idx, preset);
       break;
     case 'R': // random
-      if (s_random) {
-        s_random = false;
+      if (preset.random) {
+        preset.random = 0;
         thePlaylist.setPlayMode(Playlist::PlayModeNormal);
       } else {
-        s_random = true;
+        preset.random = 1;
         thePlaylist.setPlayMode(Playlist::PlayModeShuffle);
-        if (s_state == Stopped) {
-          // When random mode is entered in stopped state,
-          // skip to prevent the same title from being selected.
-          next();
-          next();
-        }
       }
-      printf("Random=%s\n", (s_random) ? "On" : "Off");
+      printf("Random=%s\n", (preset.random) ? "On" : "Off");
+      EEPROM.put(eeprom_idx, preset);
       break;
     case 'm':
     case 'h':
+    case '?':
       menu();
       break;
     default:
@@ -343,30 +412,36 @@ void loop()
     }
   }
 
+  /* Processing in accordance with the state */
+
   switch (s_state) {
   case Stopped:
     break;
 
   case Ready:
-    if (!start()) {
-      goto stop_player;
-    } else {
+    if (start()) {
       s_state = Active;
+    } else {
+      goto stop_player;
     }
     break;
 
   case Active:
-    /* Send new frames to decode in a loop until file ends */
+    /* Send new frames to be decoded until end of file */
 
     err = theAudio->writeFrames(AudioClass::Player0, myFile);
 
-    /*  Tell when player file ends */
-
     if (err == AUDIOLIB_ECODE_FILEEND) {
+      /* Stop player after playback until end of file */
+
       theAudio->stopPlayer(AudioClass::Player0, AS_STOPPLAYER_ESEND);
       myFile.close();
-      next();
-      s_state = Ready;
+      if (next()) {
+        s_state = Ready;
+      } else {
+        /* If no next track, stop the player */
+        s_state = Stopped;
+      }
     } else if (err != AUDIOLIB_ECODE_OK) {
       printf("Main player error code: %d\n", err);
       goto stop_player;
@@ -383,8 +458,6 @@ void loop()
    */
 
   usleep(1000);
-
-  /* Don't go further and continue play */
 
   return;
 
