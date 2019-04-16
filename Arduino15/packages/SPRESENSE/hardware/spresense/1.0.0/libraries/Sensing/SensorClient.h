@@ -104,7 +104,8 @@ public:
                uint32_t subscriptions        = 0,
                int      rate                 = 0,
                int      sample_watermark_num = 0,
-               int      size_per_sample      = 0);
+               int      size_per_sample      = 0,
+               sensor_data_mh_callback_t cb  =NULL);
 
   /**
    * @brief Write sensing data from buffer

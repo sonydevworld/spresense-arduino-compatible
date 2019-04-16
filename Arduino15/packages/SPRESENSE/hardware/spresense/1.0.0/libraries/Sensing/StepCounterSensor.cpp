@@ -36,21 +36,22 @@ char freq_convert_table[] =
   25, 26, 28, 29, 31, 32, 34, 35, 37, 38, 40, 41, 43, 44, 46, 48
 };
 
+const int step_counter_rate       = 32; /* 32 Hz */
+const int step_counter_sample_num = 32; /* 32sample/1process */
 
 StepCounterSensor::StepCounterSensor(
                        int      id,
                        uint32_t subscriptions,
-                       int      rate,
-                       int      sample_watermark_num,
-                       int      size_per_sample,
                        int      input_rate,
                        int      input_sample_watermark_num,
-                       int      input_size_per_sample) : 
+                       int      input_size_per_sample,
+                       sensor_data_mh_callback_t cb) : 
   SensorClient(id,
                subscriptions,
-               rate,
-               sample_watermark_num,
-               size_per_sample)
+               step_counter_rate,
+               step_counter_sample_num,
+               input_size_per_sample,
+               cb)
 {
   m_input_rate                 = input_rate;
   m_input_sample_watermark_num = input_sample_watermark_num;

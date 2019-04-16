@@ -36,8 +36,6 @@ const int accel_rate              = 50; /* 50 Hz */
 const int accel_sample_num        = 50; /* 50 sample */
 const int accel_sample_size       = sizeof(float) * 3;
 
-const int step_counter_rate       = 32; /* 32 Hz */
-const int step_counter_sample_num = 32; /* 32sample/1process */
 
 
 /**
@@ -93,6 +91,10 @@ static AccelSensor*       theAccelSensor;
 static StepCounterSensor* theStepCounterSensor;
 static ApplicationSensor* theApplicationSensor;
 
+unsigned char step_counter_cb(sensor_command_data_mh_t &dat)
+{
+  return theStepCounterSensor->subscribe(dat);
+}
 
 /**
  * @brief Initialize StepCounter
@@ -123,15 +125,15 @@ void setup()
                                  accel_rate,
                                  accel_sample_num,
                                  accel_sample_size);
+
   theStepCounterSensor = new StepCounterSensor(
                                  APP_stepcounterID,
                                  1 << APP_accelID,
-                                 step_counter_rate,
-                                 step_counter_sample_num,
-                                 accel_sample_size,
                                  accel_rate,
                                  accel_sample_num,
-                                 accel_sample_size);
+                                 accel_sample_size,
+                                 step_counter_cb);
+
   theApplicationSensor = new ApplicationSensor(
                                  APP_app0ID,
                                  1 << APP_stepcounterID,

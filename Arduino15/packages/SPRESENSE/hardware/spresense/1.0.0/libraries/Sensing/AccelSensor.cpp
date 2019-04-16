@@ -29,7 +29,8 @@ AccelSensor::AccelSensor(int      id,
                subscriptions,
                rate,
                sample_watermark_num,
-               size_per_sample)
+               size_per_sample,
+               NULL)
 {
   /* Init private parameters. */
 

@@ -39,24 +39,23 @@ public:
   StepCounterSensor(
                int      id,
                uint32_t subscriptions,
-               int      rate,
-               int      sample_watermark_num,
-               int      size_per_sample,
                int      input_rate,
                int      input_sample_watermark_num,
-               int      input_size_per_sample);
+               int      input_size_per_sample,
+               sensor_data_mh_callback_t cb);
 
   int subscribe(sensor_command_data_mh_t& data);
 
   int set(uint8_t walking_stride, uint8_t running_stride);
 
-public:
+
+private:
   int m_input_rate;
   int m_input_sample_watermark_num;
   int m_input_size_per_sample;
 
-private:
-  FAR StepCounterClass *step_counter_ins;
+
+	FAR StepCounterClass *step_counter_ins;
 
 };
 #endif /* __STEPCOUNTERSENSOR_H */
