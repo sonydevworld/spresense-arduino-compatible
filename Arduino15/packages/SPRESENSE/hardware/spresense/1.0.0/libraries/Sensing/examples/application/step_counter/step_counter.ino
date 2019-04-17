@@ -53,13 +53,16 @@ unsigned char step_counter_result(sensor_command_data_mh_t &data)
   /* Display result of sensing */
 
   StepCounterStepInfo* steps = (StepCounterStepInfo*)theStepCountReader->subscribe(data);
+  
+  if (steps == NULL)
+    {
+      return 0;
+    }
 
-  printf("   %8ld,   %8ld,   %8ld,   %8ld,   %8lld,   %8ld,",
+  printf("   %8ld,   %8ld,   %8ld,   %8ld,",
                (uint32_t)steps->tempo,
                (uint32_t)steps->stride,
                (uint32_t)steps->speed,
-               (uint32_t)steps->distance,
-               steps->time_stamp,
                steps->step);
 
   switch (steps->movement_type)
@@ -90,17 +93,16 @@ unsigned char step_counter_cb(sensor_command_data_mh_t &dat)
  */
 void setup()
 {
-
   /* Initialize Serial communication. */
 
   Serial.begin(baudrate);
-
 
   /* Wait for the serial port to open. */
 
   while (!Serial);
 
   /* Initialize device. */
+
   BMI160.begin(BMI160GenClass::I2C_MODE, i2c_addr);
 
   /* Set device setting */
@@ -123,7 +125,7 @@ void setup()
 
   theStepCounterSensor = new StepCounterSensor(
                                  APP_stepcounterID,
-                                 1 << APP_accelID,
+                                 SUBSCRIPTION(APP_accelID),
                                  accel_rate,
                                  accel_sample_num,
                                  accel_sample_size,
@@ -131,7 +133,7 @@ void setup()
 
   theStepCountReader = new StepCountReader(
                                  APP_app0ID,
-                                 1 << APP_stepcounterID,
+                                 SUBSCRIPTION(APP_stepcounterID),
                                  step_counter_result);
 
   /* Initialize StepCounter parameters */
@@ -140,8 +142,8 @@ void setup()
 
 
   puts("Start sensing...");
-  puts("-------------------------------------------------------------------------------------");
-  puts("      tempo,     stride,      speed,   distance,    t-stamp,       step,  move-type");
+  puts("-----------------------------------------------------------");
+  puts("      tempo,     stride,      speed,       step,  move-type");
 }
 
 /**

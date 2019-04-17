@@ -21,6 +21,7 @@
 /****************************************************************************
  * Callback function for Sensor Class
  ****************************************************************************/
+
 SensorClient::SensorClient(int      id,
                            uint32_t subscriptions,
                            int      rate,
@@ -92,6 +93,7 @@ SensorClient::SensorClient(int      id,
     }
 }
 
+
 int SensorClient::publish(PoolId    id,
                           FAR void* data,
                           uint32_t  size_per_sample,
@@ -120,6 +122,28 @@ int SensorClient::publish(PoolId    id,
 
   memcpy(p_dst, (char *)data, size_per_sample * sample_watermark_num);
 
+  /* Send data to logical sensor. */
+
+  sensor_command_data_mh_t packet;
+  packet.header.size = 0;
+  packet.header.code = SendData;
+  packet.self        = m_id;
+  packet.time        = timestamp & 0xFFFFFF; /* 24bits */
+  packet.fs          = freq;
+  packet.size        = sample_watermark_num;
+  packet.mh          = mh;
+  SS_SendSensorDataMH(&packet);
+
+  return ERR_OK;
+}
+
+
+int SensorClient::publish(MemMgrLite::MemHandle& mh,
+                          uint32_t               size_per_sample,
+                          uint32_t               freq,
+                          uint32_t               sample_watermark_num,
+                          uint32_t               timestamp)
+{
   /* Send data to logical sensor. */
 
   sensor_command_data_mh_t packet;

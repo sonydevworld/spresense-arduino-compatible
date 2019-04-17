@@ -32,9 +32,6 @@
 #include <SensorClient.h>
 
 
-#define MAX_SAMPLE_NUM    (128)
-
-
 class AccelSensor : public SensorClient
 {
 public:
@@ -59,9 +56,8 @@ private:
     };
 
   int                   m_cnt;                   /* private counter */
-  struct accel_float_s  m_data[MAX_SAMPLE_NUM];
   unsigned long         m_previous_time;
-  unsigned long         m_adjust_time;
+  MemMgrLite::MemHandle m_mh;
 
 };
 

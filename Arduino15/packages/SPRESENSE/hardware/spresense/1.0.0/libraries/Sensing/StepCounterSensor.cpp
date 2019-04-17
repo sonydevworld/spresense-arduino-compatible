@@ -86,22 +86,10 @@ int StepCounterSensor::set(uint8_t walking_stride,
 int StepCounterSensor::subscribe(sensor_command_data_mh_t& data)
 {
   FAR char* pSrc = 
-      reinterpret_cast<char*>(data.mh.getVa());
+      reinterpret_cast<char*>(data.mh.getPa());
+  FAR char* pDst = pSrc;
 
-  MemMgrLite::MemHandle mh;
-
-  /* Allocate memory for output. */
-
-  if (ERR_OK != mh.allocSeg(
-                   STEP_DATA_BUF_POOL,
-                   m_size_per_sample * m_sample_watermark_num))
-    {
-      /* Fatal error occured. */
-
-      printf("Fail to allocate segment of memory handle.\n");
-      return ERR_NG;
-    }
-  FAR char *pDst = reinterpret_cast<char *>(mh.getPa());
+  assert(m_sample_watermark_num <= m_input_sample_watermark_num);
 
   /* Convert data from input to output. */
 
@@ -115,13 +103,8 @@ int StepCounterSensor::subscribe(sensor_command_data_mh_t& data)
       pDst += m_size_per_sample;
     }
 
-  /* Free input data. */
-
-  data.mh.freeSeg();
-
   /* Change output params. */
 
-  data.mh   = mh;
   data.fs   = m_rate;
   data.size = m_sample_watermark_num;
 

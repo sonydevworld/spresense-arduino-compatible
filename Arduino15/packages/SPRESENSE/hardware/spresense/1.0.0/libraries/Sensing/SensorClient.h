@@ -14,7 +14,7 @@
  *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
 /**
@@ -58,7 +58,7 @@
  * Physical and logical sensor ID definitions.
  */
 
-enum ApplicationFixedSensorClientID
+enum
 {
   APP_selfID        = selfID,         /*  0 */
   APP_accelID       = accelID,        /*  1 */
@@ -87,6 +87,11 @@ enum ApplicationFixedSensorClientID
   APP_app3ID        = app3ID,         /* 23 */
   APP_ID_MAX        = NumOfSensorClientID,
 };
+
+
+/* Convert SenserClientID to SubscriptionID */
+
+#define SUBSCRIPTION(x) (1 << (x))
 
 
 /**
@@ -124,6 +129,19 @@ public:
       uint32_t  sample_watermark_num, /** Sample number of the sensor
                                        *  data. */
       uint32_t  timestamp);           /** Timestamp of the sensor data. */
+
+  /**
+   * @brief Write sensing data from MemHandle
+   *
+   */
+
+  int publish(
+      MemMgrLite::MemHandle& mh,
+      uint32_t               size_per_sample,
+      uint32_t               freq,
+      uint32_t               sample_watermark_num,
+      uint32_t               timestamp);
+
 
   /**
    * @brief Read sensing data from buffer

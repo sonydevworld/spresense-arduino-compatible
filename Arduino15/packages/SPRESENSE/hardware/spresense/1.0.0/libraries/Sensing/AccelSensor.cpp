@@ -19,6 +19,8 @@
 #include <AccelSensor.h>
 #include "Arduino.h"
 
+#define ACCEL_INTERVAL_THRESHOLD  1000  /* [1000ms] */
+
 
 AccelSensor::AccelSensor(int      id,
                          uint32_t subscriptions,
@@ -36,7 +38,16 @@ AccelSensor::AccelSensor(int      id,
 
   m_cnt           = 0;
   m_previous_time = millis();
-  m_adjust_time   = 0;
+  
+  if (ERR_OK != m_mh.allocSeg(
+                         ACCEL_DATA_BUF_POOL,
+                         size_per_sample * sample_watermark_num))
+    {
+      /* Fatal error occured. */
+
+      printf("Fail to allocate segment of memory handle.\n");
+      assert(0);
+    }
 }
 
 
@@ -45,26 +56,37 @@ int AccelSensor::write_data(float x, float y, float z)
   /* Check reading cycle */
 
   long  now           = millis();
-  int   read_duration = 1000 / m_rate;
+  int   read_duration = 1000 / m_rate;  /* 20ms */
+  int   diff          = now - m_previous_time;
 
-  if ((now - m_previous_time) <= (read_duration - m_adjust_time))
+  if (diff <= read_duration)
     {
+      /* Do not get data. Because the interval of the cycle is short. */
+
       return ERR_NG;
     }
-
-  m_adjust_time = now - m_previous_time - read_duration;
-  if (m_adjust_time > read_duration)
+  
+  if (diff >= ACCEL_INTERVAL_THRESHOLD)
     {
-      m_adjust_time = 0;
+       /* Input interval exceeded threshold. */
+
+       m_cnt = 0;
+       m_previous_time = now;
+       printf("Input interval exceeded threshold!\n");
+    }
+  else
+    {
+       m_previous_time += read_duration;
     }
 
   /* Read raw accelerometer measurements from BMI160 */
 
-  assert(m_sample_watermark_num < MAX_SAMPLE_NUM);
+  FAR struct accel_float_s *p_src =
+    reinterpret_cast<struct accel_float_s *>(m_mh.getPa());
 
-  m_data[m_cnt].x = x;
-  m_data[m_cnt].y = y;
-  m_data[m_cnt].z = z;
+  p_src[m_cnt].x = x;
+  p_src[m_cnt].y = y;
+  p_src[m_cnt].z = z;
   m_cnt += 1;
 
   /* Check if the sample for one process has accumulated */
@@ -73,17 +95,26 @@ int AccelSensor::write_data(float x, float y, float z)
     {
       m_cnt = 0;
 
-      publish(ACCEL_DATA_BUF_POOL,
-              m_data,
+      publish(m_mh,
               sizeof(struct accel_float_s),
               m_rate,
               m_sample_watermark_num,
               now);
+    
+      /* Create new memory buffer. */
+      
+      if (ERR_OK != m_mh.allocSeg(
+                     ACCEL_DATA_BUF_POOL,
+                     sizeof(struct accel_float_s) * m_sample_watermark_num))
+        {
+          /* Fatal error occured. */
+
+          printf("Fail to allocate segment of memory handle.\n");
+          assert(0);
+        }
     }
 
   /* Update previous time */
-
-  m_previous_time = now;
 
   return ERR_OK;
 }
