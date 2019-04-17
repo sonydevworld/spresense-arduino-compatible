@@ -52,7 +52,9 @@ unsigned char step_counter_result(sensor_command_data_mh_t &data)
 {
   /* Display result of sensing */
 
-  StepCounterStepInfo* steps = (StepCounterStepInfo*)theStepCountReader->subscribe(data);
+  StepCounterStepInfo* steps =
+              reinterpret_cast<StepCounterStepInfo*>
+              (theStepCountReader->subscribe(data));
   
   if (steps == NULL)
     {
@@ -60,9 +62,9 @@ unsigned char step_counter_result(sensor_command_data_mh_t &data)
     }
 
   printf("   %8ld,   %8ld,   %8ld,   %8ld,",
-               (uint32_t)steps->tempo,
-               (uint32_t)steps->stride,
-               (uint32_t)steps->speed,
+               static_cast<uint32_t>(steps->tempo),
+               static_cast<uint32_t>(steps->stride),
+               static_cast<uint32_t>(steps->speed),
                steps->step);
 
   switch (steps->movement_type)

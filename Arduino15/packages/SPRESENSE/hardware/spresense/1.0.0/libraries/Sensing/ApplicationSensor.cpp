@@ -32,7 +32,7 @@ ApplicationSensor::ApplicationSensor(
 
 int ApplicationSensor::subscribe(sensor_command_data_mh_t& data)
 {
-	return (int)data.mh.getVa();
+  return reinterpret_cast<int>(data.mh.getVa());
 }
 
 StepCountReader::StepCountReader(
@@ -49,14 +49,14 @@ int StepCountReader::subscribe(sensor_command_data_mh_t& data)
     reinterpret_cast<SensorCmdStepCounter *>(data.mh.getVa());
   if (SensorOK != result_data->result.exec_result)
     {
-      return (int)NULL;
+      return static_cast<int>NULL;
     }
   if (result_data->exec_cmd.cmd_type != 
             STEP_COUNTER_CMD_UPDATE_ACCELERATION)
     {
-      return (int)NULL;
+      return static_cast<int>NULL;
     }
 	
-	return (int)&result_data->result.steps;
+  return reinterpret_cast<int>(&result_data->result.steps);
 }
 

@@ -62,8 +62,9 @@ int AccelSensor::write_data(float x, float y, float z)
   if (diff <= read_duration)
     {
       /* Do not get data. Because the interval of the cycle is short. */
+      /* Return as a normal end */
 
-      return ERR_NG;
+      return ERR_OK;
     }
   
   if (diff >= ACCEL_INTERVAL_THRESHOLD)
@@ -76,6 +77,8 @@ int AccelSensor::write_data(float x, float y, float z)
     }
   else
     {
+      /* Update previous time */
+
        m_previous_time += read_duration;
     }
 
@@ -113,8 +116,6 @@ int AccelSensor::write_data(float x, float y, float z)
           assert(0);
         }
     }
-
-  /* Update previous time */
 
   return ERR_OK;
 }
