@@ -58,18 +58,19 @@ int AccelSensor::write_data(float x, float y, float z)
   long  now           = millis();
   int   read_duration = 1000 / m_rate;  /* 20ms */
   int   diff          = now - m_previous_time;
-
+  
   if (diff <= read_duration)
     {
-      /* Do not get data. Because the interval of the cycle is short. */
-      /* Return as a normal end */
+      /* Do not get data. Because the interval of the cycle is short.
+       * Return as a normal end
+       */
 
-      return ERR_OK;
+      return SENSORCLIENT_ECODE_OK;
     }
   
   if (diff >= ACCEL_INTERVAL_THRESHOLD)
     {
-       /* Input interval exceeded threshold. */
+       /* Input interval exceeded threshold. Clear the buffer. */
 
        m_cnt = 0;
        m_previous_time = now;
@@ -117,5 +118,5 @@ int AccelSensor::write_data(float x, float y, float z)
         }
     }
 
-  return ERR_OK;
+  return SENSORCLIENT_ECODE_OK;
 }

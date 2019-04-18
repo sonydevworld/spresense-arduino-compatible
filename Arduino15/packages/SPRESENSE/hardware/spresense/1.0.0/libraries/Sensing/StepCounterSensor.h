@@ -33,6 +33,27 @@
 #include <sensing/logical_sensor/step_counter.h>
 
 
+/**
+ * StepCounterSensor Class Error Code Definitions.
+ */
+
+/**< Failure to create step counter. */
+
+#define STEPCOUNTER_ECODE_CREATE_ERROR  0x10
+
+/**< Failure to open step counter. */
+
+#define STEPCOUNTER_ECODE_OPEN_ERROR    0x11
+
+/**< Failure to close step counter. */
+
+#define STEPCOUNTER_ECODE_CLOSE_ERROR   0x12
+
+/**< Failure to set step counter. */
+
+#define STEPCOUNTER_ECODE_SET_ERROR     0x13
+
+
 class StepCounterSensor : public SensorClient
 {
 public:
@@ -48,6 +69,8 @@ public:
 
   int set(uint8_t walking_stride, uint8_t running_stride);
 
+private:
+  int startStepCounter(void);
 
 private:
   int m_input_rate;

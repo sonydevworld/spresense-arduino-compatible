@@ -57,12 +57,36 @@ StepCounterSensor::StepCounterSensor(
   m_input_sample_watermark_num = input_sample_watermark_num;
   m_input_size_per_sample      = input_size_per_sample;
 
+  assert(startStepCounter() == SENSORCLIENT_ECODE_OK);
+
+}
+
+
+int StepCounterSensor::startStepCounter(void)
+{
+  int   ret;
+
   step_counter_ins = StepCounterCreate(SENSOR_DSP_CMD_BUF_POOL);
-  assert(step_counter_ins);
+  if (NULL == step_counter_ins)
+    {
+      printf("Error: StepCounterCreate() failure.\n");
+      return STEPCOUNTER_ECODE_CREATE_ERROR;
+    }
 
-  StepCounterOpen(step_counter_ins);
+  if ((ret = StepCounterOpen(step_counter_ins)) != SS_ECODE_OK)
+    {
+      printf("Error: StepCounterOpen() failure. error = %d\n", ret);
+      return STEPCOUNTER_ECODE_OPEN_ERROR;
+    }
 
-  set(STEP_COUNTER_WALKING_STRIDE, STEP_COUNTER_RUNNING_STRIDE);
+  if ((ret = set(STEP_COUNTER_WALKING_STRIDE,
+                 STEP_COUNTER_RUNNING_STRIDE)) != SS_ECODE_OK)
+    {
+      printf("Error: StepCounterSet() failure. error = %d\n", ret);
+      return STEPCOUNTER_ECODE_SET_ERROR;
+    }
+
+  return SENSORCLIENT_ECODE_OK;
 }
 
 
@@ -79,7 +103,7 @@ int StepCounterSensor::set(uint8_t walking_stride,
   set.walking.step_mode   = STEP_COUNTER_MODE_FIXED_LENGTH;
   set.running.step_length = running_stride;
   set.running.step_mode   = STEP_COUNTER_MODE_FIXED_LENGTH;
-  StepCounterSet(step_counter_ins, &set);
+  return StepCounterSet(step_counter_ins, &set);
 }
 
 
@@ -110,5 +134,5 @@ int StepCounterSensor::subscribe(sensor_command_data_mh_t& data)
 
   StepCounterWrite(step_counter_ins, &data);
 
-  return 0;
+  return SENSORCLIENT_ECODE_OK;
 }

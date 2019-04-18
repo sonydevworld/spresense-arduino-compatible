@@ -55,6 +55,31 @@
 
 
 /**
+ * Sensor Library Error Code Definitions.
+ */
+
+/**< Executionresult OK. */
+
+#define SENSORCLIENT_ECODE_OK                       0x0
+
+/**< Failure to activate sensor. */
+
+#define SENSORCLIENT_ECODE_ACTIVATE_MANAGER_ERROR   0x1
+
+/**< Failure to dectivate sensor. */
+
+#define SENSORCLIENT_ECODE_DEACTIVATE_MANAGER_ERROR 0x2
+
+/**< Invalid value for clientID. */
+
+#define SENSORCLIENT_ECODE_SENSOR_CLIENT_ID_ERROR   0x3  
+
+/**< Memory allocation failure */
+
+#define SENSORCLIENT_ECODE_MEMORY_ALLOCATE_ERROR    0x4  
+
+
+/**
  * Physical and logical sensor ID definitions.
  */
 
@@ -70,7 +95,6 @@ enum
   APP_tempID        = tempID,         /*  7 */
   APP_gyroID        = gyroID,         /*  8 */
   APP_gnssID        = gnssID,         /*  9 */
-  /* Fixed ID */
   APP_stepcounterID = stepcounterID,  /* 10 */
   APP_tramID        = tramID,         /* 11 */
   APP_gestureID     = gestureID,      /* 12 */

@@ -103,10 +103,7 @@ int SensorClient::publish(PoolId    id,
 {
   /* Check argument of */
 
-  if (data == NULL)
-    {
-      return ERR_NG;
-    }
+  assert(data);
 
   MemMgrLite::MemHandle mh;
   if (ERR_OK != mh.allocSeg(id, size_per_sample * sample_watermark_num))
@@ -114,7 +111,7 @@ int SensorClient::publish(PoolId    id,
       /* Fatal error occured. */
 
       printf("Fail to allocate segment of memory handle.\n");
-      return ERR_NG;
+      return SENSORCLIENT_ECODE_MEMORY_ALLOCATE_ERROR;
     }
   FAR char *p_dst = reinterpret_cast<char *>(mh.getPa());
 
@@ -134,7 +131,7 @@ int SensorClient::publish(PoolId    id,
   packet.mh          = mh;
   SS_SendSensorDataMH(&packet);
 
-  return ERR_OK;
+  return SENSORCLIENT_ECODE_OK;
 }
 
 
@@ -156,5 +153,5 @@ int SensorClient::publish(MemMgrLite::MemHandle& mh,
   packet.mh          = mh;
   SS_SendSensorDataMH(&packet);
 
-  return ERR_OK;
+  return SENSORCLIENT_ECODE_OK;
 }
