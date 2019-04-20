@@ -332,8 +332,10 @@ void loop()
       }
       break;
     case 's': // stop
-      stop();
-      s_state = Stopped;
+      if (s_state != Stopped) {
+        stop();
+        s_state = Stopped;
+      }
       break;
     case '+': // volume up
       preset.volume += 10;
