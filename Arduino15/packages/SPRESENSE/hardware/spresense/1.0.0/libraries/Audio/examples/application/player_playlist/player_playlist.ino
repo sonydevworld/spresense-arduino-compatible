@@ -332,10 +332,10 @@ void loop()
       }
       break;
     case 's': // stop
-      if (s_state != Stopped) {
+      if (s_state == Active) {
         stop();
-        s_state = Stopped;
       }
+      s_state = Stopped;
       break;
     case '+': // volume up
       preset.volume += 10;
@@ -367,16 +367,20 @@ void loop()
       }
       break;
     case 'n': // next
-      if (s_state != Stopped) {
-        stop();
-        s_state = Ready;
-      }
-      if (!next()) {
-        s_state = Stopped;
+      if (s_state == Ready) {
+        // do nothing
+      } else { // s_state == Active or Stopped
+        if (s_state == Active) {
+          stop();
+          s_state = Ready;
+        }
+        if (!next()) {
+          s_state = Stopped;
+        }
       }
       break;
     case 'b': // back
-      if (s_state != Stopped) {
+      if (s_state == Active) {
         stop();
         s_state = Ready;
       }
