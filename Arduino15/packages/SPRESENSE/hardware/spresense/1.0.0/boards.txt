@@ -26,6 +26,7 @@ spresense.build.variant=spresense
 spresense.build.debug=
 spresense.build.libpath=
 spresense.build.stack=-Wl,--defsym,__stack=_vectors+{upload.maximum_size}
+spresense.build.ldscript=-T{variant.path}/ramconfig.ld
 
 spresense.menu.Debug.Disabled=Disabled
 spresense.menu.Debug.Disabled.build.debug=
