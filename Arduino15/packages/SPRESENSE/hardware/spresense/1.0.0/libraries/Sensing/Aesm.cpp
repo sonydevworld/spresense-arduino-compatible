@@ -1,6 +1,6 @@
 /*
- *  StepCounterSensor.cpp - SPI implement file for the Spresense SDK
- *  Copyright 2018 Sony Semiconductor Solutions Corporation
+ *  Aesm.cpp - Sensor library for the Spresense SDK
+ *  Copyright 2019 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -17,11 +17,13 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <StepCounterSensor.h>
+#include <Aesm.h>
 
+
+AesmClass Aesm;
 
 /**
- * StepCounter Definitions.
+ * Aesm Definitions.
  */
 
 #define STEP_COUNTER_WALKING_STRIDE     60
@@ -39,30 +41,43 @@ char freq_convert_table[] =
 const int step_counter_rate       = 32; /* 32 Hz */
 const int step_counter_sample_num = 32; /* 32sample/1process */
 
-StepCounterSensor::StepCounterSensor(
-                       int      id,
-                       uint32_t subscriptions,
-                       int      input_rate,
-                       int      input_sample_watermark_num,
-                       int      input_size_per_sample,
-                       sensor_data_mh_callback_t cb) : 
-  SensorClient(id,
-               subscriptions,
-               step_counter_rate,
-               step_counter_sample_num,
-               input_size_per_sample,
-               cb)
+
+unsigned char step_counter_cb(sensor_command_data_mh_t &dat)
 {
+  return Aesm.subscribe(dat);
+}
+
+
+
+bool AesmClass::begin(
+	int      id,
+    uint32_t subscriptions,
+    int      input_rate,
+    int      input_sample_watermark_num,
+    int      input_size_per_sample)
+{
+  SensorClient::begin(id,
+                      subscriptions,
+                      step_counter_rate,
+                      step_counter_sample_num,
+                      input_size_per_sample,
+                      step_counter_cb);
+	
   m_input_rate                 = input_rate;
   m_input_sample_watermark_num = input_sample_watermark_num;
   m_input_size_per_sample      = input_size_per_sample;
 
-  assert(startStepCounter() == SENSORCLIENT_ECODE_OK);
+  if (startAesm() != SENSORCLIENT_ECODE_OK)
+    {
+      return false;
+    }
+
+  return true;
 
 }
 
 
-int StepCounterSensor::startStepCounter(void)
+int AesmClass::startAesm(void)
 {
   int   ret;
 
@@ -70,28 +85,28 @@ int StepCounterSensor::startStepCounter(void)
   if (NULL == step_counter_ins)
     {
       printf("Error: StepCounterCreate() failure.\n");
-      return STEPCOUNTER_ECODE_CREATE_ERROR;
+      return AESM_ECODE_CREATE_ERROR;
     }
 
   if ((ret = StepCounterOpen(step_counter_ins)) != SS_ECODE_OK)
     {
       printf("Error: StepCounterOpen() failure. error = %d\n", ret);
-      return STEPCOUNTER_ECODE_OPEN_ERROR;
+      return AESM_ECODE_OPEN_ERROR;
     }
 
   if ((ret = set(STEP_COUNTER_WALKING_STRIDE,
                  STEP_COUNTER_RUNNING_STRIDE)) != SS_ECODE_OK)
     {
       printf("Error: StepCounterSet() failure. error = %d\n", ret);
-      return STEPCOUNTER_ECODE_SET_ERROR;
+      return AESM_ECODE_SET_ERROR;
     }
 
   return SENSORCLIENT_ECODE_OK;
 }
 
 
-int StepCounterSensor::set(uint8_t walking_stride,
-                           uint8_t running_stride)
+int AesmClass::set(uint8_t walking_stride,
+                                uint8_t running_stride)
 {
   /* Setup Stride setting.
    * The range of configurable stride lenght is 1 - 249[cm].
@@ -107,7 +122,7 @@ int StepCounterSensor::set(uint8_t walking_stride,
 }
 
 
-int StepCounterSensor::subscribe(sensor_command_data_mh_t& data)
+int AesmClass::subscribe(sensor_command_data_mh_t& data)
 {
   FAR char* pSrc = 
       reinterpret_cast<char*>(data.mh.getPa());

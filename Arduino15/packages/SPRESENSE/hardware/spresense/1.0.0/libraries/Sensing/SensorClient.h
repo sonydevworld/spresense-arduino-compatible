@@ -1,6 +1,6 @@
 /*
  *  SensorClient.h - Sensing include file for the Spresense SDK
- *  Copyright 2018 Sony Semiconductor Solutions Corporation
+ *  Copyright 2019 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -22,7 +22,7 @@
  * @author Sony Semiconductor Solutions Corporation
  * @brief Sensor Library Class for Arduino on Spresense.
  * @details By using this library, you can use the follow features
- * on SPRESSENSE.
+ * on SPRESENSE.
  *          - Sensing Steps
  */
 
@@ -126,17 +126,17 @@ enum
 class SensorClient
 {
 public:
-  SensorClient(int      id,
-               uint32_t subscriptions        = 0,
-               int      rate                 = 0,
-               int      sample_watermark_num = 0,
-               int      size_per_sample      = 0,
-               sensor_data_mh_callback_t cb  =NULL);
 
-  SensorClient(int      id,
-               uint32_t subscriptions,
-	           sensor_data_mh_callback_t cb);
+  bool begin(int      id,
+            uint32_t subscriptions        = 0,
+            int      rate                 = 0,
+            int      sample_watermark_num = 0,
+            int      size_per_sample      = 0,
+            sensor_data_mh_callback_t cb  =NULL);
 
+  bool begin(int      id,
+             uint32_t subscriptions,
+	         sensor_data_mh_callback_t cb);
 /**
    * @brief Write sensing data from buffer
    *
@@ -166,8 +166,7 @@ public:
       uint32_t               sample_watermark_num,
       uint32_t               timestamp);
 
-
-  /**
+	/**
    * @brief Read sensing data from buffer
    *
    * @details This function Called when subscribed from the logical sensor.

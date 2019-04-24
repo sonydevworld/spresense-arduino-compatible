@@ -1,6 +1,6 @@
 /*
- *  StepCounterSensor.h - Sensing include file for the Spresense SDK
- *  Copyright 2018 Sony Semiconductor Solutions Corporation
+ *  Aesm.h - Sensing include file for the Spresense SDK
+ *  Copyright 2019 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -18,59 +18,57 @@
  */
 
 /**
- * @file StepCounterSensor.h
+ * @file Aesm.h
  * @author Sony Semiconductor Solutions Corporation
  * @brief Sensor Library Class for Arduino on Spresense.
  * @details By using this library, you can use the follow features
- * on SPRESSENSE.
+ * on SPRESENSE.
  *          - Sensing Steps
  */
 
-#ifndef __STEPCOUNTERSENSOR_H
-#define __STEPCOUNTERSENSOR_H
+#ifndef __AESM_H
+#define __AESM_H
 
 #include <SensorClient.h>
 #include <sensing/logical_sensor/step_counter.h>
 
 
 /**
- * StepCounterSensor Class Error Code Definitions.
+ * Aesm Class Error Code Definitions.
  */
 
 /**< Failure to create step counter. */
 
-#define STEPCOUNTER_ECODE_CREATE_ERROR  0x10
+#define AESM_ECODE_CREATE_ERROR  0x10
 
 /**< Failure to open step counter. */
 
-#define STEPCOUNTER_ECODE_OPEN_ERROR    0x11
+#define AESM_ECODE_OPEN_ERROR    0x11
 
 /**< Failure to close step counter. */
 
-#define STEPCOUNTER_ECODE_CLOSE_ERROR   0x12
+#define AESM_ECODE_CLOSE_ERROR   0x12
 
 /**< Failure to set step counter. */
 
-#define STEPCOUNTER_ECODE_SET_ERROR     0x13
+#define AESM_ECODE_SET_ERROR     0x13
 
 
-class StepCounterSensor : public SensorClient
+class AesmClass : public SensorClient
 {
 public:
-  StepCounterSensor(
-               int      id,
-               uint32_t subscriptions,
-               int      input_rate,
-               int      input_sample_watermark_num,
-               int      input_size_per_sample,
-               sensor_data_mh_callback_t cb);
+  bool begin(int      id,
+  	         uint32_t subscriptions,
+             int      input_rate,
+             int      input_sample_watermark_num,
+             int      input_size_per_sample);
 
   int subscribe(sensor_command_data_mh_t& data);
 
   int set(uint8_t walking_stride, uint8_t running_stride);
 
 private:
-  int startStepCounter(void);
+  int startAesm(void);
 
 private:
   int m_input_rate;
@@ -81,4 +79,7 @@ private:
 	FAR StepCounterClass *step_counter_ins;
 
 };
-#endif /* __STEPCOUNTERSENSOR_H */
+
+extern AesmClass Aesm;
+
+#endif /* __AESM_H */

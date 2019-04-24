@@ -22,7 +22,7 @@
 #include <MemoryUtil.h>
 #include <SensorSystem.h>
 #include <AccelSensor.h>
-#include <StepCounterSensor.h>
+#include <Aesm.h>
 #include <ApplicationSensor.h>
 
 
@@ -39,12 +39,6 @@ const int accel_rate              = 50; /* 50 Hz */
 const int accel_sample_num        = 50; /* 50 sample */
 const int accel_sample_size       = sizeof(float) * 3;
 
-/* Static variable */
-
-static AccelSensor*       theAccelSensor;
-static StepCounterSensor* theStepCounterSensor;
-static StepCountReader*   theStepCountReader;
-
 /**
  * @brief Call result of sensing
  */
@@ -54,7 +48,7 @@ unsigned char step_counter_result(sensor_command_data_mh_t &data)
 
   StepCounterStepInfo* steps =
               reinterpret_cast<StepCounterStepInfo*>
-              (theStepCountReader->subscribe(data));
+              (StepCountReader.subscribe(data));
   
   if (steps == NULL)
     {
@@ -85,10 +79,6 @@ unsigned char step_counter_result(sensor_command_data_mh_t &data)
   return 0;
 }
 
-unsigned char step_counter_cb(sensor_command_data_mh_t &dat)
-{
-  return theStepCounterSensor->subscribe(dat);
-}
 
 /**
  * @brief Initialize StepCounter
@@ -119,28 +109,25 @@ void setup()
 
   SensorSystem.begin();
 
-  theAccelSensor       = new AccelSensor(APP_accelID,
-                                 0,
-                                 accel_rate,
-                                 accel_sample_num,
-                                 accel_sample_size);
+  AccelSensor.begin(APP_accelID,
+                    0,
+                    accel_rate,
+                    accel_sample_num,
+                    accel_sample_size);
 
-  theStepCounterSensor = new StepCounterSensor(
-                                 APP_stepcounterID,
-                                 SUBSCRIPTION(APP_accelID),
-                                 accel_rate,
-                                 accel_sample_num,
-                                 accel_sample_size,
-                                 step_counter_cb);
+  Aesm.begin(APP_stepcounterID,
+                          SUBSCRIPTION(APP_accelID),
+                          accel_rate,
+                          accel_sample_num,
+                          accel_sample_size);
 
-  theStepCountReader = new StepCountReader(
-                                 APP_app0ID,
-                                 SUBSCRIPTION(APP_stepcounterID),
-                                 step_counter_result);
+  StepCountReader.begin(APP_app0ID,
+                        SUBSCRIPTION(APP_stepcounterID),
+                        step_counter_result);
 
   /* Initialize StepCounter parameters */
 
-  theStepCounterSensor->set(walking_stride, running_stride);
+  Aesm.set(walking_stride, running_stride);
 
 
   puts("Start sensing...");
@@ -161,6 +148,6 @@ void loop()
 
   BMI160.readAccelerometerScaled(x, y, z);
 
-  theAccelSensor->write_data(x, y, z);
+  AccelSensor.write_data(x, y, z);
 
 }

@@ -1,6 +1,6 @@
 /*
- *  ApplicationSensor.cpp - SPI implement file for the Spresense SDK
- *  Copyright 2018 Sony Semiconductor Solutions Corporation
+ *  ApplicationSensor.cpp - Sensor library for the Spresense SDK
+ *  Copyright 2019 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -18,32 +18,15 @@
  */
 
 #include <ApplicationSensor.h>
-#include <StepCounterSensor.h>
+#include <Aesm.h>
 
 
-ApplicationSensor::ApplicationSensor(
-              int                          id,
-              uint32_t                     subscriptions,
-              sensor_data_mh_callback_t    callback) :
-  SensorClient(id, subscriptions, callback)
-{
-}
-
-
-int ApplicationSensor::subscribe(sensor_command_data_mh_t& data)
+int ApplicationSensorClass::subscribe(sensor_command_data_mh_t& data)
 {
   return reinterpret_cast<int>(data.mh.getVa());
 }
 
-StepCountReader::StepCountReader(
-              int                          id,
-              uint32_t                     subscriptions,
-              sensor_data_mh_callback_t    callback) :
-  ApplicationSensor(id, subscriptions, callback)
-{
-}
-
-int StepCountReader::subscribe(sensor_command_data_mh_t& data)
+int StepCountReaderClass::subscribe(sensor_command_data_mh_t& data)
 {
   FAR SensorCmdStepCounter *result_data = 
     reinterpret_cast<SensorCmdStepCounter *>(data.mh.getVa());
@@ -60,3 +43,5 @@ int StepCountReader::subscribe(sensor_command_data_mh_t& data)
   return reinterpret_cast<int>(&result_data->result.steps);
 }
 
+ApplicationSensorClass ApplicationSensor;
+StepCountReaderClass   StepCountReader;

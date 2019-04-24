@@ -1,6 +1,6 @@
 /*
- *  AccelSensor.cpp - SPI implement file for the Spresense SDK
- *  Copyright 2018 Sony Semiconductor Solutions Corporation
+ *  AccelSensor.cpp - Sensor library for the Spresense SDK
+ *  Copyright 2019 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -22,19 +22,17 @@
 #define ACCEL_INTERVAL_THRESHOLD  1000  /* [1000ms] */
 
 
-AccelSensor::AccelSensor(int      id,
-                         uint32_t subscriptions,
-                         int      rate,
-                         int      sample_watermark_num,
-                         int      size_per_sample) :
-  SensorClient(id,
-               subscriptions,
-               rate,
-               sample_watermark_num,
-               size_per_sample,
-               NULL)
+bool AccelSensorClass::begin(int      id,
+                        uint32_t subscriptions,
+                        int      rate,
+                        int      sample_watermark_num,
+                        int      size_per_sample)
 {
   /* Init private parameters. */
+	if(!SensorClient::begin(id,subscriptions,rate,sample_watermark_num,size_per_sample, NULL))
+	{
+		return false;
+	}
 
   m_cnt           = 0;
   m_previous_time = millis();
@@ -46,12 +44,13 @@ AccelSensor::AccelSensor(int      id,
       /* Fatal error occured. */
 
       printf("Fail to allocate segment of memory handle.\n");
-      assert(0);
+      return false;
     }
+	return true;
 }
 
 
-int AccelSensor::write_data(float x, float y, float z)
+int AccelSensorClass::write_data(float x, float y, float z)
 {
   /* Check reading cycle */
 
@@ -120,3 +119,5 @@ int AccelSensor::write_data(float x, float y, float z)
 
   return SENSORCLIENT_ECODE_OK;
 }
+
+AccelSensorClass AccelSensor;

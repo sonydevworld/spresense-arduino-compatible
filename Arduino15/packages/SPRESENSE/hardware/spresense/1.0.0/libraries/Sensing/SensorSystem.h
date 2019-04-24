@@ -1,6 +1,6 @@
 /*
  *  SensorClient.h - Sensing include file for the Spresense SDK
- *  Copyright 2018 Sony Semiconductor Solutions Corporation
+ *  Copyright 2019 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -22,7 +22,7 @@
  * @author Sony Semiconductor Solutions Corporation
  * @brief Sensor Library Class for Arduino on Spresense.
  * @details By using this library, you can use the follow features
- * on SPRESSENSE.
+ * on SPRESENSE.
  *          - Sensing Steps
  */
 

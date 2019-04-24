@@ -1,6 +1,6 @@
 /*
- *  SensorClient.cpp - SPI implement file for the Spresense SDK
- *  Copyright 2018 Sony Semiconductor Solutions Corporation
+ *  SensorClient.cpp - Sensor library for the Spresense SDK
+ *  Copyright 2019 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -19,15 +19,17 @@
 #include <SensorClient.h>
 
 /****************************************************************************
- * Callback function for Sensor Class
+ * Constractor for Sensor Class
  ****************************************************************************/
 
-SensorClient::SensorClient(int      id,
-                           uint32_t subscriptions,
-                           int      rate,
-                           int      sample_watermark_num,
-                           int      size_per_sample,
-                           sensor_data_mh_callback_t cb)
+
+
+bool SensorClient::begin(int      id,
+                         uint32_t subscriptions,
+                         int      rate,
+                         int      sample_watermark_num,
+                         int      size_per_sample,
+                         sensor_data_mh_callback_t cb)
 {
   m_id                   = id;
   m_rate                 = rate;
@@ -50,18 +52,20 @@ SensorClient::SensorClient(int      id,
       reg.callback_mh     = cb;
       SS_SendSensorResister(&reg);
 
+      return true;
     }
   else
     {
       /* Fatal error occured. */
 
       printf("Fail ID out of range.\n");
+      return false;
     }
 }
 
-SensorClient::SensorClient(int      id,
-                           uint32_t subscriptions,
-                           sensor_data_mh_callback_t cb)
+bool SensorClient::begin(int      id,
+                         uint32_t subscriptions,
+                         sensor_data_mh_callback_t cb)
 {
   m_id                   = id;
   m_rate                 = 0;
@@ -84,12 +88,14 @@ SensorClient::SensorClient(int      id,
       reg.callback_mh     = cb;
       SS_SendSensorResister(&reg);
 
+      return true;
     }
   else
     {
       /* Fatal error occured. */
 
       printf("Fail ID out of range.\n");
+      return false;
     }
 }
 

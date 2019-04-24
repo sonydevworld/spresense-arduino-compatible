@@ -1,6 +1,6 @@
 /*
  *  ApplicationSensor.h - Sensing include file for the Spresense SDK
- *  Copyright 2018 Sony Semiconductor Solutions Corporation
+ *  Copyright 2019 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -22,7 +22,7 @@
  * @author Sony Semiconductor Solutions Corporation
  * @brief Sensor Library Class for Arduino on Spresense.
  * @details By using this library, you can use the follow features
- * on SPRESSENSE.
+ * on SPRESENSE.
  *          - Sensing Steps
  */
 
@@ -32,13 +32,9 @@
 #include <SensorClient.h>
 
 
-class ApplicationSensor : public SensorClient
+class ApplicationSensorClass : public SensorClient
 {
 public:
-  ApplicationSensor(
-              int                       id,
-              uint32_t                  subscriptions,
-              sensor_data_mh_callback_t callback);
 
   int subscribe(sensor_command_data_mh_t& data);
 
@@ -46,19 +42,18 @@ private:
 
 };
 
-class StepCountReader : public ApplicationSensor
+class StepCountReaderClass : public ApplicationSensorClass
 {
 public:
-  StepCountReader(
-              int                       id,
-              uint32_t                  subscriptions,
-              sensor_data_mh_callback_t callback);
 
   int subscribe(sensor_command_data_mh_t& data);
 
 private:
 
 };
+
+extern ApplicationSensorClass ApplicationSensor;
+extern StepCountReaderClass   StepCountReader;
 
 
 #endif /* __APPLICATIONSENSOR_H */

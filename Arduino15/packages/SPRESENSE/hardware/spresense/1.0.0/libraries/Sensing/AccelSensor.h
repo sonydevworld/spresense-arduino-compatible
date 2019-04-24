@@ -1,6 +1,6 @@
 /*
  *  AccelSensor.h - Sensing include file for the Spresense SDK
- *  Copyright 2018 Sony Semiconductor Solutions Corporation
+ *  Copyright 2019 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -22,7 +22,7 @@
  * @author Sony Semiconductor Solutions Corporation
  * @brief Sensor Library Class for Arduino on Spresense.
  * @details By using this library, you can use the follow features
- * on SPRESSENSE.
+ * on SPRESENSE.
  *          - Sensing Steps
  */
 
@@ -32,15 +32,14 @@
 #include <SensorClient.h>
 
 
-class AccelSensor : public SensorClient
+class AccelSensorClass : public SensorClient
 {
 public:
-  AccelSensor(int      id,
-              uint32_t subscriptions,
-              int      rate,
-              int      sample_watermark_num,
-              int      size_per_sample);
-
+  bool begin(int      id,
+             uint32_t subscriptions        = 0,
+             int      rate                 = 0,
+             int      sample_watermark_num = 0,
+             int      size_per_sample      = 0);
   /**
    * @brief 1 Sample data write.
    */
@@ -60,5 +59,7 @@ private:
   MemMgrLite::MemHandle m_mh;
 
 };
+
+extern AccelSensorClass AccelSensor;
 
 #endif /* __ACCELSENSOR_H */
