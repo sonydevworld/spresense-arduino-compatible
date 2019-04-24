@@ -196,7 +196,7 @@ function install_sdk_from_build()
 	fi
 
 	# Get SDK comonent configuration
-	export SDL_KERNEL_CONF=${SDL_KERNEL_CONF}
+	export SDK_KERNEL_CONF=${SDK_KERNEL_CONF}
 	export SDK_CONFIG=`cat ${SCRIPT_DIR}/configs/${VARIANT_NAME}.conf | head -n 1`
 
 	# Add configuration option
@@ -204,7 +204,7 @@ function install_sdk_from_build()
 		CONFIG_OPTION=`echo ${CONFIG_EDIT} | cut -d " " -f 1`
 		CONFIG_TARGET=`echo ${CONFIG_EDIT} | cut -d " " -f 2`
 		if [ "`echo ${CONFIG_TARGET} | grep -i kernel`" != "" ]; then
-			export SDL_KERNEL_CONF="${CONFIG_OPTION} ${SDL_KERNEL_CONF}"
+			export SDK_KERNEL_CONF="${CONFIG_OPTION} ${SDK_KERNEL_CONF}"
 		fi
 		if [ "`echo ${CONFIG_TARGET} | grep -i sdk`" != "" ]; then
 			export SDK_CONFIG="${CONFIG_OPTION} ${SDK_CONFIG}"
@@ -236,7 +236,7 @@ SPRESENSE_SDK_PATH=""
 GCC_ARCHIVE_PATH=""
 SDK_ARCHIVE_PATH=""
 SDK_VARIANT_NAME="spresense"
-SDL_KERNEL_CONF="release"
+SDK_KERNEL_CONF="release"
 AURDUINO_IDE_HOST=""
 CONFIG_EDIT=""
 IMPORT_ONLY=""
@@ -248,7 +248,7 @@ do
 		'g' ) GCC_ARCHIVE_PATH=$OPTARG;;
 		's' ) SDK_ARCHIVE_PATH=$OPTARG;;
 		'v' ) SDK_VARIANT_NAME=$OPTARG;;
-		'k' ) SDL_KERNEL_CONF=$OPTARG;;
+		'k' ) SDK_KERNEL_CONF=$OPTARG;;
 		'H' ) AURDUINO_IDE_HOST=$OPTARG;;
 		'M' ) CONFIG_EDIT="-m $OPTARG";;
 		'G' ) CONFIG_EDIT="-g $OPTARG";;
