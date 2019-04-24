@@ -69,12 +69,13 @@ extern const PoolAttr MemoryPoolLayouts[NUM_MEM_LAYOUTS][NUM_MEM_POOLS] = {
   { MIC_IN_BUF_POOL , BasicType,   5, true, 0x000cf010, 0x00014000 },  /* COMMON_WORK_AREA */
   { ENC_APU_CMD_POOL, BasicType,   3, true, 0x000e3018, 0x00000114 },  /* COMMON_WORK_AREA */
   { SRC_APU_CMD_POOL, BasicType,   3, true, 0x000e3138, 0x00000114 },  /* COMMON_WORK_AREA */
-  { SENSOR_DSP_CMD_BUF_POOL, BasicType,   8, false, 0x000e3250, 0x00000380 },  /* COMMON_WORK_AREA */
-  { ACCEL_DATA_BUF_POOL, BasicType,   8, false, 0x000e35d0, 0x000012c0 },  /* COMMON_WORK_AREA */
-  { MAG_DATA_BUF_POOL, BasicType,   8, false, 0x000e4890, 0x000012c0 },  /* COMMON_WORK_AREA */
-  { PRESS_DATA_BUF_POOL, BasicType,   8, false, 0x000e5b50, 0x00000500 },  /* COMMON_WORK_AREA */
-  { TEMP_DATA_BUF_POOL, BasicType,   8, false, 0x000e6050, 0x00000500 },  /* COMMON_WORK_AREA */
-  { LIKELIHOOD_BUF_POOL, BasicType,   1, false, 0x000e6550, 0x00000034 },  /* COMMON_WORK_AREA */
+  { PRE_APU_CMD_POOL, BasicType,   3, true, 0x000e3258, 0x00000114 },  /* COMMON_WORK_AREA */
+  { SENSOR_DSP_CMD_BUF_POOL, BasicType,   8, false, 0x000e3370, 0x00000380 },  /* COMMON_WORK_AREA */
+  { ACCEL_DATA_BUF_POOL, BasicType,   8, false, 0x000e36f0, 0x000012c0 },  /* COMMON_WORK_AREA */
+  { MAG_DATA_BUF_POOL, BasicType,   8, false, 0x000e49b0, 0x000012c0 },  /* COMMON_WORK_AREA */
+  { PRESS_DATA_BUF_POOL, BasicType,   8, false, 0x000e5c70, 0x00000500 },  /* COMMON_WORK_AREA */
+  { TEMP_DATA_BUF_POOL, BasicType,   8, false, 0x000e6170, 0x00000500 },  /* COMMON_WORK_AREA */
+  { LIKELIHOOD_BUF_POOL, BasicType,   1, false, 0x000e6670, 0x00000034 },  /* COMMON_WORK_AREA */
  },
  {/* Layout:2 */
   /* pool_ID          type       seg fence  addr        size         */
@@ -107,12 +108,13 @@ extern const PoolAttr MemoryPoolLayouts[NUM_MEM_LAYOUTS][NUM_MEM_POOLS] = {
   { MIC_IN_BUF_POOL , BasicType,   5, true, 0x000da370, 0x00003c00 },  /* COMMON_WORK_AREA */
   { ENC_APU_CMD_POOL, BasicType,   3, true, 0x000ddf78, 0x00000114 },  /* COMMON_WORK_AREA */
   { SRC_APU_CMD_POOL, BasicType,   3, true, 0x000de098, 0x00000114 },  /* COMMON_WORK_AREA */
-  { SENSOR_DSP_CMD_BUF_POOL, BasicType,   8, false, 0x000de1b0, 0x00000380 },  /* COMMON_WORK_AREA */
-  { ACCEL_DATA_BUF_POOL, BasicType,   8, false, 0x000de530, 0x000012c0 },  /* COMMON_WORK_AREA */
-  { MAG_DATA_BUF_POOL, BasicType,   8, false, 0x000df7f0, 0x000012c0 },  /* COMMON_WORK_AREA */
-  { PRESS_DATA_BUF_POOL, BasicType,   8, false, 0x000e0ab0, 0x00000500 },  /* COMMON_WORK_AREA */
-  { TEMP_DATA_BUF_POOL, BasicType,   8, false, 0x000e0fb0, 0x00000500 },  /* COMMON_WORK_AREA */
-  { LIKELIHOOD_BUF_POOL, BasicType,   1, false, 0x000e14b0, 0x00000034 },  /* COMMON_WORK_AREA */
+  { PRE_APU_CMD_POOL, BasicType,   3, true, 0x000de1b8, 0x00000114 },  /* COMMON_WORK_AREA */
+  { SENSOR_DSP_CMD_BUF_POOL, BasicType,   8, false, 0x000de2d0, 0x00000380 },  /* COMMON_WORK_AREA */
+  { ACCEL_DATA_BUF_POOL, BasicType,   8, false, 0x000de650, 0x000012c0 },  /* COMMON_WORK_AREA */
+  { MAG_DATA_BUF_POOL, BasicType,   8, false, 0x000df910, 0x000012c0 },  /* COMMON_WORK_AREA */
+  { PRESS_DATA_BUF_POOL, BasicType,   8, false, 0x000e0bd0, 0x00000500 },  /* COMMON_WORK_AREA */
+  { TEMP_DATA_BUF_POOL, BasicType,   8, false, 0x000e10d0, 0x00000500 },  /* COMMON_WORK_AREA */
+  { LIKELIHOOD_BUF_POOL, BasicType,   1, false, 0x000e15d0, 0x00000034 },  /* COMMON_WORK_AREA */
  },
 }; /* end of MemoryPoolLayouts */
 

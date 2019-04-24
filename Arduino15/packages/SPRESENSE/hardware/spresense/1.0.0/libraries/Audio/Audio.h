@@ -842,6 +842,23 @@ public:
       AsClkMode mode /**< Mode of rendering clock. */
   );
 
+  /**
+   * @brief Set ProProcess type.
+   *
+   * @details This function sets the PreProcess type for recording.
+   *
+   *          Set pre process type for recording data.
+   *          If you'd like to any signal processings to recording data.
+   *          set processing type by this API.
+   *
+   *          If not call this API, pre process will through.
+   *          (AsFrontendPreprocThrough is selected Internally.)
+   *
+   */
+  err_t setFrontendPreProcType(
+      AsFrontendPreProcType proc_type /**< Processing type */
+  );
+
  /**
    * @brief Get recording ES size.
    *

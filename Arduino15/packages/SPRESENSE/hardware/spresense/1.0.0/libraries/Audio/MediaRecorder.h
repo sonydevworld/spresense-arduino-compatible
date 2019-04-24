@@ -30,6 +30,8 @@
 
 class File;
 #include <audio/audio_high_level_api.h>
+#include <audio/audio_message_types.h>
+#include <audio/utilities/frame_samples.h>
 #include <audio/utilities/wav_containerformat.h>
 #include <memutils/simple_fifo/CMN_SimpleFifo.h>
 
@@ -158,6 +160,22 @@ public:
       AsSetRecorderStsInputDevice input_device, /**< Select input device. AS_SETRECDR_STS_INPUTDEVICE_MIC or AS_SETRECDR_STS_INPUTDEVICE_I2S*/
       MediaRecorderCallback mrcb,               /**< Sepcify callback function which is called to notify API results. */
       uint32_t recorder_bufsize
+  );
+
+
+  /**
+   * @brief Activate the MediaRecorder.
+   *
+   * @details This function works as same as above activate(input_device, mrcb, bufsize).
+   *          But is able to set PreProcessing type. If ommit it, fix to Through.
+   *
+   */
+
+  err_t activate(
+      AsSetRecorderStsInputDevice input_device, /**< Select input device. AS_SETRECDR_STS_INPUTDEVICE_MIC or AS_SETRECDR_STS_INPUTDEVICE_I2S*/
+      MediaRecorderCallback mrcb,               /**< Sepcify callback function which is called to notify API results. */
+      uint32_t recorder_bufsize,
+      AsFrontendPreProcType proc_type
   );
 
   /**
