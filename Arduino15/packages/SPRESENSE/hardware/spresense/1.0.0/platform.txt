@@ -108,5 +108,5 @@ tools.spresense-tools.erase.params.quiet=
 tools.spresense-tools.erase.pattern=
 tools.spresense-tools.bootloader.params.verbose=
 tools.spresense-tools.bootloader.params.quiet=
-tools.spresense-tools.firmware.path={runtime.tools.spresense-sdk.path}/{build.variant}/firmware
+tools.spresense-tools.firmware.path={runtime.tools.spresense-sdk.path}/spresense/firmware
 tools.spresense-tools.bootloader.pattern="{cmd.path}" -s -c "{serial.port}" {cmd.opt.baudrate} -d -n -S "{firmware.path}/loader.espk" -S "{firmware.path}/gnssfw.espk" -S "{firmware.path}/dnnrt-mp.espk" -S "{firmware.path}/AESM.espk"
