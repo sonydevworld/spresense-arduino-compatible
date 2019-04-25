@@ -47,6 +47,13 @@ WatchdogClass::WatchdogClass(void)
 // Public : Initialize to use the Watchdog
 void WatchdogClass::begin(void)
 {
+  if (0 <= wd_fd)
+    {
+      watchdog_printf("watchdog: %s already opened\n",
+             WATCHDOG_DEVPATH);
+      return;
+    }
+
   wd_fd = open(WATCHDOG_DEVPATH, O_RDONLY);
   if (wd_fd < 0)
     {
@@ -114,5 +121,6 @@ void WatchdogClass::end(void)
 {
     stop();
     close(wd_fd);
+    wd_fd = -1;
 }
 

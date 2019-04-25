@@ -98,7 +98,7 @@ void setup()
   theAudio->begin();
   puts("initialization Audio Library");
 
-  theAudio->setPlayerMode(AS_SETPLAYER_OUTPUTDEVICE_SPHP);
+  theAudio->setPlayerMode(AS_SETPLAYER_OUTPUTDEVICE_SPHP, 0, 0);
 
   theScore.init();
   

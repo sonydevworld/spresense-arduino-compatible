@@ -59,11 +59,6 @@ err_t MediaRecorder::begin(void)
 /*--------------------------------------------------------------------------*/
 err_t MediaRecorder::begin(AudioAttentionCb attcb)
 {
-  /* Allocate ES buffer */
-
-  m_recorder_simple_fifo_buf =
-    (uint32_t*)(0xfffffffc & ((uint32_t)(malloc(MEDIARECORDER_BUF_SIZE + 3)) + 3));
-
   bool result;
 
   /* Create MediaRecorder feature. */
@@ -106,10 +101,6 @@ err_t MediaRecorder::begin(AudioAttentionCb attcb)
 /*--------------------------------------------------------------------------*/
 err_t MediaRecorder::end(void)
 {
-  /* Free ES buffer */
-
-  free((void*)m_recorder_simple_fifo_buf);
-
   bool result;
 
   /* Delete MediaRecorder */
@@ -136,9 +127,35 @@ err_t MediaRecorder::end(void)
 /*--------------------------------------------------------------------------*/
 err_t MediaRecorder::activate(AsSetRecorderStsInputDevice input_device, MediaRecorderCallback mrcb)
 {
+  return activate(input_device, mrcb, MEDIARECORDER_BUF_SIZE);
+}
+ 
+/*--------------------------------------------------------------------------*/
+err_t MediaRecorder::activate(AsSetRecorderStsInputDevice input_device,
+                              MediaRecorderCallback mrcb,
+                              uint32_t recorder_bufsize)
+{
+  /* Buffer size check */
+
+  if (!recorder_bufsize)
+    {
+      print_err("Invalid buffer size.\n");
+      return MEDIARECORDER_ECODE_BUFFER_SIZE_ERROR;
+    }
+
+  /* Allocate ES buffer */
+
+  m_recorder_simple_fifo_buf = static_cast<uint32_t *>(malloc(recorder_bufsize));
+
+  if (!m_recorder_simple_fifo_buf)
+    {
+      print_err("Buffer allocate error.\n");
+      return MEDIARECORDER_ECODE_BUFFER_ALLOC_ERROR;
+    }
+
   if (CMN_SimpleFifoInitialize(&m_recorder_simple_fifo_handle,
                                m_recorder_simple_fifo_buf,
-                               MEDIARECORDER_BUF_SIZE,
+                               recorder_bufsize,
                                NULL) != 0)
     {
       print_err("Fail to initialize simple FIFO.\n");
@@ -306,6 +323,12 @@ void MediaRecorder::init_pcm(AsInitRecorderParam *param)
 /*--------------------------------------------------------------------------*/
 err_t MediaRecorder::start(void)
 {
+  if (m_recorder_simple_fifo_buf == NULL)
+    {
+      print_err("ERROR: FIFO area is not allcated.\n");
+      return MEDIARECORDER_ECODE_BUFFER_AREA_ERROR;
+    }
+
   CMN_SimpleFifoClear(&m_recorder_simple_fifo_handle);
 
   m_es_size = 0;
@@ -350,6 +373,11 @@ err_t MediaRecorder::deactivate(void)
       return MEDIARECORDER_ECODE_BASEBAND_ERROR;
     }
 
+  /* Free ES buffer */
+
+  free((void*)m_recorder_simple_fifo_buf);
+  m_recorder_simple_fifo_buf = NULL;
+
   return MEDIARECORDER_ECODE_OK;
 }
 
@@ -383,10 +411,17 @@ err_t MediaRecorder::readFrames(uint8_t* p_buffer, uint32_t buffer_size, uint32_
       print_err("ERROR: Buffer area not specified.\n");
       return MEDIARECORDER_ECODE_BUFFER_AREA_ERROR;
     }
+
   if (buffer_size == 0)
     {
       print_err("ERROR: Buffer area size error.\n");
       return MEDIARECORDER_ECODE_BUFFER_SIZE_ERROR;
+    }
+
+  if (m_recorder_simple_fifo_buf == NULL)
+    {
+      print_err("ERROR: FIFO area is not allcated.\n");
+      return MEDIARECORDER_ECODE_BUFFER_AREA_ERROR;
     }
 
   size_t data_size = CMN_SimpleFifoGetOccupiedSize(&m_recorder_simple_fifo_handle);

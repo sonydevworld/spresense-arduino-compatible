@@ -41,8 +41,8 @@
 // #ifdef __cplusplus
 
 #include <audio/audio_high_level_api.h>
-#include <audio/utilities/audio_wav_containerformat.h>
-#include <audio/utilities/audio_wav_containerformat_parser.h>
+#include <audio/utilities/wav_containerformat.h>
+#include <audio/utilities/wav_containerformat_parser.h>
 #include <memutils/simple_fifo/CMN_SimpleFifo.h>
 
 #define WRITE_FIFO_FRAME_NUM  (8)
@@ -92,6 +92,7 @@ extern "C" void  outputDeviceCallback(uint32_t);
 #define AUDIOLIB_ECODE_BUFFER_SIZE_ERROR   7  /**< */
 #define AUDIOLIB_ECODE_INSUFFICIENT_BUFFER_AREA   8  /**< */
 #define AUDIOLIB_ECODE_WAV_PARSE_ERROR     9  /**< */
+#define AUDIOLIB_ECODE_PARAMETER_ERROR    10  /**< */
 
 /*--------------------------------------------------------------------------*/
 /**
@@ -190,6 +191,20 @@ public:
   /**
    * @brief Set Audio Library Mode to Music Player.
    *
+   * @details This API has same function as setPlayerMode(device).
+   *          But you can set buffer size of players.
+   *
+   */
+  err_t setPlayerMode(
+      uint8_t device,          /**< Select output device. AS_SETPLAYER_OUTPUTDEVICE_SPHP or
+                                    AS_SETPLAYER_OUTPUTDEVICE_I2SOUTPUT. */
+      uint32_t player0bufsize, /**< Buffer size of player 0. Must be n > 0. */
+      uint32_t player1bufsize  /**< Buffer size of player 1. Must be n > 0. */
+  );
+
+  /**
+   * @brief Set Audio Library Mode to Music Player.
+   *
    * @details This function works as same as "setPlayerMode(uint8_t)",
    *          but you are able to set speaker drive mode by parameter "sp_drv".
    *          If you would like to set speaker drive mode, use this API instead of setPlayerMode(uint8_t).
@@ -200,6 +215,22 @@ public:
                            AS_SETPLAYER_OUTPUTDEVICE_I2SOUTPUT. */
       uint8_t sp_drv /**< Select audio speaker driver mode. AS_SP_DRV_MODE_LINEOUT or
                           AS_SP_DRV_MODE_1DRIVER or AS_SP_DRV_MODE_2DRIVER or AS_SP_DRV_MODE_4DRIVER */
+  );
+
+  /**
+   * @brief Set Audio Library Mode to Music Player.
+   *
+   * @details This API has same function as setPlayerMode(device, sp_drv).
+   *          But you can set buffer size of players.
+   *
+   */
+  err_t setPlayerMode(
+      uint8_t device,          /**< Select output device. AS_SETPLAYER_OUTPUTDEVICE_SPHP or 
+                                    AS_SETPLAYER_OUTPUTDEVICE_I2SOUTPUT. */
+      uint8_t sp_drv,          /**< Select audio speaker driver mode. AS_SP_DRV_MODE_LINEOUT or
+                                    AS_SP_DRV_MODE_1DRIVER or AS_SP_DRV_MODE_2DRIVER or AS_SP_DRV_MODE_4DRIVER */
+      uint32_t player0bufsize, /**< Buffer size of player 0. Must be n > 0. */
+      uint32_t player1bufsize  /**< Buffer size of player 1. Must be n > 0. */
   );
 
   /**
@@ -237,7 +268,6 @@ public:
    *          If you would like to set recording mic-gain, use this API instead of  setRecorderMode(uint8_t).
    *
    */
-
   err_t setRecorderMode(
       uint8_t input_device, /**< Select input device. AS_SETRECDR_STS_INPUTDEVICE_MIC or
                                  AS_SETRECDR_STS_INPUTDEVICE_I2S. */
@@ -245,6 +275,92 @@ public:
                                  Analog Mic  -7850:-78.50dB, ... , -5:-0.05dB, 0:0dB, 5:+0.5dB, ... , 210:+21.0dB
                                  Digital Mic -7850:-78.50dB, ... , -5:-0.05dB, 0:0dB (Max is 0dB.)
                                  set #AS_MICGAIN_HOLD is keep setting. */
+  );
+
+  /**
+   * @brief Set Audio Library Mode to Sound Recorder.
+   *
+   * @details This function works as same as "setRecorderMode(input_device, input_gain)",
+   *          But you can set buffer size of recorder.
+   *
+   */
+  err_t setRecorderMode(
+      uint8_t input_device, /**< Select input device. AS_SETRECDR_STS_INPUTDEVICE_MIC or
+                                 AS_SETRECDR_STS_INPUTDEVICE_I2S. */
+      int32_t input_gain,   /**< Input gain : value range
+                                 Analog Mic  -7850:-78.50dB, ... , -5:-0.05dB, 0:0dB, 5:+0.5dB, ... , 210:+21.0dB
+                                 Digital Mic -7850:-78.50dB, ... , -5:-0.05dB, 0:0dB (Max is 0dB.)
+                                 set #AS_MICGAIN_HOLD is keep setting. */
+      uint32_t bufsize      /**< Buffer size of recorder. */
+  );
+
+  /**
+   * @brief Set Audio Library Mode to Sound Recorder.
+   *
+   * @details This function works as same as "setRecorderMode(input_device, input_gain, bufsize)",
+   *          But you can set buffer size of recorder.
+   *
+   */
+  err_t setRecorderMode(
+      uint8_t input_device, /**< Select input device. AS_SETRECDR_STS_INPUTDEVICE_MIC or
+                                 AS_SETRECDR_STS_INPUTDEVICE_I2S. */
+      int32_t input_gain,   /**< Input gain : value range
+                                 Analog Mic  -7850:-78.50dB, ... , -5:-0.05dB, 0:0dB, 5:+0.5dB, ... , 210:+21.0dB
+                                 Digital Mic -7850:-78.50dB, ... , -5:-0.05dB, 0:0dB (Max is 0dB.)
+                                 set #AS_MICGAIN_HOLD is keep setting. */
+      uint32_t bufsize,     /**< Buffer size of recorder. */
+      bool is_digital       /**< Select mic type. true:Digital, false:Analog. */
+  );
+
+  /**
+   * @enum Input select parameter at baseband through mode
+   *
+   */
+
+  typedef enum
+  {
+    MicIn,  /**< Use Microphone only. */
+    I2sIn,  /**< Use I2S input only. */
+    BothIn  /**< Use Microphone and I2S input. */
+  } ThroughInput;
+
+  /**
+   * @enum I2S output select parameter at baseband through mode
+   *
+   */
+
+  typedef enum
+  {
+    None,   /**< I2S Output is nothing. */
+    Mixer,  /**< I2S Output is Mixer output data. */
+    Mic     /**< I2S Output is Microphone. */
+  } ThroughI2sOut;
+
+  /**
+   * @brief Set Audio Library Mode to BaseBand Through.
+   *
+   * @details This function switches the mode of the Audio library to the Baseband through state.
+   *  (For low power, low latency, small memory)
+   *
+   *          For mode details, follow the state transition chart on the developer guide.
+   *
+   *          You can chose input and I2S output data, but speaker output is always mixer data.
+   *          And, in this mode, output starts as soon as the state changes.
+   *
+   *          This function cannot be called after transition to "BaseBand Through mode".
+   *          To return to the original state, please call setReadyMode ().
+   *
+   */
+  err_t setThroughMode(
+      ThroughInput input,     /**< Set input source. Use ThroughInput enum type. */
+      ThroughI2sOut i2s_out,  /**< Set I2S output source. Use ThroughI2sOut enum type. */
+      bool sp_out,            /**< sp_out : Use speaker output. */
+      int32_t input_gain,     /**< Input gain : value range
+                                 Analog Mic  -7850:-78.50dB, ... , -5:-0.05dB, 0:0dB, 5:+0.5dB, ... , 210:+21.0dB
+                                 Digital Mic -7850:-78.50dB, ... , -5:-0.05dB, 0:0dB (Max is 0dB.)
+                                 set #AS_MICGAIN_HOLD is keep setting. */
+      uint8_t sp_drv /**< Select audio speaker driver mode. AS_SP_DRV_MODE_LINEOUT or
+                          AS_SP_DRV_MODE_1DRIVER or AS_SP_DRV_MODE_2DRIVER or AS_SP_DRV_MODE_4DRIVER */
   );
 
   /**
@@ -515,7 +631,7 @@ public:
    */
   err_t stopPlayer(
       PlayerId id, /**< Select Player ID. */
-      uint8_t mode /**< Stop mode. AS_STOPPLAYER_NOMAL, AS_STOPPLAYER_ESEND */
+      uint8_t mode /**< Stop mode. AS_STOPPLAYER_NORMAL, AS_STOPPLAYER_ESEND */
   );
 
   /**
@@ -742,7 +858,9 @@ private:
    */
 
   AudioClass()
-    : m_attention_callback(NULL)
+    : m_player0_simple_fifo_buf(NULL)
+    , m_player1_simple_fifo_buf(NULL)
+    , m_attention_callback(NULL)
   {}
   AudioClass(const AudioClass&);
   AudioClass& operator=(const AudioClass&);
@@ -753,8 +871,8 @@ private:
 
   CMN_SimpleFifoHandle m_player0_simple_fifo_handle;
   CMN_SimpleFifoHandle m_player1_simple_fifo_handle;
-  uint32_t m_player0_simple_fifo_buf[SIMPLE_FIFO_BUF_SIZE/sizeof(uint32_t)];
-  uint32_t m_player1_simple_fifo_buf[WRITE_BUF_SIZE/sizeof(uint32_t)];
+  uint32_t *m_player0_simple_fifo_buf;
+  uint32_t *m_player1_simple_fifo_buf;
 
   AsPlayerInputDeviceHdlrForRAM m_player0_input_device_handler;
   AsPlayerInputDeviceHdlrForRAM m_player1_input_device_handler;
@@ -798,7 +916,11 @@ private:
   err_t write_fifo(File&, char*, uint32_t, CMN_SimpleFifoHandle*);
 
   /* Functions for initialization on recorder mode. */
+  err_t set_mic_map(uint8_t map[AS_MIC_CHANNEL_MAX]);
   err_t init_mic_gain(int, int);
+
+  /* Functions for initialization on through mode. */
+  err_t send_set_through(void);
 
   bool check_decode_dsp(uint8_t codec_type, const char *path);
   bool check_encode_dsp(uint8_t codec_type, const char *path, uint32_t fs);

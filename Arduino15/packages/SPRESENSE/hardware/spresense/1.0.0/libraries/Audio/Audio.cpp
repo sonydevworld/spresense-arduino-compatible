@@ -421,6 +421,12 @@ err_t AudioClass::setReadyMode(void)
       return AUDIOLIB_ECODE_AUDIOCOMMAND_ERROR;
     }
 
+  free(m_player0_simple_fifo_buf);
+  free(m_player1_simple_fifo_buf);
+
+  m_player0_simple_fifo_buf = NULL;
+  m_player1_simple_fifo_buf = NULL;
+
   destroyStaticPools();
 
   return AUDIOLIB_ECODE_OK;
@@ -430,11 +436,23 @@ err_t AudioClass::setReadyMode(void)
  ****************************************************************************/
 err_t AudioClass::setPlayerMode(uint8_t device)
 {
-  return setPlayerMode(device, AS_SP_DRV_MODE_LINEOUT);
+  return setPlayerMode(device, AS_SP_DRV_MODE_LINEOUT, SIMPLE_FIFO_BUF_SIZE, WRITE_BUF_SIZE);
+}
+
+/*--------------------------------------------------------------------------*/
+err_t AudioClass::setPlayerMode(uint8_t device, uint32_t player0bufsize, uint32_t player1bufsize)
+{
+  return setPlayerMode(device, AS_SP_DRV_MODE_LINEOUT, player0bufsize, player1bufsize);
 }
 
 /*--------------------------------------------------------------------------*/
 err_t AudioClass::setPlayerMode(uint8_t device, uint8_t sp_drv)
+{
+  return setPlayerMode(device, sp_drv, SIMPLE_FIFO_BUF_SIZE, WRITE_BUF_SIZE);
+}
+
+/*--------------------------------------------------------------------------*/
+err_t AudioClass::setPlayerMode(uint8_t device, uint8_t sp_drv, uint32_t player0bufsize, uint32_t player1bufsize)
 {
   const NumLayout layout_no = MEM_LAYOUT_PLAYER;
 
@@ -445,19 +463,45 @@ err_t AudioClass::setPlayerMode(uint8_t device, uint8_t sp_drv)
 
   print_dbg("set output cmplt\n");
 
-  if (CMN_SimpleFifoInitialize(&m_player0_simple_fifo_handle, m_player0_simple_fifo_buf, SIMPLE_FIFO_BUF_SIZE, NULL) != 0)
-    {
-      print_err("Fail to initialize simple FIFO.\n");
-      return AUDIOLIB_ECODE_SIMPLEFIFO_ERROR;
-    }
-  CMN_SimpleFifoClear(&m_player0_simple_fifo_handle);
+  /* Allocate ES buffer */
 
-  if (CMN_SimpleFifoInitialize(&m_player1_simple_fifo_handle, m_player1_simple_fifo_buf, WRITE_BUF_SIZE, NULL) != 0)
+  if (player0bufsize)
     {
-      print_err("Fail to initialize simple FIFO.\n");
-      return AUDIOLIB_ECODE_SIMPLEFIFO_ERROR;
+      m_player0_simple_fifo_buf = static_cast<uint32_t *>(malloc(player0bufsize));
+
+      if (m_player0_simple_fifo_buf)
+        {
+          if (CMN_SimpleFifoInitialize(&m_player0_simple_fifo_handle,
+                                       m_player0_simple_fifo_buf,
+                                       player0bufsize,
+                                       NULL) != 0)
+            {
+              print_err("Fail to initialize simple FIFO.\n");
+              return AUDIOLIB_ECODE_SIMPLEFIFO_ERROR;
+            }
+
+          CMN_SimpleFifoClear(&m_player0_simple_fifo_handle);
+        }
     }
-  CMN_SimpleFifoClear(&m_player1_simple_fifo_handle);
+
+  if (player1bufsize)
+    {
+      m_player1_simple_fifo_buf = static_cast<uint32_t *>(malloc(player1bufsize));
+
+      if (m_player1_simple_fifo_buf)
+        {
+          if (CMN_SimpleFifoInitialize(&m_player1_simple_fifo_handle,
+                                       m_player1_simple_fifo_buf,
+                                       player1bufsize,
+                                       NULL) != 0)
+            {
+              print_err("Fail to initialize simple FIFO.\n");
+              return AUDIOLIB_ECODE_SIMPLEFIFO_ERROR;
+            }
+
+          CMN_SimpleFifoClear(&m_player1_simple_fifo_handle);
+        }
+    }
 
   m_player0_input_device_handler.simple_fifo_handler = (void*)(&m_player0_simple_fifo_handle);
   m_player0_input_device_handler.callback_function = input_device_callback; /*??*/
@@ -737,13 +781,23 @@ err_t AudioClass::setLRgain(PlayerId id, unsigned char l_gain, unsigned char r_g
 err_t AudioClass::writeFrames(PlayerId id, int fd)
 {
   int ret = AUDIOLIB_ECODE_OK;
+
+  uint32_t *p_fifo = (id == Player0)
+    ? m_player0_simple_fifo_buf : m_player1_simple_fifo_buf;
+
+  if (!p_fifo)
+    {
+      printf("Buffer is not allocated.\n");
+      return AUDIOLIB_ECODE_SIMPLEFIFO_ERROR;
+    }
+
   char *buf = (id == Player0) ? m_es_player0_buf : m_es_player1_buf;
   CMN_SimpleFifoHandle *handle = (id == Player0) ? &m_player0_simple_fifo_handle : &m_player1_simple_fifo_handle;
   uint32_t write_size = (id == Player0) ? FIFO_FRAME_SIZE : WRITE_FIFO_FRAME_SIZE;
 
   for (int i = 0; i < WRITE_FRAME_NUM; i++)
     {
-        ret = write_fifo(fd, buf, write_size, handle);
+      ret = write_fifo(fd, buf, write_size, handle);
       if(ret != AUDIOLIB_ECODE_OK) break;
     }
 
@@ -754,6 +808,16 @@ err_t AudioClass::writeFrames(PlayerId id, int fd)
 err_t AudioClass::writeFrames(PlayerId id, File& myFile)
 {
   int ret = AUDIOLIB_ECODE_OK;
+
+  uint32_t *p_fifo = (id == Player0)
+    ? m_player0_simple_fifo_buf : m_player1_simple_fifo_buf;
+
+  if (!p_fifo)
+    {
+      printf("Buffer is not allocated.\n");
+      return AUDIOLIB_ECODE_SIMPLEFIFO_ERROR;
+    }
+
   char *buf = (id == Player0) ? m_es_player0_buf : m_es_player1_buf;
   CMN_SimpleFifoHandle *handle = (id == Player0) ? &m_player0_simple_fifo_handle : &m_player1_simple_fifo_handle;
   uint32_t write_size = (id == Player0) ? FIFO_FRAME_SIZE : WRITE_FIFO_FRAME_SIZE;
@@ -771,6 +835,15 @@ err_t AudioClass::writeFrames(PlayerId id, File& myFile)
 err_t AudioClass::writeFrames(PlayerId id, uint8_t *data, uint32_t write_size)
 {
   int ret = AUDIOLIB_ECODE_OK;
+
+  uint32_t *p_fifo = (id == Player0)
+    ? m_player0_simple_fifo_buf : m_player1_simple_fifo_buf;
+
+  if (!p_fifo)
+    {
+      printf("Buffer is not allocated.\n");
+      return AUDIOLIB_ECODE_SIMPLEFIFO_ERROR;
+    }
 
   CMN_SimpleFifoHandle *handle =
     (id == Player0) ?
@@ -806,12 +879,32 @@ err_t AudioClass::writeFrames(PlayerId id, uint8_t *data, uint32_t write_size)
 
 err_t AudioClass::setRecorderMode(uint8_t input_device, int32_t input_gain)
 {
+  return setRecorderMode(input_device, input_gain, SIMPLE_FIFO_BUF_SIZE, false);
+}
+
+/*--------------------------------------------------------------------------*/
+err_t AudioClass::setRecorderMode(uint8_t input_device, int32_t input_gain, uint32_t bufsize, bool is_digital)
+{
   const NumLayout layout_no = MEM_LAYOUT_RECORDER;
 
   assert(layout_no < NUM_MEM_LAYOUTS);
   createStaticPools(layout_no);
 
-  if (CMN_SimpleFifoInitialize(&m_recorder_simple_fifo_handle, m_recorder_simple_fifo_buf, SIMPLE_FIFO_BUF_SIZE, NULL) != 0)
+  if (!bufsize)
+    {
+      print_err("Invalid buffer size.\n");
+      return AUDIOLIB_ECODE_BUFFER_SIZE_ERROR;
+    }
+
+  m_recorder_simple_fifo_buf = static_cast<uint32_t *>(malloc(bufsize));
+
+  if (!m_recorder_simple_fifo_buf)
+    {
+      print_err("Fail to allocate memory.\n");
+      return AUDIOLIB_ECODE_BUFFER_AREA_ERROR;
+    }
+
+  if (CMN_SimpleFifoInitialize(&m_recorder_simple_fifo_handle, m_recorder_simple_fifo_buf, bufsize, NULL) != 0)
     {
       print_err("Fail to initialize simple FIFO.\n");
       return AUDIOLIB_ECODE_SIMPLEFIFO_ERROR;
@@ -821,6 +914,16 @@ err_t AudioClass::setRecorderMode(uint8_t input_device, int32_t input_gain)
 
   m_output_device_handler.simple_fifo_handler = (void*)(&m_recorder_simple_fifo_handle);
   m_output_device_handler.callback_function = output_device_callback;
+
+  if ((input_device == AS_SETRECDR_STS_INPUTDEVICE_MIC) && is_digital)
+    {
+      uint8_t dig_map[] = { 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc };
+
+      if (set_mic_map(dig_map) != AUDIOLIB_ECODE_OK)
+        {
+          print_err("Set mic mapping error!\n");
+        }
+    }
 
   AudioCommand command;
 
@@ -855,9 +958,15 @@ err_t AudioClass::setRecorderMode(uint8_t input_device, int32_t input_gain)
 }
 
 /*--------------------------------------------------------------------------*/
+err_t AudioClass::setRecorderMode(uint8_t input_device, int32_t input_gain, uint32_t bufsize)
+{
+  return setRecorderMode(input_device, input_gain, bufsize, false);
+}
+
+/*--------------------------------------------------------------------------*/
 err_t AudioClass::setRecorderMode(uint8_t input_device)
 {
-  return setRecorderMode(input_device, 0);
+  return setRecorderMode(input_device, 0, SIMPLE_FIFO_BUF_SIZE, false);
 }
 
 /*--------------------------------------------------------------------------*/
@@ -1124,6 +1233,12 @@ err_t AudioClass::writeWavHeader(File& myFile)
 /*--------------------------------------------------------------------------*/
 err_t AudioClass::readFrames(File& myFile)
 {
+  if (!m_recorder_simple_fifo_buf)
+    {
+      print_err("ERROR: FIFO area is not allocated.\n");
+      return AUDIOLIB_ECODE_SIMPLEFIFO_ERROR;
+    }
+
   size_t data_size = CMN_SimpleFifoGetOccupiedSize(&m_recorder_simple_fifo_handle);
   print_dbg("dsize = %d\n", data_size);
 
@@ -1161,10 +1276,17 @@ err_t AudioClass::readFrames(char* p_buffer, uint32_t buffer_size, uint32_t* rea
       print_err("ERROR: Buffer area not specified.\n");
       return AUDIOLIB_ECODE_BUFFER_AREA_ERROR;
     }
+
   if (buffer_size == 0)
     {
       print_err("ERROR: Buffer area size error.\n");
       return AUDIOLIB_ECODE_BUFFER_SIZE_ERROR;
+    }
+
+  if (!m_recorder_simple_fifo_buf)
+    {
+      print_err("ERROR: FIFO area is not allocated.\n");
+      return AUDIOLIB_ECODE_SIMPLEFIFO_ERROR;
     }
 
   size_t data_size = CMN_SimpleFifoGetOccupiedSize(&m_recorder_simple_fifo_handle);
@@ -1219,6 +1341,118 @@ err_t AudioClass::setRenderingClockMode(AsClkMode mode)
               command.header.command_code, result.header.result_code, result.error_response_param.module_id, result.error_response_param.error_code);
       print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
       return AUDIOLIB_ECODE_AUDIOCOMMAND_ERROR;
+    }
+
+  return AUDIOLIB_ECODE_OK;
+}
+
+/****************************************************************************
+ * Baseband through API on Audio Class
+ ****************************************************************************/
+err_t AudioClass::setThroughMode(ThroughInput input, ThroughI2sOut i2s_out, bool sp_out, int32_t input_gain, uint8_t sp_drv)
+{
+  if (i2s_out == None)
+    {
+      AudioClass::set_output(AS_SETPLAYER_OUTPUTDEVICE_SPHP, sp_drv);
+    }
+  else
+    {
+      AudioClass::set_output(AS_SETPLAYER_OUTPUTDEVICE_I2SOUTPUT, sp_drv);
+    }
+
+  AudioCommand command;
+  command.header.packet_length = LENGTH_SET_THROUGH_PATH;
+  command.header.command_code  = AUDCMD_SETTHROUGHPATH;
+  command.header.sub_code      = 0x00;
+
+  switch (input)
+    {
+      case MicIn:
+        init_mic_gain(AS_SETRECDR_STS_INPUTDEVICE_MIC,input_gain);
+        send_set_through();
+
+        command.set_through_path.path1.en  = true;
+        command.set_through_path.path1.in  = AS_THROUGH_PATH_IN_MIC;
+        command.set_through_path.path2.en  = false;
+        break;
+
+      case I2sIn:
+        send_set_through();
+
+        command.set_through_path.path1.en  = false;
+        command.set_through_path.path2.en  = true;
+        command.set_through_path.path2.in  = AS_THROUGH_PATH_IN_I2S1;
+        command.set_through_path.path2.out = AS_THROUGH_PATH_OUT_MIXER1;
+        break;
+
+      case BothIn:
+        init_mic_gain(AS_SETRECDR_STS_INPUTDEVICE_MIC,input_gain);
+        send_set_through();
+
+        command.set_through_path.path1.en  = true;
+        command.set_through_path.path1.in  = AS_THROUGH_PATH_IN_MIC;
+        command.set_through_path.path2.en  = true;
+        command.set_through_path.path2.in  = AS_THROUGH_PATH_IN_I2S1;
+        command.set_through_path.path2.out = AS_THROUGH_PATH_OUT_MIXER1;
+        break;
+
+      default:
+        return AUDIOLIB_ECODE_PARAMETER_ERROR; /* error. tentative. */
+    }
+
+  if (i2s_out == Mic)
+    {
+      command.set_through_path.path1.out = AS_THROUGH_PATH_OUT_I2S1;
+    }
+  else
+    {
+      command.set_through_path.path1.out = AS_THROUGH_PATH_OUT_MIXER1;
+    }
+
+  AS_SendAudioCommand(&command);
+
+  AudioResult result;
+  AS_ReceiveAudioResult(&result);
+
+  if (result.header.result_code != AUDRLT_SETTHROUGHPATHCMPLT)
+    {
+      print_err("ERROR: Command (0x%x) fails. Result code(0x%x) Module id(0x%x) Error code(0x%x)\n",
+                command.header.command_code,
+                result.header.result_code,
+                result.error_response_param.module_id,
+                result.error_response_param.error_code);
+      print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
+
+      return AUDIOLIB_ECODE_AUDIOCOMMAND_ERROR;
+    }
+
+  if (i2s_out == Mixer)
+    {
+      command.set_through_path.path1.en  = true;
+      command.set_through_path.path1.in  = AS_THROUGH_PATH_IN_MIXER;
+      command.set_through_path.path1.out = AS_THROUGH_PATH_OUT_I2S1;
+      command.set_through_path.path2.en  = false;
+
+      AS_SendAudioCommand(&command);
+
+      AS_ReceiveAudioResult(&result);
+
+      if (result.header.result_code != AUDRLT_SETTHROUGHPATHCMPLT)
+        {
+          print_err("ERROR: Command (0x%x) fails. Result code(0x%x) Module id(0x%x) Error code(0x%x)\n",
+                    command.header.command_code,
+                    result.header.result_code,
+                    result.error_response_param.module_id,
+                    result.error_response_param.error_code);
+          print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
+
+          return AUDIOLIB_ECODE_AUDIOCOMMAND_ERROR;
+        }
+    }
+
+  if (sp_out)
+    {
+      board_external_amp_mute_control(false);
     }
 
   return AUDIOLIB_ECODE_OK;
@@ -1380,6 +1614,36 @@ err_t AudioClass::write_fifo(File& myFile, char *p_es_buf, uint32_t write_size, 
  * Private API on Audio Recorder
  ****************************************************************************/
 
+err_t AudioClass::set_mic_map(uint8_t map[AS_MIC_CHANNEL_MAX])
+{
+  AudioCommand command;
+
+  command.header.packet_length = LENGTH_SETMICMAP;
+  command.header.command_code  = AUDCMD_SETMICMAP;
+  command.header.sub_code      = 0;
+
+  memcpy(command.set_mic_map_param.mic_map, map, sizeof(command.set_mic_map_param.mic_map));
+
+  AS_SendAudioCommand( &command );
+
+  AudioResult result;
+  AS_ReceiveAudioResult(&result);
+
+  if (result.header.result_code != AUDRLT_SETMICMAPCMPLT)
+    {
+      print_err("ERROR: Command (0x%x) fails. Result code(0x%x) Module id(0x%x) Error code(0x%x)\n",
+                command.header.command_code,
+                result.header.result_code,
+                result.error_response_param.module_id,
+                result.error_response_param.error_code);
+      print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
+      return AUDIOLIB_ECODE_AUDIOCOMMAND_ERROR;
+    }
+
+  return AUDIOLIB_ECODE_OK;
+}
+
+/*--------------------------------------------------------------------------*/
 err_t AudioClass::init_mic_gain(int dev, int gain)
 {
   AudioCommand command;
@@ -1388,9 +1652,8 @@ err_t AudioClass::init_mic_gain(int dev, int gain)
   command.header.command_code  = AUDCMD_INITMICGAIN;
   command.header.sub_code      = 0;
 
-  /* devで、アナログ、デジタルの選択。
-  現在、未対応。
-  各マイクのGainを個別に調整はしない方向。
+  /* ”dev” can select  analog or digital, but currently not supported. 
+     It's not  suport that the gain of each microphone adjust individually.
   */
   command.init_mic_gain_param.mic_gain[0] = gain;
   command.init_mic_gain_param.mic_gain[1] = gain;
@@ -1407,6 +1670,33 @@ err_t AudioClass::init_mic_gain(int dev, int gain)
   AS_ReceiveAudioResult(&result);
 
   if (result.header.result_code != AUDRLT_INITMICGAINCMPLT)
+    {
+      print_err("ERROR: Command (0x%x) fails. Result code(0x%x) Module id(0x%x) Error code(0x%x)\n",
+              command.header.command_code, result.header.result_code, result.error_response_param.module_id, result.error_response_param.error_code);
+      print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
+      return AUDIOLIB_ECODE_AUDIOCOMMAND_ERROR;
+    }
+
+  return AUDIOLIB_ECODE_OK;
+}
+
+/****************************************************************************
+ * Private API on Audio BaseBand
+ ****************************************************************************/
+err_t AudioClass::send_set_through(void)
+{
+  AudioCommand command;
+
+  command.header.packet_length = LENGTH_SET_THROUGH_STATUS;
+  command.header.command_code = AUDCMD_SETTHROUGHSTATUS;
+  command.header.sub_code = 0x00;
+
+  AS_SendAudioCommand(&command);
+
+  AudioResult result;
+  AS_ReceiveAudioResult(&result);
+
+  if (result.header.result_code != AUDRLT_STATUSCHANGED)
     {
       print_err("ERROR: Command (0x%x) fails. Result code(0x%x) Module id(0x%x) Error code(0x%x)\n",
               command.header.command_code, result.header.result_code, result.error_response_param.module_id, result.error_response_param.error_code);
