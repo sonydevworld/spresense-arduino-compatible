@@ -1,0 +1,34 @@
+#######################################
+# Syntax Coloring Map For MP
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+MPClass	KEYWORD1
+MP	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+begin	KEYWORD2
+end	KEYWORD2
+Send	KEYWORD2
+Recv	KEYWORD2
+SendObject	KEYWORD2
+RecvObject	KEYWORD2
+SendWaitComplete	KEYWORD2
+RecvTimeout	KEYWORD2
+GetRecvTimeout	KEYWORD2
+Virt2Phys	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+MP_RECV_BLOCKING	LITERAL1
+MP_RECV_POLLING	LITERAL1
+MP_GET_CPUID	LITERAL1
+
