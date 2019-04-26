@@ -1,5 +1,6 @@
 /*
- *  Aesm.cpp - Sensor library for the Spresense SDK
+ *  Aesm.cpp - Gait Measurement Library(AESM: Activity Engine StepMeter)
+ *             for the Spresense SDK
  *  Copyright 2019 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or

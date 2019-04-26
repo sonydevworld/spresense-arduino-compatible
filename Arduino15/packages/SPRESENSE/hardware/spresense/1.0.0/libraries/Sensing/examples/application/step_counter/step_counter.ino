@@ -20,7 +20,7 @@
 #include <BMI160Gen.h>
 
 #include <MemoryUtil.h>
-#include <SensorSystem.h>
+#include <SensorManager.h>
 #include <AccelSensor.h>
 #include <Aesm.h>
 #include <ApplicationSensor.h>
@@ -104,10 +104,7 @@ void setup()
 
   /* Initialize sensor class */
 
-  MemoryUtil.begin();
-  MemoryUtil.setLayout(MEM_LAYOUT_SENSORS);
-
-  SensorSystem.begin();
+  SensorManager.begin();
 
   AccelSensor.begin(APP_accelID,
                     0,

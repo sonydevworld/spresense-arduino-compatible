@@ -1,5 +1,5 @@
 /*
- *  SensorClient.h - Sensing include file for the Spresense SDK
+ *  SensorManager.h - Sensing include file for the Spresense SDK
  *  Copyright 2019 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
@@ -18,7 +18,7 @@
  */
 
 /**
- * @file SensorSystem.h
+ * @file SensorManager.h
  * @author Sony Semiconductor Solutions Corporation
  * @brief Sensor Library Class for Arduino on Spresense.
  * @details By using this library, you can use the follow features
@@ -26,17 +26,17 @@
  *          - Sensing Steps
  */
 
-#ifndef __SENSORSYSTEM_H
-#define __SENSORSYSTEM_H
+#ifndef __SENSORMANAGER_H
+#define __SENSORMANAGER_H
 
 
-class SensorSystemClass
+class SensorManagerClass
 {
 public:
 	bool begin();
 	bool end();
 };
 
-extern SensorSystemClass SensorSystem;
+extern SensorManagerClass SensorManager;
 
-#endif /* __SENSORSYSTEM_H */
+#endif /* __SENSORMANAGER_H */
