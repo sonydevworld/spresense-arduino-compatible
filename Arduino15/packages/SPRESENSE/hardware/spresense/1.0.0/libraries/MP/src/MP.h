@@ -68,11 +68,7 @@
 
 #define MP_GET_CPUID()      (*(volatile int *)0x4e002040)
 
-#ifdef CONFIG_CXD56_SUBCORE
-#define MP_MAX_SUBID 1
-#else
 #define MP_MAX_SUBID 6
-#endif
 
 /****************************************************************************
  * class declaration
@@ -86,7 +82,7 @@
 class MPClass
 {
 public:
-  MPClass() : _recvTimeout(MP_RECV_BLOCKING) {};
+  MPClass();
 
   int begin(int subid = 0);
   int end(int subid = 0);
@@ -114,6 +110,12 @@ public:
 private:
   uint32_t _recvTimeout;
   mpmq_t   _mq[MP_MAX_SUBID];
+  struct ResourceManagement {
+    uint32_t magic;
+    uint32_t cpu_assign;
+    uint32_t reserved[2];
+    uint32_t resource[4];
+  } *_rmng;
 
   int checkid(int subid);
 #ifndef CONFIG_CXD56_SUBCORE
