@@ -61,6 +61,7 @@
 #endif
 #define MPERR(format, ...) printf("ERROR: " format, ##__VA_ARGS__)
 
+#define KEY_SHM   1
 #define KEY_MQ    2
 
 #define MP_RECV_BLOCKING    (0)
@@ -107,6 +108,12 @@ public:
   // convert virtual to physical address
   uint32_t Virt2Phys(void *virt);
 
+#ifndef CONFIG_CXD56_SUBCORE
+  // Shared Memory (128Kbyte alignment)
+  void *AllocSharedMemory(size_t size);
+  void FreeSharedMemory(void *addr);
+#endif
+
 private:
   uint32_t _recvTimeout;
   mpmq_t   _mq[MP_MAX_SUBID];
@@ -122,6 +129,12 @@ private:
   mptask_t _mptask[MP_MAX_SUBID];
   int load(int subid);
   int unload(int subid);
+  sq_queue_t _shmlist;
+  struct shm_entry {
+    sq_entry_t entry;
+    mpshm_t    shm;
+    uint32_t   addr;
+  };
 #endif
 };
 

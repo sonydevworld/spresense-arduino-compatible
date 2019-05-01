@@ -54,6 +54,7 @@ MPClass::MPClass() : _recvTimeout(MP_RECV_BLOCKING)
 #ifndef CONFIG_CXD56_SUBCORE
   memset(_rmng, 0, sizeof(ResourceManagement));
   _rmng->magic = MP_MAGIC;
+  sq_init(&_shmlist);
 #endif
 }
 
@@ -186,6 +187,59 @@ uint32_t MPClass::Virt2Phys(void *virt)
 
   return phys;
 }
+
+#ifndef CONFIG_CXD56_SUBCORE
+void *MPClass::AllocSharedMemory(size_t size)
+{
+  void    *virt;
+  int ret;
+
+  if (size == 0) {
+    return NULL;
+  }
+
+  shm_entry *node = (shm_entry *)malloc(sizeof(shm_entry));
+  if (!node) {
+    return NULL;
+  }
+
+  ret = mpshm_init(&node->shm, KEY_SHM, size);
+  if (ret < 0) {
+    free(node);
+    return NULL;
+  }
+
+  virt = mpshm_attach(&node->shm, 0);
+  if (!virt) {
+    mpshm_destroy(&node->shm);
+    free(node);
+    return NULL;
+  }
+
+  node->addr = mpshm_virt2phys(NULL, virt);
+
+  sq_addfirst(&node->entry, &_shmlist);
+
+  return (void *)node->addr;
+};
+
+void MPClass::FreeSharedMemory(void *addr)
+{
+  sq_entry_t *entry;
+  for (entry = sq_peek(&_shmlist); entry; entry = sq_next(entry)) {
+    if (((shm_entry *)entry)->addr == (uint32_t)addr) {
+      sq_rem(entry, &_shmlist);
+      break;
+    }
+  }
+  if (entry) {
+    shm_entry *node = (shm_entry *)entry;
+    mpshm_detach(&node->shm);
+    mpshm_destroy(&node->shm);
+    free(node);
+  }
+}
+#endif /* !CONFIG_CXD56_SUBCORE */
 
 /****************************************************************************
  * Private Functions
