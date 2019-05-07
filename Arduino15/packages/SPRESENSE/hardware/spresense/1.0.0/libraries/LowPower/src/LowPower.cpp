@@ -25,6 +25,7 @@
 #include <sys/boardctl.h>
 #include <arch/chip/pm.h>
 #include <cxd56_gpioint.h>
+#include <cxd56_clock.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -206,6 +207,21 @@ void LowPowerClass::clockMode(clockmode_e mode)
     break;
   default:
     break;
+  }
+}
+
+clockmode_e LowPowerClass::getClockMode()
+{
+  uint32_t clock;
+
+  clock = cxd56_get_cpu_baseclk();
+
+  if (clock >= 100 * 1000 * 1000) { /* >= 100MHz */
+    return CLOCK_MODE_HIGH;
+  } else if (clock >= 16 * 1000 * 1000) { /* >= 16MHz */
+    return CLOCK_MODE_MIDDLE;
+  } else { /* < 16MHz */
+    return CLOCK_MODE_LOW;
   }
 }
 

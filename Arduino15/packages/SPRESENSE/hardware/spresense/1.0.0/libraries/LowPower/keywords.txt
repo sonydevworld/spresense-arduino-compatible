@@ -26,6 +26,7 @@ enableBootCause	KEYWORD2
 disableBootCause	KEYWORD2
 getWakeupPin	KEYWORD2
 clockMode	KEYWORD2
+getClockMode	KEYWORD2
 getVoltage	KEYWORD2
 getCurrent	KEYWORD2
 

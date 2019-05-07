@@ -198,6 +198,12 @@ public:
   void clockMode(clockmode_e mode);
 
   /**
+   * @brief Get clock mode
+   * @return the clock mode
+   */
+  clockmode_e getClockMode();
+
+  /**
    * @brief Get the sensed battery voltage on CXD5247
    * @return sensed voltage [mV]
    */
