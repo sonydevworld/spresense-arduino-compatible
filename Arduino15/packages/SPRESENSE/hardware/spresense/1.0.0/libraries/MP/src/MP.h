@@ -30,7 +30,7 @@
 
 /**
  * @defgroup mp MP Library API
- * @brief API for using MP API
+ * @brief Multi-Processor Communication API
  * @{
  */
 
@@ -85,32 +85,129 @@ class MPClass
 public:
   MPClass();
 
+  /**
+   * @brief Start communication with the other processor
+   * @param [in] subid - SubCore number(1~5) launched from MainCore.
+   *                     If core is SubCore, call without this argument.
+   * @return error code. It returns minus value on failure.
+   * @details MainCore boots the specified SubCore. On the other hand, the
+   *          launched SubCore notifies MainCore to boot completion by
+   *          calling this API.
+   */
   int begin(int subid = 0);
+
+  /**
+   * @brief End communication with the other processor
+   * @param [in] subid - SubCore number(1~5) finalized from MainCore.
+   *                     If core is SubCore, this API does nothing.
+   * @return error code. It returns minus value on failure.
+   * @details MainCore finalizes the specified SubCore.
+   */
   int end(int subid = 0);
 
-  // send/receive message data
+  /**
+   * @brief Send any 32bit-data to the other processor
+   * @param [in] msgid - user-defined message ID
+   * @param [in] msgdata - user-defined message data (32bit)
+   * @param [in] subid - SubCore number(1~5) to send any message.
+   *                     If core is SubCore, send to MainCore by default.
+   * @return error code. It returns minus value on failure.
+   */
   int Send(int8_t msgid, uint32_t msgdata, int subid = 0);
+
+  /**
+   * @brief Receive any 32bit-data from the other processor
+   * @param [out] msgid - pointer to user-defined message ID
+   * @param [out] msgdata - pointer to user-defined message data (32bit)
+   * @param [in] subid - SubCore number(1~5) to receive any message.
+   *                     If core is SubCore, receive from MainCore by default.
+   * @return msgid or error code. It returns minus value on failure.
+   */
   int Recv(int8_t *msgid, uint32_t *msgdata, int subid = 0);
 
-  // send/receive message address
+  /**
+   * @brief Send the address of any message to the other processor
+   * @param [in] msgid - user-defined message ID
+   * @param [in] msgaddr - pointer to user-defined message address
+   * @param [in] subid - SubCore number(1~5) to send any message.
+   *                     If core is SubCore, send to MainCore by default.
+   * @return error code. It returns minus value on failure.
+   */
   int Send(int8_t msgid, void *msgaddr, int subid = 0);
+
+  /**
+   * @brief Receive the address of any message from the other processor
+   * @param [out] msgid - pointer to user-defined message ID
+   * @param [out] msgaddr - pointer to user-defined message address
+   * @param [in] subid - SubCore number(1~5) to receive any message.
+   *                     If core is SubCore, receive from MainCore by default.
+   * @return msgid or error code. It returns minus value on failure.
+   */
   int Recv(int8_t *msgid, void *msgaddr, int subid = 0);
 
-  // send/receive message object
+  /**
+   * @brief Send any object to the other processor
+   * @param [in] t - reference to user-defined object
+   * @param [in] subid - SubCore number(1~5) to send any message.
+   *                     If core is SubCore, send to MainCore by default.
+   * @return error code. It returns minus value on failure.
+   * @details The size of object must be 128 bytes or less.
+   */
   template <typename T> int SendObject(T &t, int subid = 0);
+
+  /**
+   * @brief Receive any object from the other processor
+   * @param [out] t - reference to user-defined object
+   * @param [in] subid - SubCore number(1~5) to receive any message.
+   *                     If core is SubCore, receive from MainCore by default.
+   * @return msgid or error code. It returns minus value on failure.
+   * @details The size of object must be 128 bytes or less.
+   */
   template <typename T> int RecvObject(T &t, int subid = 0);
+
+  /**
+   * @brief Wait for the object to be sent
+   * @param [in] subid - SubCore number(1~5) to send any message.
+   *                     If core is SubCore, send to MainCore by default.
+   * @return error code. It returns minus value on failure.
+   * @details Please call after SendObject().
+   */
   int SendWaitComplete(int subid = 0);
 
-  // receive timeout
+  /**
+   * @brief Set timeout of receiver
+   * @param [in] timeout - waiting time [msec] for reception.
+   *             If MP_RECV_BLOCKING is specified, wait forever to receive.
+   *             If MP_RECV_POLLING is specified, polling the received data
+   *             without blocking.
+   */
   void     RecvTimeout(uint32_t timeout);
+
+  /**
+   * @brief Get timeout of receiver
+   * @return timeout value
+   */
   uint32_t GetRecvTimeout();
 
-  // convert virtual to physical address
+  /**
+   * @brief Convert virtual address to physical address
+   * @param [in] virt - virtual address
+   * @return physical address
+   */
   uint32_t Virt2Phys(void *virt);
 
 #ifndef CONFIG_CXD56_SUBCORE
-  // Shared Memory (128Kbyte alignment)
+  /**
+   * @brief Allocate memory from shared memory
+   * @param [in] size - size. This is align up to 128KByte.
+   * @return memory allocated physical address
+   */
   void *AllocSharedMemory(size_t size);
+
+  /**
+   * @brief Free memory from shared memory
+   * @param [in] addr - address allocated by AllocSharedMemory().
+   */
   void FreeSharedMemory(void *addr);
 #endif
 
@@ -142,7 +239,6 @@ private:
  * template functions
  ****************************************************************************/
 
-// send/receive message object
 template <typename T> int MPClass::SendObject(T &t, int subid)
 {
   int ret;
