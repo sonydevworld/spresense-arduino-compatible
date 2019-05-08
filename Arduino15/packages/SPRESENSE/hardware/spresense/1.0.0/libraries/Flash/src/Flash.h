@@ -60,6 +60,13 @@ public:
    */
   boolean begin() { return true; };
 
+  /**
+   * @brief  Format the Flash device
+   *
+   * @details This will format the Flash device to SmartFS file system.
+   * @return 0 if the Flash format is successful, error code if not
+   */
+  int format();
 };
 
 extern FlashClass Flash;

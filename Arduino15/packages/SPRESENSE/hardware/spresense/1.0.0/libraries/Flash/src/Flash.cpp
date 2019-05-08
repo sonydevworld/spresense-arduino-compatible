@@ -32,10 +32,23 @@
 #include <Arduino.h>
 #include <Flash.h>
 
+#define FLASH_DEVPATH "/dev/smart0d1"
+#define FLASH_SECTORSIZE 4096
+#define FLASH_NROOTDIRS 1
+
 #define FLASH_MOUNT_POINT "/mnt/spif/"
+
+extern "C" {
+int mksmartfs(const char *pathname, uint16_t sectorsize, uint8_t nrootdirs);
+};
 
 FlashClass::FlashClass() : StorageClass(FLASH_MOUNT_POINT)
 {
+}
+
+int FlashClass::format()
+{
+  return mksmartfs(FLASH_DEVPATH, FLASH_SECTORSIZE, FLASH_NROOTDIRS);
 }
 
 FlashClass Flash;
