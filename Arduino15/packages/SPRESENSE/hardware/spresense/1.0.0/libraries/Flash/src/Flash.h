@@ -51,6 +51,15 @@ class FlashClass : public StorageClass {
 public:
   FlashClass();
 
+  /**
+   * @brief  Initialize the Flash library
+   *
+   * @details This is a dummy function provided to match other storages as
+   *          SDHCI and eMMC.
+   * @return true
+   */
+  boolean begin() { return true; };
+
 };
 
 extern FlashClass Flash;
