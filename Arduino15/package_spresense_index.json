@@ -11,13 +11,13 @@
         {
           "category": "SPRESENSE",
           "name": "Spresense Reference Board",
-          "url": "https://github.com/sonydevworld/spresense-arduino-compatible/releases/download/v1.0.000/spresense-v1.0.000.tar.gz",
+          "url": "https://github.com/sonydevworld/spresense-arduino-compatible/releases/download/v1.2.1/spresense-v1.2.1.tar.gz",
           "help": {
             "online": "https://github.com/sonydevworld/spresense-arduino-compatible/releases"
           },
-          "version": "1.0.0",
+          "version": "1.2.1",
           "architecture": "spresense",
-          "archiveFileName": "spresense-v1.0.000.tar.gz",
+          "archiveFileName": "spresense-v1.2.1.tar.gz",
           "boards": [
             {
               "name": "Generic Spresense Module"
@@ -31,7 +31,7 @@
             },
             {
               "packager": "SPRESENSE",
-              "version": "1.0.0",
+              "version": "1.2.1",
               "name": "spresense-tools"
             },
             {
@@ -40,7 +40,7 @@
               "name": "gcc-arm-none-eabi"
             }
           ],
-          "size": "33653981"
+          "size": "537724"
         }
       ],
       "tools": [
@@ -49,23 +49,23 @@
           "name": "spresense-sdk",
           "systems": [
             {
-              "url": "https://github.com/sonydevworld/spresense-arduino-compatible/releases/download/v1.0.000/spresense-sdk-v1.0.000.tar.gz",
+              "url": "https://github.com/sonydevworld/spresense-arduino-compatible/releases/download/v1.2.1/spresense-sdk-v1.2.1.tar.gz",
               "host": "i686-mingw32",
-              "archiveFileName": "spresense-sdk-v1.0.000.tar.gz",
-              "size": "7093913"
+              "archiveFileName": "spresense-sdk-v1.2.1.tar.gz",
+              "size": "6257789"
             },
             {
               "_comment": "Allow x64-Linux build",
-              "url": "https://github.com/sonydevworld/spresense-arduino-compatible/releases/download/v1.0.000/spresense-sdk-v1.0.000.tar.gz",
+              "url": "https://github.com/sonydevworld/spresense-arduino-compatible/releases/download/v1.2.1/spresense-sdk-v1.2.1.tar.gz",
               "host": "x86_64-pc-linux-gnu",
-              "archiveFileName": "spresense-sdk-v1.0.000.tar.gz",
-              "size": "7093913"
+              "archiveFileName": "spresense-sdk-v1.2.1.tar.gz",
+              "size": "6257789"
             },
             {
-              "url": "https://github.com/sonydevworld/spresense-arduino-compatible/releases/download/v1.0.000/spresense-sdk-v1.0.000.tar.gz",
+              "url": "https://github.com/sonydevworld/spresense-arduino-compatible/releases/download/v1.2.1/spresense-sdk-v1.2.1.tar.gz",
               "host": "i386-apple-darwin11",
-              "archiveFileName": "spresense-sdk-v1.0.000.tar.gz",
-              "size": "7093913"
+              "archiveFileName": "spresense-sdk-v1.2.1.tar.gz",
+              "size": "6257789"
             }
           ]
         },
@@ -74,22 +74,22 @@
           "name": "spresense-tools",
           "systems": [
             {
-              "url": "https://github.com/sonydevworld/spresense-arduino-compatible/releases/download/v1.0.000/spresense-tools-v1.0.000.tar.gz",
+              "url": "https://github.com/sonydevworld/spresense-arduino-compatible/releases/download/v1.2.1/spresense-tools-v1.2.1.tar.gz",
               "host": "i686-mingw32",
-              "archiveFileName": "spresense-tools-v1.0.000.tar.gz",
-              "size": "7093913"
+              "archiveFileName": "spresense-tools-v1.2.1.tar.gz",
+              "size": "59294138"
             },
             {
               "_comment": "Allow x64-Linux build",
-              "url": "https://github.com/sonydevworld/spresense-arduino-compatible/releases/download/v1.0.000/spresense-tools-v1.0.000.tar.gz",
+              "url": "https://github.com/sonydevworld/spresense-arduino-compatible/releases/download/v1.2.1/spresense-tools-v1.2.1.tar.gz",
               "host": "x86_64-pc-linux-gnu",
-              "archiveFileName": "spresense-tools-v1.0.000.tar.gz",
-              "size": "7093913"
+              "archiveFileName": "spresense-tools-v1.2.1.tar.gz",
+              "size": "59294138"
             },            {
-              "url": "https://github.com/sonydevworld/spresense-arduino-compatible/releases/download/v1.0.000/spresense-tools-v1.0.000.tar.gz",
+              "url": "https://github.com/sonydevworld/spresense-arduino-compatible/releases/download/v1.2.1/spresense-tools-v1.2.1.tar.gz",
               "host": "i386-apple-darwin11",
-              "archiveFileName": "spresense-tools-v1.0.000.tar.gz",
-              "size": "7093913"
+              "archiveFileName": "spresense-tools-v1.2.1.tar.gz",
+              "size": "59294138"
             }
           ]
         },
