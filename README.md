@@ -30,9 +30,9 @@ spresense-arduino-compatible
 ```
 
 # Getting started
-### [developer_guide_arduino_en (English)](https://github.com/sonydevworld/spresense-docs/blob/master/developer_guide/arduino/developer_guide_arduino_en.adoc)
+### [Spresense Arduino Library Getting Started Guide (English)](https://developer.sony.com/develop/spresense/developer-tools/get-started-using-arduino-ide/set-up-the-arduino-ide)
 
-### [developer_guide_arduino_ja (日本語)](https://github.com/sonydevworld/spresense-docs/blob/master/developer_guide/arduino/developer_guide_arduino_ja.adoc)
+### [Arduino IDEでの開発 (日本語)](https://developer.sony.com/ja/develop/spresense/developer-tools/get-started-using-arduino-ide)
 
 # How to prepare Arduino environment
 ## Pull or Import GCC and Prebuilt SDK
@@ -60,7 +60,7 @@ spresense-arduino-compatible
 | -M     | "SDK" or "Kernel" or "SDK/Kernel" | Manual configuration by menuconfig             |
 | -G     | "SDK" or "Kernel" or "SDK/Kernel" | Manual configuration by gconfig                |
 | -Q     | "SDK" or "Kernel" or "SDK/Kernel" | Manual configuration by qconfig                |
-| -i     | -                                 | Do not change Kernel/SDK configuration         |	
+| -i     | -                                 | Do not change Kernel/SDK configuration         |
 
 #### Other option
 
