@@ -33,8 +33,8 @@
 class SensorManagerClass
 {
 public:
-	bool begin();
-	bool end();
+  bool begin();
+  bool end();
 };
 
 extern SensorManagerClass SensorManager;

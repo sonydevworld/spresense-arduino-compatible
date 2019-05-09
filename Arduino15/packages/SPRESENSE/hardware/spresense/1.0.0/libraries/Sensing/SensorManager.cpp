@@ -63,11 +63,11 @@ bool SensorManagerClass::begin()
   MemoryUtil.begin();
   MemoryUtil.setLayout(MEM_LAYOUT_SENSORS);
 
-	return SS_ActivateSensorSubSystem(MSGQ_SEN_MGR, sensor_manager_api_response);
+  return SS_ActivateSensorSubSystem(MSGQ_SEN_MGR, sensor_manager_api_response);
 }
 
 bool SensorManagerClass::end()
 {
-	return SS_DeactivateSensorSubSystem();
+  return SS_DeactivateSensorSubSystem();
 }
 

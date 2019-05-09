@@ -36,27 +36,67 @@
 using namespace MemMgrLite;
 
 /*--------------------------------------------------------------------------*/
+/**
+ * @class MemoryUtilClass
+ * @brief MemoryManager Library Class Definitions.
+ */
 
 class MemoryUtilClass
 {
 public:
 
-	MemoryUtilClass():m_state(E_Inactive){}
-	
-	int begin();
-	int setLayout(uint8_t layout_no);
-	int clearLayout();
-	int end();
-	const PoolAttr* getLayout(int layout_no);
+  MemoryUtilClass():m_state(E_Inactive){}
+  
+  /**
+   * @brief Initialize MemoryManager library.
+   *
+   * @details Initialization of the entire MemoryManager. 
+   *          Run only once on a single CPU.
+   */
+
+  int begin();
+
+
+  /**
+   * @brief Generate static memory pool group.
+   *
+   * @details Generate a memory pool group with the specified layout number.
+   *
+   */
+
+  int setLayout(uint8_t layout_no);
+
+  /**
+   * @brief Destroy the static memory pool.
+   *
+   */
+
+  int clearLayout();
+
+  /**
+   * @brief Finalize MemoryManager library.
+   *
+   */
+
+  int end();
+
+  /**
+   * @brief Get static memory pool information.
+   *
+   * @details Get memory pool group with the specified layout number.
+   *
+   */
+
+  const PoolAttr* getLayout(int layout_no);
 
 private:
-	enum E_state{
-		E_Inactive=0,
-		E_Active,
-		STATE_NUM
-	};
-	
-	E_state m_state;
+  enum E_state{
+    E_Inactive=0,
+    E_Active,
+    STATE_NUM
+  };
+  
+  E_state m_state;
 };
 
 /*--------------------------------------------------------------------------*/

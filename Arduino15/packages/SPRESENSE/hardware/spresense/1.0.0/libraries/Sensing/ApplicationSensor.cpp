@@ -39,7 +39,7 @@ int StepCountReaderClass::subscribe(sensor_command_data_mh_t& data)
     {
       return static_cast<int>NULL;
     }
-	
+  
   return reinterpret_cast<int>(&result_data->result.steps);
 }
 

@@ -136,7 +136,7 @@ public:
 
   bool begin(int      id,
              uint32_t subscriptions,
-	         sensor_data_mh_callback_t cb);
+             sensor_data_mh_callback_t cb);
 /**
    * @brief Write sensing data from buffer
    *
@@ -166,7 +166,7 @@ public:
       uint32_t               sample_watermark_num,
       uint32_t               timestamp);
 
-	/**
+  /**
    * @brief Read sensing data from buffer
    *
    * @details This function Called when subscribed from the logical sensor.

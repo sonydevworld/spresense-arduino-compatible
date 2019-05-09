@@ -51,7 +51,7 @@ unsigned char step_counter_cb(sensor_command_data_mh_t &dat)
 
 
 bool AesmClass::begin(
-	int      id,
+    int      id,
     uint32_t subscriptions,
     int      input_rate,
     int      input_sample_watermark_num,
@@ -63,7 +63,7 @@ bool AesmClass::begin(
                       step_counter_sample_num,
                       input_size_per_sample,
                       step_counter_cb);
-	
+  
   m_input_rate                 = input_rate;
   m_input_sample_watermark_num = input_sample_watermark_num;
   m_input_size_per_sample      = input_size_per_sample;

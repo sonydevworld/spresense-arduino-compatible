@@ -48,7 +48,7 @@ int MemoryUtilClass::begin(void)
 {
 
   if(m_state == E_Active){
-  	return 2;
+    return 2;
   }
 
   int ret = mpshm_init(&s_shm, 1,  RAM_TILE_SIZE * 2); /* Used 2 Tile */
@@ -112,7 +112,7 @@ int MemoryUtilClass::end(void)
 
 
   if(m_state == E_Inactive){
-  	return 2;
+    return 2;
   }
 
   /* Finalize MessageLib. */

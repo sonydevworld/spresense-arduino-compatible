@@ -29,10 +29,10 @@ bool AccelSensorClass::begin(int      id,
                         int      size_per_sample)
 {
   /* Init private parameters. */
-	if(!SensorClient::begin(id,subscriptions,rate,sample_watermark_num,size_per_sample, NULL))
-	{
-		return false;
-	}
+  if(!SensorClient::begin(id,subscriptions,rate,sample_watermark_num,size_per_sample, NULL))
+  {
+    return false;
+  }
 
   m_cnt           = 0;
   m_previous_time = millis();
@@ -46,7 +46,7 @@ bool AccelSensorClass::begin(int      id,
       printf("Fail to allocate segment of memory handle.\n");
       return false;
     }
-	return true;
+  return true;
 }
 
 

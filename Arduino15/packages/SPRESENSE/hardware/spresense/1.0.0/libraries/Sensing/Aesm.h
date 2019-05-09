@@ -58,7 +58,7 @@ class AesmClass : public SensorClient
 {
 public:
   bool begin(int      id,
-  	         uint32_t subscriptions,
+             uint32_t subscriptions,
              int      input_rate,
              int      input_sample_watermark_num,
              int      input_size_per_sample);
@@ -76,7 +76,7 @@ private:
   int m_input_size_per_sample;
 
 
-	FAR StepCounterClass *step_counter_ins;
+  FAR StepCounterClass *step_counter_ins;
 
 };
 
