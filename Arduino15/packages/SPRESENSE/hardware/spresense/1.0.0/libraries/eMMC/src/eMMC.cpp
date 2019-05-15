@@ -43,7 +43,7 @@
 
 #define EMMC_DEVPATH "/dev/emmc0"
 
-#define EMMC_MOUNT_POINT "/mnt/vfat/"
+#define EMMC_MOUNT_POINT "/mnt/emmc/"
 
 //#define DEBUG
 #ifdef DEBUG
