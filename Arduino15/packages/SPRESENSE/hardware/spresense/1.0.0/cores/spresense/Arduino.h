@@ -196,6 +196,9 @@ void attachTimerInterrupt(unsigned int (*isr)(void), unsigned int us);
 //   This can not be used at the same time with tone().
 void detachTimerInterrupt(void);
 
+/* macro to customize heap size for subcore */
+#define USER_HEAP_SIZE(size) __asm (".global __userheap_size__; .equ __userheap_size__," #size);
+
 #endif // __cplusplus
 
 #include <HardwareSerial.h>

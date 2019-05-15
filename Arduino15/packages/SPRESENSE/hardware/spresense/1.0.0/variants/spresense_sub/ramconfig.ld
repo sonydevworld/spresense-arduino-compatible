@@ -100,7 +100,10 @@ SECTIONS
 
 	/* __stack symbol is referred from mkspk tool
 	 * and means the end address of heap region */
-	PROVIDE(__stack = ORIGIN(ram) + LENGTH(ram));
+	.stackheap : {
+		. += DEFINED(__userheap_size__) ? __userheap_size__ : 32K;
+		__stack = ALIGN(128K);
+	} > ram
 
 					/* Stabs debugging sections.	*/
 	.stab 0 : { *(.stab) }

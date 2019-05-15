@@ -1,7 +1,5 @@
 menu.Debug=Debug
-menu.SubCore=SubCore
-menu.SubCoreMemorySize=SubCore MemorySize
-menu.SubCoreDebug=SubCore Debug
+menu.Core=Core
 menu.UploadSpeed=UploadSpeed
 
 ############## Spresense BOARD ##############
@@ -25,25 +23,51 @@ spresense.build.mcu=spresense
 spresense.build.f_cpu=156000000L
 spresense.build.board=spresense_ast
 spresense.build.core=spresense
-spresense.build.variant=spresense
-spresense.build.debug=
-spresense.build.libpath=
-spresense.build.stack=-Wl,--defsym,__stack=_vectors+{upload.maximum_size}
+
+spresense.menu.Core.Main=MainCore
+spresense.menu.Core.Sub1=SubCore 1
+spresense.menu.Core.Sub2=SubCore 2
+spresense.menu.Core.Sub3=SubCore 3
+spresense.menu.Core.Sub4=SubCore 4
+spresense.menu.Core.Sub5=SubCore 5
+
+spresense.menu.Core.Sub1.index=1
+spresense.menu.Core.Sub2.index=2
+spresense.menu.Core.Sub3.index=3
+spresense.menu.Core.Sub4.index=4
+spresense.menu.Core.Sub5.index=5
+
+spresense.menu.Core.Main.build.flash_name=nuttx
+spresense.menu.Core.Sub1.build.flash_name=sub1
+spresense.menu.Core.Sub2.build.flash_name=sub2
+spresense.menu.Core.Sub3.build.flash_name=sub3
+spresense.menu.Core.Sub4.build.flash_name=sub4
+spresense.menu.Core.Sub5.build.flash_name=sub5
+
+spresense.build.extra_flags=-DSUBCORE={index}
+spresense.menu.Core.Main.build.extra_flags=
+
+spresense.build.type_prefix=subcore-
+spresense.menu.Core.Main.build.type_prefix=
+
+spresense.build.variant=spresense_sub
+spresense.menu.Core.Main.build.variant=spresense
+
+spresense.build.stack=
+spresense.menu.Core.Main.build.stack=-Wl,--defsym,__stack=_vectors+{upload.maximum_size}
+
 spresense.build.ldscript=-T{variant.path}/ramconfig.ld
+spresense.build.root={runtime.tools.spresense-sdk.path}/spresense
+spresense.build.kernel={build.root}/{build.type}
+spresense.build.libpath={build.kernel}/prebuilt
 
 spresense.menu.Debug.Disabled=Disabled
 spresense.menu.Debug.Disabled.build.debug=
-spresense.menu.Debug.Disabled.build.type=release
-spresense.menu.Debug.Disabled.build.root={runtime.tools.spresense-sdk.path}/spresense
-spresense.menu.Debug.Disabled.build.kernel={build.root}/{build.type}
-spresense.menu.Debug.Disabled.build.libpath={build.kernel}/prebuilt
+spresense.menu.Debug.Disabled.build.type={build.type_prefix}release
 
 spresense.menu.Debug.Enabled=Enabled
 spresense.menu.Debug.Enabled.build.debug=-DBRD_DEBUG
-spresense.menu.Debug.Enabled.build.type=debug
-spresense.menu.Debug.Enabled.build.root={runtime.tools.spresense-sdk.path}/spresense
-spresense.menu.Debug.Enabled.build.kernel={build.root}/{build.type}
-spresense.menu.Debug.Enabled.build.libpath={build.kernel}/prebuilt
+spresense.menu.Debug.Enabled.build.type={build.type_prefix}debug
 
 spresense.menu.UploadSpeed.115200=115200
 spresense.menu.UploadSpeed.115200.upload.speed=
@@ -61,107 +85,4 @@ spresense.menu.UploadSpeed.1000000=1000000
 spresense.menu.UploadSpeed.1000000.upload.speed=-b 1000000
 spresense.menu.UploadSpeed.1152000=1152000
 spresense.menu.UploadSpeed.1152000.upload.speed=-b 1152000
-
-############## Spresense BOARD for SubCore ##############
-spresense_sub.name=Spresense SubCore
-
-spresense_sub.vid.0=0x10C4
-spresense_sub.pid.0=0xEA60
-
-spresense_sub.upload.tool=spresense-tools
-spresense_sub.upload.speed=115200
-spresense_sub.upload.resetmethod=ck
-spresense_sub.upload.wait_for_upload_port=true
-spresense_sub.serial.disableDTR=false
-spresense_sub.serial.disableRTS=true
-
-spresense_sub.bootloader.tool=spresense-tools
-
-spresense_sub.build.mcu=spresense
-spresense_sub.build.f_cpu=156000000L
-spresense_sub.build.board=spresense_ast
-spresense_sub.build.core=spresense
-spresense_sub.build.variant=spresense_sub
-spresense_sub.build.debug=
-spresense_sub.build.libpath=
-spresense_sub.build.stack=-Wl,--defsym,__stack=_vectors+{upload.maximum_size}
-spresense_sub.build.ldscript=-T{variant.path}/ramconfig.ld
-
-spresense_sub.menu.SubCore.Sub1=SubCore 1
-spresense_sub.menu.SubCore.Sub2=SubCore 2
-spresense_sub.menu.SubCore.Sub3=SubCore 3
-spresense_sub.menu.SubCore.Sub4=SubCore 4
-spresense_sub.menu.SubCore.Sub5=SubCore 5
-
-spresense_sub.menu.SubCore.Sub1.index=1
-spresense_sub.menu.SubCore.Sub2.index=2
-spresense_sub.menu.SubCore.Sub3.index=3
-spresense_sub.menu.SubCore.Sub4.index=4
-spresense_sub.menu.SubCore.Sub5.index=5
-
-spresense_sub.menu.SubCoreDebug.Disabled=Disabled
-spresense_sub.menu.SubCoreDebug.Disabled.build.debug=
-spresense_sub.menu.SubCoreDebug.Disabled.build.type=subcore-release
-spresense_sub.menu.SubCoreDebug.Disabled.build.root={runtime.tools.spresense-sdk.path}/spresense
-spresense_sub.menu.SubCoreDebug.Disabled.build.kernel={build.root}/{build.type}
-spresense_sub.menu.SubCoreDebug.Disabled.build.libpath={build.kernel}/prebuilt
-spresense_sub.menu.SubCoreDebug.Disabled.build.extra_flags=-DSUBCORE={index}
-
-spresense_sub.menu.SubCoreDebug.Enabled=Enabled
-spresense_sub.menu.SubCoreDebug.Enabled.build.debug=-DBRD_DEBUG
-spresense_sub.menu.SubCoreDebug.Enabled.build.type=subcore-debug
-spresense_sub.menu.SubCoreDebug.Enabled.build.root={runtime.tools.spresense-sdk.path}/spresense
-spresense_sub.menu.SubCoreDebug.Enabled.build.kernel={build.root}/{build.type}
-spresense_sub.menu.SubCoreDebug.Enabled.build.libpath={build.kernel}/prebuilt
-spresense_sub.menu.SubCoreDebug.Enabled.build.extra_flags=-DSUBCORE={index}
-
-spresense_sub.menu.SubCoreMemorySize.128KB=128 KB
-spresense_sub.menu.SubCoreMemorySize.256KB=256 KB
-spresense_sub.menu.SubCoreMemorySize.384KB=384 KB
-spresense_sub.menu.SubCoreMemorySize.512KB=512 KB
-spresense_sub.menu.SubCoreMemorySize.640KB=640 KB
-spresense_sub.menu.SubCoreMemorySize.768KB=768 KB
-
-spresense_sub.menu.SubCoreMemorySize.128KB.upload.maximum_size=131072
-spresense_sub.menu.SubCoreMemorySize.256KB.upload.maximum_size=262144
-spresense_sub.menu.SubCoreMemorySize.384KB.upload.maximum_size=393216
-spresense_sub.menu.SubCoreMemorySize.512KB.upload.maximum_size=524288
-spresense_sub.menu.SubCoreMemorySize.640KB.upload.maximum_size=655360
-spresense_sub.menu.SubCoreMemorySize.768KB.upload.maximum_size=786432
-
-spresense_sub.menu.SubCoreMemorySize.128KB.upload.maximum_data_size=131072
-spresense_sub.menu.SubCoreMemorySize.256KB.upload.maximum_data_size=262144
-spresense_sub.menu.SubCoreMemorySize.384KB.upload.maximum_data_size=393216
-spresense_sub.menu.SubCoreMemorySize.512KB.upload.maximum_data_size=524288
-spresense_sub.menu.SubCoreMemorySize.640KB.upload.maximum_data_size=655360
-spresense_sub.menu.SubCoreMemorySize.768KB.upload.maximum_data_size=786432
-
-spresense_sub.menu.SubCore.Sub1.recipe.objcopy.hex.pattern="{runtime.tools.spresense-tools.path}/mkspk/{runtime.os}/mkspk" -c 2 "{build.path}/{build.project_name}.elf" sub{index} "{build.path}/{build.project_name}.spk"
-spresense_sub.menu.SubCore.Sub2.recipe.objcopy.hex.pattern="{runtime.tools.spresense-tools.path}/mkspk/{runtime.os}/mkspk" -c 2 "{build.path}/{build.project_name}.elf" sub{index} "{build.path}/{build.project_name}.spk"
-spresense_sub.menu.SubCore.Sub3.recipe.objcopy.hex.pattern="{runtime.tools.spresense-tools.path}/mkspk/{runtime.os}/mkspk" -c 2 "{build.path}/{build.project_name}.elf" sub{index} "{build.path}/{build.project_name}.spk"
-spresense_sub.menu.SubCore.Sub4.recipe.objcopy.hex.pattern="{runtime.tools.spresense-tools.path}/mkspk/{runtime.os}/mkspk" -c 2 "{build.path}/{build.project_name}.elf" sub{index} "{build.path}/{build.project_name}.spk"
-spresense_sub.menu.SubCore.Sub5.recipe.objcopy.hex.pattern="{runtime.tools.spresense-tools.path}/mkspk/{runtime.os}/mkspk" -c 2 "{build.path}/{build.project_name}.elf" sub{index} "{build.path}/{build.project_name}.spk"
-
-spresense_sub.menu.SubCore.Sub1.recipe.objcopy.hex.pattern.windows="{runtime.tools.spresense-tools.path}/mkspk/{runtime.os}/mkspk.exe" -c 2 "{build.path}/{build.project_name}.elf" sub{index} "{build.path}/{build.project_name}.spk"
-spresense_sub.menu.SubCore.Sub2.recipe.objcopy.hex.pattern.windows="{runtime.tools.spresense-tools.path}/mkspk/{runtime.os}/mkspk.exe" -c 2 "{build.path}/{build.project_name}.elf" sub{index} "{build.path}/{build.project_name}.spk"
-spresense_sub.menu.SubCore.Sub3.recipe.objcopy.hex.pattern.windows="{runtime.tools.spresense-tools.path}/mkspk/{runtime.os}/mkspk.exe" -c 2 "{build.path}/{build.project_name}.elf" sub{index} "{build.path}/{build.project_name}.spk"
-spresense_sub.menu.SubCore.Sub4.recipe.objcopy.hex.pattern.windows="{runtime.tools.spresense-tools.path}/mkspk/{runtime.os}/mkspk.exe" -c 2 "{build.path}/{build.project_name}.elf" sub{index} "{build.path}/{build.project_name}.spk"
-spresense_sub.menu.SubCore.Sub5.recipe.objcopy.hex.pattern.windows="{runtime.tools.spresense-tools.path}/mkspk/{runtime.os}/mkspk.exe" -c 2 "{build.path}/{build.project_name}.elf" sub{index} "{build.path}/{build.project_name}.spk"
-
-spresense_sub.menu.UploadSpeed.115200=115200
-spresense_sub.menu.UploadSpeed.115200.upload.speed=
-spresense_sub.menu.UploadSpeed.230400=230400
-spresense_sub.menu.UploadSpeed.230400.upload.speed=-b 230400
-spresense_sub.menu.UploadSpeed.460800=460800
-spresense_sub.menu.UploadSpeed.460800.upload.speed=-b 460800
-spresense_sub.menu.UploadSpeed.500000=500000
-spresense_sub.menu.UploadSpeed.500000.upload.speed=-b 500000
-spresense_sub.menu.UploadSpeed.576000=576000
-spresense_sub.menu.UploadSpeed.576000.upload.speed=-b 576000
-spresense_sub.menu.UploadSpeed.921600=921600
-spresense_sub.menu.UploadSpeed.921600.upload.speed=-b 921600
-spresense_sub.menu.UploadSpeed.1000000=1000000
-spresense_sub.menu.UploadSpeed.1000000.upload.speed=-b 1000000
-spresense_sub.menu.UploadSpeed.1152000=1152000
-spresense_sub.menu.UploadSpeed.1152000.upload.speed=-b 1152000
 
