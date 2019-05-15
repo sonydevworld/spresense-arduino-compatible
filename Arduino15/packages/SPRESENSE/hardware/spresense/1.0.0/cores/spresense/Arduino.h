@@ -26,6 +26,7 @@
 #include <string.h>
 #include <nuttx/config.h>
 #include <sdk/config.h>
+#include <math.h>
 
 // Some libraries assumes that AVR-specific definitions are
 // automatically included from Arduino.h... Therefore, here
@@ -33,12 +34,6 @@
 
 #include "avr/pgmspace.h"
 #include "avr/interrupt.h"
-
-#ifdef CONFIG_LIBM
-#include <math.h>
-#else
-#error Please enable LIBM in nuttx
-#endif // CONFIG_LIBM
 
 #include "binary.h"
 //#include "itoa.h"
