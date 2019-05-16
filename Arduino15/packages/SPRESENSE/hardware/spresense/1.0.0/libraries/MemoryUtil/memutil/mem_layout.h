@@ -39,7 +39,7 @@
 /*
  * Memory devices
  */
-/* SHM_SRAM: type=RAM, use=0x0003ff00, remainder=0x00000100 */
+/* SHM_SRAM: type=RAM, use=0x00040000, remainder=0x00000000 */
 #define SHM_SRAM_ADDR  0x000c0000
 #define SHM_SRAM_SIZE  0x00040000
 
@@ -59,11 +59,11 @@
 #define MEMMGR_WORK_AREA_ALIGN   0x00000008
 #define MEMMGR_WORK_AREA_ADDR    0x000ffc00
 #define MEMMGR_WORK_AREA_DRM     0x000ffc00 /* _DRM is obsolete macro. to use _ADDR */
-#define MEMMGR_WORK_AREA_SIZE    0x00000200
+#define MEMMGR_WORK_AREA_SIZE    0x00000300
 
 #define MEMMGR_DATA_AREA_ALIGN   0x00000008
-#define MEMMGR_DATA_AREA_ADDR    0x000ffe00
-#define MEMMGR_DATA_AREA_DRM     0x000ffe00 /* _DRM is obsolete macro. to use _ADDR */
+#define MEMMGR_DATA_AREA_ADDR    0x000fff00
+#define MEMMGR_DATA_AREA_DRM     0x000fff00 /* _DRM is obsolete macro. to use _ADDR */
 #define MEMMGR_DATA_AREA_SIZE    0x00000100
 
 /*
