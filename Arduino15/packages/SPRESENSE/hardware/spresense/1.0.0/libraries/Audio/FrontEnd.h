@@ -28,6 +28,10 @@
 #ifndef FrontEnd_h
 #define FrontEnd_h
 
+#ifdef SUBCORE
+#error "Audio library is NOT supported by SubCore."
+#endif
+
 #include <audio/audio_high_level_api.h>
 #include <audio/audio_message_types.h>
 #include <audio/utilities/frame_samples.h>

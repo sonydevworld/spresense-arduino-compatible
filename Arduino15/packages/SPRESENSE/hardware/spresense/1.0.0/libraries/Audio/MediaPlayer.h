@@ -20,6 +20,10 @@
 #ifndef MediaPlayer_h
 #define MediaPlayer_h
 
+#ifdef SUBCORE
+#error "Audio library is NOT supported by SubCore."
+#endif
+
 class File;
 
 // #ifdef __cplusplus

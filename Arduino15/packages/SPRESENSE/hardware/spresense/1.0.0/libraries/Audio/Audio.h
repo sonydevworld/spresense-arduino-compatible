@@ -29,6 +29,10 @@
 #ifndef Audio_h
 #define Audio_h
 
+#ifdef SUBCORE
+#error "Audio library is NOT supported by SubCore."
+#endif
+
 /**
  * @defgroup audio Audio Library API
  * @brief API for using Audio

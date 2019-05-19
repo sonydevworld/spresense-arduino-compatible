@@ -28,6 +28,10 @@
 #ifndef MediaRecorder_h
 #define MediaRecorder_h
 
+#ifdef SUBCORE
+#error "Audio library is NOT supported by SubCore."
+#endif
+
 class File;
 #include <audio/audio_high_level_api.h>
 #include <audio/audio_message_types.h>
