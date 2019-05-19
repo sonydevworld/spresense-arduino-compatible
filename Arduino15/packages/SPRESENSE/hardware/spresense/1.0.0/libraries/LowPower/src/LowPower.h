@@ -20,6 +20,10 @@
 #ifndef _LOW_POWER_H_
 #define _LOW_POWER_H_
 
+#ifdef SUBCORE
+#error "LowPower library is NOT supported by SubCore."
+#endif
+
 /**
  * @file LowPower.h
  * @author Sony Semiconductor Solutions Corporation
