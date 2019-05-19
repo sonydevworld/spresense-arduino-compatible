@@ -20,6 +20,10 @@
 #ifndef __FLASH_H__
 #define __FLASH_H__
 
+#ifdef SUBCORE
+#error "Flash library is NOT supported by SubCore."
+#endif
+
 /**
  * @defgroup flash Flash Library API
  * @brief API for using SPI-Flash
