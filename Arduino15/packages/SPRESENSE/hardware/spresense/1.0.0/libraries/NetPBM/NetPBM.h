@@ -20,7 +20,7 @@
 #ifndef Netpbm_h
 #define Netpbm_h
 
-#include <SDHCI.h> // tentative, import SDHCILib::File class
+#include <File.h>
 
 class NetPBM {
 public:
