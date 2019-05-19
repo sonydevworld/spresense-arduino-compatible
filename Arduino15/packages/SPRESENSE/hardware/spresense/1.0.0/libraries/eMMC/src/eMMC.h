@@ -20,6 +20,10 @@
 #ifndef __eMMC_H__
 #define __eMMC_H__
 
+#ifdef SUBCORE
+#error "eMMC library is NOT supported by SubCore."
+#endif
+
 /**
  * @defgroup emmc eMMC Library API
  * @brief API for using eMMC
