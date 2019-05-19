@@ -20,6 +20,10 @@
 #ifndef Gnss_h
 #define Gnss_h
 
+#ifdef SUBCORE
+#error "GNSS library is NOT supported by SubCore."
+#endif
+
 #include <Stream.h>
 
 /**
