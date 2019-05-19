@@ -20,6 +20,9 @@
 #ifndef MemoryUtil_h
 #define MemoryUtil_h
 
+#ifdef SUBCORE
+#error "MemoryUtil library is NOT supported by SubCore."
+#endif
 
 #define _POSIX
 #define USE_MEMMGR_FENCE
