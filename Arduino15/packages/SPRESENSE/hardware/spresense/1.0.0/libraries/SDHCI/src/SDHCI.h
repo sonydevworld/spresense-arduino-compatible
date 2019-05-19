@@ -20,6 +20,10 @@
 #ifndef __SD_H__
 #define __SD_H__
 
+#ifdef SUBCORE
+#error "SDHCI library is NOT supported by SubCore."
+#endif
+
 /**
  * @defgroup sdhci SD-card Library API
  * @brief API for using SD Card
