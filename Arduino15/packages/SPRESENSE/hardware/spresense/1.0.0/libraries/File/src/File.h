@@ -20,6 +20,10 @@
 #ifndef __FILE_H__
 #define __FILE_H__
 
+#ifdef SUBCORE
+#error "File library is NOT supported by SubCore."
+#endif
+
 /**
  * @defgroup file File Library API
  * @brief API for file operations
