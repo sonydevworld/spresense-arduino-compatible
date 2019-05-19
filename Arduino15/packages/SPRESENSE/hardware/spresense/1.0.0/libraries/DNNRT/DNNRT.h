@@ -20,6 +20,10 @@
 #ifndef Dnnrt_h
 #define Dnnrt_h
 
+#ifdef SUBCORE
+#error "DNNRT library is NOT supported by SubCore."
+#endif
+
 /**
  * @defgroup dnnrt DNN Library API
  * @brief API for using Deep Neural Network Library
