@@ -53,7 +53,7 @@
 class StorageClass {
 
 private:
-  char *realpath(char *dest, const char *src, size_t n);
+  boolean _realpath(char *dest, const char *src, size_t n);
 
 protected:
   char mountdir[16];

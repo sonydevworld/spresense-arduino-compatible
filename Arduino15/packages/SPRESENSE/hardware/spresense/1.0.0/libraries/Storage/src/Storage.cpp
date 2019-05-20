@@ -38,28 +38,41 @@
 #include <Arduino.h>
 #include <Storage.h>
 
-char *StorageClass::realpath(char *dest, const char *src, size_t n)
+#define MAXPATHLEN 128
+
+boolean StorageClass::_realpath(char *dest, const char *src, size_t n)
 {
-  strncpy(dest, mountdir, n);
-  strncat(dest, src, strlen(src));
-  return dest;
+  size_t sz = strlen(mountdir) + strlen(src);
+  if ((0 < sz) && (sz < n)) {
+    strncpy(dest, mountdir, n);
+    strncat(dest, src, n - strlen(mountdir) - 1);
+    return true;
+  } else {
+    return false;
+  }
 }
 
 File StorageClass::open(const char *filepath, uint8_t mode)
 {
-  char fullpath[64];
-  realpath(fullpath, filepath, sizeof(fullpath));
-
-  return File(fullpath, mode);
+  char fullpath[MAXPATHLEN];
+  boolean ret = _realpath(fullpath, filepath, sizeof(fullpath));
+  if (ret == true) {
+    return File(fullpath, mode);
+  } else {
+    return File();
+  }
 }
 
 boolean StorageClass::exists(const char *filepath)
 {
   struct stat stat;
-  char fullpath[64];
+  char fullpath[MAXPATHLEN];
 
   if (filepath) {
-    realpath(fullpath, filepath, sizeof(fullpath));
+    boolean ret = _realpath(fullpath, filepath, sizeof(fullpath));
+    if (ret == false) {
+      return false;
+    }
     return (::stat(fullpath, &stat) == 0);
   } else {
     return false;
@@ -71,24 +84,31 @@ boolean StorageClass::mkdir(const char *filepath)
   struct stat stat;
   char *p;
   char tmp;
-  char fullpath[64];
+  char fullpath[MAXPATHLEN];
 
   if (!filepath)
     return false;
 
-  realpath(fullpath, filepath, sizeof(fullpath));
+  boolean ret = _realpath(fullpath, filepath, sizeof(fullpath));
+  if (ret == false) {
+    return false;
+  }
 
   // create directories recursively
   for (p = &fullpath[1]; *p; ++p) {
     if (*p == '/' || *(p+1) == 0) {
-      tmp = *p;
-      *p = 0;
+      if (*p == '/') {
+        tmp = *p;
+        *p = 0;
+      }
       if (::stat(fullpath, &stat) != 0 || !S_ISDIR(stat.st_mode)) {
         if (::mkdir(fullpath, 0777) != 0) {
           return false;
         }
       }
-      *p = tmp;
+      if (tmp == '/') {
+        *p = tmp;
+      }
     }
   }
   return true;
@@ -96,12 +116,15 @@ boolean StorageClass::mkdir(const char *filepath)
 
 boolean StorageClass::rmdir(const char *filepath)
 {
-  char fullpath[64];
+  char fullpath[MAXPATHLEN];
 
   if (!filepath)
     return false;
 
-  realpath(fullpath, filepath, sizeof(fullpath));
+  boolean ret = _realpath(fullpath, filepath, sizeof(fullpath));
+  if (ret == false) {
+    return false;
+  }
 
   // remove the final letter '/'
   size_t n = strlen(fullpath);
@@ -113,12 +136,15 @@ boolean StorageClass::rmdir(const char *filepath)
 
 boolean StorageClass::remove(const char *filepath)
 {
-  char fullpath[64];
+  char fullpath[MAXPATHLEN];
 
   if (!filepath)
     return false;
 
-  realpath(fullpath, filepath, sizeof(fullpath));
+  boolean ret = _realpath(fullpath, filepath, sizeof(fullpath));
+  if (ret == false) {
+    return false;
+  }
   return (::unlink(fullpath) == 0);
 }
 
