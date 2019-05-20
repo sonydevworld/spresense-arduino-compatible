@@ -24,6 +24,8 @@
 #include <sdk/config.h>
 #include <stdio.h>
 #include <chip/cxd5602_backupmem.h>
+#include <chip/cxd5602_memorymap.h>
+#include <common/up_arch.h>
 #include "MP.h"
 
 /****************************************************************************
@@ -127,7 +129,7 @@ int MPClass::Recv(int8_t *msgid, uint32_t *msgdata, int subid)
   ret = mpmq_timedreceive(&_mq[subid], msgdata, _recvTimeout);
 
   if (ret < 0) {
-    MPDBG("mpmq_timedreceive() failure. %d\n", ret);
+    //MPDBG("mpmq_timedreceive() failure. %d\n", ret);
     return ret;
   }
 
@@ -177,15 +179,29 @@ uint32_t MPClass::GetRecvTimeout(void)
 // convert virtual to physical address
 uint32_t MPClass::Virt2Phys(void *virt)
 {
-  uint32_t phys;
+  uint32_t va, pa;
+  uint32_t reg;
+  int8_t tag;
 
-  if ((uint32_t)virt < 0x00100000) {
-    phys = mpshm_virt2phys(NULL, virt);
-  } else {
-    phys = (uint32_t)virt;
-  }
+  va = (uint32_t)virt >> 16;
+  if (va & 0xfff0)
+    {
+      return (uint32_t)virt;
+    }
+  tag = va & 0xf;
 
-  return phys;
+  uint32_t cpuid = MP_GET_CPUID() - 2;
+
+  reg = CXD56_ADR_CONV_BASE + (cpuid * 0x20) + 4;
+  pa = getreg32(reg + (4 * (tag / 2)));
+
+  if (!(tag & 1))
+    {
+      pa <<= 16;
+    }
+  pa = (pa & 0x01ff0000u) | ((pa & 0x06000000) << 1);
+
+  return pa | ((uint32_t)virt & 0xffff);
 }
 
 #ifndef CONFIG_CXD56_SUBCORE
