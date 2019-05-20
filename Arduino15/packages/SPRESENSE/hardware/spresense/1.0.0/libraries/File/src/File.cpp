@@ -34,6 +34,8 @@
 
 #include <File.h>
 
+#define MAXFILELEN 128
+
 //#define DEBUG
 #ifdef DEBUG
 #  define DebugPrintf(fmt, ...) printf(fmt, ## __VA_ARGS__)
@@ -45,7 +47,7 @@ File::File(const char *name, uint8_t mode)
 : _name(NULL), _fd(-1), _size(0), _curpos(0), _dir(NULL) {
   int stat_ret;
   struct stat stat;
-  char fpbuf[128];
+  char fpbuf[MAXFILELEN];
   int retry = 0;
 
   if (!name)
@@ -234,6 +236,9 @@ File File::openNextFile(uint8_t mode) {
     if (ent) {
       int l = strlen(_name);
       int sz = l + strlen(ent->d_name) + 2;
+      if ((sz <= 0) || (MAXFILELEN <= sz)) {
+        goto error;
+      }
       char* name = (char*)malloc(sz);
 
       if (name) {
@@ -249,7 +254,7 @@ File File::openNextFile(uint8_t mode) {
       }
     }
   }
-
+error:
   return File();
 }
 
