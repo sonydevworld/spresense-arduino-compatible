@@ -93,6 +93,10 @@ recipe.size.pattern="{compiler.path}{compiler.size.cmd}" -A "{build.path}/{build
 recipe.size.regex=^(\.text|\.data|\.init_section|\.ARM.exidx|\.bss)\s+([0-9]+).*
 recipe.size.regex.data=^(\.text|\.data|\.init_section|\.ARM.exidx|\.bss)\s+([0-9]+).*
 
+## Compute RAM size
+recipe.hooks.objcopy.postobjcopy.1.pattern="{runtime.tools.spresense-tools.path}/getspkinfo/{runtime.os}/getspkinfo" "{build.path}/{build.project_name}.spk"
+recipe.hooks.objcopy.postobjcopy.1.pattern.windows="{runtime.tools.spresense-tools.path}/getspkinfo/{runtime.os}/getspkinfo.exe" "{build.path}/{build.project_name}.spk"
+
 # ------------------------------
 tools.spresense-tools.path={runtime.tools.spresense-tools.path}
 tools.spresense-tools.cmd.path={path}/flash_writer/{runtime.os}/flash_writer
