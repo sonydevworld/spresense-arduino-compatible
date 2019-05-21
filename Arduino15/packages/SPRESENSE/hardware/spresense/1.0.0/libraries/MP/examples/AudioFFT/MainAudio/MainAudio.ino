@@ -23,9 +23,9 @@
 AudioClass *theAudio;
 
 /* Select mic channel number */
-const int mic_channel_num = 1;
+//const int mic_channel_num = 1;
 //const int mic_channel_num = 2;
-//const int mic_channel_num = 4;
+const int mic_channel_num = 4;
 
 const int subcore = 1;
 

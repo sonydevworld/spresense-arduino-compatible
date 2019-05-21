@@ -27,11 +27,32 @@
 #include "RingBuff.h"
 
 /* Select FFT length */
-const int g_fftLen = 1024;
+
+//#define FFTLEN 32
+//#define FFTLEN 64
+//#define FFTLEN 128
+//#define FFTLEN 256
+//#define FFTLEN 512
+#define FFTLEN 1024
+//#define FFTLEN 2048
+//#define FFTLEN 4096
+
+const int g_channel = 4;
 
 /* Ring buffer */
+
 #define INPUT_BUFFER (1024 * 4)
-RingBuff ringbuf[4](INPUT_BUFFER);
+RingBuff ringbuf[g_channel](INPUT_BUFFER);
+
+/* Allocate the larger heap size than default */
+
+USER_HEAP_SIZE(64 * 1024);
+
+/* Temporary buffer */
+
+float pSrc[FFTLEN];
+float pDst[FFTLEN];
+float tmpBuf[FFTLEN];
 
 /* MultiCore definitions */
 
@@ -74,34 +95,26 @@ void loop()
     }
   }
 
-  if (ringbuf[0].stored() >= g_fftLen) {
+  while (ringbuf[0].stored() >= FFTLEN) {
     fft_processing(capture->chnum);
   }
 }
 
 void fft_processing(int chnum)
 {
-  int fftSize = g_fftLen * sizeof(float);
-
-  float *pSrc = (float*)malloc(fftSize);
-  float *pDst = (float*)malloc(fftSize);
-
   int i;
   float peakFs[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
   for (i = 0; i < chnum; i++) {
     /* Read from the ring buffer */
-    ringbuf[i].get(pSrc, g_fftLen);
+    ringbuf[i].get(pSrc, FFTLEN);
 
     /* Calculate FFT */
-    fft(pSrc, pDst, g_fftLen);
+    fft(pSrc, pDst, FFTLEN);
 
     /* Peak */
-    peakFs[i] = get_peak_frequency(pDst, g_fftLen);
+    peakFs[i] = get_peak_frequency(pDst, FFTLEN);
   }
-
-  free(pSrc);
-  free(pDst);
 
   printf("24000 %8.3f %8.3f %8.3f %8.3f\n",
          peakFs[0], peakFs[1], peakFs[2], peakFs[3]);
@@ -111,18 +124,30 @@ void fft(float *pSrc, float *pDst, int fftLen)
 {
   arm_rfft_fast_instance_f32 S;
 
-  arm_rfft_fast_init_f32(&S, (uint16_t)fftLen);
+#if (FFTLEN == 32)
+  arm_rfft_32_fast_init_f32(&S);
+#elif (FFTLEN == 64)
+  arm_rfft_64_fast_init_f32(&S);
+#elif (FFTLEN == 128)
+  arm_rfft_128_fast_init_f32(&S);
+#elif (FFTLEN == 256)
+  arm_rfft_256_fast_init_f32(&S);
+#elif (FFTLEN == 512)
+  arm_rfft_512_fast_init_f32(&S);
+#elif (FFTLEN == 1024)
+  arm_rfft_1024_fast_init_f32(&S);
+#elif (FFTLEN == 2048)
+  arm_rfft_2048_fast_init_f32(&S);
+#elif (FFTLEN == 4096)
+  arm_rfft_4096_fast_init_f32(&S);
+#endif
 
   /* calculation */
-  float *tmpBuf = (float *)malloc(fftLen * sizeof(float));
-
   arm_rfft_fast_f32(&S, pSrc, tmpBuf, 0);
 
   arm_cmplx_mag_f32(&tmpBuf[2], &pDst[1], fftLen / 2 - 1);
   pDst[0] = tmpBuf[0];
   pDst[fftLen / 2] = tmpBuf[1];
-
-  free(tmpBuf);
 }
 
 float get_peak_frequency(float *pData, int fftLen)
