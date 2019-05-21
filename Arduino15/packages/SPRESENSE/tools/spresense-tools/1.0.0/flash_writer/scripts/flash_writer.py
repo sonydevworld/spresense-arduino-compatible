@@ -66,6 +66,7 @@ class ConfigArgs:
 
 ROM_MSG = [b"Welcome to nash"]
 XMDM_MSG = "Waiting for XMODEM (CRC or 1K) transfer. Ctrl-X to cancel."
+DEL_FAIL_MSG = "Delete file failure. -2"
 
 class ConfigArgsLoader():
 	def __init__(self):
@@ -374,7 +375,8 @@ class FlashWriter:
 		rx = self.serial.readline()
 		if PRINT_RAW_COMMAND :
 			serial_line = rx.decode(errors="replace")
-			if serial_line.strip() != "" and not serial_line.startswith(XMDM_MSG):
+			if serial_line.strip() != "" and not serial_line.startswith(XMDM_MSG) \
+			 and not serial_line.startswith(DEL_FAIL_MSG):
 				print(serial_line, end="")
 		return rx
 
