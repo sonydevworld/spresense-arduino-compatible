@@ -68,6 +68,7 @@ ROM_MSG = [b"Welcome to nash"]
 XMDM_MSG = "Waiting for XMODEM (CRC or 1K) transfer. Ctrl-X to cancel."
 DEL_FAIL_MSG = "Delete file failure. -2"
 PROMPT_HEADER = "updater"
+SUBCORE_REMOVE_HEADER = "rm sub"
 
 class ConfigArgsLoader():
 	def __init__(self):
@@ -407,7 +408,10 @@ class FlashWriter:
 		self.serial.write(str(string).encode() + b"\n")
 		rx = self.serial.readline()
 		if PRINT_RAW_COMMAND :
-			print(rx.decode(errors="replace"), end="")
+			serial_line = rx.decode(errors="replace")
+			if serial_line.startswith(SUBCORE_REMOVE_HEADER):
+				serial_line = re.sub(SUBCORE_REMOVE_HEADER, "Removing SubCore", serial_line)
+			print(serial_line, end="")
 
 	def read_output(self, prompt_text) :
 		output = []
