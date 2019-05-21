@@ -15,7 +15,7 @@ WINDOW_HEIGHT = 500
 # String definitions
 TITLE            = "End-User License Agreement"
 SUBJECT          = "License Agreement"
-EXPLAIN          = "Please read the folowing license agreement carefuly."
+EXPLAIN          = "Please read the folowing license agreement carefully."
 ACCEPT_CHK       = "I Accept the terms in the license agreement"
 
 # File path
