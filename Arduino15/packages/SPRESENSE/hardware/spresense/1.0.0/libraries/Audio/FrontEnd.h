@@ -127,7 +127,7 @@ public:
    */
 
   err_t activate(
-      AsFrontendPreProcType proc_type /**< Select ProProc type. AsFrontendPreProcThrough or AsFrontendPreProcUserCustom */
+      AsMicFrontendPreProcType proc_type /**< Select ProProc type. AsMicFrontendPreProcThrough or AsMicFrontendPreProcUserCustom */
   );
 
   /**
@@ -142,8 +142,8 @@ public:
    */
 
   err_t activate(
-      AsFrontendPreProcType preproc_type, /**< Select ProProc type. AsFrontendPreProcThrough or AsFrontendPreProcUserCustom */
-      FrontendCallback fedcb
+      AsMicFrontendPreProcType preproc_type, /**< Select ProProc type. AsMicFrontendPreProcThrough or AsMicFrontendPreProcUserCustom */
+      MicFrontendCallback fedcb
   );
 
   /**
@@ -258,7 +258,7 @@ private:
    * Private members
    */
 
-  FrontendCallback m_fed_callback;
+  MicFrontendCallback m_fed_callback;
 
   /**
    * Baseband setting

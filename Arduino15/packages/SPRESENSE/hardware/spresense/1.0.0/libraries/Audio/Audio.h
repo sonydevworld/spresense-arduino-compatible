@@ -859,8 +859,8 @@ public:
    *          (AsFrontendPreprocThrough is selected Internally.)
    *
    */
-  err_t setFrontendPreProcType(
-      AsFrontendPreProcType proc_type /**< Processing type */
+  err_t setMicFrontendPreProcType(
+      AsMicFrontendPreProcType proc_type /**< Processing type */
   );
 
  /**

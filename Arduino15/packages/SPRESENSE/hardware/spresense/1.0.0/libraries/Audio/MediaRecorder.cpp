@@ -145,14 +145,14 @@ err_t MediaRecorder::activate(AsSetRecorderStsInputDevice input_device,
                               MediaRecorderCallback mrcb,
                               uint32_t recorder_bufsize)
 {
-  return activate(input_device, mrcb, MEDIARECORDER_BUF_SIZE, AsFrontendPreProcThrough);
+  return activate(input_device, mrcb, MEDIARECORDER_BUF_SIZE, AsMicFrontendPreProcThrough);
 }
 
 /*--------------------------------------------------------------------------*/
 err_t MediaRecorder::activate(AsSetRecorderStsInputDevice input_device,
                               MediaRecorderCallback mrcb,
                               uint32_t recorder_bufsize,
-                              AsFrontendPreProcType proc_type)
+                              AsMicFrontendPreProcType proc_type)
 {
   /* Hold callback */
 
@@ -193,7 +193,7 @@ err_t MediaRecorder::activate(AsSetRecorderStsInputDevice input_device,
     {
       /* Activate Frontend (sync move) */
 
-      err_t fed_result = m_p_fed_ins->activate(AsFrontendPreProcThrough);
+      err_t fed_result = m_p_fed_ins->activate(AsMicFrontendPreProcThrough);
       if (fed_result != FRONTEND_ECODE_OK)
         {
           m_mr_callback(AsRecorderEventAct, fed_result, 0);

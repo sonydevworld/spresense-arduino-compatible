@@ -58,15 +58,15 @@ err_t FrontEnd::begin(AudioAttentionCb attcb)
 
   /* Create Frontend. */
 
-  AsCreateFrontendParam_t frontend_create_param;
-  frontend_create_param.msgq_id.frontend = MSGQ_AUD_FRONTEND;
-  frontend_create_param.msgq_id.mng      = MSGQ_AUD_MGR;
-  frontend_create_param.msgq_id.dsp      = MSGQ_AUD_PREDSP;
-  frontend_create_param.pool_id.capin    = MIC_IN_BUF_POOL;
-  frontend_create_param.pool_id.output   = NULL_POOL;
-  frontend_create_param.pool_id.dspcmd   = PRE_APU_CMD_POOL;
+  AsCreateMicFrontendParam_t frontend_create_param;
+  frontend_create_param.msgq_id.micfrontend = MSGQ_AUD_FRONTEND;
+  frontend_create_param.msgq_id.mng         = MSGQ_AUD_MGR;
+  frontend_create_param.msgq_id.dsp         = MSGQ_AUD_PREDSP;
+  frontend_create_param.pool_id.input       = MIC_IN_BUF_POOL;
+  frontend_create_param.pool_id.output      = NULL_POOL;
+  frontend_create_param.pool_id.dsp         = PRE_APU_CMD_POOL;
 
-  result = AS_CreateFrontend(&frontend_create_param, (attcb) ? attcb : attentionCallback);
+  result = AS_CreateMicFrontend(&frontend_create_param, (attcb) ? attcb : attentionCallback);
   if (!result)
     {
       print_err("Error: AS_CreateFrontend() failure!\n");
@@ -99,7 +99,7 @@ err_t FrontEnd::end(void)
 
   /* Delete Frontend */
 
-  result = AS_DeleteFrontend();
+  result = AS_DeleteMicFrontend();
   if (!result)
     {
       print_err("Error: AS_DeleteFrontend() failure!\n");
@@ -119,30 +119,30 @@ err_t FrontEnd::end(void)
 }
 
 /*--------------------------------------------------------------------------*/
-err_t FrontEnd::activate(AsFrontendPreProcType proc_type)
+err_t FrontEnd::activate(AsMicFrontendPreProcType proc_type)
 {
   return activate(proc_type, NULL);
 }
 
 /*--------------------------------------------------------------------------*/
-err_t FrontEnd::activate(AsFrontendPreProcType proc_type, FrontendCallback fedcb)
+err_t FrontEnd::activate(AsMicFrontendPreProcType proc_type, MicFrontendCallback fedcb)
 {
   bool result;
 
   /* Activate Frontend */
 
-  AsActivateFrontend frontend_act;
+  AsActivateMicFrontend frontend_act;
 
-  frontend_act.param.input_device = AsFrontendDeviceMic;
+  frontend_act.param.input_device = AsMicFrontendDeviceMic;
   frontend_act.param.preproc_type = proc_type;
   frontend_act.cb                 = fedcb;
 
   m_fed_callback = fedcb;
 
-  result = AS_ActivateFrontend(&frontend_act);
+  result = AS_ActivateMicFrontend(&frontend_act);
   if (!result)
     {
-      print_err("Error: AS_ActivateMediaRecorder() failure!\n");
+      print_err("Error: AS_ActivateMicFrontend() failure!\n");
       return FRONTEND_ECODE_COMMAND_ERROR;
     }
 
@@ -180,7 +180,7 @@ err_t FrontEnd::init(uint8_t channel_number,
 
   /* Init Frontend */
 
-  AsInitFrontendParam frontend_init;
+  AsInitMicFrontendParam frontend_init;
 
   frontend_init.channel_number    = channel_number;
   frontend_init.bit_length        = bit_length;
@@ -188,7 +188,7 @@ err_t FrontEnd::init(uint8_t channel_number,
   frontend_init.data_path         = data_path;
   frontend_init.dest              = dest;
 
-  result = AS_InitFrontend(&frontend_init);
+  result = AS_InitMicFrontend(&frontend_init);
   if (!result)
     {
       print_err("Error: AS_InitFrontend() failure!\n");
@@ -216,8 +216,8 @@ err_t FrontEnd::start(void)
 
   /* Start Frontend */
 
-  AsStartFrontendParam frontend_start;
-  result = AS_StartFrontend(&frontend_start);
+  AsStartMicFrontendParam frontend_start;
+  result = AS_StartMicFrontend(&frontend_start);
   if (!result)
     {
       print_err("Error: AS_StartFrontend() failure!\n");
@@ -245,8 +245,8 @@ err_t FrontEnd::stop(void)
 
   /* Stop Frontend */
 
-  AsStopFrontendParam frontend_stop;
-  result = AS_StopFrontend(&frontend_stop);
+  AsStopMicFrontendParam frontend_stop;
+  result = AS_StopMicFrontend(&frontend_stop);
   if (!result)
     {
       print_err("Error: AS_StopFrontend() failure!\n");
@@ -298,7 +298,7 @@ err_t FrontEnd::setpreproc(AsInitPreProcParam *param)
 {
   bool result;
 
-  result = AS_SetPreprocFrontend(param);
+  result = AS_SetPreprocMicFrontend(param);
   if (!result)
     {
       print_err("Error: AS_StopFrontend() failure!\n");
@@ -322,14 +322,14 @@ err_t FrontEnd::setpreproc(AsInitPreProcParam *param)
 /*--------------------------------------------------------------------------*/
 err_t FrontEnd::setMicGain(int16_t mic_gain)
 {
-  AsFrontendMicGainParam micgain_param;
+  AsMicFrontendMicGainParam micgain_param;
 
   for (int i = 0; i < AS_MIC_CHANNEL_MAX; i++)
     {
       micgain_param.mic_gain[i] = mic_gain;
     }
 
-  bool result = AS_SetMicGainFrontend(&micgain_param);
+  bool result = AS_SetMicGainMicFrontend(&micgain_param);
   if (!result)
     {
       print_err("Error: AS_SetMicGainMediaRecorder() failure!\n");
@@ -357,8 +357,8 @@ err_t FrontEnd::deactivate(void)
 
   /* Deactivate Frontend */
 
-  AsDeactivateFrontendParam frontend_deact;
-  result = AS_DeactivateFrontend(&frontend_deact);
+  AsDeactivateMicFrontendParam frontend_deact;
+  result = AS_DeactivateMicFrontend(&frontend_deact);
   if (!result)
     {
       print_err("Error: AS_DeactivateFrontend() failure!\n");

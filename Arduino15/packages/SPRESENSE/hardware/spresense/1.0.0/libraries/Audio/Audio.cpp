@@ -268,17 +268,17 @@ err_t AudioClass::begin_player(void)
 /*--------------------------------------------------------------------------*/
 err_t AudioClass::begin_recorder(void)
 {
-  /* Create Frontend. */
+  /* Create MicFrontend. */
 
-  AsCreateFrontendParam_t frontend_create_param;
-  frontend_create_param.msgq_id.frontend = MSGQ_AUD_FRONTEND;
-  frontend_create_param.msgq_id.mng      = MSGQ_AUD_MGR;
-  frontend_create_param.msgq_id.dsp      = MSGQ_AUD_PREDSP;
-  frontend_create_param.pool_id.capin    = MIC_IN_BUF_POOL;
-  frontend_create_param.pool_id.output   = NULL_POOL;
-  frontend_create_param.pool_id.dspcmd   = PRE_APU_CMD_POOL;
+  AsCreateMicFrontendParam_t frontend_create_param;
+  frontend_create_param.msgq_id.micfrontend = MSGQ_AUD_FRONTEND;
+  frontend_create_param.msgq_id.mng         = MSGQ_AUD_MGR;
+  frontend_create_param.msgq_id.dsp         = MSGQ_AUD_PREDSP;
+  frontend_create_param.pool_id.input       = MIC_IN_BUF_POOL;
+  frontend_create_param.pool_id.output      = NULL_POOL;
+  frontend_create_param.pool_id.dsp         = PRE_APU_CMD_POOL;
 
-  AS_CreateFrontend(&frontend_create_param, NULL);
+  AS_CreateMicFrontend(&frontend_create_param, NULL);
 
   /* Create MediaRecorder */
 
@@ -336,7 +336,7 @@ err_t AudioClass::end_player(void)
 err_t AudioClass::end_recorder(void)
 {
   AS_DeleteMediaRecorder();
-  AS_DeleteFrontend();
+  AS_DeleteMicFrontend();
   AS_DeleteCapture();
 
   return AUDIOLIB_ECODE_OK;
@@ -352,7 +352,7 @@ err_t AudioClass::activateAudio(void)
   ids.mng         = MSGQ_AUD_MGR;
   ids.player_main = MSGQ_AUD_PLY;
   ids.player_sub  = MSGQ_AUD_SUB_PLY;
-  ids.frontend    = MSGQ_AUD_FRONTEND;
+  ids.micfrontend = MSGQ_AUD_FRONTEND;
   ids.mixer       = MSGQ_AUD_OUTPUT_MIX;
   ids.recorder    = MSGQ_AUD_RECORDER;
   ids.effector    = 0xFF;
@@ -1365,7 +1365,7 @@ err_t AudioClass::setRenderingClockMode(AsClkMode mode)
 }
 
 /*--------------------------------------------------------------------------*/
-err_t AudioClass::setFrontendPreProcType(AsFrontendPreProcType proc_type)
+err_t AudioClass::setMicFrontendPreProcType(AsMicFrontendPreProcType proc_type)
 {
   AudioCommand command;
 
