@@ -83,7 +83,7 @@ void delayMicroseconds(unsigned int us)
     //if (us) up_udelay(us);
 
     if (us) {
-        unsigned long ticks = microsecondsToClockCycles(us);
+        unsigned long long ticks = microsecondsToClockCycles(us);
         if (ticks < DELAY_CORRECTION) return; // delay time already used in calculation
 
         ticks -= DELAY_CORRECTION;

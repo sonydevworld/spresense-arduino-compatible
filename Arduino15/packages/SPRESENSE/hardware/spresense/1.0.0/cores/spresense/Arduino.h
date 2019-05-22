@@ -98,7 +98,7 @@ void delay(unsigned long ms);
 void delayMicroseconds(unsigned int us);    // can be accurate if us >= 8
 unsigned long clockCyclesPerMicrosecond(void);
 #define clockCyclesToMicroseconds(a) ( (a) / clockCyclesPerMicrosecond() )
-#define microsecondsToClockCycles(a) ( (a) * clockCyclesPerMicrosecond() )
+#define microsecondsToClockCycles(a) ( (unsigned long long) (a) * clockCyclesPerMicrosecond() )
 
 /* Math */
 #define min(a, b)    ((a) < (b) ? (a) : (b))
