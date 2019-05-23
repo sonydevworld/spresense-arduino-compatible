@@ -52,9 +52,9 @@ void printClockMode()
   Serial.println("--------------------------------------------------");
   Serial.print("clock mode: ");
   switch (mode) {
-  case CLOCK_MODE_HIGH:   Serial.println("HIGH"); break;
-  case CLOCK_MODE_MIDDLE: Serial.println("MIDDLE"); break;
-  case CLOCK_MODE_LOW:    Serial.println("LOW"); break;
+  case CLOCK_MODE_156MHz: Serial.println("156MHz"); break;
+  case CLOCK_MODE_32MHz:  Serial.println("32MHz"); break;
+  case CLOCK_MODE_8MHz:   Serial.println("8MHz"); break;
   }
 }
 
@@ -76,17 +76,17 @@ void setup()
 void loop()
 {
   // Set the highest clock mode
-  LowPower.clockMode(CLOCK_MODE_HIGH);
+  LowPower.clockMode(CLOCK_MODE_156MHz);
   printClockMode();
   printCounter();
 
   // Set the middle clock mode
-  LowPower.clockMode(CLOCK_MODE_MIDDLE);
+  LowPower.clockMode(CLOCK_MODE_32MHz);
   printClockMode();
   printCounter();
 
   // Set the lowest clock mode
-  LowPower.clockMode(CLOCK_MODE_LOW);
+  LowPower.clockMode(CLOCK_MODE_8MHz);
   printClockMode();
   printCounter();
 }

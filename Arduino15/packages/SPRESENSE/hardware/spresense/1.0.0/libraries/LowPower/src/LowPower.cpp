@@ -185,17 +185,17 @@ void LowPowerClass::clockMode(clockmode_e mode)
   }
 
   switch (mode) {
-  case CLOCK_MODE_HIGH:
+  case CLOCK_MODE_156MHz:
     up_pm_acquire_freqlock(&hvlock);
     break;
-  case CLOCK_MODE_MIDDLE:
+  case CLOCK_MODE_32MHz:
     up_pm_acquire_freqlock(&lvlock);
     count = up_pm_get_freqlock_count(&hvlock);
     while (count--) {
       up_pm_release_freqlock(&hvlock);
     }
     break;
-  case CLOCK_MODE_LOW:
+  case CLOCK_MODE_8MHz:
     count = up_pm_get_freqlock_count(&hvlock);
     while (count--) {
       up_pm_release_freqlock(&hvlock);
@@ -217,11 +217,11 @@ clockmode_e LowPowerClass::getClockMode()
   clock = cxd56_get_cpu_baseclk();
 
   if (clock >= 100 * 1000 * 1000) { /* >= 100MHz */
-    return CLOCK_MODE_HIGH;
+    return CLOCK_MODE_156MHz;
   } else if (clock >= 16 * 1000 * 1000) { /* >= 16MHz */
-    return CLOCK_MODE_MIDDLE;
+    return CLOCK_MODE_32MHz;
   } else { /* < 16MHz */
-    return CLOCK_MODE_LOW;
+    return CLOCK_MODE_8MHz;
   }
 }
 

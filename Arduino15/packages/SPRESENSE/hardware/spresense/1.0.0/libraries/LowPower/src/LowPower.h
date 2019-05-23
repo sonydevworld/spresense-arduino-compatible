@@ -75,9 +75,9 @@ typedef enum {
 } bootcause_e;
 
 typedef enum {
-  CLOCK_MODE_HIGH   = 0, /**< High clock mode (CPU = 156MHz) */
-  CLOCK_MODE_MIDDLE = 1, /**< Middle clock mode (CPU = 32MHz) */
-  CLOCK_MODE_LOW    = 2, /**< Low clock mode (CPU = 8.2MHz) */
+  CLOCK_MODE_156MHz = 0, /**< High clock mode (CPU = 156MHz) */
+  CLOCK_MODE_32MHz  = 1, /**< Middle clock mode (CPU = 32MHz) */
+  CLOCK_MODE_8MHz   = 2, /**< Low clock mode (CPU = 8.2MHz) */
 } clockmode_e;
 
 /**
