@@ -38,34 +38,30 @@ static void audio_attention_cb(const ErrorAttentionParam *atprm)
 }
 
 /**
- * @brief Setup audio player to play mp3 file
+ * @brief Setup audio through to I2s input to speaker
  *
- * Set clock mode to normal <br>
  * Set output device to speaker <br>
- * Set main player to decode stereo mp3. Stream sample rate is set to "auto detect" <br>
- * System directory "/mnt/sd0/BIN" will be searched for MP3 decoder (MP3DEC file)
- * Open "Sound.mp3" file <br>
- * Set master volume to -16.0 dB
+ * Set input mic gain to 16.0 dB
  */
 void setup()
 {
 
-  // start audio system
+  /* start audio system */
   theAudio = AudioClass::getInstance();
   theAudio->begin(audio_attention_cb);
 
   puts("initialization Audio Library");
 
-  /* Set output device to speaker with first argument.
-   * If you want to change the output device to I2S,
-   * specify "AS_SETPLAYER_OUTPUTDEVICE_I2SOUTPUT" as an argument.
-   * Set speaker driver mode to LineOut with second argument.
+  /* Set input source with first argument.
+   * The second argument means source of I2s output.
+   * If you set "I2sIn" as the first argument, please set "None" as the second argument.
+   * Set speaker driver mode to LineOut with last argument.
    * If you want to change the speaker driver mode to other,
-   * specify "AS_SP_DRV_MODE_1DRIVER" or "AS_SP_DRV_MODE_2DRIVER" or "AS_SP_DRV_MODE_4DRIVER"
-   * as an argument.
+   * specify "AS_SP_DRV_MODE_1DRIVER" or "AS_SP_DRV_MODE_2DRIVER"
+   * or "AS_SP_DRV_MODE_4DRIVER" as an argument.
+   *
    */
-//  int err = theAudio->setThroughMode(AudioClass::BothIn,AudioClass::Mic,true,160,AS_SP_DRV_MODE_LINEOUT);
-  int err = theAudio->setThroughMode(AudioClass::I2sIn,AudioClass::Mixer,true,160,AS_SP_DRV_MODE_LINEOUT);
+  int err = theAudio->setThroughMode(AudioClass::I2sIn, AudioClass::None, true, 160, AS_SP_DRV_MODE_LINEOUT);
   if (err != AUDIOLIB_ECODE_OK)
     {
       printf("Through initialize error\n");
