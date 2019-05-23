@@ -36,6 +36,59 @@ File mainFile,subFile;
  *  This is the /BIN directory on the SD card. <br>
  *  Volume is set to -8.0 dB
  */
+
+static int es_reader0(int argc, FAR char *argv[])
+{
+  while(1){
+      err_t err = theAudio->writeFrames(AudioClass::Player0,mainFile);
+
+        /*  Tell when one of player file ends */
+      if (err == AUDIOLIB_ECODE_FILEEND)
+        {
+         printf("Main Player File End!\n");
+        }
+
+      if (err)
+        {
+         printf("Main player error code: %d\n", err);
+         goto stop_player;
+       }
+    usleep(40000);
+  }
+
+stop_player:
+  sleep(1);
+  theAudio->stopPlayer(AudioClass::Player0);
+  mainFile.close();
+  exit(1);  
+}
+
+static int es_reader1(int argc, FAR char *argv[])
+{
+  while(1){
+      err_t err = theAudio->writeFrames(AudioClass::Player1,subFile);
+
+        /*  Tell when one of player file ends */
+      if (err == AUDIOLIB_ECODE_FILEEND)
+        {
+         printf("Sub Player File End!\n");
+        }
+
+      if (err)
+        {
+         printf("Sub player error code: %d\n", err);
+         goto stop_player;
+       }
+    usleep(40000);
+  }
+
+stop_player:
+  sleep(1);
+  theAudio->stopPlayer(AudioClass::Player1);
+  subFile.close();
+  exit(1);  
+}
+
 void setup()
 {
 
@@ -96,9 +149,6 @@ void setup()
       exit(1);
     }
 
-  printf("Open! %d\n",mainFile);
-  printf("Open! %d\n",subFile);
-
   /* Send first frames to be decoded */
   err = theAudio->writeFrames(AudioClass::Player0,mainFile);
   if (err)
@@ -125,8 +175,13 @@ void setup()
   theAudio->startPlayer(AudioClass::Player1);
 
   puts("start!");
+  
+  /* You must set higher priority than main loop(priority is 100). */
+  task_create("es_reader0", 155, 1024, es_reader0, NULL);  
+  task_create("es_reader1", 155, 1024, es_reader1, NULL);
 
 }
+
 
 /**
  *  @brief Play streams
@@ -135,49 +190,6 @@ void setup()
  */
 void loop()
 {
-  static unsigned int cnt;
-
-  if (!(cnt % 50))
-    {
-      puts("loop!!");
-    }
-
-  /* Send new frames to decode in a loop until file ends */
-  err_t err0 = theAudio->writeFrames(AudioClass::Player0,mainFile);
-  err_t err1 = theAudio->writeFrames(AudioClass::Player1,subFile);
-
-  /*  Tell when one of player file ends */
-  if (err0 == AUDIOLIB_ECODE_FILEEND)
-    {
-      printf("Main player File End!\n");
-    }
-  if (err1 == AUDIOLIB_ECODE_FILEEND)
-    {
-      printf("Sub player File End!\n");
-    }
-
-  /* Show error code from all players and stop them */
-  if (err0 || err1)
-    {
-      printf("Main player error code: %d\n", err0);
-      printf("Sub player error code: %d\n", err1);
-      goto stop_player;
-    }
-
-  /* This sleep is adjusted by the time to read the audio stream file.
-     Please adjust in according with the processing contents
-     being processed at the same time by Application.
-  */
-  usleep(40000);
-  cnt++;
-  /* Don't go further and continue play */
-  return;
-
-stop_player:
-  sleep(1);
-  theAudio->stopPlayer(AudioClass::Player0);
-  theAudio->stopPlayer(AudioClass::Player1);
-  mainFile.close();
-  subFile.close();
-  exit(1);
+  /* Do nothing on main task. */
+  while(1);  
 }
