@@ -127,6 +127,10 @@ class SensorClient
 {
 public:
 
+  /**
+   * @brief Register sensor ID.
+   *
+   */
   bool begin(int      id,
             uint32_t subscriptions        = 0,
             int      rate                 = 0,
@@ -137,6 +141,13 @@ public:
   bool begin(int      id,
              uint32_t subscriptions,
              sensor_data_mh_callback_t cb);
+
+  /**
+   * @brief Release sensor ID.
+   *
+   */
+  bool end(void);
+
 /**
    * @brief Write sensing data from buffer
    *

@@ -106,6 +106,20 @@ int AesmClass::startAesm(void)
 }
 
 
+bool AesmClass::end(void)
+{
+  int   ret;
+
+  if ((ret = StepCounterClose(step_counter_ins)) != SS_ECODE_OK)
+    {
+      printf("Error: StepCounterClose() failure. error = %d\n", ret);
+      return false;
+    }
+
+  return SensorClient::end();
+}
+
+
 int AesmClass::set(uint8_t walking_stride,
                                 uint8_t running_stride)
 {

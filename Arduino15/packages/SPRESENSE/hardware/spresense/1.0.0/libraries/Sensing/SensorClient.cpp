@@ -99,6 +99,19 @@ bool SensorClient::begin(int      id,
     }
 }
 
+bool SensorClient::end(void)
+{
+  sensor_command_release_t rel;
+
+  /* Release sensor ID */
+
+  rel.header.size = 0;
+  rel.header.code = ReleaseClient;
+  rel.self        = m_id;
+  SS_SendSensorRelease(&rel);
+
+  return true;
+}
 
 int SensorClient::publish(PoolId    id,
                           FAR void* data,

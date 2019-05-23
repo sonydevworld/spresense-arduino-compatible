@@ -57,11 +57,24 @@
 class AesmClass : public SensorClient
 {
 public:
+
+  /**
+   * @brief Start sensing of StepCounter
+   *
+   */
+
   bool begin(int      id,
              uint32_t subscriptions,
              int      input_rate,
              int      input_sample_watermark_num,
              int      input_size_per_sample);
+
+  /**
+   * @brief Stop sensing of StepCounter
+   *
+   */
+
+  bool end();
 
   int subscribe(sensor_command_data_mh_t& data);
 
