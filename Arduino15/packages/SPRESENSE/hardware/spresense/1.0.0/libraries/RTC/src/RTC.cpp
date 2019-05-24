@@ -103,7 +103,16 @@ void RtcClass::begin()
   }
 
   if (_pid < 0) {
-    _pid = task_create("alarm_daemon", 120, 2048, alarm_daemon, NULL);
+    struct sched_param param;
+    pthread_attr_t attr;
+
+    pthread_attr_init(&attr);
+    attr.stacksize = 2048;
+    param.sched_priority = 120;
+    pthread_attr_setschedparam(&attr, &param);
+
+    pthread_create((pthread_t*)&_pid, &attr, (pthread_startroutine_t)alarm_daemon, NULL);
+    pthread_setname_np(_pid, "alarm_daemon");
     assert (_pid > 0);
   }
 #endif /* !SUBCORE */
@@ -117,7 +126,7 @@ void RtcClass::end()
 {
 #ifndef SUBCORE
   if (_pid > 0) {
-    task_delete(_pid);
+    pthread_cancel((pthread_t)_pid);
     _pid = -1;
   }
 
