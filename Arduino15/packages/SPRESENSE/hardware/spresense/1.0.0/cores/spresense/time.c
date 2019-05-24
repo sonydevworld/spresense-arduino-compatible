@@ -41,6 +41,7 @@
 #endif // CONFIG_CLOCK_MONOTONIC
 
 #define DELAY_CORRECTION    (700)
+#define DELAY_INTERVAL      (50)
 
 uint64_t millis(void)
 {
@@ -91,8 +92,13 @@ void delayMicroseconds(unsigned int us)
 void delay(unsigned long ms)
 {
     unsigned long cnt;
-    if (ms)
+    if (ms) {
+        while (DELAY_INTERVAL < ms) {
+            delayMicroseconds(DELAY_INTERVAL * 1000);
+            ms -= DELAY_INTERVAL;
+        }
         delayMicroseconds(ms * 1000);
+    }
 }
 
 unsigned long clockCyclesPerMicrosecond(void)
