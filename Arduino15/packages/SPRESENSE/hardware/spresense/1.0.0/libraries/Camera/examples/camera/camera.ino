@@ -165,5 +165,9 @@ void loop()
 
       take_picture_count++;
     }
+  else
+    {
+      theCamera.end();
+    }
 }
 
