@@ -505,6 +505,7 @@ private:
   CamErr set_ext_ctrls(uint16_t ctl_cls, uint16_t cid, int32_t value);
   CamErr create_stillbuff(int w, int h, CAM_IMAGE_PIX_FMT fmt);
   CamErr create_dq_thread();
+  void   delete_dq_thread();
 
   void lock_video_cb()  { sem_wait(&video_cb_access_sem); };
   void unlock_video_cb(){ sem_post(&video_cb_access_sem); };
