@@ -40,7 +40,7 @@
 # error Please enable monotonic clock in NuttX
 #endif // CONFIG_CLOCK_MONOTONIC
 
-#define DELAY_CORRECTION    (1228)
+#define DELAY_CORRECTION    (700)
 
 uint64_t millis(void)
 {
@@ -87,8 +87,8 @@ void delayMicroseconds(unsigned int us)
         if (ticks < DELAY_CORRECTION) return; // delay time already used in calculation
 
         ticks -= DELAY_CORRECTION;
-        ticks >>= 2;
-        // following loop takes 4 cycles
+        ticks /= 6;
+        // following loop takes 6 cycles
         do {
             __asm__ __volatile__("nop");
         } while(--ticks);
