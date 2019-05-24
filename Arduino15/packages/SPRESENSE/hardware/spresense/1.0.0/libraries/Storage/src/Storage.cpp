@@ -96,6 +96,7 @@ boolean StorageClass::mkdir(const char *filepath)
 
   // create directories recursively
   for (p = &fullpath[1]; *p; ++p) {
+    tmp = 0;
     if (*p == '/' || *(p+1) == 0) {
       if (*p == '/') {
         tmp = *p;
