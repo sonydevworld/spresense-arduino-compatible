@@ -70,13 +70,6 @@ uint64_t micros(void)
     return (((uint64_t)tp.tv_sec) * 1000000 + tp.tv_nsec / 1000);
 }
 
-void delay(unsigned long ms)
-{
-    if (ms)
-        up_mdelay(ms);
-        //usleep(ms * 1000);
-}
-
 void delayMicroseconds(unsigned int us)
 {
     // up_udelay is not as accurate as the following implementation
@@ -93,6 +86,13 @@ void delayMicroseconds(unsigned int us)
             __asm__ __volatile__("nop");
         } while(--ticks);
     }
+}
+
+void delay(unsigned long ms)
+{
+    unsigned long cnt;
+    if (ms)
+        delayMicroseconds(ms * 1000);
 }
 
 unsigned long clockCyclesPerMicrosecond(void)
