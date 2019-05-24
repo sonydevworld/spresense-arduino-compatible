@@ -242,6 +242,7 @@ int LowPowerClass::getVoltage(void)
   }
   ret = ioctl(fd, BATIOC_GET_VOLTAGE, (unsigned long)(uintptr_t)&voltage);
   if (ret < 0) {
+    close(fd);
     return ret;
   }
   close(fd);
@@ -266,6 +267,7 @@ int LowPowerClass::getCurrent(void)
   }
   ret = ioctl(fd, BATIOC_GET_CURRENT, (unsigned long)(uintptr_t)&current);
   if (ret < 0) {
+    close(fd);
     return ret;
   }
   close(fd);
