@@ -63,7 +63,6 @@
 #define MP_MUTEX_ID8  "/dev/hsem6"
 #define MP_MUTEX_ID9  "/dev/hsem5"
 #define MP_MUTEX_ID10 "/dev/hsem4"
-#define MP_MUTEX_ID11 "/dev/hsem3"
 
 /****************************************************************************
  * class declaration
