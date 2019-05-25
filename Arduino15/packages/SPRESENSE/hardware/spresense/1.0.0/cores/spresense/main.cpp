@@ -25,6 +25,7 @@ extern "C" { // boardctl.h forget to declare extern "C"...
 #include <sys/boardctl.h>
 }
 #include <Arduino.h>
+#include "multi_print.h"
 
 extern "C" {
 
@@ -84,6 +85,9 @@ int spresense_main(void)
 #if defined(USBCON)
     USBDevice.attach();
 #endif
+
+    /* Initialize log output for MultiCore */
+    init_multi_print();
 
     setup();
 
