@@ -50,6 +50,8 @@
 #include <asmp/mpmq.h>
 #include <asmp/mpmutex.h>
 
+#include <multi_print.h>
+
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
@@ -70,6 +72,27 @@
 #define MP_GET_CPUID()      (*(volatile int *)0x4e002040)
 
 #define MP_MAX_SUBID 6
+
+/* MP Log utility */
+#if   (SUBCORE == 1)
+#define MPLOG_PREFIX "[Sub1] "
+#elif (SUBCORE == 2)
+#define MPLOG_PREFIX "[Sub2] "
+#elif (SUBCORE == 3)
+#define MPLOG_PREFIX "[Sub3] "
+#elif (SUBCORE == 4)
+#define MPLOG_PREFIX "[Sub4] "
+#elif (SUBCORE == 5)
+#define MPLOG_PREFIX "[Sub5] "
+#else
+#define MPLOG_PREFIX "[Main] "
+#endif
+
+#define MPLog(fmt, ...) do { \
+    printlock(); \
+    sync_printf(MPLOG_PREFIX fmt, ##__VA_ARGS__); \
+    printunlock(); \
+} while (0)
 
 /****************************************************************************
  * class declaration
