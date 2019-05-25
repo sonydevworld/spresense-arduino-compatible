@@ -91,7 +91,6 @@ void delayMicroseconds(unsigned int us)
 
 void delay(unsigned long ms)
 {
-    unsigned long cnt;
     if (ms) {
         while (DELAY_INTERVAL < ms) {
             delayMicroseconds(DELAY_INTERVAL * 1000);
