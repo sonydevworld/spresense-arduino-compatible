@@ -204,7 +204,7 @@ public:
    *             If MP_RECV_POLLING is specified, polling the received data
    *             without blocking.
    */
-  void     RecvTimeout(uint32_t timeout);
+  void RecvTimeout(uint32_t timeout);
 
   /**
    * @brief Get timeout of receiver
@@ -218,6 +218,18 @@ public:
    * @return physical address
    */
   uint32_t Virt2Phys(void *virt);
+
+  /**
+   * @brief Enable console
+   * @details This core uses console
+   */
+  void EnableConsole();
+
+  /**
+   * @brief Disable console
+   * @details This core does not use console
+   */
+  void DisableConsole();
 
 #ifndef CONFIG_CXD56_SUBCORE
   /**

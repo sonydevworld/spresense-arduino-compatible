@@ -26,6 +26,7 @@
 #include <chip/cxd5602_backupmem.h>
 #include <chip/cxd5602_memorymap.h>
 #include <common/up_arch.h>
+#include <armv7-m/nvic.h>
 #include "MP.h"
 
 /****************************************************************************
@@ -202,6 +203,22 @@ uint32_t MPClass::Virt2Phys(void *virt)
   pa = (pa & 0x01ff0000u) | ((pa & 0x06000000) << 1);
 
   return pa | ((uint32_t)virt & 0xffff);
+}
+
+void MPClass::EnableConsole()
+{
+  /* Enable console interrupts */
+  int irq = CXD56_IRQ_UART1 - CXD56_IRQ_EXTINT;
+  uint32_t bit = 1 << (irq & 0x1f);
+  putreg32(bit, NVIC_IRQ_ENABLE(irq));
+}
+
+void MPClass::DisableConsole()
+{
+  /* Disable console interrupts */
+  int irq = CXD56_IRQ_UART1 - CXD56_IRQ_EXTINT;
+  uint32_t bit = 1 << (irq & 0x1f);
+  putreg32(bit, NVIC_IRQ_CLEAR(irq));
 }
 
 #ifndef CONFIG_CXD56_SUBCORE
