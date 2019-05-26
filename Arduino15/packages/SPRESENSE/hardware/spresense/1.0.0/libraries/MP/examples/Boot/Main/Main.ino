@@ -31,12 +31,14 @@ void setup()
   for (subid = 1; subid <= 4; subid++) {
     ret = MP.begin(subid);
     if (ret < 0) {
-      printf("MP.begin(%d) error = %d\n", subid, ret);
+      MPLog("MP.begin(%d) error = %d\n", subid, ret);
     }
   }
 }
 
 void loop()
 {
+  MPLog("loop\n");
+  delay(1000);
 }
 

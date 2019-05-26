@@ -26,6 +26,7 @@ void setup()
 
 void loop()
 {
+  MPLog("loop\n");
   ledOn(LED1);
   delay(1000);
   ledOff(LED1);

@@ -51,7 +51,7 @@ void loop()
   } while (ret != 0);
 
   /* If the mutex is acquired, blink LED */
-  printf("Lock at Main\n");
+  MPLog("Lock\n");
   while (cnt--) {
     ledOn(LED0);
     delay(500);
