@@ -205,6 +205,43 @@ uint32_t MPClass::Virt2Phys(void *virt)
   return pa | ((uint32_t)virt & 0xffff);
 }
 
+#define APPDSP_RAMMODE_STAT0 0x04104420
+#define APPDSP_RAMMODE_STAT1 0x04104424
+
+void MPClass::GetMemoryInfo(int &usedMem, int &freeMem, int &largestFreeMem)
+{
+  int i;
+  uint32_t tile = (getreg32(APPDSP_RAMMODE_STAT1) << 12) | getreg32(APPDSP_RAMMODE_STAT0);
+  int prev_free = 0;
+  int tmp_largest = 0;
+
+  usedMem = 0;
+  freeMem = 0;
+  largestFreeMem = 0;
+
+  for (i = 0; i < 12; i++) {
+    if (tile & (1 << (i * 2))) {
+      usedMem++;
+      prev_free = 0;
+    } else {
+      freeMem++;
+      if (prev_free) {
+        tmp_largest++;
+      } else {
+        tmp_largest = 1;
+      }
+      prev_free = 1;
+    }
+
+    if (largestFreeMem < tmp_largest) {
+      largestFreeMem = tmp_largest;
+    }
+  }
+  usedMem *= (128 * 1024);
+  freeMem *= (128 * 1024);
+  largestFreeMem *= (128 * 1024);
+}
+
 void MPClass::EnableConsole()
 {
   /* Enable console interrupts */

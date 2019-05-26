@@ -220,6 +220,14 @@ public:
   uint32_t Virt2Phys(void *virt);
 
   /**
+   * @brief Get memory information
+   * @param [out] usedMem - Total size of used memory [byte]
+   * @param [out] freeMem - Total size of free memory [byte]
+   * @param [out] largestFreeMem - Size of the largest free memory [byte]
+   */
+  void GetMemoryInfo(int &usedMem, int &freeMem, int &largestFreeMem);
+
+  /**
    * @brief Enable console
    * @details This core uses console
    */
