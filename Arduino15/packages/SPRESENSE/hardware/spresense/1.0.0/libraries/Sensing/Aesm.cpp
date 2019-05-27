@@ -140,7 +140,7 @@ int AesmClass::set(uint8_t walking_stride,
 int AesmClass::subscribe(sensor_command_data_mh_t& data)
 {
   FAR char* pSrc = 
-      reinterpret_cast<char*>(data.mh.getPa());
+      reinterpret_cast<char*>(SensorClient::subscribe(data));
   FAR char* pDst = pSrc;
 
   assert(m_sample_watermark_num <= m_input_sample_watermark_num);

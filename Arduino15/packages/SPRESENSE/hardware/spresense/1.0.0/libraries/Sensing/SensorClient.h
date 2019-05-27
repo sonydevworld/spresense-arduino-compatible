@@ -216,9 +216,9 @@ public:
    * @details This function Called when subscribed from the logical sensor.
    */
 
-  virtual int subscribe(sensor_command_data_mh_t& data)
+  void *subscribe(sensor_command_data_mh_t& data)
   {
-    return 0;
+    return data.mh.getVa();
   }
 
 protected:

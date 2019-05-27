@@ -23,13 +23,17 @@
 
 int ApplicationSensorClass::subscribe(sensor_command_data_mh_t& data)
 {
-  return reinterpret_cast<int>(data.mh.getVa());
+  void *subscribe_data = SensorClient::subscribe(data);
+
+  /* Process the data received here. */
+
+  return reinterpret_cast<int>(subscribe_data);
 }
 
 int StepCountReaderClass::subscribe(sensor_command_data_mh_t& data)
 {
   FAR SensorCmdStepCounter *result_data = 
-    reinterpret_cast<SensorCmdStepCounter *>(data.mh.getVa());
+    reinterpret_cast<SensorCmdStepCounter *>(ApplicationSensorClass::subscribe(data));
   if (SensorOK != result_data->result.exec_result)
     {
       return static_cast<int>NULL;
