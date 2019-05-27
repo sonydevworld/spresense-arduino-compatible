@@ -38,7 +38,7 @@ bool SensorClient::begin(int      id,
 
   /* ID range check */
 
-  if (id < APP_ID_MAX)
+  if (id < SEN_ID_MAX)
     {
       /* Registed sensor ID */
 
@@ -74,7 +74,7 @@ bool SensorClient::begin(int      id,
 
   /* ID range check */
 
-  if (id < APP_ID_MAX)
+  if (id < SEN_ID_MAX)
     {
       /* Registed sensor ID */
 

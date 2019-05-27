@@ -106,19 +106,19 @@ void setup()
 
   SensorManager.begin();
 
-  AccelSensor.begin(APP_accelID,
+  AccelSensor.begin(SEN_accelID,
                     accel_rate,
                     accel_sample_num,
                     accel_sample_size);
 
-  Aesm.begin(APP_stepcounterID,
-             SUBSCRIPTION(APP_accelID),
+  Aesm.begin(SEN_stepcounterID,
+             SUBSCRIPTION(SEN_accelID),
              accel_rate,
              accel_sample_num,
              accel_sample_size);
 
-  StepCountReader.begin(APP_app0ID,
-                        SUBSCRIPTION(APP_stepcounterID),
+  StepCountReader.begin(SEN_app0ID,
+                        SUBSCRIPTION(SEN_stepcounterID),
                         step_counter_result);
 
   /* Initialize StepCounter parameters */

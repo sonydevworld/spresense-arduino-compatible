@@ -83,33 +83,66 @@
  * Physical and logical sensor ID definitions.
  */
 
+enum GeneralSensorClientID
+{
+  SensorClientID00,   /*  0 */
+  SensorClientID01,   /*  1 */
+  SensorClientID02,   /*  2 */
+  SensorClientID03,   /*  3 */
+  SensorClientID04,   /*  4 */
+  SensorClientID05,   /*  5 */
+  SensorClientID06,   /*  6 */
+  SensorClientID07,   /*  7 */
+  SensorClientID08,   /*  8 */
+  SensorClientID09,   /*  9 */
+  SensorClientID10,   /* 10 */
+  SensorClientID11,   /* 11 */
+  SensorClientID12,   /* 12 */
+  SensorClientID13,   /* 13 */
+  SensorClientID14,   /* 14 */
+  SensorClientID15,   /* 15 */
+  SensorClientID16,   /* 16 */
+  SensorClientID17,   /* 17 */
+  SensorClientID18,   /* 18 */
+  SensorClientID19,   /* 19 */
+  SensorClientID20,   /* 20 */
+  SensorClientID21,   /* 21 */
+  SensorClientID22,   /* 22 */
+  SensorClientID23,   /* 23 */
+  NumOfGeneralSensorClientID,
+};
+
+/**
+ * Physical and logical sensor ID definitions.
+ */
+
 enum
 {
-  APP_selfID        = selfID,         /*  0 */
-  APP_accelID       = accelID,        /*  1 */
-  APP_accel1ID      = accel1ID,       /*  2 */
-  APP_magID         = magID,          /*  3 */
-  APP_pressureID    = pressureID,     /*  4 */
-  APP_lightID       = lightID,        /*  5 */
-  APP_pulseID       = pulseID,        /*  6 */
-  APP_tempID        = tempID,         /*  7 */
-  APP_gyroID        = gyroID,         /*  8 */
-  APP_gnssID        = gnssID,         /*  9 */
-  APP_stepcounterID = stepcounterID,  /* 10 */
-  APP_tramID        = tramID,         /* 11 */
-  APP_gestureID     = gestureID,      /* 12 */
-  APP_compassID     = compassID,      /* 13 */
-  APP_barometerID   = barometerID,    /* 14 */
-  APP_tramliteID    = tramliteID,     /* 15 */
-  APP_vadID         = vadID,          /* 16 */
-  APP_wuwsrID       = wuwsrID,        /* 17 */
-  APP_adcID         = adcID,          /* 18 */
-  APP_reserve19ID   = reserve19ID,    /* 19 */
-  APP_app0ID        = app0ID,         /* 20 */
-  APP_app1ID        = app1ID,         /* 21 */
-  APP_app2ID        = app2ID,         /* 22 */
-  APP_app3ID        = app3ID,         /* 23 */
-  APP_ID_MAX        = NumOfSensorClientID,
+  SEN_selfID        = SensorClientID00, /*  0 */
+  SEN_accelID       = SensorClientID01, /*  1 */
+  SEN_accel1ID      = SensorClientID02, /*  2 */
+  SEN_magID         = SensorClientID03, /*  3 */
+  SEN_pressureID    = SensorClientID04, /*  4 */
+  SEN_lightID       = SensorClientID05, /*  5 */
+  SEN_pulseID       = SensorClientID06, /*  6 */
+  SEN_tempID        = SensorClientID07, /*  7 */
+  SEN_gyroID        = SensorClientID08, /*  8 */
+  SEN_gnssID        = SensorClientID09, /*  9 */
+  SEN_stepcounterID = SensorClientID10, /* 10 */
+  SEN_tramID        = SensorClientID11, /* 11 */
+  SEN_gestureID     = SensorClientID12, /* 12 */
+  SEN_compassID     = SensorClientID13, /* 13 */
+  SEN_barometerID   = SensorClientID14, /* 14 */
+  SEN_tramliteID    = SensorClientID15, /* 15 */
+  SEN_vadID         = SensorClientID16, /* 16 */
+  SEN_wuwsrID       = SensorClientID17, /* 17 */
+  SEN_adcID         = SensorClientID18, /* 18 */
+  SEN_reserve19ID   = SensorClientID19, /* 19 */
+  SEN_app0ID        = SensorClientID20, /* 20 */
+  SEN_app1ID        = SensorClientID21, /* 21 */
+  SEN_app2ID        = SensorClientID22, /* 22 */
+  SEN_app3ID        = SensorClientID23, /* 23 */
+  SEN_ID_MAX        = NumOfGeneralSensorClientID,
 };
 
 
