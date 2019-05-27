@@ -20,19 +20,35 @@
 #include "Arduino.h"
 
 #define ACCEL_INTERVAL_THRESHOLD  1000  /* [1000ms] */
+#define ACCEL_MAX_SAMPLE_NUM        50  /* [50 sample] */
 
 
 bool AccelSensorClass::begin(int      id,
-                        uint32_t subscriptions,
-                        int      rate,
-                        int      sample_watermark_num,
-                        int      size_per_sample)
+                             uint32_t subscriptions,
+                             int      rate,
+                             int      sample_watermark_num,
+                             int      size_per_sample)
 {
+  /* Range check. */
+
+  if (sample_watermark_num > ACCEL_MAX_SAMPLE_NUM)
+    {
+      printf("Incorrect number of sample_watermark_num.\n");
+      return false;
+    }
+
+  if (size_per_sample > static_cast<int>(sizeof(struct accel_float_s)))
+    {
+      printf("Incorrect size of size_per_sample.\n");
+      return false;
+    }
+
   /* Init private parameters. */
-  if(!SensorClient::begin(id,subscriptions,rate,sample_watermark_num,size_per_sample, NULL))
-  {
-    return false;
-  }
+
+  if (!SensorClient::begin(id,subscriptions,rate,sample_watermark_num,size_per_sample, NULL))
+    {
+      return false;
+    }
 
   m_cnt           = 0;
   m_previous_time = millis();
@@ -49,6 +65,13 @@ bool AccelSensorClass::begin(int      id,
   return true;
 }
 
+bool AccelSensorClass::begin(int id,
+                             int rate,
+                             int sample_watermark_num,
+                             int size_per_sample)
+{
+  return begin(id, 0, rate, sample_watermark_num, size_per_sample);
+}
 
 int AccelSensorClass::write_data(float x, float y, float z)
 {

@@ -36,10 +36,10 @@ class AccelSensorClass : public SensorClient
 {
 public:
   bool begin(int      id,
-             uint32_t subscriptions        = 0,
-             int      rate                 = 0,
-             int      sample_watermark_num = 0,
-             int      size_per_sample      = 0);
+             int      rate,
+             int      sample_watermark_num,
+             int      size_per_sample = sizeof(struct accel_float_s));
+
   /**
    * @brief 1 Sample data write.
    */
@@ -47,6 +47,12 @@ public:
   int write_data(float x, float y, float z);
 
 private:
+  bool begin(int      id,
+             uint32_t subscriptions        = 0,
+             int      rate                 = 0,
+             int      sample_watermark_num = 0,
+             int      size_per_sample      = 0);
+
   struct accel_float_s
     {
       float x;  /* X axis standard gravity acceleration.[G] */
