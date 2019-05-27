@@ -210,6 +210,12 @@ public:
       uint32_t               sample_watermark_num,
       uint32_t               timestamp);
 
+  int publish(FAR void      *data,
+              uint32_t       size_per_sample,
+              uint32_t       freq,
+              uint32_t       sample_watermark_num,
+              uint32_t       timestamp);
+
   /**
    * @brief Read sensing data from buffer
    *
