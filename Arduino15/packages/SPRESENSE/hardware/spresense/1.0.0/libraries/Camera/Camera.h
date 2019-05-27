@@ -32,6 +32,10 @@
 #ifndef __SPRESENSE_CAMERA_CLASS_H__
 #define __SPRESENSE_CAMERA_CLASS_H__
 
+#ifdef SUBCORE
+#error "Camera library is NOT supported by SubCore."
+#endif
+
 /**
  * @defgroup camera Camera Library API
  * @brief API for using Camera
