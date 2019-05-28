@@ -32,19 +32,14 @@ int ApplicationSensorClass::subscribe(sensor_command_data_mh_t& data)
 
 int StepCountReaderClass::subscribe(sensor_command_data_mh_t& data)
 {
-  FAR SensorCmdStepCounter *result_data = 
-    reinterpret_cast<SensorCmdStepCounter *>(ApplicationSensorClass::subscribe(data));
-  if (SensorOK != result_data->result.exec_result)
+  FAR SensorResultStepCounter *result_data = 
+    reinterpret_cast<SensorResultStepCounter *>(ApplicationSensorClass::subscribe(data));
+  if (SensorOK != result_data->exec_result)
     {
       return static_cast<int>NULL;
     }
-  if (result_data->exec_cmd.cmd_type != 
-            STEP_COUNTER_CMD_UPDATE_ACCELERATION)
-    {
-      return static_cast<int>NULL;
-    }
-  
-  return reinterpret_cast<int>(&result_data->result.steps);
+
+  return reinterpret_cast<int>(&result_data->steps);
 }
 
 ApplicationSensorClass ApplicationSensor;
