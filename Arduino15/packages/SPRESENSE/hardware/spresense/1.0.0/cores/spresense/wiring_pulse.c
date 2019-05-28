@@ -54,8 +54,8 @@ unsigned long pulseIn(uint8_t pin, uint8_t state, unsigned long timeout)
     uint32_t state_mask = (state ? bit : 0);
 
     // convert the timeout from microseconds to a number of times through
-    // the initial loop; it takes approximately 32 clock cycles per iteration
-    unsigned long long maxloops = microsecondsToClockCycles(timeout) / 48;
+    // the initial loop; it takes approximately 52 clock cycles per iteration
+    unsigned long long maxloops = microsecondsToClockCycles(timeout) / 52;
     unsigned long long width = 0;
     // wait for any previous pulse to end
     while ((getreg32(regaddr) & bit) == state_mask) {
@@ -79,7 +79,7 @@ unsigned long pulseIn(uint8_t pin, uint8_t state, unsigned long timeout)
         }
     }
 
-    return clockCyclesToMicroseconds(width * 48 + 48);
+    return clockCyclesToMicroseconds(width * 52 + 52);
 }
 
 /* Measures the length (in microseconds) of a pulse on the pin; state is HIGH
