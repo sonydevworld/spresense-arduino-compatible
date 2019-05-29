@@ -36,6 +36,11 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#ifdef _WIN32
+#include <fcntl.h>
+#include <io.h>
+#endif
+
 #define SPK_MAGIC_VALUE 0x444F4DEF
 
 int main(int argc, char *argv[])
@@ -63,6 +68,10 @@ int main(int argc, char *argv[])
   /* Get memory size */
   fseek(fp, 20, SEEK_SET);
   fread(&stack, sizeof(stack), 1, fp);
+
+#ifdef _WIN32
+  _setmode(_fileno(stderr), _O_BINARY);
+#endif
 
   fprintf(stderr, "####################################\n");
   fprintf(stderr, "## Used memory size: %4d [KByte] ##\n", (stack & 0x00ffffff) / 1024);
