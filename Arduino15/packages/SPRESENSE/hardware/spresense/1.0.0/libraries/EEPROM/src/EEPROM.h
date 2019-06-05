@@ -22,6 +22,10 @@
 #ifndef EEPROM_h
 #define EEPROM_h
 
+#ifdef SUBCORE
+#error "EEPROM library is NOT supported by SubCore."
+#endif
+
 /**
  * @defgroup eeprom EEPROM Library API
  * @brief API for using EEPROM

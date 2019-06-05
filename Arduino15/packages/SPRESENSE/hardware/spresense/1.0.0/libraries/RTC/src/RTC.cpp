@@ -35,6 +35,7 @@
 
 #define ERRMSG(format, ...) printf("ERROR: " format, ##__VA_ARGS__)
 
+#ifndef SUBCORE
 static void (*g_isr)(void) = NULL;
 
 static void alarm_handler(int signo, FAR siginfo_t *info, FAR void *ucontext)
@@ -87,9 +88,11 @@ static int alarm_daemon(int argc, FAR char *argv[])
 
   return -1;
 }
+#endif /* !SUBCORE */
 
 void RtcClass::begin()
 {
+#ifndef SUBCORE
   /* NOTE: After the driver has been opened, a task should be created,
    * because the created task shares the file descriptor (fd) of driver.
    */
@@ -100,9 +103,19 @@ void RtcClass::begin()
   }
 
   if (_pid < 0) {
-    _pid = task_create("alarm_daemon", 120, 2048, alarm_daemon, NULL);
+    struct sched_param param;
+    pthread_attr_t attr;
+
+    pthread_attr_init(&attr);
+    attr.stacksize = 2048;
+    param.sched_priority = 120;
+    pthread_attr_setschedparam(&attr, &param);
+
+    pthread_create((pthread_t*)&_pid, &attr, (pthread_startroutine_t)alarm_daemon, NULL);
+    pthread_setname_np(_pid, "alarm_daemon");
     assert (_pid > 0);
   }
+#endif /* !SUBCORE */
 
   /* Wait until RTC is available */
 
@@ -111,8 +124,9 @@ void RtcClass::begin()
 
 void RtcClass::end()
 {
+#ifndef SUBCORE
   if (_pid > 0) {
-    task_delete(_pid);
+    pthread_cancel((pthread_t)_pid);
     _pid = -1;
   }
 
@@ -120,6 +134,7 @@ void RtcClass::end()
     close(_fd);
     _fd = -1;
   }
+#endif /* !SUBCORE */
 }
 
 void RtcClass::setTime(RtcTime &tim)
@@ -147,6 +162,7 @@ RtcTime RtcClass::getTime()
   return RtcTime(ts.tv_sec, ts.tv_nsec);
 }
 
+#ifndef SUBCORE
 void RtcClass::setAlarm(RtcTime &tim)
 {
   int ret;
@@ -220,5 +236,6 @@ void RtcClass::detachAlarm()
 {
   g_isr = NULL;
 }
+#endif /* !SUBCORE */
 
 RtcClass RTC;

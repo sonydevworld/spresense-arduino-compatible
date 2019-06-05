@@ -1,6 +1,6 @@
 /*
  *  UsbMscAndFileOperation.ino - Example to SD File access and USB MSC
- *  Copyright 2018 Sony Semiconductor Solutions Corporation
+ *  Copyright 2019 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -23,8 +23,9 @@ SDClass SD;
 void setup() {
   Serial.begin(115200);
 
-  if (!SD.begin()) {
-    Serial.println("SD card is not present");
+  /* Initialize SD */
+  while (!SD.begin()) {
+    ; /* wait until SD card is mounted. */
   }
 }
 
@@ -72,7 +73,7 @@ void loop() {
 void listSDFile() {
   Serial.println("Size\tFilename");
   Serial.println("----\t--------");
-  File root = SD.open("/");
+  File root = SD.open("");
   listDirectory(root);
 }
 

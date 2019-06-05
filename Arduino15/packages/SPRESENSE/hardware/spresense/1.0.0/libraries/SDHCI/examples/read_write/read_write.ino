@@ -1,6 +1,6 @@
 /*
- *  read_write.ino - SD Card read/write sample application
- *  Copyright 2018 Sony Semiconductor Solutions Corporation
+ *  read_write.ino - SD card read/write sample application
+ *  Copyright 2019 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -20,10 +20,12 @@
 /**
  * @file read_write.ino
  * @author Sony Semiconductor Solutions Corporation
- * @brief SD Card read/write sample application.
+ * @brief SD card read/write sample application.
  */
 
+#include <Arduino.h>
 #include <SDHCI.h>
+#include <File.h>
 
 SDClass SD;  /**< SDClass object */ 
 
@@ -35,17 +37,25 @@ File myFile; /**< File object */
  * @details The file is located on the SD card.
  */
 void setup() {
+
   /* Open serial communications and wait for port to open */
   Serial.begin(115200);
   while (!Serial) {
     ; /* wait for serial port to connect. Needed for native USB port only */
   }
 
-  Serial.print("Initializing SD card...");
+  /* Initialize SD */
+  Serial.print("Insert SD card.");
+  while (!SD.begin()) {
+    ; /* wait until SD card is mounted. */
+  }
+
+  /* Create a new directory */
+  SD.mkdir("dir/");
 
   /* Open the file. Note that only one file can be open at a time,
      so you have to close this one before opening another. */
-  myFile = SD.open("test.txt", FILE_WRITE);
+  myFile = SD.open("dir/test.txt", FILE_WRITE);
 
   /* If the file opened okay, write to it */
   if (myFile) {
@@ -60,7 +70,8 @@ void setup() {
   }
 
   /* Re-open the file for reading */
-  myFile = SD.open("test.txt");
+  myFile = SD.open("dir/test.txt");
+
   if (myFile) {
     Serial.println("test.txt:");
 

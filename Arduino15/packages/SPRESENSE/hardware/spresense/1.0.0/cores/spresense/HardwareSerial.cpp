@@ -29,6 +29,7 @@
 #include <nuttx/fs/ioctl.h>
 #include <nuttx/serial/tioctl.h>
 #include <HardwareSerial.h>
+#include <multi_print.h>
 
 HardwareSerial::HardwareSerial(uint8_t ch)
 : _fd(-1),
@@ -204,6 +205,11 @@ size_t HardwareSerial::write(const char* str)
     if (_fd < 0)
         return 0;
 
+#ifdef SUBCORE
+    if (_ch == 1) {
+        return uart_syncwrite(str, strlen(str));
+    }
+#endif
     return ::write(_fd, str, strlen((const char*)str));
 }
 
@@ -217,6 +223,11 @@ size_t HardwareSerial::write(const uint8_t* buffer, size_t size)
     if (_fd < 0)
         return 0;
 
+#ifdef SUBCORE
+    if (_ch == 1) {
+        return uart_syncwrite((const char*)buffer, size);
+    }
+#endif
     return ::write(_fd, buffer, size);
 }
 

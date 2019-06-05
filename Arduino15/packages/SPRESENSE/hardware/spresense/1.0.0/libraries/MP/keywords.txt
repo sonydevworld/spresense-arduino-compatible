@@ -1,0 +1,54 @@
+#######################################
+# Syntax Coloring Map For MP
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+MPClass	KEYWORD1
+MP	KEYWORD1
+MPMutex	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+begin	KEYWORD2
+end	KEYWORD2
+Send	KEYWORD2
+Recv	KEYWORD2
+SendObject	KEYWORD2
+RecvObject	KEYWORD2
+SendWaitComplete	KEYWORD2
+RecvTimeout	KEYWORD2
+GetRecvTimeout	KEYWORD2
+Virt2Phys	KEYWORD2
+GetMemoryInfo	KEYWORD2
+EnableConsole	KEYWORD2
+DisableConsole	KEYWORD2
+AllocSharedMemory	KEYWORD2
+FreeSharedMemory	KEYWORD2
+Lock	KEYWORD2
+Trylock	KEYWORD2
+Unlock	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+MP_RECV_BLOCKING	LITERAL1
+MP_RECV_POLLING	LITERAL1
+MP_GET_CPUID	LITERAL1
+MP_MUTEX_ID0	LITERAL1
+MP_MUTEX_ID1	LITERAL1
+MP_MUTEX_ID2	LITERAL1
+MP_MUTEX_ID3	LITERAL1
+MP_MUTEX_ID4	LITERAL1
+MP_MUTEX_ID5	LITERAL1
+MP_MUTEX_ID6	LITERAL1
+MP_MUTEX_ID7	LITERAL1
+MP_MUTEX_ID8	LITERAL1
+MP_MUTEX_ID9	LITERAL1
+MP_MUTEX_ID10	LITERAL1
+MPLog	LITERAL1

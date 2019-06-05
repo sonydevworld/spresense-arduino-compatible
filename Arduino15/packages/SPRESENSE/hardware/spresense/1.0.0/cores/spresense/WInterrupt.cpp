@@ -38,8 +38,6 @@
 # error Please enable GPIO interrupt support in NuttX
 #endif // CONFIG_CXD56_GPIO_IRQ
 
-static irqstate_t s_irq_flags;
-
 #define INTC_EN(n) (CXD56_INTC_BASE + 0x10 + (((n) >> 5) << 2))
 
 static bool irq_enabled(int irq)
@@ -106,12 +104,12 @@ static void detach_interrupt(uint8_t pin)
 extern "C" {
 void interrupts(void)
 {
-    leave_critical_section(s_irq_flags);
+    __asm volatile ("cpsie i" : : : "memory");
 }
 
 void noInterrupts(void)
 {
-    s_irq_flags = enter_critical_section();
+    __asm volatile ("cpsid i" : : : "memory");
 }
 
 uint16_t irq_save(uint16_t mask)

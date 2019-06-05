@@ -32,6 +32,8 @@
 #include "Audio.h"
 #include "MemoryUtil.h"
 
+#include <File.h>
+
 //***************************************************************************
 // Definitions
 //***************************************************************************
@@ -266,6 +268,20 @@ err_t AudioClass::begin_player(void)
 /*--------------------------------------------------------------------------*/
 err_t AudioClass::begin_recorder(void)
 {
+  /* Create MicFrontend. */
+
+  AsCreateMicFrontendParam_t frontend_create_param;
+  frontend_create_param.msgq_id.micfrontend = MSGQ_AUD_FRONTEND;
+  frontend_create_param.msgq_id.mng         = MSGQ_AUD_MGR;
+  frontend_create_param.msgq_id.dsp         = MSGQ_AUD_PREDSP;
+  frontend_create_param.pool_id.input       = MIC_IN_BUF_POOL;
+  frontend_create_param.pool_id.output      = NULL_POOL;
+  frontend_create_param.pool_id.dsp         = PRE_APU_CMD_POOL;
+
+  AS_CreateMicFrontend(&frontend_create_param, NULL);
+
+  /* Create MediaRecorder */
+
   AsCreateRecorderParam_t recorder_act_param;
   recorder_act_param.msgq_id.recorder      = MSGQ_AUD_RECORDER;
   recorder_act_param.msgq_id.mng           = MSGQ_AUD_MGR;
@@ -320,6 +336,7 @@ err_t AudioClass::end_player(void)
 err_t AudioClass::end_recorder(void)
 {
   AS_DeleteMediaRecorder();
+  AS_DeleteMicFrontend();
   AS_DeleteCapture();
 
   return AUDIOLIB_ECODE_OK;
@@ -335,6 +352,7 @@ err_t AudioClass::activateAudio(void)
   ids.mng         = MSGQ_AUD_MGR;
   ids.player_main = MSGQ_AUD_PLY;
   ids.player_sub  = MSGQ_AUD_SUB_PLY;
+  ids.micfrontend = MSGQ_AUD_FRONTEND;
   ids.mixer       = MSGQ_AUD_OUTPUT_MIX;
   ids.recorder    = MSGQ_AUD_RECORDER;
   ids.effector    = 0xFF;
@@ -1336,6 +1354,32 @@ err_t AudioClass::setRenderingClockMode(AsClkMode mode)
   AS_ReceiveAudioResult(&result);
 
   if (result.header.result_code != AUDRLT_SETRENDERINGCLKCMPLT)
+    {
+      print_err("ERROR: Command (0x%x) fails. Result code(0x%x) Module id(0x%x) Error code(0x%x)\n",
+              command.header.command_code, result.header.result_code, result.error_response_param.module_id, result.error_response_param.error_code);
+      print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
+      return AUDIOLIB_ECODE_AUDIOCOMMAND_ERROR;
+    }
+
+  return AUDIOLIB_ECODE_OK;
+}
+
+/*--------------------------------------------------------------------------*/
+err_t AudioClass::setMicFrontendPreProcType(AsMicFrontendPreProcType proc_type)
+{
+  AudioCommand command;
+
+  command.header.packet_length = LENGTH_SETMFETYPE;
+  command.header.command_code  = AUDCMD_SETMFETYPE;
+  command.header.sub_code      = 0x00;
+  command.set_mfetype_param.preproc_type = proc_type;
+
+  AS_SendAudioCommand(&command);
+
+  AudioResult result;
+  AS_ReceiveAudioResult(&result);
+
+  if (result.header.result_code != AUDRLT_ENPREPROCCMPLT)
     {
       print_err("ERROR: Command (0x%x) fails. Result code(0x%x) Module id(0x%x) Error code(0x%x)\n",
               command.header.command_code, result.header.result_code, result.error_response_param.module_id, result.error_response_param.error_code);

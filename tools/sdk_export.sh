@@ -22,7 +22,7 @@ TMP_DIR=`mktemp -d`
 
 # versioning
 cd $SDK_DIR
-bash sdk/tools/mkversion.sh
+TOPDIR=$SDK_DIR/nuttx bash sdk/tools/mkversion.sh
 
 # create sdk-export.zip
 cd $SDK_DIR/sdk
@@ -35,9 +35,9 @@ if [ ! ${IMPORT_ONLY} ]; then
 
 	## Configuration
 	echo "Configure SDK components..."
-	echo "Kernel : ${SDL_KERNEL_CONF}"
+	echo "Kernel : ${SDK_KERNEL_CONF}"
 	echo "SDK    : ${SDK_CONFIG}"
-	./tools/config.py --kernel ${SDL_KERNEL_CONF}
+	./tools/config.py --kernel ${SDK_KERNEL_CONF}
 	./tools/config.py ${SDK_CONFIG}
 fi
 
@@ -59,8 +59,8 @@ rm $PACKAGE_NAME
 mkdir -p $TMP_DIR/sdk/${SDK_VERSION}/${VARIANT_NAME}
 
 # create arch, include, startup
-mv $TMP_DIR/${NUTTX_EXPORT}/nuttx $TMP_DIR/sdk/${SDK_VERSION}/${VARIANT_NAME}/${SDL_KERNEL_CONF}
-cd $TMP_DIR/sdk/${SDK_VERSION}/${VARIANT_NAME}/${SDL_KERNEL_CONF}
+mv $TMP_DIR/${NUTTX_EXPORT}/nuttx $TMP_DIR/sdk/${SDK_VERSION}/${VARIANT_NAME}/${SDK_KERNEL_CONF}
+cd $TMP_DIR/sdk/${SDK_VERSION}/${VARIANT_NAME}/${SDK_KERNEL_CONF}
 rm -f .config
 
 mkdir -p ./include/apps

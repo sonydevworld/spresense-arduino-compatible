@@ -20,6 +20,10 @@
 #ifndef OutputMixer_h 
 #define OutputMixer_h
 
+#ifdef SUBCORE
+#error "Audio library is NOT supported by SubCore."
+#endif
+
 // #ifdef __cplusplus
 
 #include <audio/audio_high_level_api.h>

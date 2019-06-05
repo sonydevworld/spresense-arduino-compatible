@@ -1,0 +1,35 @@
+#######################################
+# Syntax Coloring Map For File
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+File	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+write	KEYWORD2
+read	KEYWORD2
+peek	KEYWORD2
+available	KEYWORD2
+flush	KEYWORD2
+read	KEYWORD2
+seek	KEYWORD2
+position	KEYWORD2
+size	KEYWORD2
+close	KEYWORD2
+name	KEYWORD2
+isDirectory	KEYWORD2
+openNextFile	KEYWORD2
+rewindDirectory	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+FILE_READ	LITERAL1
+FILE_WRITE	LITERAL1

@@ -74,6 +74,7 @@ public:
    */
   RtcTime getTime();
 
+#ifndef SUBCORE
   /**
    * @brief Set RTC alarm time
    * @param [in] a object of RtcTime to set the alarm
@@ -101,6 +102,8 @@ public:
    * @brief Detach the alarm handler
    */
   void detachAlarm();
+
+#endif /* !SUBCORE */
 
 private:
   int _fd;

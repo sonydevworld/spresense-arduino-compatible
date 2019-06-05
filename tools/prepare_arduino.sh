@@ -196,15 +196,19 @@ function install_sdk_from_build()
 	fi
 
 	# Get SDK comonent configuration
-	export SDL_KERNEL_CONF=${SDL_KERNEL_CONF}
-	export SDK_CONFIG=`cat ${SCRIPT_DIR}/configs/${VARIANT_NAME}.conf | head -n 1`
+	export SDK_KERNEL_CONF=${SDK_KERNEL_CONF}
+	if [ "${SDK_CONF}" == "" ]; then
+		export SDK_CONFIG=`cat ${SCRIPT_DIR}/configs/${VARIANT_NAME}.conf | head -n 1`
+	else
+		export SDK_CONFIG=`cat ${SCRIPT_DIR}/configs/${SDK_CONF}.conf | head -n 1`
+	fi
 
 	# Add configuration option
 	if [ "${CONFIG_EDIT}" != "" ]; then
 		CONFIG_OPTION=`echo ${CONFIG_EDIT} | cut -d " " -f 1`
 		CONFIG_TARGET=`echo ${CONFIG_EDIT} | cut -d " " -f 2`
 		if [ "`echo ${CONFIG_TARGET} | grep -i kernel`" != "" ]; then
-			export SDL_KERNEL_CONF="${CONFIG_OPTION} ${SDL_KERNEL_CONF}"
+			export SDK_KERNEL_CONF="${CONFIG_OPTION} ${SDK_KERNEL_CONF}"
 		fi
 		if [ "`echo ${CONFIG_TARGET} | grep -i sdk`" != "" ]; then
 			export SDK_CONFIG="${CONFIG_OPTION} ${SDK_CONFIG}"
@@ -227,6 +231,7 @@ function install_sdk_from_build()
 # -s: sdk archive path "your/path/to/sdk.tar.gz"
 # -v: board variant (default: spresense)
 # -k: kernel configuration (default: release)
+# -c: SDK configuration (default: )
 # -H: target Arduino Host (Windows/Linux32/Linux64/Mac)
 # -M: manual configuration by menuconfig (Kernel/SDK)
 # -G: manual configuration by gconfig (Kernel/SDK)
@@ -236,19 +241,21 @@ SPRESENSE_SDK_PATH=""
 GCC_ARCHIVE_PATH=""
 SDK_ARCHIVE_PATH=""
 SDK_VARIANT_NAME="spresense"
-SDL_KERNEL_CONF="release"
+SDK_CONF=""
+SDK_KERNEL_CONF="release"
 AURDUINO_IDE_HOST=""
 CONFIG_EDIT=""
 IMPORT_ONLY=""
 PRIVATE_ACCESS=""
-while getopts S:g:s:v:k:H:M:G:Q:iph OPT
+while getopts S:g:s:v:k:c:H:M:G:Q:iph OPT
 do
 	case $OPT in
 		'S' ) SPRESENSE_SDK_PATH=$OPTARG;;
 		'g' ) GCC_ARCHIVE_PATH=$OPTARG;;
 		's' ) SDK_ARCHIVE_PATH=$OPTARG;;
 		'v' ) SDK_VARIANT_NAME=$OPTARG;;
-		'k' ) SDL_KERNEL_CONF=$OPTARG;;
+		'k' ) SDK_KERNEL_CONF=$OPTARG;;
+		'c' ) SDK_CONF=$OPTARG;;
 		'H' ) AURDUINO_IDE_HOST=$OPTARG;;
 		'M' ) CONFIG_EDIT="-m $OPTARG";;
 		'G' ) CONFIG_EDIT="-g $OPTARG";;

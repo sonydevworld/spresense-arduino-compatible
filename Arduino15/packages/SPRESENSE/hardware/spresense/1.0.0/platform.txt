@@ -17,22 +17,22 @@ compiler.warning_flags.all=-Wall -Wextra
 
 compiler.path={runtime.tools.gcc-arm-none-eabi.path}/{runtime.os}/bin/
 compiler.sdk.path={build.kernel}
-compiler.cpreprocessor.flags= "-I{compiler.sdk.path}/include" "-I{compiler.sdk.path}/arch" "-I{compiler.sdk.path}/arch/chip" "-I{compiler.sdk.path}/include/apps" "-I{compiler.sdk.path}/include/sdk" "-I{variant.path}" {build.debug} -DCONFIG_WCHAR_BUILTIN -DCONFIG_HAVE_DOUBLE
+compiler.cpreprocessor.flags= "-I{build.kernel}/include" "-I{build.root}/common/include" "-I{build.root}/common/arch" "-I{build.root}/common/arch/chip" "-I{build.root}/common/include/apps" "-I{build.root}/common/include/sdk" "-I{variant.path}" {build.debug} -DCONFIG_WCHAR_BUILTIN -DCONFIG_HAVE_DOUBLE
 
 
 compiler.c.cmd=arm-none-eabi-gcc
-compiler.c.flags=-c {compiler.warning_flags} -MMD -std=gnu99 -c -fno-builtin -mabi=aapcs -Wall -Os -fno-strict-aliasing -fno-strength-reduce -fomit-frame-pointer -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -pipe -ggdb -gdwarf-3 -ffunction-sections -fdata-sections
+compiler.c.flags=-c {compiler.warning_flags} -MMD -std=gnu11 -c -fno-builtin -mabi=aapcs -Wall -Os -fno-strict-aliasing -fno-strength-reduce -fomit-frame-pointer -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -pipe -ggdb -gdwarf-3 -ffunction-sections -fdata-sections
 
 compiler.S.cmd=arm-none-eabi-gcc
 compiler.S.flags=-c {compiler.warning_flags} -MMD -std=gnu99 -c -fno-builtin -mabi=aapcs -Wall -Os -fno-strict-aliasing -fno-strength-reduce -fomit-frame-pointer -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -pipe -ggdb -gdwarf-3 -D__ASSEMBLY__ -x assembler-with-cpp
 
-compiler.c.elf.flags=-ggdb -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -Xlinker --entry=__start -nodefaultlibs -nostartfiles "{build.stack}" "-T{build.libpath}/build/ramconfig.ld" -Wl,--gc-sections
+compiler.c.elf.flags=-ggdb -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -Xlinker --entry=__start -nodefaultlibs -nostartfiles "{build.stack}" "{build.ldscript}" -Wl,--gc-sections
 
 compiler.c.elf.cmd=arm-none-eabi-g++
 compiler.c.elf.libs= "{build.libpath}/libs/libapps.a" "{build.libpath}/libs/libnuttx.a" -lgcc -lm
 
 compiler.cpp.cmd=arm-none-eabi-g++
-compiler.cpp.flags=-c {compiler.warning_flags} -MMD -std=gnu++98 -c -fno-builtin -mabi=aapcs -Wall -Os -fno-strict-aliasing -fno-strength-reduce -fomit-frame-pointer -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -pipe -ffunction-sections -fno-exceptions -fno-rtti -ggdb -gdwarf-3 -ffunction-sections -fdata-sections
+compiler.cpp.flags=-c {compiler.warning_flags} -MMD -std=gnu++11 -c -fno-builtin -mabi=aapcs -Wall -Os -fno-strict-aliasing -fno-strength-reduce -fomit-frame-pointer -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -pipe -ffunction-sections -fno-exceptions -fno-rtti -ggdb -gdwarf-3 -ffunction-sections -fdata-sections -fpermissive
 
 
 compiler.as.cmd=arm-none-eabi-as
@@ -81,8 +81,8 @@ recipe.ar.pattern="{compiler.path}{compiler.ar.cmd}" {compiler.ar.flags} {compil
 recipe.c.combine.pattern="{compiler.path}{compiler.c.elf.cmd}" {compiler.c.elf.flags} {compiler.c.elf.extra_flags} -Xlinker "-Map={build.path}/output.map" -o  "{build.path}/{build.project_name}.elf" -Wl,--start-group {object_files} -u spresense_main "{build.path}/{archive_file}" {compiler.c.elf.libs} -Wl,--end-group "-L{build.path}"
 
 ## Create hex
-recipe.objcopy.hex.pattern="{runtime.tools.spresense-tools.path}/mkspk/{runtime.os}/mkspk" -c 2 "{build.path}/{build.project_name}.elf" nuttx "{build.path}/{build.project_name}.spk"
-recipe.objcopy.hex.pattern.windows="{runtime.tools.spresense-tools.path}/mkspk/{runtime.os}/mkspk.exe" -c 2 "{build.path}/{build.project_name}.elf" nuttx "{build.path}/{build.project_name}.spk"
+recipe.objcopy.hex.pattern="{runtime.tools.spresense-tools.path}/mkspk/{runtime.os}/mkspk" -c 2 "{build.path}/{build.project_name}.elf" "{build.flash_name}" "{build.path}/{build.project_name}.spk"
+recipe.objcopy.hex.pattern.windows="{runtime.tools.spresense-tools.path}/mkspk/{runtime.os}/mkspk.exe" -c 2 "{build.path}/{build.project_name}.elf" "{build.flash_name}" "{build.path}/{build.project_name}.spk"
 
 ## Save hex
 recipe.output.tmp_file={build.project_name}.spk
@@ -92,6 +92,10 @@ recipe.output.save_file={build.project_name}.{build.variant}.{build.type}.spk
 recipe.size.pattern="{compiler.path}{compiler.size.cmd}" -A "{build.path}/{build.project_name}.elf"
 recipe.size.regex=^(\.text|\.data|\.init_section|\.ARM.exidx|\.bss)\s+([0-9]+).*
 recipe.size.regex.data=^(\.text|\.data|\.init_section|\.ARM.exidx|\.bss)\s+([0-9]+).*
+
+## Compute RAM size
+recipe.hooks.objcopy.postobjcopy.1.pattern="{runtime.tools.spresense-tools.path}/getspkinfo/{runtime.os}/getspkinfo" "{build.path}/{build.project_name}.spk"
+recipe.hooks.objcopy.postobjcopy.1.pattern.windows="{runtime.tools.spresense-tools.path}/getspkinfo/{runtime.os}/getspkinfo.exe" "{build.path}/{build.project_name}.spk"
 
 # ------------------------------
 tools.spresense-tools.path={runtime.tools.spresense-tools.path}
@@ -103,10 +107,11 @@ tools.spresense-tools.upload.protocol=spresense
 tools.spresense-tools.upload.params.verbose=
 tools.spresense-tools.upload.params.quiet=
 tools.spresense-tools.upload.pattern="{cmd.path}" -s -c "{serial.port}" {cmd.opt.baudrate} -d -n "{build.path}/{build.project_name}.spk"
+tools.spresense-tools.erase.opt.args=-e "{menu.Core.Sub1.build.flash_name}" -e "{menu.Core.Sub2.build.flash_name}" -e "{menu.Core.Sub3.build.flash_name}" -e "{menu.Core.Sub4.build.flash_name}" -e "{menu.Core.Sub5.build.flash_name}"
 tools.spresense-tools.erase.params.verbose=
 tools.spresense-tools.erase.params.quiet=
-tools.spresense-tools.erase.pattern=
+tools.spresense-tools.erase.pattern="{cmd.path}" -s -c "{serial.port}" {cmd.opt.baudrate} -d -n {erase.opt.args}
 tools.spresense-tools.bootloader.params.verbose=
 tools.spresense-tools.bootloader.params.quiet=
-tools.spresense-tools.firmware.path={runtime.tools.spresense-sdk.path}/{build.variant}/firmware
+tools.spresense-tools.firmware.path={runtime.tools.spresense-sdk.path}/spresense/firmware
 tools.spresense-tools.bootloader.pattern="{cmd.path}" -s -c "{serial.port}" {cmd.opt.baudrate} -d -n -S "{firmware.path}/loader.espk" -S "{firmware.path}/gnssfw.espk" -S "{firmware.path}/dnnrt-mp.espk" -S "{firmware.path}/AESM.espk"

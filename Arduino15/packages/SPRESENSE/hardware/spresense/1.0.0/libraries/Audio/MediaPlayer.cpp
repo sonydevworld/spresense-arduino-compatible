@@ -32,6 +32,8 @@
 #include "memutil/mem_layout.h"
 #include "memutil/memory_layout.h"
 
+#include <File.h>
+
 void  input_device_callback(uint32_t size)
 {
     /* do nothing */

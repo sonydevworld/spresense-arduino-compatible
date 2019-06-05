@@ -810,6 +810,9 @@ CamErr CameraClass::create_dq_thread()
         (void *)this))
     {
       loop_dqbuf_en = false;
+      CamImage *req = NULL;
+      mq_send(frame_exchange_mq, (const char *)&req, sizeof(CamImage *), 0);
+      pthread_join(frame_tid, NULL);
       mq_close(frame_exchange_mq);
       err = CAM_ERR_CANT_CREATE_THREAD;
     }
@@ -819,6 +822,22 @@ CamErr CameraClass::create_dq_thread()
     }
 
   return err;
+}
+
+void CameraClass::delete_dq_thread()
+{
+  loop_dqbuf_en = false;
+
+  ioctl(video_fd, VIDIOC_CANCEL_DQBUF, V4L2_BUF_TYPE_VIDEO_CAPTURE);
+  pthread_join(dq_tid, NULL);
+  dq_tid = -1;
+
+  CamImage *req = NULL;
+  mq_send(frame_exchange_mq, (const char *)&req, sizeof(CamImage *), 0);
+  pthread_join(frame_tid, NULL);
+  frame_tid = -1;
+
+  mq_close(frame_exchange_mq);
 }
 
 // Public : Start to use the Camera.
@@ -1119,6 +1138,15 @@ void CameraClass::end()
 {
   if (is_device_ready())
     {
+      delete_dq_thread();
+
+      close(video_fd);
+      video_fd = -1;
+
+      delete_videobuff();
+      DELETE_CAMIMAGE(still_img);
+
+      imageproc_finalize();
     }
 }
 
@@ -1172,6 +1200,7 @@ void CameraClass::dqbuf_thread(void *arg)
             }
         }
     }
+  pthread_exit(0);
 }
 
 // Private Static : dqbuf buffer handling thread.
@@ -1201,6 +1230,7 @@ void CameraClass::frame_handle_thread(void *arg)
             }
         }
     }
+  pthread_exit(0);
 }
 
 

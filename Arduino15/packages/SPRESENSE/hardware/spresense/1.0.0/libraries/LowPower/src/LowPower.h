@@ -20,6 +20,10 @@
 #ifndef _LOW_POWER_H_
 #define _LOW_POWER_H_
 
+#ifdef SUBCORE
+#error "LowPower library is NOT supported by SubCore."
+#endif
+
 /**
  * @file LowPower.h
  * @author Sony Semiconductor Solutions Corporation
@@ -35,6 +39,7 @@
  */
 
 #include <Arduino.h>
+#include <arch/chip/pm.h>
 
 typedef enum {
   POR_SUPPLY      = 0,  /**< Power On Reset with Power Supplied */
@@ -69,6 +74,12 @@ typedef enum {
   POR_NORMAL      = 32, /**< Power On Reset */
 } bootcause_e;
 
+typedef enum {
+  CLOCK_MODE_156MHz = 0, /**< High clock mode (CPU = 156MHz) */
+  CLOCK_MODE_32MHz  = 1, /**< Middle clock mode (CPU = 32MHz) */
+  CLOCK_MODE_8MHz   = 2, /**< Low clock mode (CPU = 8.2MHz) */
+} clockmode_e;
+
 /**
  * @class LowPowerClass
  * @brief This provides the features fo the power saving
@@ -77,6 +88,17 @@ typedef enum {
 class LowPowerClass
 {
 public:
+
+  LowPowerClass() : isInitialized(false), isEnabledDVFS(false) {
+    hvlock.count = 0;
+    hvlock.info = PM_CPUFREQLOCK_TAG('L', 'P', 0);
+    hvlock.flag = PM_CPUFREQLOCK_FLAG_HV;
+
+    lvlock.count = 0;
+    lvlock.info = PM_CPUFREQLOCK_TAG('L', 'P', 1);
+    lvlock.flag = PM_CPUFREQLOCK_FLAG_LV;
+  }
+
   /**
    * @brief Initialize the Low Power library
    * @details This initializes RTC library, because this library uses the RTC library.
@@ -173,9 +195,39 @@ public:
    */
   uint8_t getWakeupPin(bootcause_e bc);
 
+  /**
+   * @brief Set clock mode and change system clock dynamically
+   * @param [in] mode - the clock mode
+   */
+  void clockMode(clockmode_e mode);
+
+  /**
+   * @brief Get clock mode
+   * @return the clock mode
+   */
+  clockmode_e getClockMode();
+
+  /**
+   * @brief Get the sensed battery voltage on CXD5247
+   * @return sensed voltage [mV]
+   */
+  int getVoltage(void);
+
+  /**
+   * @brief Get the sensed battery current on CXD5247
+   * @return sensed current [mA]. Negative value means discharge.
+   * @attention The returned value isn't time-averaged and just instantaneous
+   *     value. Therefore, you can not get the strict current consumption.
+   *     Please use this value as a guide.
+   */
+  int getCurrent(void);
+
 private:
   bootcause_e pin2bootcause(uint8_t pin);
-
+  bool isInitialized;
+  bool isEnabledDVFS;
+  struct pm_cpu_freqlock_s hvlock;
+  struct pm_cpu_freqlock_s lvlock;
 };
 
 extern LowPowerClass LowPower;

@@ -29,6 +29,10 @@
 #ifndef Audio_h
 #define Audio_h
 
+#ifdef SUBCORE
+#error "Audio library is NOT supported by SubCore."
+#endif
+
 /**
  * @defgroup audio Audio Library API
  * @brief API for using Audio
@@ -36,7 +40,8 @@
  */
 
 #include <pins_arduino.h>
-#include <SDHCI.h>
+
+class File;
 
 // #ifdef __cplusplus
 
@@ -841,6 +846,23 @@ public:
       AsClkMode mode /**< Mode of rendering clock. */
   );
 
+  /**
+   * @brief Set ProProcess type.
+   *
+   * @details This function sets the PreProcess type for recording.
+   *
+   *          Set pre process type for recording data.
+   *          If you'd like to any signal processings to recording data.
+   *          set processing type by this API.
+   *
+   *          If not call this API, pre process will through.
+   *          (AsFrontendPreprocThrough is selected Internally.)
+   *
+   */
+  err_t setMicFrontendPreProcType(
+      AsMicFrontendPreProcType proc_type /**< Processing type */
+  );
+
  /**
    * @brief Get recording ES size.
    *
@@ -883,8 +905,6 @@ private:
   int                           m_codec_type;
 
   AudioAttentionCb m_attention_callback;
-
-  File theFile; /* for  auto file read */
 
   /* Private Functions */
 
