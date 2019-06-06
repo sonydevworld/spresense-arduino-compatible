@@ -54,7 +54,7 @@ bool AccelSensorClass::begin(int      id,
   m_previous_time = millis();
   
   if (ERR_OK != m_mh.allocSeg(
-                         SENSOR_DATA_BUF_POOL,
+                         S1_SENSOR_DATA_BUF_POOL,
                          size_per_sample * sample_watermark_num))
     {
       /* Fatal error occured. */
@@ -130,7 +130,7 @@ int AccelSensorClass::write_data(float x, float y, float z)
       /* Create new memory buffer. */
       
       if (ERR_OK != m_mh.allocSeg(
-                     SENSOR_DATA_BUF_POOL,
+                     S1_SENSOR_DATA_BUF_POOL,
                      sizeof(struct accel_float_s) * m_sample_watermark_num))
         {
           /* Fatal error occured. */

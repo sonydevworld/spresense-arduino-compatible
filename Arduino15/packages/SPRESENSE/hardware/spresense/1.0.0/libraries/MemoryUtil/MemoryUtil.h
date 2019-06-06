@@ -67,7 +67,7 @@ public:
    *
    */
 
-  int setLayout(uint8_t layout_no);
+  int setLayout(uint8_t sec_no, uint8_t layout_no);
 
   /**
    * @brief Destroy the static memory pool.
@@ -90,7 +90,7 @@ public:
    *
    */
 
-  const PoolAttr* getLayout(int layout_no);
+  const PoolSectionAttr* getLayout(uint8_t sec_no, int layout_no);
 
 private:
   enum E_state{
@@ -108,9 +108,11 @@ extern MemoryUtilClass MemoryUtil;
 /*--------------------------------------------------------------------------*/
 extern int initMemoryPools(void);
 extern int createStaticPools(uint8_t layout_no);
+extern int createStaticPools(uint8_t sec_no, uint8_t layout_no);
 extern int destroyStaticPools(void);
 extern int finalizeMemoryPools(void);
-extern const PoolAttr *getPoolLayout(int layout_no);
+extern const PoolSectionAttr *getPoolLayout(int layout_no);
+extern const PoolSectionAttr *getPoolLayout(uint8_t sec_no, int layout_no);
 
 
 #endif /* MemoryUtil_h */

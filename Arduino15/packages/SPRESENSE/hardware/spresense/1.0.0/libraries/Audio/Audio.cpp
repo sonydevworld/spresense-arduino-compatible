@@ -197,15 +197,15 @@ err_t AudioClass::begin_manager(void)
 /*--------------------------------------------------------------------------*/
 err_t AudioClass::begin_player(void)
 {
-  AsCreatePlayerParam_t player_create_param;
+  AsCreatePlayerParams_t player_create_param;
   player_create_param.msgq_id.player   = MSGQ_AUD_PLY;
   player_create_param.msgq_id.mng      = MSGQ_AUD_MGR;
   player_create_param.msgq_id.mixer    = MSGQ_AUD_OUTPUT_MIX;
   player_create_param.msgq_id.dsp      = MSGQ_AUD_DSP;
-  player_create_param.pool_id.es       = DEC_ES_MAIN_BUF_POOL;
-  player_create_param.pool_id.pcm      = REND_PCM_BUF_POOL;
-  player_create_param.pool_id.dsp      = DEC_APU_CMD_POOL;
-  player_create_param.pool_id.src_work = SRC_WORK_MAIN_BUF_POOL;
+  player_create_param.pool_id.es       = S0_DEC_ES_MAIN_BUF_POOL;
+  player_create_param.pool_id.pcm      = S0_REND_PCM_BUF_POOL;
+  player_create_param.pool_id.dsp      = S0_DEC_APU_CMD_POOL;
+  player_create_param.pool_id.src_work = S0_SRC_WORK_MAIN_BUF_POOL;
 
   int act_rst = AS_CreatePlayerMulti(AS_PLAYER_ID_0, &player_create_param, NULL);
   if (!act_rst)
@@ -218,10 +218,10 @@ err_t AudioClass::begin_player(void)
   player_create_param.msgq_id.mng      = MSGQ_AUD_MGR;
   player_create_param.msgq_id.mixer    = MSGQ_AUD_OUTPUT_MIX;
   player_create_param.msgq_id.dsp      = MSGQ_AUD_DSP;
-  player_create_param.pool_id.es       = DEC_ES_SUB_BUF_POOL;
-  player_create_param.pool_id.pcm      = REND_PCM_SUB_BUF_POOL;
-  player_create_param.pool_id.dsp      = DEC_APU_CMD_POOL;
-  player_create_param.pool_id.src_work = SRC_WORK_SUB_BUF_POOL;
+  player_create_param.pool_id.es       = S0_DEC_ES_SUB_BUF_POOL;
+  player_create_param.pool_id.pcm      = S0_REND_PCM_SUB_BUF_POOL;
+  player_create_param.pool_id.dsp      = S0_DEC_APU_CMD_POOL;
+  player_create_param.pool_id.src_work = S0_SRC_WORK_SUB_BUF_POOL;
 
   act_rst = AS_CreatePlayerMulti(AS_PLAYER_ID_1, &player_create_param, NULL);
   if (!act_rst)
@@ -230,15 +230,15 @@ err_t AudioClass::begin_player(void)
       return AUDIOLIB_ECODE_AUDIOCOMMAND_ERROR;
     }
 
-  AsCreateOutputMixParam_t output_mix_create_param;
+  AsCreateOutputMixParams_t output_mix_create_param;
 
   output_mix_create_param.msgq_id.mixer = MSGQ_AUD_OUTPUT_MIX;
   output_mix_create_param.msgq_id.render_path0_filter_dsp = MSGQ_AUD_PFDSP0;
   output_mix_create_param.msgq_id.render_path1_filter_dsp = MSGQ_AUD_PFDSP1;
-  output_mix_create_param.pool_id.render_path0_filter_pcm = PF0_PCM_BUF_POOL;
-  output_mix_create_param.pool_id.render_path1_filter_pcm = PF1_PCM_BUF_POOL;
-  output_mix_create_param.pool_id.render_path0_filter_dsp = PF0_APU_CMD_POOL;
-  output_mix_create_param.pool_id.render_path1_filter_dsp = PF1_APU_CMD_POOL;
+  output_mix_create_param.pool_id.render_path0_filter_pcm = S0_PF0_PCM_BUF_POOL;
+  output_mix_create_param.pool_id.render_path1_filter_pcm = S0_PF1_PCM_BUF_POOL;
+  output_mix_create_param.pool_id.render_path0_filter_dsp = S0_PF0_APU_CMD_POOL;
+  output_mix_create_param.pool_id.render_path1_filter_dsp = S0_PF1_APU_CMD_POOL;
 
   act_rst = AS_CreateOutputMixer(&output_mix_create_param, NULL);
   if (!act_rst)
@@ -270,25 +270,25 @@ err_t AudioClass::begin_recorder(void)
 {
   /* Create MicFrontend. */
 
-  AsCreateMicFrontendParam_t frontend_create_param;
+  AsCreateMicFrontendParams_t frontend_create_param;
   frontend_create_param.msgq_id.micfrontend = MSGQ_AUD_FRONTEND;
   frontend_create_param.msgq_id.mng         = MSGQ_AUD_MGR;
   frontend_create_param.msgq_id.dsp         = MSGQ_AUD_PREDSP;
-  frontend_create_param.pool_id.input       = MIC_IN_BUF_POOL;
-  frontend_create_param.pool_id.output      = NULL_POOL;
-  frontend_create_param.pool_id.dsp         = PRE_APU_CMD_POOL;
+  frontend_create_param.pool_id.input       = S0_MIC_IN_BUF_POOL;
+  frontend_create_param.pool_id.output      = S0_NULL_POOL;
+  frontend_create_param.pool_id.dsp         = S0_PRE_APU_CMD_POOL;
 
   AS_CreateMicFrontend(&frontend_create_param, NULL);
 
   /* Create MediaRecorder */
 
-  AsCreateRecorderParam_t recorder_act_param;
+  AsCreateRecorderParams_t recorder_act_param;
   recorder_act_param.msgq_id.recorder      = MSGQ_AUD_RECORDER;
   recorder_act_param.msgq_id.mng           = MSGQ_AUD_MGR;
   recorder_act_param.msgq_id.dsp           = MSGQ_AUD_DSP;
-  recorder_act_param.pool_id.input         = MIC_IN_BUF_POOL;
-  recorder_act_param.pool_id.output        = OUTPUT_BUF_POOL;
-  recorder_act_param.pool_id.dsp           = ENC_APU_CMD_POOL;
+  recorder_act_param.pool_id.input         = S0_MIC_IN_BUF_POOL;
+  recorder_act_param.pool_id.output        = S0_OUTPUT_BUF_POOL;
+  recorder_act_param.pool_id.dsp           = S0_ENC_APU_CMD_POOL;
 
   if (!AS_CreateMediaRecorder(&recorder_act_param, NULL))
     {

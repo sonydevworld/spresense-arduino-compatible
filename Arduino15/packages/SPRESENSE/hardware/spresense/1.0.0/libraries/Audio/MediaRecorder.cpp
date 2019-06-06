@@ -87,14 +87,14 @@ err_t MediaRecorder::begin(AudioAttentionCb attcb, bool use_frontend)
 
   /* Create MediaRecorder feature. */
 
-  AsCreateRecorderParam_t recorder_create_param;
+  AsCreateRecorderParams_t recorder_create_param;
 
   recorder_create_param.msgq_id.recorder = MSGQ_AUD_RECORDER; 
   recorder_create_param.msgq_id.mng      = MSGQ_AUD_MGR;
   recorder_create_param.msgq_id.dsp      = MSGQ_AUD_DSP;
-  recorder_create_param.pool_id.input    = MIC_IN_BUF_POOL;
-  recorder_create_param.pool_id.output   = OUTPUT_BUF_POOL;
-  recorder_create_param.pool_id.dsp      = ENC_APU_CMD_POOL;
+  recorder_create_param.pool_id.input    = S0_MIC_IN_BUF_POOL;
+  recorder_create_param.pool_id.output   = S0_OUTPUT_BUF_POOL;
+  recorder_create_param.pool_id.dsp      = S0_ENC_APU_CMD_POOL;
 
   result = AS_CreateMediaRecorder(&recorder_create_param, (attcb) ? attcb : attentionCallback);
   if (!result)

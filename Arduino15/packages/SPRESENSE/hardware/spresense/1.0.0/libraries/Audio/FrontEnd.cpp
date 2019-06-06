@@ -58,13 +58,13 @@ err_t FrontEnd::begin(AudioAttentionCb attcb)
 
   /* Create Frontend. */
 
-  AsCreateMicFrontendParam_t frontend_create_param;
+  AsCreateMicFrontendParams_t frontend_create_param;
   frontend_create_param.msgq_id.micfrontend = MSGQ_AUD_FRONTEND;
   frontend_create_param.msgq_id.mng         = MSGQ_AUD_MGR;
   frontend_create_param.msgq_id.dsp         = MSGQ_AUD_PREDSP;
-  frontend_create_param.pool_id.input       = MIC_IN_BUF_POOL;
-  frontend_create_param.pool_id.output      = NULL_POOL;
-  frontend_create_param.pool_id.dsp         = PRE_APU_CMD_POOL;
+  frontend_create_param.pool_id.input       = S0_MIC_IN_BUF_POOL;
+  frontend_create_param.pool_id.output      = S0_NULL_POOL;
+  frontend_create_param.pool_id.dsp         = S0_PRE_APU_CMD_POOL;
 
   result = AS_CreateMicFrontend(&frontend_create_param, (attcb) ? attcb : attentionCallback);
   if (!result)

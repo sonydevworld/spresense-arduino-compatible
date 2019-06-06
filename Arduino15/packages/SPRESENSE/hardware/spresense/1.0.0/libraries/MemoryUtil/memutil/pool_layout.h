@@ -1,7 +1,8 @@
+/* This file is generated automatically. */
 /****************************************************************************
  * pool_layout.h
  *
- *   Copyright 2018 Sony Semiconductor Solutions Corporation
+ *   Copyright 2019 Sony Semiconductor Solutions Corporation
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -40,66 +41,83 @@
 
 namespace MemMgrLite {
 
-MemPool* static_pools[NUM_MEM_POOLS];
-
-extern const PoolAttr MemoryPoolLayouts[NUM_MEM_LAYOUTS][NUM_MEM_POOLS] = {
- {/* Layout:0 */
-  /* pool_ID          type       seg fence  addr        size         */
-  { DEC_ES_MAIN_BUF_POOL, BasicType,   4, true, 0x000c0008, 0x00006000 },  /* COMMON_WORK_AREA */
-  { REND_PCM_BUF_POOL, BasicType,   5, true, 0x000c6010, 0x00015f90 },  /* COMMON_WORK_AREA */
-  { SRC_WORK_MAIN_BUF_POOL, BasicType,   1, true, 0x000dbfa8, 0x00002000 },  /* COMMON_WORK_AREA */
-  { DEC_ES_SUB_BUF_POOL, BasicType,   4, true, 0x000ddfb0, 0x00006000 },  /* COMMON_WORK_AREA */
-  { REND_PCM_SUB_BUF_POOL, BasicType,   5, true, 0x000e3fb8, 0x0000a028 },  /* COMMON_WORK_AREA */
-  { SRC_WORK_SUB_BUF_POOL, BasicType,   1, true, 0x000edfe8, 0x00002000 },  /* COMMON_WORK_AREA */
-  { DEC_APU_CMD_POOL, BasicType,  10, true, 0x000efff0, 0x00000398 },  /* COMMON_WORK_AREA */
-  { PF0_PCM_BUF_POOL, BasicType,   1, true, 0x000f0390, 0x00004650 },  /* COMMON_WORK_AREA */
-  { PF1_PCM_BUF_POOL, BasicType,   1, true, 0x000f49e8, 0x00004650 },  /* COMMON_WORK_AREA */
-  { PF0_APU_CMD_POOL, BasicType,  10, true, 0x000f9040, 0x00000398 },  /* COMMON_WORK_AREA */
-  { PF1_APU_CMD_POOL, BasicType,  10, true, 0x000f93e0, 0x00000398 },  /* COMMON_WORK_AREA */
-  { SENSOR_DSP_CMD_BUF_POOL, BasicType,   8, false, 0x000f9780, 0x00001800 },  /* COMMON_WORK_AREA */
-  { SENSOR_DATA_BUF_POOL, BasicType,   8, false, 0x000faf80, 0x00001800 },  /* COMMON_WORK_AREA */
- },
- {/* Layout:1 */
-  /* pool_ID          type       seg fence  addr        size         */
-  { OUTPUT_BUF_POOL , BasicType,   5, true, 0x000c0008, 0x0000f000 },  /* COMMON_WORK_AREA */
-  { MIC_IN_BUF_POOL , BasicType,   5, true, 0x000cf010, 0x00014000 },  /* COMMON_WORK_AREA */
-  { ENC_APU_CMD_POOL, BasicType,   3, true, 0x000e3018, 0x00000114 },  /* COMMON_WORK_AREA */
-  { SRC_APU_CMD_POOL, BasicType,   3, true, 0x000e3138, 0x00000114 },  /* COMMON_WORK_AREA */
-  { PRE_APU_CMD_POOL, BasicType,   3, true, 0x000e3258, 0x00000114 },  /* COMMON_WORK_AREA */
-  { SENSOR_DSP_CMD_BUF_POOL, BasicType,   8, false, 0x000e3370, 0x00001800 },  /* COMMON_WORK_AREA */
-  { SENSOR_DATA_BUF_POOL, BasicType,   8, false, 0x000e4b70, 0x00001800 },  /* COMMON_WORK_AREA */
- },
- {/* Layout:2 */
-  /* pool_ID          type       seg fence  addr        size         */
-  { MIC_IN_BUF_POOL , BasicType,   5, true, 0x000c0008, 0x00000960 },  /* COMMON_WORK_AREA */
-  { I2S_IN_BUF_POOL , BasicType,   5, true, 0x000c0970, 0x000012c0 },  /* COMMON_WORK_AREA */
-  { HP_OUT_BUF_POOL , BasicType,   5, true, 0x000c1c38, 0x000012c0 },  /* COMMON_WORK_AREA */
-  { I2S_OUT_BUF_POOL, BasicType,   5, true, 0x000c2f00, 0x000012c0 },  /* COMMON_WORK_AREA */
-  { MFE_OUT_BUF_POOL, BasicType,   8, true, 0x000c41c8, 0x00000500 },  /* COMMON_WORK_AREA */
-  { SENSOR_DSP_CMD_BUF_POOL, BasicType,   8, false, 0x000c46d0, 0x00001800 },  /* COMMON_WORK_AREA */
-  { SENSOR_DATA_BUF_POOL, BasicType,   8, false, 0x000c5ed0, 0x00001800 },  /* COMMON_WORK_AREA */
- },
- {/* Layout:3 */
-  /* pool_ID          type       seg fence  addr        size         */
-  { DEC_ES_MAIN_BUF_POOL, BasicType,   4, true, 0x000c0008, 0x00006000 },  /* COMMON_WORK_AREA */
-  { REND_PCM_BUF_POOL, BasicType,   5, true, 0x000c6010, 0x00005014 },  /* COMMON_WORK_AREA */
-  { SRC_WORK_MAIN_BUF_POOL, BasicType,   1, true, 0x000cb030, 0x00001000 },  /* COMMON_WORK_AREA */
-  { DEC_ES_SUB_BUF_POOL, BasicType,   4, true, 0x000cc038, 0x00004000 },  /* COMMON_WORK_AREA */
-  { REND_PCM_SUB_BUF_POOL, BasicType,   5, true, 0x000d0040, 0x00005014 },  /* COMMON_WORK_AREA */
-  { SRC_WORK_SUB_BUF_POOL, BasicType,   1, true, 0x000d5060, 0x00001000 },  /* COMMON_WORK_AREA */
-  { DEC_APU_CMD_POOL, BasicType,  10, true, 0x000d6068, 0x00000398 },  /* COMMON_WORK_AREA */
-  { PF0_PCM_BUF_POOL, BasicType,   1, true, 0x000d6408, 0x00001004 },  /* COMMON_WORK_AREA */
-  { PF1_PCM_BUF_POOL, BasicType,   1, true, 0x000d7418, 0x00001004 },  /* COMMON_WORK_AREA */
-  { PF0_APU_CMD_POOL, BasicType,  10, true, 0x000d8428, 0x00000398 },  /* COMMON_WORK_AREA */
-  { PF1_APU_CMD_POOL, BasicType,  10, true, 0x000d87c8, 0x00000398 },  /* COMMON_WORK_AREA */
-  { OUTPUT_BUF_POOL , BasicType,   2, true, 0x000d8b68, 0x00001800 },  /* COMMON_WORK_AREA */
-  { MIC_IN_BUF_POOL , BasicType,   5, true, 0x000da370, 0x00003c00 },  /* COMMON_WORK_AREA */
-  { ENC_APU_CMD_POOL, BasicType,   3, true, 0x000ddf78, 0x00000114 },  /* COMMON_WORK_AREA */
-  { SRC_APU_CMD_POOL, BasicType,   3, true, 0x000de098, 0x00000114 },  /* COMMON_WORK_AREA */
-  { PRE_APU_CMD_POOL, BasicType,   3, true, 0x000de1b8, 0x00000114 },  /* COMMON_WORK_AREA */
-  { SENSOR_DSP_CMD_BUF_POOL, BasicType,   8, false, 0x000de2d0, 0x00001800 },  /* COMMON_WORK_AREA */
-  { SENSOR_DATA_BUF_POOL, BasicType,   8, false, 0x000dfad0, 0x00001800 },  /* COMMON_WORK_AREA */
- },
+MemPool*  static_pools_block[NUM_MEM_SECTIONS][NUM_MEM_POOLS];
+MemPool** static_pools[NUM_MEM_SECTIONS] = {
+  static_pools_block[0],
+  static_pools_block[1],
+};
+uint8_t layout_no[NUM_MEM_SECTIONS] = {
+  BadLayoutNo,
+  BadLayoutNo,
+};
+uint8_t pool_num[NUM_MEM_SECTIONS] = {
+  NUM_MEM_S0_POOLS,
+  NUM_MEM_S1_POOLS,
+};
+extern const PoolSectionAttr MemoryPoolLayouts[NUM_MEM_SECTIONS][NUM_MEM_LAYOUTS][17] = {
+  {  /* Section:0 */
+    {/* Layout:0 */
+     /* pool_ID          type       seg fence  addr        size         */
+      { S0_DEC_ES_MAIN_BUF_POOL        , BasicType,   4, true, 0x000c0008, 0x00006000 },  /* COMMON_WORK_AREA */
+      { S0_REND_PCM_BUF_POOL           , BasicType,   5, true, 0x000c6010, 0x00015f90 },  /* COMMON_WORK_AREA */
+      { S0_SRC_WORK_MAIN_BUF_POOL      , BasicType,   1, true, 0x000dbfa8, 0x00002000 },  /* COMMON_WORK_AREA */
+      { S0_DEC_ES_SUB_BUF_POOL         , BasicType,   4, true, 0x000ddfb0, 0x00006000 },  /* COMMON_WORK_AREA */
+      { S0_REND_PCM_SUB_BUF_POOL       , BasicType,   5, true, 0x000e3fb8, 0x0000a028 },  /* COMMON_WORK_AREA */
+      { S0_SRC_WORK_SUB_BUF_POOL       , BasicType,   1, true, 0x000edfe8, 0x00002000 },  /* COMMON_WORK_AREA */
+      { S0_DEC_APU_CMD_POOL            , BasicType,  10, true, 0x000efff0, 0x00000398 },  /* COMMON_WORK_AREA */
+      { S0_PF0_PCM_BUF_POOL            , BasicType,   1, true, 0x000f0390, 0x00004650 },  /* COMMON_WORK_AREA */
+      { S0_PF1_PCM_BUF_POOL            , BasicType,   1, true, 0x000f49e8, 0x00004650 },  /* COMMON_WORK_AREA */
+      { S0_PF0_APU_CMD_POOL            , BasicType,  10, true, 0x000f9040, 0x00000398 },  /* COMMON_WORK_AREA */
+      { S0_PF1_APU_CMD_POOL            , BasicType,  10, true, 0x000f93e0, 0x00000398 },  /* COMMON_WORK_AREA */
+      { S0_NULL_POOL, 0, 0, false, 0, 0 },
+    },
+    {/* Layout:1 */
+     /* pool_ID          type       seg fence  addr        size         */
+      { S0_OUTPUT_BUF_POOL             , BasicType,   5, true, 0x000c0008, 0x0000f000 },  /* COMMON_WORK_AREA */
+      { S0_MIC_IN_BUF_POOL             , BasicType,   5, true, 0x000cf010, 0x00014000 },  /* COMMON_WORK_AREA */
+      { S0_ENC_APU_CMD_POOL            , BasicType,   3, true, 0x000e3018, 0x00000114 },  /* COMMON_WORK_AREA */
+      { S0_SRC_APU_CMD_POOL            , BasicType,   3, true, 0x000e3138, 0x00000114 },  /* COMMON_WORK_AREA */
+      { S0_PRE_APU_CMD_POOL            , BasicType,   3, true, 0x000e3258, 0x00000114 },  /* COMMON_WORK_AREA */
+      { S0_NULL_POOL, 0, 0, false, 0, 0 },
+    },
+    {/* Layout:2 */
+     /* pool_ID          type       seg fence  addr        size         */
+      { S0_MIC_IN_BUF_POOL             , BasicType,   5, true, 0x000c0008, 0x00000960 },  /* COMMON_WORK_AREA */
+      { S0_I2S_IN_BUF_POOL             , BasicType,   5, true, 0x000c0970, 0x000012c0 },  /* COMMON_WORK_AREA */
+      { S0_HP_OUT_BUF_POOL             , BasicType,   5, true, 0x000c1c38, 0x000012c0 },  /* COMMON_WORK_AREA */
+      { S0_I2S_OUT_BUF_POOL            , BasicType,   5, true, 0x000c2f00, 0x000012c0 },  /* COMMON_WORK_AREA */
+      { S0_MFE_OUT_BUF_POOL            , BasicType,   8, true, 0x000c41c8, 0x00000500 },  /* COMMON_WORK_AREA */
+      { S0_NULL_POOL, 0, 0, false, 0, 0 },
+    },
+    {/* Layout:3 */
+     /* pool_ID          type       seg fence  addr        size         */
+      { S0_DEC_ES_MAIN_BUF_POOL        , BasicType,   4, true, 0x000c0008, 0x00006000 },  /* COMMON_WORK_AREA */
+      { S0_REND_PCM_BUF_POOL           , BasicType,   5, true, 0x000c6010, 0x00005014 },  /* COMMON_WORK_AREA */
+      { S0_SRC_WORK_MAIN_BUF_POOL      , BasicType,   1, true, 0x000cb030, 0x00001000 },  /* COMMON_WORK_AREA */
+      { S0_DEC_ES_SUB_BUF_POOL         , BasicType,   4, true, 0x000cc038, 0x00004000 },  /* COMMON_WORK_AREA */
+      { S0_REND_PCM_SUB_BUF_POOL       , BasicType,   5, true, 0x000d0040, 0x00005014 },  /* COMMON_WORK_AREA */
+      { S0_SRC_WORK_SUB_BUF_POOL       , BasicType,   1, true, 0x000d5060, 0x00001000 },  /* COMMON_WORK_AREA */
+      { S0_DEC_APU_CMD_POOL            , BasicType,  10, true, 0x000d6068, 0x00000398 },  /* COMMON_WORK_AREA */
+      { S0_PF0_PCM_BUF_POOL            , BasicType,   1, true, 0x000d6408, 0x00001004 },  /* COMMON_WORK_AREA */
+      { S0_PF1_PCM_BUF_POOL            , BasicType,   1, true, 0x000d7418, 0x00001004 },  /* COMMON_WORK_AREA */
+      { S0_PF0_APU_CMD_POOL            , BasicType,  10, true, 0x000d8428, 0x00000398 },  /* COMMON_WORK_AREA */
+      { S0_PF1_APU_CMD_POOL            , BasicType,  10, true, 0x000d87c8, 0x00000398 },  /* COMMON_WORK_AREA */
+      { S0_OUTPUT_BUF_POOL             , BasicType,   2, true, 0x000d8b68, 0x00001800 },  /* COMMON_WORK_AREA */
+      { S0_MIC_IN_BUF_POOL             , BasicType,   5, true, 0x000da370, 0x00003c00 },  /* COMMON_WORK_AREA */
+      { S0_ENC_APU_CMD_POOL            , BasicType,   3, true, 0x000ddf78, 0x00000114 },  /* COMMON_WORK_AREA */
+      { S0_SRC_APU_CMD_POOL            , BasicType,   3, true, 0x000de098, 0x00000114 },  /* COMMON_WORK_AREA */
+      { S0_PRE_APU_CMD_POOL            , BasicType,   3, true, 0x000de1b8, 0x00000114 },  /* COMMON_WORK_AREA */
+      { S0_NULL_POOL, 0, 0, false, 0, 0 },
+    },
+  },
+  {  /* Section:1 */
+    {/* Layout:0 */
+     /* pool_ID          type       seg fence  addr        size         */
+      { S1_SENSOR_DSP_CMD_BUF_POOL     , BasicType,   8, false, 0x000f9780, 0x00001800 },  /* COMMON_WORK_AREA */
+      { S1_SENSOR_DATA_BUF_POOL        , BasicType,   8, false, 0x000faf80, 0x00001800 },  /* COMMON_WORK_AREA */
+      { S1_NULL_POOL, 0, 0, false, 0, 0 },
+    },
+  },
 }; /* end of MemoryPoolLayouts */
 
 }  /* end of namespace MemMgrLite */
