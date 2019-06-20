@@ -38,7 +38,7 @@
 #define MEM_SECTION_AUDIO          (0)
 #define MEM_SECTION_SENSOR         (1)
 
-#define MEM_LAYOUT_PLAYER          (0)
+#define MEM_LAYOUT_PLAYER          (4)
 #define MEM_LAYOUT_RECORDER        (1)
 #define MEM_LAYOUT_SOUNDEFFECT     (2)
 #define MEM_LAYOUT_RECORDINGPLAYER (3)

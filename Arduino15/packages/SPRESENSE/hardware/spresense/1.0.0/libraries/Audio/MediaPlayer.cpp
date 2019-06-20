@@ -27,10 +27,8 @@
 #include <arch/board/board.h>
 
 #include "MediaPlayer.h"
+#include "MemoryUtil.h"
 
-#include "memutil/msgq_id.h"
-#include "memutil/mem_layout.h"
-#include "memutil/memory_layout.h"
 
 #include <File.h>
 

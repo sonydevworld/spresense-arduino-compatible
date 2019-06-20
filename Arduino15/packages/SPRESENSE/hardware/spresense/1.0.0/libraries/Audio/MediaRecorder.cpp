@@ -27,10 +27,8 @@
 #include <arch/chip/cxd56_audio.h>
 
 #include "MediaRecorder.h"
+#include "MemoryUtil.h"
 
-#include "memutil/msgq_id.h"
-#include "memutil/mem_layout.h"
-#include "memutil/memory_layout.h"
 
 #include <File.h>
 

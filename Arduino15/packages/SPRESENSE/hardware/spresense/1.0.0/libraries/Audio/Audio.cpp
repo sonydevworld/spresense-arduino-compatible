@@ -42,10 +42,6 @@
 
 #include <asmp/mpshm.h>
 
-#include "memutil/msgq_id.h"
-#include "memutil/mem_layout.h"
-#include "memutil/memory_layout.h"
-
 extern "C" void  input_device_callback(uint32_t);
 extern "C" void  output_device_callback(uint32_t);
 

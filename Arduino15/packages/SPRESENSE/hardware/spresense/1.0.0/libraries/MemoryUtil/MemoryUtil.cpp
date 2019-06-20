@@ -19,9 +19,15 @@
 
 #include "MemoryUtil.h"
 
+#ifdef MEMORY_UTIL_TINY
+#include "memutil/tiny/fixed_fence.h"
+#include "memutil/tiny/msgq_pool.h"
+#include "memutil/tiny/pool_layout.h"
+#else
 #include "memutil/fixed_fence.h"
 #include "memutil/msgq_pool.h"
 #include "memutil/pool_layout.h"
+#endif
 
 #include <asmp/mpshm.h>
 
@@ -53,7 +59,7 @@ int MemoryUtilClass::begin(void)
     return 2;
   }
 
-  int ret = mpshm_init(&s_shm, 1,  RAM_TILE_SIZE * 2); /* Used 2 Tile */
+  int ret = mpshm_init(&s_shm, 1,  SHM_SRAM_SIZE);
   if (ret < 0)
     {
       printf("mpshm_init() failure. %d\n", ret);

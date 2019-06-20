@@ -1,7 +1,8 @@
+/* This file is generated automatically. */
 /****************************************************************************
- * audio_player/include/memory_layout.h
+ * fixed_fence.h
  *
- *   Copyright 2018 Sony Semiconductor Solutions Corporation
+ *   Copyright 2019 Sony Semiconductor Solutions Corporation
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -32,16 +33,17 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  ****************************************************************************/
-#ifndef __AUDIO_LAYOUT_H_INCLUDED__
-#define __AUDIO_LAYOUT_H_INCLUDED__
 
-#define MEM_SECTION_AUDIO          (0)
-#define MEM_SECTION_SENSOR         (1)
+#ifndef FIXED_FENCE_H_INCLUDED
+#define FIXED_FENCE_H_INCLUDED
 
-#define MEM_LAYOUT_PLAYER          (0)
-#define MEM_LAYOUT_RECORDER        (1)
-#define MEM_LAYOUT_SOUNDEFFECT     (2)
-#define MEM_LAYOUT_RECORDINGPLAYER (3)
-#define MEM_LAYOUT_SENSORS         (0)
+#include "memutils/memory_manager/MemMgrTypes.h"
 
-#endif /* __AUDIO_LAYOUT_H_INCLUDED__ */
+namespace MemMgrLite {
+
+extern PoolAddr const FixedAreaFences[] = {
+}; /* end of FixedAreaFences */
+
+}  /* end of namespace MemMgrLite */
+
+#endif /* FIXED_FENCE_H_INCLUDED */
