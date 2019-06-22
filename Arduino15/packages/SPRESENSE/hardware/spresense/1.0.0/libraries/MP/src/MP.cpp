@@ -61,52 +61,71 @@ MPClass::MPClass() : _recvTimeout(MP_RECV_BLOCKING)
 #endif
 }
 
+#ifdef CONFIG_CXD56_SUBCORE
+int MPClass::begin()
+{
+  int ret = 0;
+
+  ret = mpmq_init(&_mq[0], KEY_MQ, 2);
+  if (ret == 0) {
+    /* boot complete */
+    ret = mpmq_send(&_mq[0], 0, 0);
+  }
+
+  return ret;
+}
+#else /* MAINCORE */
 int MPClass::begin(int subid)
 {
   int ret = 0;
 
-  if (checkid(subid)) {
-    return -EINVAL;
+  ret = checkid(subid);
+  if ((ret != 0) && (ret != -ENODEV)) {
+    return ret;
   }
-#ifdef CONFIG_CXD56_SUBCORE
-  if (subid == 0) {
-    ret = mpmq_init(&_mq[subid], KEY_MQ, 2);
+
+  if (ret == -ENODEV) {
+    ret = load(subid);
     if (ret == 0) {
-      /* boot complete */
-      ret = mpmq_send(&_mq[subid], 0, 0);
+      uint32_t data;
+      /* wait until boot complete */
+      ret = mpmq_timedreceive(&_mq[subid], &data, 1000);
     }
   }
-#else
-  ret = load(subid);
-  if (ret == 0) {
-    uint32_t data;
-    /* wait until boot complete */
-    ret = mpmq_timedreceive(&_mq[subid], &data, 1000);
-  }
-#endif
   return ret;
 }
+#endif
 
+#ifdef CONFIG_CXD56_SUBCORE
+int MPClass::end()
+{
+  /* do nothing */
+  return 0;
+}
+#else /* MAINCORE */
 int MPClass::end(int subid)
 {
   int ret = 0;
 
-  if (checkid(subid)) {
-    return -EINVAL;
+  ret = checkid(subid);
+  if (ret) {
+    return ret;
   }
-#ifndef CONFIG_CXD56_SUBCORE
+
   ret = unload(subid);
-#endif
+
   return ret;
 }
+#endif
 
 // send/receive message data
 int MPClass::Send(int8_t msgid, uint32_t msgdata, int subid)
 {
   int ret;
 
-  if (checkid(subid)) {
-    return -EINVAL;
+  ret = checkid(subid);
+  if (ret) {
+    return ret;
   }
 
   ret = mpmq_send(&_mq[subid], msgid, msgdata);
@@ -123,8 +142,9 @@ int MPClass::Recv(int8_t *msgid, uint32_t *msgdata, int subid)
 {
   int ret;
 
-  if (checkid(subid)) {
-    return -EINVAL;
+  ret = checkid(subid);
+  if (ret) {
+    return ret;
   }
 
   ret = mpmq_timedreceive(&_mq[subid], msgdata, _recvTimeout);
@@ -346,14 +366,23 @@ int MPClass::checkid(int subid)
     }
   }
 
+  if (_mq[subid].cpuid == 0) {
+    return -ENODEV;
+  }
+
   return 0;
 }
-#else
+#else /* MAINCORE */
 int MPClass::checkid(int subid)
 {
   if ((subid < 1) || (MP_MAX_SUBID <= subid)) {
     return -EINVAL;
   }
+
+  if (_mq[subid].cpuid == 0) {
+    return -ENODEV;
+  }
+
   return 0;
 }
 #endif
@@ -414,6 +443,7 @@ int MPClass::unload(int subid)
 
   ret = mptask_destroy(&_mptask[subid], false, &wret);
   mpmq_destroy(&_mq[subid]);
+  memset(&_mq[subid], 0, sizeof(mpmq_t));
 
   /* Unregister cpuid assignment */
 
