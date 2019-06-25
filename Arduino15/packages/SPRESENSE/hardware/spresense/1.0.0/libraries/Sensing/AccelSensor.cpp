@@ -73,6 +73,13 @@ bool AccelSensorClass::begin(int id,
   return begin(id, 0, rate, sample_watermark_num, size_per_sample);
 }
 
+bool AccelSensorClass::end(void)
+{
+  m_mh.freeSeg();
+
+  return SensorClient::end();
+}
+
 int AccelSensorClass::write_data(float x, float y, float z)
 {
   /* Check reading cycle */
