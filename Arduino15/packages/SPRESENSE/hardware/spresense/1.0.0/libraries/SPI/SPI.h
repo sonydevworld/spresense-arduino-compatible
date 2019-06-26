@@ -273,6 +273,31 @@ public:
      */
     void send16(void *buf, size_t count);
 
+    /**
+     * @brief Select chip select number (only for SPI3)
+     *
+     * @param [in] cs chip select number
+     *             When SPI3_CS0_X is used, set cs to 0 (default).
+     *             When SPI3_CS1_X is used, set cs to 1.
+     *
+     * @note  This is a function supported only for SPI3.
+     */
+    void selectCS(int cs);
+
+    /**
+     * @brief Enable chip select by software (only for SPI3)
+     *
+     * @note  This is a function supported only for SPI3.
+     */
+    void enableCS();
+
+    /**
+     * @brief Disable chip select by software (only for SPI3)
+     *
+     * @note  This is a function supported only for SPI3.
+     */
+    void disableCS();
+
 private:
     int spi_port;                  /**< SPI port number */
     uint8_t ref_count;             /**< Count of SPI references */
@@ -303,6 +328,8 @@ private:
      * @details In case some interrupts are disabled before calling usingInterrupt
      */
     uint16_t interrupt_save;
+
+    int spi3_cs1_enable;
 };
 
 #if defined(CONFIG_CXD56_SPI4) && defined(CONFIG_SPI_EXCHANGE)
@@ -320,6 +347,9 @@ extern SPIClass SPI;
 extern SPIClass SPI5;
 #endif
 
+#if defined(CONFIG_CXD56_SPI3) && defined(CONFIG_SPI_EXCHANGE)
+extern SPIClass SPI3;
+#endif
 
 // #endif // __cplusplus
 

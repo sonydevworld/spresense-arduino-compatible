@@ -36,6 +36,8 @@
 #include <nuttx/arch.h>
 #include <arch/cxd56xx/irq.h>
 #include <cxd56_spi.h>
+#include <chip/cxd5602_memorymap.h>
+#include <chip/cxd56_spi.h>
 #include <cxd56_clock.h>
 #include "wiring_private.h"
 
@@ -43,6 +45,7 @@
 #include "SPI.h"
 
 #define SPIDEV_SPRESENSE  (SPIDEV_USER(0))  /**< Identifies the device to select */ 
+#define SPIDEV_PORT_3     (3)               /**< SPI3 */
 #define SPIDEV_PORT_4     (4)               /**< SPI4 */ 
 #define SPIDEV_PORT_5     (5)               /**< SPI5 */ 
 
@@ -58,6 +61,10 @@ extern SPIClass SPI __attribute__((alias("SPI4")));
 
 #ifdef CONFIG_CXD56_SPI5
 SPIClass SPI5(SPIDEV_PORT_5);
+#endif
+
+#ifdef CONFIG_CXD56_SPI3
+SPIClass SPI3(SPIDEV_PORT_3);
 #endif
 
 /**
@@ -95,10 +102,16 @@ void SPIClass::begin(void)
                 printf("Failed to initialize SPI bus on port %d!\n", spi_port);
                 return;
             }
-            /* Set maximum frequency that satisfies AC specification
-             * when SPI clock divider is 2.
-             */
-            spi_base_clock = (spi_port == SPIDEV_PORT_4) ? 78000000 : 26000000;
+            if (spi_port == SPIDEV_PORT_3) {
+                /* Control CS by hardware */
+                cxd56_spi_clock_gate_disable(3);
+                *(volatile uint32_t*)CXD56_SPI3_CSMODE = 0;
+                cxd56_spi_clock_gate_enable(3);
+                /* Disable SPI3_CS1_X by default */
+                spi3_cs1_enable = 0;
+            }
+
+            spi_base_clock = cxd56_get_spi_baseclock(spi_port);
             spi_bit_order = MSBFIRST;
         }
     }
@@ -112,7 +125,6 @@ void SPIClass::end(void)
         --ref_count;
 
     if (ref_count == 0) {
-        SPI_SELECT(spi_dev, SPIDEV_SPRESENSE, false);
         (void) SPI_LOCK(spi_dev, false);
         interrupt_mode = SPI_INT_MODE_NONE;
     }
@@ -140,8 +152,6 @@ void SPIClass::beginTransaction(SPISettings settings)
     SPI_SETFREQUENCY(spi_dev, settings.clock_);
     spi_bit_order = (settings.bit_order_ == LSBFIRST ? LSBFIRST : MSBFIRST);
 
-    SPI_SELECT(spi_dev, SPIDEV_SPRESENSE, true);
-
     spi_transmitting = true;
 
     //printf("SPI transaction: mode [%u], freq [%u], bit order [%u]\n", settings.data_mode_, freq, settings.bit_order_);
@@ -150,8 +160,6 @@ void SPIClass::beginTransaction(SPISettings settings)
 void SPIClass::endTransaction(void)
 {
     if (ref_count == 0) return;
-
-    SPI_SELECT(spi_dev, SPIDEV_SPRESENSE, false);
 
     if (SPI_LOCK(spi_dev, false)) {
         printf("ERROR: Failed to unlock spi bus (errno = %d)\n", errno);
@@ -351,4 +359,42 @@ void SPIClass::send16(void *buf, size_t count)
 
     SPI_SETBITS(spi_dev, 16);
     SPI_EXCHANGE(spi_dev, buf, NULL, count);
+}
+
+void SPIClass::selectCS(int cs)
+{
+    if ((cs != 0) && (cs != 1)) {
+        return;
+    }
+    if (spi_port == SPIDEV_PORT_3) {
+        if ((cs == 1) && (spi3_cs1_enable == 0)) {
+            /* Enable SPI3_CS1_X */
+            CXD56_PIN_CONFIGS(PINCONFS_SPI3_CS1_X);
+        }
+        cxd56_spi_clock_gate_disable(3);
+        *(volatile uint32_t*)CXD56_SPI3_SLAVETYPE = cs;
+        cxd56_spi_clock_gate_enable(3);
+    }
+}
+
+void SPIClass::enableCS()
+{
+    if (spi_port == SPIDEV_PORT_3) {
+        /* Control CS by software */
+        cxd56_spi_clock_gate_disable(3);
+        *(volatile uint32_t*)CXD56_SPI3_CSMODE = 1;
+        *(volatile uint32_t*)CXD56_SPI3_CS = 0;
+        cxd56_spi_clock_gate_enable(3);
+    }
+}
+
+void SPIClass::disableCS()
+{
+    if (spi_port == SPIDEV_PORT_3) {
+        /* Control CS by software */
+        cxd56_spi_clock_gate_disable(3);
+        *(volatile uint32_t*)CXD56_SPI3_CSMODE = 1;
+        *(volatile uint32_t*)CXD56_SPI3_CS = 1;
+        cxd56_spi_clock_gate_enable(3);
+    }
 }
