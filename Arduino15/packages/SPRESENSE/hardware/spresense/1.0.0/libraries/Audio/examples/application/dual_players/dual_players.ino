@@ -191,5 +191,5 @@ void setup()
 void loop()
 {
   /* Do nothing on main task. */
-  while(1);  
+  sleep(1);
 }
