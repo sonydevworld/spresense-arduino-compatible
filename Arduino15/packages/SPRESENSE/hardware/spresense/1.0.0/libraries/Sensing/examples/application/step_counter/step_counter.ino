@@ -77,10 +77,11 @@ unsigned char step_counter_result(sensor_command_data_mh_t &data)
         return 0;
     }
 
-  printf("%11.5f,%11.2f,%11.5f,%11ld,",
+  printf("%11.5f,%11.2f,%11.5f,%11.5f,%11ld,",
                tempo,
                steps->stride,
                steps->speed,
+               steps->distance,
                steps->step);
 
   switch (steps->movement_type)
@@ -149,8 +150,8 @@ void setup()
 
 
   puts("Start sensing...");
-  puts("-----------------------------------------------------------");
-  puts("      tempo,     stride,      speed,       step,  move-type");
+  puts("-----------------------------------------------------------------------");
+  puts("      tempo,     stride,      speed,   distance,       step,  move-type");
 }
 
 /**
