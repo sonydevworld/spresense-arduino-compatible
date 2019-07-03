@@ -111,6 +111,54 @@ const char* error_msg[] =
 };
 #endif
 
+#ifdef BRD_DEBUG
+const char* attention_code_msg[] =
+{
+   "INFORMATION"
+  ,"WARNING"
+  ,"ERROR"
+  ,"FATAL"
+};
+
+const char* attention_sub_code_msg[] =
+{
+  " "
+  ,"DMA underflow due to transfer queue empty"
+  ,"DMA overflow due to capture queue full"
+  ,"DMA error from H/W"
+  ,"APU queue full for DSP response delay"
+  ,"SimpleFIFO underflow"
+  ,"SimpleFIFO overflow"
+  ,"Illegal request for unacceptable state"
+  ,"Internal state error"
+  ,"Unexpected parameter"
+  ,"Internal queue pop error"
+  ,"Internal queue push error"
+  ,"Internal queue missing, queue became empty unexpectedly"
+  ,"Memory handle alloc error"
+  ,"Memory handle free error"
+  ,"Task create error"
+  ,"Instance resource error"
+  ,"Decoded PCM size is 0, ES data may be broken"
+  ,"DSP load error"
+  ,"DSP unload error"
+  ,"DSP execution error due to format error"
+  ,"DSP result error"
+  ,"DSP illegal reply, Command from DSP may be broken"
+  ,"DSP unload done notification"
+  ,"Loaded DSP binary version is differ"
+  ,"Baseband error, power may be off"
+  ,"Stream parse error, initialize parameters may be differ"
+  ,"DSP binary load done"
+  ,"Recording start"
+  ,"Recording stop"
+  ,"DSP debug dump log alloc error"
+  ,"DSP internal error occured and cannot keep processing"
+  ,"DSP send fail"
+  ,"Allocate memory of heap area"
+};
+#endif
+
 /****************************************************************************
  * Common API on Audio Class
  ****************************************************************************/
@@ -167,7 +215,13 @@ extern "C" {
 
 static void attentionCallback(const ErrorAttentionParam *attparam)
 {
+#ifndef BRD_DEBUG
   print_err("Attention!! Level 0x%x Code 0x%x\n", attparam->error_code, attparam->error_att_sub_code);
+#else
+  print_err("Attention!! Level 0x%x: %s Code 0x%x: %s\n",
+    attparam->error_code,         attention_code_msg[attparam->error_code],             
+    attparam->error_att_sub_code, attention_sub_code_msg[attparam->error_att_sub_code]);
+#endif
 }
 
 }
