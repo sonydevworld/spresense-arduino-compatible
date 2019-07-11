@@ -66,16 +66,16 @@ err_t MediaPlayer::create(PlayerId id)
 /*--------------------------------------------------------------------------*/
 err_t MediaPlayer::create(PlayerId id, AudioAttentionCb attcb)
 {
-  AsCreatePlayerParam_t player_create_param;
+  AsCreatePlayerParams_t player_create_param;
 
   player_create_param.msgq_id.player = (id == Player0) ? MSGQ_AUD_PLY : MSGQ_AUD_SUB_PLY;
   player_create_param.msgq_id.mng    = MSGQ_AUD_MGR;
   player_create_param.msgq_id.mixer  = MSGQ_AUD_OUTPUT_MIX;
   player_create_param.msgq_id.dsp    = MSGQ_AUD_DSP;
-  player_create_param.pool_id.es     = (id == Player0) ? DEC_ES_MAIN_BUF_POOL : DEC_ES_SUB_BUF_POOL;
-  player_create_param.pool_id.pcm    = (id == Player0) ? REND_PCM_BUF_POOL : REND_PCM_SUB_BUF_POOL;
-  player_create_param.pool_id.dsp    = DEC_APU_CMD_POOL;
-  player_create_param.pool_id.src_work = SRC_WORK_MAIN_BUF_POOL;
+  player_create_param.pool_id.es     = (id == Player0) ? S0_DEC_ES_MAIN_BUF_POOL : S0_DEC_ES_SUB_BUF_POOL;
+  player_create_param.pool_id.pcm    = (id == Player0) ? S0_REND_PCM_BUF_POOL : S0_REND_PCM_SUB_BUF_POOL;
+  player_create_param.pool_id.dsp    = S0_DEC_APU_CMD_POOL;
+  player_create_param.pool_id.src_work = S0_SRC_WORK_MAIN_BUF_POOL;
 
   bool result;
 

@@ -153,7 +153,6 @@ int SensorClient::publish(PoolId    id,
   return SENSORCLIENT_ECODE_OK;
 }
 
-
 int SensorClient::publish(MemMgrLite::MemHandle& mh,
                           uint32_t               size_per_sample,
                           uint32_t               freq,
@@ -181,7 +180,7 @@ int SensorClient::publish(FAR void *data,
                           uint32_t  sample_watermark_num,
                           uint32_t  timestamp)
 {
-  return publish(SENSOR_DATA_BUF_POOL,
+  return publish(S1_SENSOR_DATA_BUF_POOL,
                  data,                 /** Sensor data address. */
                  size_per_sample,
                  freq,

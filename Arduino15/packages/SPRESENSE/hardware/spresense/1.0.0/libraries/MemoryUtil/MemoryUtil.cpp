@@ -31,16 +31,18 @@ static mpshm_t s_shm;
 
 /*--------------------------------------------------------------------------*/
 int initMemoryPools(void){ return MemoryUtil.begin(); }
-int createStaticPools(uint8_t layout_no){ return MemoryUtil.setLayout(layout_no); }
+int createStaticPools(uint8_t layout_no){ return MemoryUtil.setLayout(0, layout_no); }
+int createStaticPools(uint8_t sec_no, uint8_t layout_no){ return MemoryUtil.setLayout(sec_no, layout_no); }
 int destroyStaticPools(void) { return MemoryUtil.clearLayout(); }
 int finalizeMemoryPools(void) { return MemoryUtil.end(); }
-const PoolAttr *getPoolLayout(int layout_no){ return MemoryUtil.getLayout(layout_no); }
+const PoolSectionAttr *getPoolLayout(int layout_no){ return MemoryUtil.getLayout(0, layout_no); }
+const PoolSectionAttr *getPoolLayout(uint8_t sec_no, int layout_no){ return MemoryUtil.getLayout(sec_no, layout_no); }
 
 
 /*--------------------------------------------------------------------------*/
-const PoolAttr* MemoryUtilClass::getLayout(int layout_no)
+const PoolSectionAttr* MemoryUtilClass::getLayout(uint8_t sec_no, int layout_no)
 {
-  return MemoryPoolLayouts[layout_no];
+  return MemoryPoolLayouts[sec_no][layout_no];
 }
 
 /*--------------------------------------------------------------------------*/
@@ -78,7 +80,7 @@ int MemoryUtilClass::begin(void)
   void* mml_data_area = translatePoolAddrToVa(MEMMGR_DATA_AREA_ADDR);
   Manager::initFirst(mml_data_area, MEMMGR_DATA_AREA_SIZE);
 
-  Manager::initPerCpu(mml_data_area, NUM_MEM_POOLS);
+  Manager::initPerCpu(mml_data_area, static_pools, pool_num, layout_no);
 
   m_state = E_Active;
 
@@ -86,14 +88,31 @@ int MemoryUtilClass::begin(void)
 }
 
 /*--------------------------------------------------------------------------*/
-int MemoryUtilClass::setLayout(uint8_t layout_no)
+int MemoryUtilClass::setLayout(uint8_t sec_no, uint8_t layout_no)
 {
-  void* work_va = translatePoolAddrToVa(MEMMGR_WORK_AREA_ADDR);
+  void                  *work_va;
+  uint32_t               work_sz;
+  const PoolSectionAttr *ptr; 
 
-  Manager::createStaticPools(layout_no,
+  switch(sec_no)
+    {
+    case 0:
+      work_va = translatePoolAddrToVa(S0_MEMMGR_WORK_AREA_ADDR);
+      work_sz = S0_MEMMGR_WORK_AREA_SIZE;
+      break;
+    default:
+      work_va = translatePoolAddrToVa(S1_MEMMGR_WORK_AREA_ADDR);
+      work_sz = S1_MEMMGR_WORK_AREA_SIZE;
+      break;
+    }
+
+  ptr = &MemoryPoolLayouts[sec_no][layout_no][0];
+
+  Manager::createStaticPools(sec_no,
+                             layout_no,
                              work_va,
-                             MEMMGR_MAX_WORK_SIZE,
-                             getPoolLayout(layout_no));
+                             work_sz,
+                             ptr);
 
   return 0;
 }
@@ -109,8 +128,6 @@ int MemoryUtilClass::clearLayout(void)
 /*--------------------------------------------------------------------------*/
 int MemoryUtilClass::end(void)
 {
-
-
   if(m_state == E_Inactive){
     return 2;
   }
@@ -151,4 +168,3 @@ int MemoryUtilClass::end(void)
 
 /*--------------------------------------------------------------------------*/
 MemoryUtilClass MemoryUtil;
-

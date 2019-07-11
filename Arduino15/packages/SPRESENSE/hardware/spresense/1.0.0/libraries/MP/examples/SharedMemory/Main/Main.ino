@@ -17,6 +17,10 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#ifdef SUBCORE
+#error "Core selection is wrong!!"
+#endif
+
 #include <MP.h>
 
 #define MEMSIZE (128 * 1024) // 128KB

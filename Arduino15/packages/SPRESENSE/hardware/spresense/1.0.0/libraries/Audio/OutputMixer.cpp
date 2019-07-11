@@ -55,14 +55,14 @@ err_t OutputMixer::create(AudioAttentionCb attcb)
 {
   /* Activate mixer feature. */
 
-  AsCreateOutputMixParam_t output_mix_create_param;
+  AsCreateOutputMixParams_t output_mix_create_param;
   output_mix_create_param.msgq_id.mixer = MSGQ_AUD_OUTPUT_MIX;
   output_mix_create_param.msgq_id.render_path0_filter_dsp = MSGQ_AUD_PFDSP0;
   output_mix_create_param.msgq_id.render_path1_filter_dsp = MSGQ_AUD_PFDSP1;
-  output_mix_create_param.pool_id.render_path0_filter_pcm = PF0_PCM_BUF_POOL;
-  output_mix_create_param.pool_id.render_path1_filter_pcm = PF1_PCM_BUF_POOL;
-  output_mix_create_param.pool_id.render_path0_filter_dsp = PF0_APU_CMD_POOL;
-  output_mix_create_param.pool_id.render_path1_filter_dsp = PF1_APU_CMD_POOL;
+  output_mix_create_param.pool_id.render_path0_filter_pcm = S0_PF0_PCM_BUF_POOL;
+  output_mix_create_param.pool_id.render_path1_filter_pcm = S0_PF1_PCM_BUF_POOL;
+  output_mix_create_param.pool_id.render_path0_filter_dsp = S0_PF0_APU_CMD_POOL;
+  output_mix_create_param.pool_id.render_path1_filter_dsp = S0_PF1_APU_CMD_POOL;
 
   bool result = AS_CreateOutputMixer(&output_mix_create_param, (attcb) ? attcb : attentionCallback);
 

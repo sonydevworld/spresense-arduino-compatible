@@ -117,7 +117,11 @@ public:
    *          launched SubCore notifies MainCore to boot completion by
    *          calling this API.
    */
-  int begin(int subid = 0);
+#ifdef CONFIG_CXD56_SUBCORE
+  int begin();
+#else
+  int begin(int subid);
+#endif
 
   /**
    * @brief End communication with the other processor
@@ -126,7 +130,11 @@ public:
    * @return error code. It returns minus value on failure.
    * @details MainCore finalizes the specified SubCore.
    */
-  int end(int subid = 0);
+#ifdef CONFIG_CXD56_SUBCORE
+  int end();
+#else
+  int end(int subid);
+#endif
 
   /**
    * @brief Send any 32bit-data to the other processor
@@ -136,7 +144,11 @@ public:
    *                     If core is SubCore, send to MainCore by default.
    * @return error code. It returns minus value on failure.
    */
+#ifdef CONFIG_CXD56_SUBCORE
   int Send(int8_t msgid, uint32_t msgdata, int subid = 0);
+#else
+  int Send(int8_t msgid, uint32_t msgdata, int subid);
+#endif
 
   /**
    * @brief Receive any 32bit-data from the other processor
@@ -146,7 +158,11 @@ public:
    *                     If core is SubCore, receive from MainCore by default.
    * @return msgid or error code. It returns minus value on failure.
    */
+#ifdef CONFIG_CXD56_SUBCORE
   int Recv(int8_t *msgid, uint32_t *msgdata, int subid = 0);
+#else
+  int Recv(int8_t *msgid, uint32_t *msgdata, int subid);
+#endif
 
   /**
    * @brief Send the address of any message to the other processor
@@ -156,7 +172,11 @@ public:
    *                     If core is SubCore, send to MainCore by default.
    * @return error code. It returns minus value on failure.
    */
+#ifdef CONFIG_CXD56_SUBCORE
   int Send(int8_t msgid, void *msgaddr, int subid = 0);
+#else
+  int Send(int8_t msgid, void *msgaddr, int subid);
+#endif
 
   /**
    * @brief Receive the address of any message from the other processor
@@ -166,7 +186,11 @@ public:
    *                     If core is SubCore, receive from MainCore by default.
    * @return msgid or error code. It returns minus value on failure.
    */
+#ifdef CONFIG_CXD56_SUBCORE
   int Recv(int8_t *msgid, void *msgaddr, int subid = 0);
+#else
+  int Recv(int8_t *msgid, void *msgaddr, int subid);
+#endif
 
   /**
    * @brief Send any object to the other processor
@@ -176,7 +200,11 @@ public:
    * @return error code. It returns minus value on failure.
    * @details The size of object must be 128 bytes or less.
    */
+#ifdef CONFIG_CXD56_SUBCORE
   template <typename T> int SendObject(T &t, int subid = 0);
+#else
+  template <typename T> int SendObject(T &t, int subid);
+#endif
 
   /**
    * @brief Receive any object from the other processor
@@ -186,7 +214,11 @@ public:
    * @return msgid or error code. It returns minus value on failure.
    * @details The size of object must be 128 bytes or less.
    */
+#ifdef CONFIG_CXD56_SUBCORE
   template <typename T> int RecvObject(T &t, int subid = 0);
+#else
+  template <typename T> int RecvObject(T &t, int subid);
+#endif
 
   /**
    * @brief Wait for the object to be sent
@@ -195,7 +227,11 @@ public:
    * @return error code. It returns minus value on failure.
    * @details Please call after SendObject().
    */
+#ifdef CONFIG_CXD56_SUBCORE
   int SendWaitComplete(int subid = 0);
+#else
+  int SendWaitComplete(int subid);
+#endif
 
   /**
    * @brief Set timeout of receiver
@@ -286,8 +322,9 @@ template <typename T> int MPClass::SendObject(T &t, int subid)
 {
   int ret;
 
-  if (checkid(subid)) {
-    return -EINVAL;
+  ret = checkid(subid);
+  if (ret) {
+    return ret;
   }
 
   size_t msgsz = sizeof(T);
@@ -310,8 +347,9 @@ template <typename T> int MPClass::RecvObject(T &t, int subid)
   void *vp;
   int8_t rsz;
 
-  if (checkid(subid)) {
-    return -EINVAL;
+  ret = checkid(subid);
+  if (ret) {
+    return ret;
   }
 
   size_t msgsz = sizeof(T);

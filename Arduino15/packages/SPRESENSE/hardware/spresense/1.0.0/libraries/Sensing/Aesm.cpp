@@ -82,7 +82,7 @@ int AesmClass::startAesm(void)
 {
   int   ret;
 
-  step_counter_ins = StepCounterCreate(SENSOR_DSP_CMD_BUF_POOL);
+  step_counter_ins = StepCounterCreate(S1_SENSOR_DSP_CMD_BUF_POOL);
   if (NULL == step_counter_ins)
     {
       printf("Error: StepCounterCreate() failure.\n");

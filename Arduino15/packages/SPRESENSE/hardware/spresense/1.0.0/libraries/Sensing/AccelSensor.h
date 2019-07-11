@@ -35,6 +35,12 @@
 class AccelSensorClass : public SensorClient
 {
 public:
+
+  /**
+   * @brief Start sensing of Accelerometer
+   *
+   */
+
   bool begin(int      id,
              int      rate,
              int      sample_watermark_num,
@@ -45,6 +51,13 @@ public:
    */
 
   int write_data(float x, float y, float z);
+
+  /**
+   * @brief Stop sensing of Accelerometer
+   *
+   */
+
+  bool end(void);
 
 private:
   bool begin(int      id,

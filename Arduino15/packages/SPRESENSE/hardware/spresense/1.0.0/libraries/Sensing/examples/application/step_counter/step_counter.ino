@@ -55,10 +55,33 @@ unsigned char step_counter_result(sensor_command_data_mh_t &data)
       return 0;
     }
 
-  printf("   %8ld,   %8ld,   %8ld,   %8ld,",
-               static_cast<uint32_t>(steps->tempo),
-               static_cast<uint32_t>(steps->stride),
-               static_cast<uint32_t>(steps->speed),
+  float  tempo = 0;
+
+  switch (steps->movement_type)
+    {
+      case STEP_COUNTER_MOVEMENT_TYPE_WALK:
+      case STEP_COUNTER_MOVEMENT_TYPE_RUN:
+        tempo = steps->tempo;
+        break;
+      case STEP_COUNTER_MOVEMENT_TYPE_STILL:
+
+        /* In this state, the tempo value on the display is zero. */
+
+        tempo = 0;
+
+        break;
+      default:
+
+        /* It is not displayed in the state other than the above. */
+
+        return 0;
+    }
+
+  printf("%11.5f,%11.2f,%11.5f,%11.5f,%11ld,",
+               tempo,
+               steps->stride,
+               steps->speed,
+               steps->distance,
                steps->step);
 
   switch (steps->movement_type)
@@ -127,8 +150,8 @@ void setup()
 
 
   puts("Start sensing...");
-  puts("-----------------------------------------------------------");
-  puts("      tempo,     stride,      speed,       step,  move-type");
+  puts("-----------------------------------------------------------------------");
+  puts("      tempo,     stride,      speed,   distance,       step,  move-type");
 }
 
 /**
