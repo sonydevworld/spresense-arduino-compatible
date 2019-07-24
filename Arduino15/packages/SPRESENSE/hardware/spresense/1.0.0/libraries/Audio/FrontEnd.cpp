@@ -119,13 +119,13 @@ err_t FrontEnd::end(void)
 }
 
 /*--------------------------------------------------------------------------*/
-err_t FrontEnd::activate(AsMicFrontendPreProcType proc_type)
+err_t FrontEnd::activate(void)
 {
-  return activate(proc_type, NULL);
+  return activate(NULL);
 }
 
 /*--------------------------------------------------------------------------*/
-err_t FrontEnd::activate(AsMicFrontendPreProcType proc_type, MicFrontendCallback fedcb)
+err_t FrontEnd::activate(MicFrontendCallback fedcb)
 {
   bool result;
 
@@ -134,7 +134,6 @@ err_t FrontEnd::activate(AsMicFrontendPreProcType proc_type, MicFrontendCallback
   AsActivateMicFrontend frontend_act;
 
   frontend_act.param.input_device = AsMicFrontendDeviceMic;
-  frontend_act.param.preproc_type = proc_type;
   frontend_act.cb                 = fedcb;
 
   m_fed_callback = fedcb;
@@ -185,6 +184,8 @@ err_t FrontEnd::init(uint8_t channel_number,
   frontend_init.channel_number    = channel_number;
   frontend_init.bit_length        = bit_length;
   frontend_init.samples_per_frame = samples_per_frame;
+  frontend_init.preproc_type      = AsMicFrontendPreProcThrough;
+  memset(frontend_init.dsp_path, 0, sizeof(frontend_init.dsp_path));
   frontend_init.data_path         = data_path;
   frontend_init.dest              = dest;
 

@@ -193,7 +193,7 @@ err_t MediaRecorder::activate(AsSetRecorderStsInputDevice input_device,
     {
       /* Activate Frontend (sync move) */
 
-      err_t fed_result = m_p_fed_ins->activate(AsMicFrontendPreProcThrough);
+      err_t fed_result = m_p_fed_ins->activate();
       if (fed_result != FRONTEND_ECODE_OK)
         {
           m_mr_callback(AsRecorderEventAct, fed_result, 0);

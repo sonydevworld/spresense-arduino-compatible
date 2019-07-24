@@ -48,6 +48,7 @@ class File;
 #include <audio/audio_high_level_api.h>
 #include <audio/utilities/wav_containerformat.h>
 #include <audio/utilities/wav_containerformat_parser.h>
+#include <audio/utilities/frame_samples.h>
 #include <memutils/simple_fifo/CMN_SimpleFifo.h>
 
 #define WRITE_FIFO_FRAME_NUM  (8)
@@ -846,23 +847,6 @@ public:
       AsClkMode mode /**< Mode of rendering clock. */
   );
 
-  /**
-   * @brief Set ProProcess type.
-   *
-   * @details This function sets the PreProcess type for recording.
-   *
-   *          Set pre process type for recording data.
-   *          If you'd like to any signal processings to recording data.
-   *          set processing type by this API.
-   *
-   *          If not call this API, pre process will through.
-   *          (AsFrontendPreprocThrough is selected Internally.)
-   *
-   */
-  err_t setMicFrontendPreProcType(
-      AsMicFrontendPreProcType proc_type /**< Processing type */
-  );
-
  /**
    * @brief Get recording ES size.
    *
@@ -923,7 +907,8 @@ private:
   err_t powerOff(void);
 
   /* Functions for initialization Encoder */
-
+	
+  err_t initMicFrontend(uint8_t ch_num, uint8_t bit_length, uint16_t sample);
   err_t init_recorder_wav(AudioCommand* command, uint32_t sampling_rate, uint8_t bit_length, uint8_t channel_number);
   err_t init_recorder_mp3(AudioCommand* command, uint32_t sampling_rate, uint8_t bit_length, uint8_t channel_number);
   err_t init_recorder_opus(AudioCommand* command, uint32_t sampling_rate, uint8_t bit_length, uint8_t channel_number);
