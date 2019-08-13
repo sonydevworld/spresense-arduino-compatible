@@ -51,8 +51,24 @@ static void audio_attention_cb(const ErrorAttentionParam *atprm)
  * Open "Sound.mp3" file in write mode
  */
 
-static const int32_t recoding_frames = 400;
-static const int32_t recoding_size = recoding_frames*288; /* 96kbps, 1152sample */
+/* Recording time[second] */
+
+static const int32_t recoding_time = 10;
+
+/* Recording bit rate
+ * Set in bps.
+ * Note: 96kbps fixed
+ */
+
+static const int32_t recoding_bitrate = 96000;
+
+/* Bytes per second */
+
+static const int32_t recoding_byte_per_second = (recoding_bitrate / 8);
+
+/* Total recording size */
+
+static const int32_t recoding_size = recoding_byte_per_second * recoding_time;
 
 void setup()
 {
