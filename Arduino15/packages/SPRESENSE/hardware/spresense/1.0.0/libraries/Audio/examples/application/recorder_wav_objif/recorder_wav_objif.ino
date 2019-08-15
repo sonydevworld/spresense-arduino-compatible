@@ -44,9 +44,51 @@ static void mediarecorder_attention_cb(const ErrorAttentionParam *atprm)
    }
 }
 
-static const int32_t recoding_frames = 400;
-static const int32_t buffer_size = 3072;  /*Now WAV is 768sample,16bit,stereo. so, One frame is 3072 bytes */
-static uint8_t       s_buffer[buffer_size];
+
+/* Sampling rate
+ * Set 16000 or 48000
+ */
+
+static const uint32_t recoding_sampling_rate = 48000;
+
+/* Number of input channels
+ * Set either 1, 2, or 4.
+ */
+
+static const uint8_t  recoding_cannel_number = 2;
+
+/* Audio bit depth
+ * Set 16 or 24
+ */
+
+static const uint8_t  recoding_bit_length = 16;
+
+/* Recording time[second] */
+
+static const uint32_t recoding_time = 10;
+
+/* Bytes per second */
+
+static const int32_t recoding_byte_per_second = recoding_sampling_rate *
+                                                recoding_cannel_number *
+                                                recoding_bit_length / 8;
+
+/* Total recording size */
+
+static const int32_t recoding_size = recoding_byte_per_second * recoding_time;
+
+/* One frame size
+ * Calculated with 768 samples per frame.
+ */
+
+static const uint32_t frame_size  = 768 * recoding_cannel_number * (recoding_bit_length / 8);
+
+/* Buffer size
+ * Align in 512byte units based on frame size.
+ */
+
+static const uint32_t buffer_size = (frame_size + 511) & ~511;
+static uint8_t        s_buffer[buffer_size];
 
 /**
  * @brief Recorder done callback procedure
@@ -105,9 +147,9 @@ void setup()
    */
 
   theRecorder->init(AS_CODECTYPE_WAV,
-                    AS_CHANNEL_STEREO,
-                    AS_SAMPLINGRATE_48000,
-                    AS_BITLENGTH_16,
+                    recoding_cannel_number,
+                    recoding_sampling_rate,
+                    recoding_bit_length,
                     AS_BITRATE_8000, /* Bitrate is effective only when mp3 recording */
                     "/mnt/sd0/BIN");
 
@@ -220,7 +262,7 @@ void loop()
 //  usleep(10000);
 
   /* Stop Recording */
-  if (total_size > (recoding_frames*buffer_size))
+  if (total_size > recoding_size)
     {
       theRecorder->stop();
 
