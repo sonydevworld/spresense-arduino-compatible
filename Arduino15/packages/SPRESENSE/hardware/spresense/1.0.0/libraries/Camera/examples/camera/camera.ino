@@ -1,5 +1,5 @@
 /*
- *  camera.ino - One minute interval time-lapse Camera
+ *  camera.ino - One second interval time-lapse Camera
  *  Copyright 2018 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
