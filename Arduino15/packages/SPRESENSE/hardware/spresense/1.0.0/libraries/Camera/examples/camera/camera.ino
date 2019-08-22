@@ -103,7 +103,7 @@ void setup()
    * In the following case, QUADVGA and JPEG.
    */
 
-  Serial.println("Start streaming");
+  Serial.println("Set still picture format");
   theCamera.setStillPictureImageFormat(
      CAM_IMGSIZE_QUADVGA_H,
      CAM_IMGSIZE_QUADVGA_V,
