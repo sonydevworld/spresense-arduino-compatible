@@ -76,7 +76,7 @@ enum CAM_IMAGE_PIX_FMT {
 enum CamErr {
   CAM_ERR_SUCCESS               = 0,   /**< [en] Operation succeeded.                      <BR> [jp] 正常終了しました */
   CAM_ERR_NO_DEVICE             = -1,  /**< [en] No Video Device on this board.            <BR> [jp] Videoデバイスがありません */
-  CAM_ERR_ILLIGAL_DEVERR        = -2,  /**< [en] Video Device detected error.              <BR> [jp] Videoデバイスがエラーを検出しました */
+  CAM_ERR_ILLEGAL_DEVERR        = -2,  /**< [en] Video Device detected error.              <BR> [jp] Videoデバイスがエラーを検出しました */
   CAM_ERR_ALREADY_INITIALIZED   = -3,  /**< [en] Library is already initialized            <BR> [jp] 既に初期化されています */
   CAM_ERR_NOT_INITIALIZED       = -4,  /**< [en] Library is not initialized                <BR> [jp] 初期化されていません */
   CAM_ERR_NOT_STILL_INITIALIZED = -5,  /**< [en] Still picture function is not initialized <BR> [jp] 静止画機能が初期化されていません */
