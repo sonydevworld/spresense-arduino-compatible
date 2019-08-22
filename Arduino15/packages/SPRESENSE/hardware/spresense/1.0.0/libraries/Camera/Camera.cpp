@@ -878,6 +878,8 @@ CamErr CameraClass::begin(int buff_num, CAM_VIDEO_FPS fps, int video_width, int 
       return CAM_ERR_NO_DEVICE;
     }
 
+  imageproc_initialize();
+
   if (buff_num == 0)
     {
       return CAM_ERR_SUCCESS;
@@ -927,8 +929,6 @@ CamErr CameraClass::begin(int buff_num, CAM_VIDEO_FPS fps, int video_width, int 
     {
       goto label_err_with_memaligned;
     }
-
-  imageproc_initialize();
 
   return ret; // Success begin.
 
