@@ -64,9 +64,9 @@ public:
 
   /**
    * @brief Set RTC time
-   * @param [in] a object of RtcTime to set
+   * @param [in] rtc a object of RtcTime to set
    */
-  void setTime(RtcTime &);
+  void setTime(RtcTime &rtc);
 
   /**
    * @brief Get RTC time
@@ -77,9 +77,9 @@ public:
 #ifndef SUBCORE
   /**
    * @brief Set RTC alarm time
-   * @param [in] a object of RtcTime to set the alarm
+   * @param [in] rtc a object of RtcTime to set the alarm
    */
-  void setAlarm(RtcTime &);
+  void setAlarm(RtcTime &rtc);
 
   /**
    * @brief Set RTC alarm time after the specified seconds

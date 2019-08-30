@@ -127,7 +127,7 @@ public:
     }
 
   /**
-   * @enum Player ID
+   * @enum PlayerId
    *
    * @brief Audio library allows you to use two players simultaneously.
    *        Please set Player ID that player instance id created to use.
@@ -319,8 +319,9 @@ public:
   );
 
   /**
-   * @enum Input select parameter at baseband through mode
+   * @enum ThroughInput
    *
+   * @brief Input select parameter at baseband through mode.
    */
 
   typedef enum
@@ -331,8 +332,9 @@ public:
   } ThroughInput;
 
   /**
-   * @enum I2S output select parameter at baseband through mode
+   * @enum ThroughI2sOut
    *
+   * @brief I2S output select parameter at baseband through mode.
    */
 
   typedef enum

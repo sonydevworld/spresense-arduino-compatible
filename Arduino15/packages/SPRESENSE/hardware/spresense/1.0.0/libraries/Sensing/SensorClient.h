@@ -235,4 +235,6 @@ protected:
 
 };
 
+/** @} Sensor */
+
 #endif /* __SENSORCLIENT_H */

@@ -17,6 +17,12 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+/**
+ * @file OutputMixer.h
+ * @author Sony Semiconductor Solutions Corporation
+ * @brief Output Mixer Class for Arduino on Spresense.
+ */
+
 #ifndef OutputMixer_h 
 #define OutputMixer_h
 

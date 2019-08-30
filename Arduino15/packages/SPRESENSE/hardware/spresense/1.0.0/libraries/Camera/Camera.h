@@ -104,7 +104,7 @@ enum CAM_WHITE_BALANCE {
 
 
 /**
- * @defgroup CAM_IMGSIZE
+ * @defgroup CAM_IMGSIZE Camera Image size definitions
  * @brief Camera Image size definition.
  * @{
  */
@@ -148,7 +148,7 @@ enum CAM_SCENE_MODE {
 
 
 /**
- * @enum CAM_SCENE_FX
+ * @enum CAM_COLOR_FX
  * @brief [en] Camera Color effect setting parameters. <BR>
  *        [ja] Cameraの画像エフェクトの設定値
  */
@@ -174,7 +174,7 @@ enum CAM_COLOR_FX {
 
 
 /**
- * @defgroup CAM_ISO_SENSITIVITY
+ * @defgroup CAM_ISO_SENSITIVITY Camera ISO Sensitivity parameter definitions
  * @brief Camera ISO Sensitivity parameter definitions.
  * @{
  */
@@ -635,7 +635,7 @@ public:
    * @return [en] Error code defined as #CamErr. <BR>
    *         [ja] #CamErr で定義されているエラーコード
    */
-  CamErr setISOSensitivity(int iso_sense /**< [en] ISO Sensitivity value. Use macros named #CAM_ISO_SENSITIVITY  <BR> [ja] ISO感度値。 #CAM_ISO_SENSITIVITY と定義されたマクロから選択する */);
+  CamErr setISOSensitivity(int iso_sense /**< [en] ISO Sensitivity value. Use macros named @ref CAM_ISO_SENSITIVITY  <BR> [ja] ISO感度値。 @ref CAM_ISO_SENSITIVITY と定義されたマクロから選択する */);
 
   /**
    * @brief Set Auto White Balance mode.
