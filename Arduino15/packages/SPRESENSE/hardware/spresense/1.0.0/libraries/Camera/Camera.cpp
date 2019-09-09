@@ -314,7 +314,7 @@ CamErr CamImage::resizeImageByHW(CamImage &img, int width, int height)
   if( ret != 0 )
     {
       delete tmp_img;
-      return CAM_ERR_ILLIGAL_DEVERR;
+      return CAM_ERR_ILLEGAL_DEVERR;
     }
 
   // if the image has image buffer, delete it.
@@ -395,7 +395,7 @@ CamErr CamImage::clipAndResizeImageByHW(
   if( ret != 0 )
     {
       delete tmp_img;
-      return CAM_ERR_ILLIGAL_DEVERR;
+      return CAM_ERR_ILLEGAL_DEVERR;
     }
 
   // if the image has image buffer, delete it.
@@ -511,7 +511,7 @@ CamErr CameraClass::convert_errno2camerr(int err)
         return CAM_ERR_NO_MEMORY;
 
       default:
-        return CAM_ERR_ILLIGAL_DEVERR;
+        return CAM_ERR_ILLEGAL_DEVERR;
     }
 }
 
@@ -772,7 +772,7 @@ CamErr CameraClass::create_dq_thread()
   frame_exchange_mq = mq_open(CAM_FRAME_MQ_NAME, (O_RDWR | O_CREAT), 0666, &mq_attr);
   if(frame_exchange_mq < 0)
     {
-      return CAM_ERR_ILLIGAL_DEVERR;
+      return CAM_ERR_ILLEGAL_DEVERR;
     }
 
   // thread for callback to user operation.
@@ -878,6 +878,8 @@ CamErr CameraClass::begin(int buff_num, CAM_VIDEO_FPS fps, int video_width, int 
       return CAM_ERR_NO_DEVICE;
     }
 
+  imageproc_initialize();
+
   if (buff_num == 0)
     {
       return CAM_ERR_SUCCESS;
@@ -927,8 +929,6 @@ CamErr CameraClass::begin(int buff_num, CAM_VIDEO_FPS fps, int video_width, int 
     {
       goto label_err_with_memaligned;
     }
-
-  imageproc_initialize();
 
   return ret; // Success begin.
 

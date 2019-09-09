@@ -53,8 +53,37 @@ static void audio_attention_cb(const ErrorAttentionParam *atprm)
  * Open "Sound.wav" file in write mode
  */
 
-static const int32_t recoding_frames = 400;
-static const int32_t recoding_size = recoding_frames*3072; /* 2ch, 16bit, 768sample */
+/* Sampling rate
+ * Set 16000 or 48000
+ */
+
+static const uint32_t recoding_sampling_rate = 48000;
+
+/* Number of input channels
+ * Set either 1, 2, or 4.
+ */
+
+static const uint8_t  recoding_cannel_number = 2;
+
+/* Audio bit depth
+ * Set 16 or 24
+ */
+
+static const uint8_t  recoding_bit_length = 16;
+
+/* Recording time[second] */
+
+static const uint32_t recoding_time = 10;
+
+/* Bytes per second */
+
+static const int32_t recoding_byte_per_second = recoding_sampling_rate *
+                                                recoding_cannel_number *
+                                                recoding_bit_length / 8;
+
+/* Total recording size */
+
+static const int32_t recoding_size = recoding_byte_per_second * recoding_time;
 
 void setup()
 {
@@ -67,11 +96,12 @@ void setup()
   /* Select input device as microphone */
   theAudio->setRecorderMode(AS_SETRECDR_STS_INPUTDEVICE_MIC);
 
-  /*
-   * Initialize filetype to stereo wav with 48 Kb/s sampling rate
-   * Search for WAVDEC codec in "/mnt/sd0/BIN" directory
-   */
-  theAudio->initRecorder(AS_CODECTYPE_WAV,"/mnt/sd0/BIN",AS_SAMPLINGRATE_48000,AS_CHANNEL_STEREO);
+  /* Search for WAVDEC codec in "/mnt/sd0/BIN" directory */
+  theAudio->initRecorder(AS_CODECTYPE_WAV,
+                         "/mnt/sd0/BIN",
+                         recoding_sampling_rate,
+                         recoding_bit_length,
+                         recoding_cannel_number);
   puts("Init Recorder!");
 
   /* Open file for data write on SD card */
@@ -142,6 +172,3 @@ exitRecording:
   exit(1);
 
 }
-
-
-

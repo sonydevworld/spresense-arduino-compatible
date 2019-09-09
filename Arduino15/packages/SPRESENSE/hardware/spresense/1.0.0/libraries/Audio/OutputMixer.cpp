@@ -27,10 +27,8 @@
 #include <arch/board/board.h>
 
 #include "OutputMixer.h"
+#include "MemoryUtil.h"
 
-#include "memutil/msgq_id.h"
-#include "memutil/mem_layout.h"
-#include "memutil/memory_layout.h"
 
 extern "C" {
 

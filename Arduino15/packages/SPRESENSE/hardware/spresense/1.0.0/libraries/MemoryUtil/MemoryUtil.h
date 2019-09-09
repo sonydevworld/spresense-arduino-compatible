@@ -20,6 +20,10 @@
 #ifndef MemoryUtil_h
 #define MemoryUtil_h
 
+/* Define the following: Reduce memory usage to 1 tile (128 kbytes). */
+
+//#define MEMORY_UTIL_TINY
+
 #ifdef SUBCORE
 #error "MemoryUtil library is NOT supported by SubCore."
 #endif
@@ -30,11 +34,15 @@
 #include <memutils/memory_manager/MemHandle.h>
 #include <memutils/message/Message.h>
 
+#ifdef MEMORY_UTIL_TINY
+#include "memutil/tiny/msgq_id.h"
+#include "memutil/tiny/mem_layout.h"
+#include "memutil/tiny/memory_layout.h"
+#else
 #include "memutil/msgq_id.h"
 #include "memutil/mem_layout.h"
 #include "memutil/memory_layout.h"
-
-#define RAM_TILE_SIZE   (1024*128)
+#endif
 
 using namespace MemMgrLite;
 

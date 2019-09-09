@@ -29,7 +29,7 @@
  */
 
 /**
- * @defgroup mp MP Mutex Library API
+ * @defgroup mpmutex MP Mutex Library API
  * @brief MP Mutex API
  * @{
  */
@@ -111,6 +111,6 @@ private:
   }
 };
 
-/** @} mp */
+/** @} mpmutex */
 
 #endif /* _MPMUTEX_H_ */

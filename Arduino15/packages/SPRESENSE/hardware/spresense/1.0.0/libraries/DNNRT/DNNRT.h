@@ -77,8 +77,8 @@ public:
   /**
    * Set input data at index
    *
-   * @param var[in]   Input data to the network
-   * @param index[in] Index of input data
+   * @param [in] var   Input data to the network
+   * @param [in] index Index of input data
    * @return 0 on success, otherwise error.
    * @note Number of input data is depends on the network model.
    */
@@ -87,7 +87,7 @@ public:
   /**
    * Get output data at index
    *
-   * @param index[in] Index of output data
+   * @param [in] index Index of output data
    * @return Output variable data. the shape of output data is depends on the
    *         network model.
    */
@@ -110,7 +110,7 @@ public:
   /**
    * Size of input data at index
    *
-   * @param index[in] Index of input data
+   * @param [in] index Index of input data
    * @return Number of input data elements
    */
   int inputSize(unsigned int index);
@@ -118,7 +118,7 @@ public:
   /**
    * Get dimension of input data at index
    *
-   * @param index[in] Index of input data
+   * @param [in] index Index of input data
    * @return Number of input data dimension
    */
   int inputDimension(unsigned int index);
@@ -126,8 +126,8 @@ public:
   /**
    * Shape size at shape index
    *
-   * @param index[in] Index of input data
-   * @param shapeindex[in] Index of shape
+   * @param [in] index Index of input data
+   * @param [in] shapeindex Index of shape
    * @return Shape size
    */
   int inputShapeSize(unsigned int index, unsigned int shapeindex);
@@ -142,7 +142,7 @@ public:
   /**
    * Size of output data at index
    *
-   * @param index[in] Index of output data
+   * @param [in] index Index of output data
    * @return Number of output data elements
    */
   int outputSize(unsigned int index);
@@ -150,7 +150,7 @@ public:
   /**
    * Get dimension of output data at index
    *
-   * @param index[in] Index of output data
+   * @param [in] index Index of output data
    * @return Number of dimension
    */
   int outputDimension(unsigned int index);
@@ -158,8 +158,8 @@ public:
   /**
    * Shape size at output shape index
    *
-   * @param index[in] Index of output data
-   * @param shapeindex[in] Index of output data
+   * @param [in] index Index of output data
+   * @param [in] shapeindex Index of output data
    * @return Shape size
    */
   int outputShapeSize(unsigned int index, unsigned int shapeindex);

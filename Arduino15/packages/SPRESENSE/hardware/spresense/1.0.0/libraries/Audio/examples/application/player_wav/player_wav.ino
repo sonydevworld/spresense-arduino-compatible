@@ -25,6 +25,8 @@ AudioClass *theAudio;
 
 File myFile;
 
+WavContainerFormatParser theParser;
+
 const int32_t sc_buffer_size = 6144;
 uint8_t s_buffer[sc_buffer_size];
 
@@ -66,10 +68,9 @@ void setup()
 
   // Get wav file info
 
-  WavContainerFormatParser *p_parser = new WavContainerFormatParser();
   fmt_chunk_t fmt;
 
-  handel_wav_parser_t *handle = (handel_wav_parser_t *)p_parser->parseChunk("/mnt/sd0/Sound.wav", &fmt);
+  handel_wav_parser_t *handle = (handel_wav_parser_t *)theParser.parseChunk("/mnt/sd0/Sound.wav", &fmt);
   if (handle == NULL)
     {
       printf("Wav parser error.\n");
@@ -78,7 +79,7 @@ void setup()
 
   s_remain_size = handle->data_size + sizeof(WAVHEADER);
 
-  p_parser->resetParser((handel_wav_parser *)handle);
+  theParser.resetParser((handel_wav_parser *)handle);
 
   // start audio system
   theAudio = AudioClass::getInstance();

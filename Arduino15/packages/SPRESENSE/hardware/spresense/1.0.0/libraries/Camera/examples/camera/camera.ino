@@ -1,5 +1,5 @@
 /*
- *  camera.ino - One minute interval time-lapse Camera
+ *  camera.ino - One second interval time-lapse Camera
  *  Copyright 2018 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
@@ -30,6 +30,49 @@
 SDClass  theSD;
 int take_picture_count = 0;
 
+/**
+ * Print error message
+ */
+
+void printError(enum CamErr err)
+{
+  Serial.print("Error: ");
+  switch (err)
+    {
+      case CAM_ERR_NO_DEVICE:
+        Serial.println("No Device");
+        break;
+      case CAM_ERR_ILLEGAL_DEVERR:
+        Serial.println("Illegal device error");
+        break;
+      case CAM_ERR_ALREADY_INITIALIZED:
+        Serial.println("Already initialized");
+        break;
+      case CAM_ERR_NOT_INITIALIZED:
+        Serial.println("Not initialized");
+        break;
+      case CAM_ERR_NOT_STILL_INITIALIZED:
+        Serial.println("Still picture not initialized");
+        break;
+      case CAM_ERR_CANT_CREATE_THREAD:
+        Serial.println("Failed to create thread");
+        break;
+      case CAM_ERR_INVALID_PARAM:
+        Serial.println("Invalid parameter");
+        break;
+      case CAM_ERR_NO_MEMORY:
+        Serial.println("No memory");
+        break;
+      case CAM_ERR_USR_INUSED:
+        Serial.println("Buffer already in use");
+        break;
+      case CAM_ERR_NOT_PERMITTED:
+        Serial.println("Operation not permitted");
+        break;
+      default:
+        break;
+    }
+}
 
 /**
  * Callback from Camera library when video frame is captured.
@@ -69,6 +112,7 @@ void CamCB(CamImage img)
  */
 void setup()
 {
+  CamErr err;
 
   /* Open serial communications and wait for port to open */
 
@@ -83,8 +127,11 @@ void setup()
    * number of buffers = 1, 30FPS, QVGA, YUV 4:2:2 format */
 
   Serial.println("Prepare camera");
-  theCamera.begin();
-
+  err = theCamera.begin();
+  if (err != CAM_ERR_SUCCESS)
+    {
+      printError(err);
+    }
 
   /* Start video stream.
    * If received video stream data from camera device,
@@ -92,22 +139,34 @@ void setup()
    */
 
   Serial.println("Start streaming");
-  theCamera.startStreaming(true, CamCB);
+  err = theCamera.startStreaming(true, CamCB);
+  if (err != CAM_ERR_SUCCESS)
+    {
+      printError(err);
+    }
 
   /* Auto white balance configuration */
 
   Serial.println("Set Auto white balance parameter");
-  theCamera.setAutoWhiteBalanceMode(CAM_WHITE_BALANCE_DAYLIGHT);
+  err = theCamera.setAutoWhiteBalanceMode(CAM_WHITE_BALANCE_DAYLIGHT);
+  if (err != CAM_ERR_SUCCESS)
+    {
+      printError(err);
+    }
  
   /* Set parameters about still picture.
    * In the following case, QUADVGA and JPEG.
    */
 
-  Serial.println("Start streaming");
-  theCamera.setStillPictureImageFormat(
+  Serial.println("Set still picture format");
+  err = theCamera.setStillPictureImageFormat(
      CAM_IMGSIZE_QUADVGA_H,
      CAM_IMGSIZE_QUADVGA_V,
      CAM_IMAGE_PIX_FMT_JPG);
+  if (err != CAM_ERR_SUCCESS)
+    {
+      printError(err);
+    }
 }
 
 /**

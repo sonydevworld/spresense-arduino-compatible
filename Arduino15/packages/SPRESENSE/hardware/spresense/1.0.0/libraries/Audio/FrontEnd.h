@@ -126,9 +126,7 @@ public:
    *
    */
 
-  err_t activate(
-      AsMicFrontendPreProcType proc_type /**< Select ProProc type. AsMicFrontendPreProcThrough or AsMicFrontendPreProcUserCustom */
-  );
+  err_t activate(void);
 
   /**
    * @brief Activate the FrontEnd.
@@ -142,7 +140,6 @@ public:
    */
 
   err_t activate(
-      AsMicFrontendPreProcType preproc_type, /**< Select ProProc type. AsMicFrontendPreProcThrough or AsMicFrontendPreProcUserCustom */
       MicFrontendCallback fedcb
   );
 

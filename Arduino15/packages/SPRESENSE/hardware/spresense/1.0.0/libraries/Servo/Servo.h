@@ -75,22 +75,22 @@ public:
      * @param pin Pin connected to the servo pulse wave input. This
      *            pin must be capable of PWM output.
      *
-     * @param minPulseWidth Minimum pulse width to write to pin, in
+     * @param min_pulse_width Minimum pulse width to write to pin, in
      *                      microseconds.  This will be associated
-     *                      with a minAngle degree angle.  Defaults to
+     *                      with a min_angle degree angle.  Defaults to
      *                      SERVO_DEFAULT_MIN_PW = 544.
      *
-     * @param maxPulseWidth Maximum pulse width to write to pin, in
+     * @param max_pulse_width Maximum pulse width to write to pin, in
      *                      microseconds.  This will be associated
-     *                      with a maxAngle degree angle. Defaults to
+     *                      with a max_angle degree angle. Defaults to
      *                      SERVO_DEFAULT_MAX_PW = 2400.
      *
-     * @param minAngle Target angle (in degrees) associated with
-     *                 minPulseWidth.  Defaults to
+     * @param min_angle Target angle (in degrees) associated with
+     *                 min_pulse_width.  Defaults to
      *                 SERVO_DEFAULT_MIN_ANGLE = 0.
      *
-     * @param maxAngle Target angle (in degrees) associated with
-     *                 maxPulseWidth.  Defaults to
+     * @param max_angle Target angle (in degrees) associated with
+     *                 max_pulse_width.  Defaults to
      *                 SERVO_DEFAULT_MAX_ANGLE = 180.
      *
      * @sideeffect May set pinMode(pin, PWM).
@@ -126,7 +126,7 @@ public:
     /**
      * @brief Set the pulse width, in microseconds.
      *
-     * @param pulseWidth Pulse width to send to the servomotor, in
+     * @param pulse_width Pulse width to send to the servomotor, in
      *                   microseconds. If outside of the range
      *                   specified at attach() time, it is clamped to
      *                   lie in that range.

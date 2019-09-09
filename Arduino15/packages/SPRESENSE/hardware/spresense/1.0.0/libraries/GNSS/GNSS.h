@@ -219,7 +219,7 @@ public:
 
     /**
      * @brief Get satellite signal level(C/N)
-     * @dtails Specify the element number of the satellite and return the SignalLevel value stored in the array.
+     * @details Specify the element number of the satellite and return the SignalLevel value stored in the array.
      * @param [in] index Array number of the satellite array
      * @return Value of array SatelliteSignalLevel
      */
@@ -251,10 +251,17 @@ public:
      * @brief Activate GNSS device
      * @details Power on GNSS hardware block, and change to the state where parameter
      *          setting and positioning start can be performed.
-     * @param [in] debugOut debug out stream instead of Serial
      * @return 0 if success, -1 if failure
      */
     int begin(void);
+
+    /**
+     * @brief Activate GNSS device
+     * @details Power on GNSS hardware block, and change to the state where parameter
+     *          setting and positioning start can be performed.
+     * @param [in] debugOut debug out stream instead of Serial
+     * @return 0 if success, -1 if failure
+     */
     int begin(Stream& debugOut) { DebugOut = debugOut; return begin(); }
 
     /**
@@ -345,7 +352,7 @@ public:
     /**
      * @brief Set the pos interval time
      * @details Set interval of POS operation.
-     * @param [in] Interval time[sec]
+     * @param [in] interval Interval time[sec]
      * @return 0 if success, -1 if failure
      */
     int setInterval(long interval = 1);
@@ -373,7 +380,7 @@ public:
     /**
      * @brief Remove specified satellite system to selection for positioning
      * @details Do not use the specified satellite system for positioning.
-     * @param [in] type of satellite system
+     * @param [in] sattype type of satellite system
      * @return 0 if success, negative if failure
      */
     int deselect(SpSatelliteType sattype);

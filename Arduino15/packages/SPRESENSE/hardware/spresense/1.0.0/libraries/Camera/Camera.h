@@ -76,7 +76,7 @@ enum CAM_IMAGE_PIX_FMT {
 enum CamErr {
   CAM_ERR_SUCCESS               = 0,   /**< [en] Operation succeeded.                      <BR> [jp] 正常終了しました */
   CAM_ERR_NO_DEVICE             = -1,  /**< [en] No Video Device on this board.            <BR> [jp] Videoデバイスがありません */
-  CAM_ERR_ILLIGAL_DEVERR        = -2,  /**< [en] Video Device detected error.              <BR> [jp] Videoデバイスがエラーを検出しました */
+  CAM_ERR_ILLEGAL_DEVERR        = -2,  /**< [en] Video Device detected error.              <BR> [jp] Videoデバイスがエラーを検出しました */
   CAM_ERR_ALREADY_INITIALIZED   = -3,  /**< [en] Library is already initialized            <BR> [jp] 既に初期化されています */
   CAM_ERR_NOT_INITIALIZED       = -4,  /**< [en] Library is not initialized                <BR> [jp] 初期化されていません */
   CAM_ERR_NOT_STILL_INITIALIZED = -5,  /**< [en] Still picture function is not initialized <BR> [jp] 静止画機能が初期化されていません */
@@ -104,7 +104,7 @@ enum CAM_WHITE_BALANCE {
 
 
 /**
- * @defgroup CAM_IMGSIZE
+ * @defgroup CAM_IMGSIZE Camera Image size definitions
  * @brief Camera Image size definition.
  * @{
  */
@@ -148,7 +148,7 @@ enum CAM_SCENE_MODE {
 
 
 /**
- * @enum CAM_SCENE_FX
+ * @enum CAM_COLOR_FX
  * @brief [en] Camera Color effect setting parameters. <BR>
  *        [ja] Cameraの画像エフェクトの設定値
  */
@@ -174,7 +174,7 @@ enum CAM_COLOR_FX {
 
 
 /**
- * @defgroup CAM_ISO_SENSITIVITY
+ * @defgroup CAM_ISO_SENSITIVITY Camera ISO Sensitivity parameter definitions
  * @brief Camera ISO Sensitivity parameter definitions.
  * @{
  */
@@ -635,7 +635,7 @@ public:
    * @return [en] Error code defined as #CamErr. <BR>
    *         [ja] #CamErr で定義されているエラーコード
    */
-  CamErr setISOSensitivity(int iso_sense /**< [en] ISO Sensitivity value. Use macros named #CAM_ISO_SENSITIVITY  <BR> [ja] ISO感度値。 #CAM_ISO_SENSITIVITY と定義されたマクロから選択する */);
+  CamErr setISOSensitivity(int iso_sense /**< [en] ISO Sensitivity value. Use macros named @ref CAM_ISO_SENSITIVITY  <BR> [ja] ISO感度値。 @ref CAM_ISO_SENSITIVITY と定義されたマクロから選択する */);
 
   /**
    * @brief Set Auto White Balance mode.

@@ -158,4 +158,6 @@ public:
 
 extern StorageClass Storage;
 
+/** @} storage */
+
 #endif

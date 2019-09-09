@@ -17,6 +17,12 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+/**
+ * @file MediaPlayer.h
+ * @author Sony Semiconductor Solutions Corporation
+ * @brief Mediat Player Class for Arduino on Spresense.
+ */
+
 #ifndef MediaPlayer_h
 #define MediaPlayer_h
 
@@ -87,7 +93,7 @@ public:
     }
 
    /**
-   * @enum Player ID
+   * @enum PlayerId
    *
    * @brief Audio library allows you to use two players simultaneously.
    *        Please set Player ID that player instance id created to use.

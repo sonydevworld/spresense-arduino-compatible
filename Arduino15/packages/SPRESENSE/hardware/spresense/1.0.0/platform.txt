@@ -86,7 +86,7 @@ recipe.objcopy.hex.pattern.windows="{runtime.tools.spresense-tools.path}/mkspk/{
 
 ## Save hex
 recipe.output.tmp_file={build.project_name}.spk
-recipe.output.save_file={build.project_name}.{build.variant}.{build.type}.spk
+recipe.output.save_file={build.project_name}.{build.variant}.{build.type}.{build.flash_name}.spk
 
 ## Compute size
 recipe.size.pattern="{compiler.path}{compiler.size.cmd}" -A "{build.path}/{build.project_name}.elf"
