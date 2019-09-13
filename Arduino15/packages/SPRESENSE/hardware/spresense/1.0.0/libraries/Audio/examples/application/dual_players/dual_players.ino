@@ -20,10 +20,45 @@
 #include <SDHCI.h>
 #include <Audio.h>
 
-SDClass theSD;
-AudioClass *theAudio;
+/* File name to play */
 
-File mainFile,subFile;
+#define PLAY0_FILE_NAME   "Sound0.mp3"
+#define PLAY1_FILE_NAME   "Sound1.mp3"
+
+/* Set volume[db] */
+
+#define VOLUME_MASTER     -160
+#define VOLUME_PLAY0      -160
+#define VOLUME_PLAY1      -160
+
+/**
+ *  @brief Repeated transfer of data read into the decoder
+ */
+
+void play_process( AudioClass *theAudio, AudioClass::PlayerId play_id, File& file)
+{
+  while (1)
+    {
+      /* Send frames to be decoded */
+
+      err_t err = theAudio->writeFrames(play_id, file);
+
+      /*  Tell when one of player file ends */
+
+      if (err == AUDIOLIB_ECODE_FILEEND)
+        {
+          printf("Player%d File End!\n", play_id);
+          break;
+        }
+      else if (err != AUDIOLIB_ECODE_OK)
+        {
+           printf("Player%d error code: %d\n", play_id, err);
+           break;
+        }
+
+      usleep(40000);
+    }
+}
 
 /**
  *  @brief Setup main audio player and sub audio player
@@ -34,162 +69,150 @@ File mainFile,subFile;
  *  Set main player to decode stereo mp3. Stream sample rate is set to "auto detect" <br>
  *  System directory "/mnt/sd0/BIN" will be searched for MP3 decoder (MP3DEC file) <br>
  *  This is the /BIN directory on the SD card. <br>
- *  Volume is set to -8.0 dB
  */
 
-static int es_reader0(int argc, FAR char *argv[])
+static int player_thread(int argc, FAR char *argv[])
 {
-  while(1){
-      err_t err = theAudio->writeFrames(AudioClass::Player0,mainFile);
+  AudioClass::PlayerId  play_id;
+  err_t                 err;
+  File                  file;
+  SDClass               theSD;
+  const char           *file_name;
 
-        /*  Tell when one of player file ends */
-      if (err == AUDIOLIB_ECODE_FILEEND)
+  /* Get static audio instance */
+
+  AudioClass *theAudio = AudioClass::getInstance();
+
+  /* Get information by task */
+
+  play_id   = (AudioClass::PlayerId)atoi(argv[1]);
+  file_name = argv[2];
+
+  printf("\"%s\" task start\n", argv[0]);
+
+  /* Continue playing the same file. */
+
+  while (1)
+    {
+      /*
+       * Set player to decode stereo mp3. Stream sample rate is set to "auto detect"
+       * Search for MP3 decoder in "/mnt/sd0/BIN" directory
+       */
+
+      err = theAudio->initPlayer(play_id, AS_CODECTYPE_MP3, "/mnt/sd0/BIN", AS_SAMPLINGRATE_AUTO, AS_CHANNEL_STEREO);
+
+      /* Verify player initialize */
+
+      if (err != AUDIOLIB_ECODE_OK)
         {
-         printf("Main Player File End!\n");
+          printf("Player1 initialize error\n");
+          break;
         }
+
+      printf("Open \"%s\" file\n", file_name);
+
+      /* Open file placed on SD card */
+
+      file = theSD.open(file_name);
+
+      /* Verify file open */
+
+      if (!file)
+        {
+          printf("Player%d file open error\n", play_id);
+          break;
+        }
+
+      /* Send first frames to be decoded */
+
+      err = theAudio->writeFrames(play_id, file);
 
       if (err)
         {
-         printf("Main player error code: %d\n", err);
-         goto stop_player;
-       }
-    usleep(40000);
-  }
-
-stop_player:
-  sleep(1);
-  theAudio->stopPlayer(AudioClass::Player0);
-  mainFile.close();
-  exit(1);  
-}
-
-static int es_reader1(int argc, FAR char *argv[])
-{
-  while(1){
-      err_t err = theAudio->writeFrames(AudioClass::Player1,subFile);
-
-        /*  Tell when one of player file ends */
-      if (err == AUDIOLIB_ECODE_FILEEND)
-        {
-         printf("Sub Player File End!\n");
+          printf("Player%d: File Read Error! =%d\n", play_id, err);
+          file.close();
+          break;
         }
 
-      if (err)
-        {
-         printf("Sub player error code: %d\n", err);
-         goto stop_player;
-       }
-    usleep(40000);
-  }
+      printf("Play%d!\n", play_id);
 
-stop_player:
-  sleep(1);
-  theAudio->stopPlayer(AudioClass::Player1);
-  subFile.close();
-  exit(1);  
+      /* Play! */
+
+      theAudio->startPlayer(play_id);
+
+      printf("Start player%d!\n", play_id);
+
+      /* Running... */
+
+      play_process(theAudio, play_id, file);
+
+      /* Stop! */
+
+      theAudio->stopPlayer(play_id);
+
+      file.close();
+    }
+
+  printf("Exit task(%d).\n", play_id);
+
+  exit(1);
+
+  return 0;
 }
 
 void setup()
 {
+  /* Get static audio instance */
+
+  AudioClass  *theAudio = AudioClass::getInstance();
+
+  puts("Initialization Audio Library");
 
   /* start audio system */
-  theAudio = AudioClass::getInstance();
 
-  puts("initialization Audio Library");
   theAudio->begin();
 
   /* Set output device to speaker */
+
   theAudio->setRenderingClockMode(AS_CLKMODE_NORMAL);
   theAudio->setPlayerMode(AS_SETPLAYER_OUTPUTDEVICE_SPHP);
 
-  /*
-   * Set main player to decode stereo mp3. Stream sample rate is set to "auto detect"
-   * Search for MP3 decoder in "/mnt/sd0/BIN" directory
-   */
-  err_t err = theAudio->initPlayer(AudioClass::Player0, AS_CODECTYPE_MP3, "/mnt/sd0/BIN", AS_SAMPLINGRATE_AUTO, AS_CHANNEL_STEREO);
+  /* Set master volume, Player0 volume, Player1 volume */
 
-  /* Verify player initialize */
-  if (err != AUDIOLIB_ECODE_OK)
-  {
-    printf("Player0 initialize error\n");
-    exit(1);
-  }
+  theAudio->setVolume(VOLUME_MASTER, VOLUME_PLAY0, VOLUME_PLAY1);
 
-  /*
-   * Set main player to decode stereo mp3. Stream sample rate is set to "auto detect"
-   * Search for MP3 decoder in "/mnt/sd0/BIN" directory
-   */
-  err = theAudio->initPlayer(AudioClass::Player1, AS_CODECTYPE_MP3, "/mnt/sd0/BIN", AS_SAMPLINGRATE_AUTO, AS_CHANNEL_STEREO);
+  /* Initialize task parameter. */
 
-  /* Verify player initialize */
-  if (err != AUDIOLIB_ECODE_OK)
-  {
-    printf("Player1 initialize error\n");
-    exit(1);
-  }
-  
-  
-  /* Open file placed on SD card */
-  mainFile = theSD.open("Sound0.mp3");
+  const char *argv0[3];
+  const char *argv1[3];
+  char        play_no0[4];
+  char        play_no1[4];
 
-  /* Verify file open */
-  if (!mainFile)
-    {
-      printf("Main file open error\n");
-      exit(1);
-    }
+  snprintf(play_no0, 4, "%d", AS_PLAYER_ID_0);
+  snprintf(play_no1, 4, "%d", AS_PLAYER_ID_1);
 
-  /* Open file placed on SD card */
-  subFile =  theSD.open("Sound1.mp3");
+  argv0[0] = play_no0;
+  argv0[1] = PLAY0_FILE_NAME;
+  argv0[2] = NULL;
+  argv1[0] = play_no1;
+  argv1[1] = PLAY1_FILE_NAME;
+  argv1[2] = NULL;
 
-  /* Verify file open */
-  if (!subFile)
-    {
-      printf("Sub file open error\n");
-      exit(1);
-    }
+  /* Start task */
 
-  /* Send first frames to be decoded */
-  err = theAudio->writeFrames(AudioClass::Player0,mainFile);
-  if (err)
-    {
-      printf("Main player: File Read Error! =%d\n",err);
-      mainFile.close();
-      exit(1);
-    }
-
-  err = theAudio->writeFrames(AudioClass::Player1,subFile);
-  if (err)
-    {
-      printf("Sub player: File Read Error! =%d\n",err);
-      subFile.close();
-      exit(1);
-    }
-
-  puts("Play!");
-
-  /* Set master volume to -8.0 dB, Player0 volume to -8.0 dB, Player1 volume to -8.0 dB */
-  theAudio->setVolume(-80,-80,-80);
-
-  theAudio->startPlayer(AudioClass::Player0);
-  theAudio->startPlayer(AudioClass::Player1);
-
-  puts("start!");
-  
-  /* You must set higher priority than main loop(priority is 100). */
-  task_create("es_reader0", 155, 1024, es_reader0, NULL);  
-  task_create("es_reader1", 155, 1024, es_reader1, NULL);
-
+  task_create("player_thread0", 155, 2048, player_thread, (char* const*)argv0);
+  task_create("player_thread1", 155, 2048, player_thread, (char* const*)argv1);
 }
-
 
 /**
  *  @brief Play streams
  *
  * Send new frames to decode in a loop until file ends
  */
+
 void loop()
 {
   /* Do nothing on main task. */
+
   sleep(1);
 }

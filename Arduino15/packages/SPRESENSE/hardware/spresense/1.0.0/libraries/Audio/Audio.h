@@ -40,6 +40,7 @@
  */
 
 #include <pins_arduino.h>
+#include <semaphore.h>
 
 class File;
 
@@ -869,10 +870,17 @@ private:
     : m_player0_simple_fifo_buf(NULL)
     , m_player1_simple_fifo_buf(NULL)
     , m_attention_callback(NULL)
-  {}
+  {
+    /* Initialize semaphore */
+
+    sem_init(&m_sem, 0, 1);
+  }
   AudioClass(const AudioClass&);
   AudioClass& operator=(const AudioClass&);
-  ~AudioClass() {}
+  ~AudioClass()
+  {
+    sem_destroy(&m_sem);
+  }
 
   char m_es_player0_buf[FIFO_FRAME_SIZE];
   char m_es_player1_buf[WRITE_FIFO_FRAME_SIZE];
@@ -931,6 +939,10 @@ private:
 
   bool check_decode_dsp(uint8_t codec_type, const char *path);
   bool check_encode_dsp(uint8_t codec_type, const char *path, uint32_t fs);
+
+  /* Semaphore for locking commands */
+
+  sem_t m_sem;
 };
 
 extern AudioClass Audio;
