@@ -76,8 +76,8 @@ err_t OutputMixer::create(AudioAttentionCb attcb)
 
   renderer_act_param.msgq_id.dev0_req  = MSGQ_AUD_RND_PLY;
   renderer_act_param.msgq_id.dev0_sync = MSGQ_AUD_RND_PLY_SYNC;
-  renderer_act_param.msgq_id.dev1_req  = 0xFF;
-  renderer_act_param.msgq_id.dev1_sync = 0xFF;
+  renderer_act_param.msgq_id.dev1_req  = MSGQ_AUD_RND_SUB;
+  renderer_act_param.msgq_id.dev1_sync = MSGQ_AUD_RND_SUB_SYNC;
 
   result = AS_CreateRenderer(&renderer_act_param);
   if (!result)

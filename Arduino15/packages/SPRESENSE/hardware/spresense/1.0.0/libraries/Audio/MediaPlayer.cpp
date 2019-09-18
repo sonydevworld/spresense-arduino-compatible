@@ -73,7 +73,7 @@ err_t MediaPlayer::create(PlayerId id, AudioAttentionCb attcb)
   player_create_param.pool_id.es     = (id == Player0) ? S0_DEC_ES_MAIN_BUF_POOL : S0_DEC_ES_SUB_BUF_POOL;
   player_create_param.pool_id.pcm    = (id == Player0) ? S0_REND_PCM_BUF_POOL : S0_REND_PCM_SUB_BUF_POOL;
   player_create_param.pool_id.dsp    = S0_DEC_APU_CMD_POOL;
-  player_create_param.pool_id.src_work = S0_SRC_WORK_MAIN_BUF_POOL;
+  player_create_param.pool_id.src_work = (id == Player0) ? S0_SRC_WORK_MAIN_BUF_POOL : S0_SRC_WORK_SUB_BUF_POOL;
 
   bool result;
 
