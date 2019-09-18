@@ -435,6 +435,12 @@ public:
      */
     int saveEphemeris(void);
 
+    /**
+     * @brief Get the QZQSM DC report data
+     * @return the pointer to DC Report structure if valid, otherwise NULL
+     */
+    void* getDCReport(void);
+
 private:
     int fd_;                          /* file descriptor */
     unsigned long SatelliteSystem;    /* satellite type */

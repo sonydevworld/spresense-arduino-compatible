@@ -852,6 +852,44 @@ int SpGnss::saveEphemeris(void)
     return ret;
 }
 
+/**
+ * @brief Get the QZQSM DC report data
+ * @return the pointer to DC Report structure if valid, otherwise NULL
+ */
+void* SpGnss::getDCReport(void)
+{
+    int ret;
+    static struct cxd56_gnss_dcreport_data_s s_dcreport;
+    struct cxd56_gnss_dcreport_data_s dcreport;
+
+    ret = lseek(fd_, CXD56_GNSS_READ_OFFSET_DCREPORT, SEEK_SET);
+    if (ret < 0)
+    {
+        return NULL;
+    }
+
+    ret = read(fd_, &dcreport, sizeof(dcreport));
+    if (ret < 0)
+    {
+        return NULL;
+    }
+
+    if (dcreport.svid == 0)
+    {
+        /* invalid data */
+        return NULL;
+    }
+
+    if (0 == memcmp(&s_dcreport, &dcreport, sizeof(dcreport)))
+    {
+        /* not updated */
+        return NULL;
+    }
+
+    memcpy(&s_dcreport, &dcreport, sizeof(dcreport));
+    return &s_dcreport;
+}
+
 /*
  * Private function: inquire
  */
