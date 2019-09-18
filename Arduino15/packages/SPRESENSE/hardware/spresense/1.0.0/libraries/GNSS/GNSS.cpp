@@ -77,20 +77,6 @@ static uint32_t crc32(uint8_t *buf, size_t len) {
     return c ^ 0xFFFFFFFF;
 }
 
-/*
- * Count bit
- */
-static unsigned int count_bits(unsigned int bits)
-{
-    unsigned int num;
-
-    num = (bits >> 1) & 03333333333;
-    num = bits - num - ((num >> 1) & 03333333333);
-    num = ((num + (num >> 3)) & 0707070707) % 077;
-
-    return num;
-}
-
 #if defined(_ENABLE_TIME_T)
 /**
  * @brief
