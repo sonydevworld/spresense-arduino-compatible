@@ -128,7 +128,7 @@ static int player_thread(int argc, FAR char *argv[])
 
       err = theAudio->writeFrames(play_id, file);
 
-      if (err)
+      if (err != AUDIOLIB_ECODE_OK && err != AUDIOLIB_ECODE_FILEEND)
         {
           printf("Player%d: File Read Error! =%d\n", play_id, err);
           file.close();
