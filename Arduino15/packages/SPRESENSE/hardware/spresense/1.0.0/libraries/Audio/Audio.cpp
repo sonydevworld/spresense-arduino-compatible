@@ -45,6 +45,10 @@
 extern "C" void  input_device_callback(uint32_t);
 extern "C" void  output_device_callback(uint32_t);
 
+/* Timeout waiting for command reception. Unit is milliseconds. */
+
+#define RESPONSE_TIMEOUT 10
+
 /****************************************************************************
  * Debug Functions
  ****************************************************************************/
@@ -267,7 +271,7 @@ err_t AudioClass::begin_player(void)
   player_create_param.msgq_id.player   = MSGQ_AUD_SUB_PLY;
   player_create_param.msgq_id.mng      = MSGQ_AUD_MGR;
   player_create_param.msgq_id.mixer    = MSGQ_AUD_OUTPUT_MIX;
-  player_create_param.msgq_id.dsp      = MSGQ_AUD_DSP;
+  player_create_param.msgq_id.dsp      = MSGQ_AUD_SUB_DSP;
   player_create_param.pool_id.es       = S0_DEC_ES_SUB_BUF_POOL;
   player_create_param.pool_id.pcm      = S0_REND_PCM_SUB_BUF_POOL;
   player_create_param.pool_id.dsp      = S0_DEC_APU_CMD_POOL;
@@ -650,14 +654,11 @@ err_t AudioClass::initPlayer(PlayerId id, uint8_t codec_type, const char* codec_
   command.player.init_param.sampling_rate = sampling_rate;
   snprintf(command.player.init_param.dsp_path, AS_AUDIO_DSP_PATH_LEN, "%s", codec_path);
 
-  sem_wait(&m_sem);
-
   AS_SendAudioCommand(&command);
 
   AudioResult result;
-  AS_ReceiveAudioResult(&result);
 
-  sem_post(&m_sem);
+  while (AS_ERR_CODE_OK != AS_ReceiveAudioResult(&result, command.player.player_id, RESPONSE_TIMEOUT));
 
   if (result.header.result_code != AUDRLT_INITPLAYERCMPLT)
     {
@@ -681,14 +682,11 @@ err_t AudioClass::startPlayer(PlayerId id)
 
   command.player.player_id = (id == Player0) ? AS_PLAYER_ID_0 : AS_PLAYER_ID_1;
 
-  sem_wait(&m_sem);
-
   AS_SendAudioCommand(&command);
 
   AudioResult result;
-  AS_ReceiveAudioResult(&result);
 
-  sem_post(&m_sem);
+  while (AS_ERR_CODE_OK != AS_ReceiveAudioResult(&result, command.player.player_id, RESPONSE_TIMEOUT));
 
   if (result.header.result_code != AUDRLT_PLAYCMPLT)
     {
@@ -748,14 +746,11 @@ err_t AudioClass::stopPlayer(PlayerId id, uint8_t mode)
   command.player.player_id = (id == Player0) ? AS_PLAYER_ID_0 : AS_PLAYER_ID_1;
   command.player.stop_param.stop_mode = mode;
 
-  sem_wait(&m_sem);
-
   AS_SendAudioCommand(&command);
 
   AudioResult result;
-  AS_ReceiveAudioResult(&result);
 
-  sem_post(&m_sem);
+  while (AS_ERR_CODE_OK != AS_ReceiveAudioResult(&result, command.player.player_id, RESPONSE_TIMEOUT));
 
   if (result.header.result_code != AUDRLT_STOPCMPLT)
     {
@@ -813,14 +808,10 @@ err_t AudioClass::setVolume(int master, int player0, int player1)
   command.set_volume_param.input2_db = player1;
   command.set_volume_param.master_db = master;
 
-  sem_wait(&m_sem);
-
   AS_SendAudioCommand(&command);
 
   AudioResult result;
   AS_ReceiveAudioResult(&result);
-
-  sem_post(&m_sem);
 
   if (result.header.result_code != AUDRLT_SETVOLUMECMPLT)
     {
@@ -846,14 +837,10 @@ err_t AudioClass::setLRgain(PlayerId id, unsigned char l_gain, unsigned char r_g
   command.player.set_gain_param.l_gain = l_gain;
   command.player.set_gain_param.r_gain = r_gain;
 
-  sem_wait(&m_sem);
-
   AS_SendAudioCommand(&command);
 
   AudioResult result;
   AS_ReceiveAudioResult(&result);
-
-  sem_post(&m_sem);
 
   if (result.header.result_code != AUDRLT_SETGAIN_CMPLT)
     {

@@ -40,13 +40,16 @@
 /*
  * Memory devices
  */
+
 /* SHM_SRAM: type=RAM, use=0x00040000, remainder=0x00000000 */
+
 #define SHM_SRAM_ADDR  0x000c0000
 #define SHM_SRAM_SIZE  0x00040000
 
 /*
  * Fixed areas
  */
+
 #define COMMON_WORK_AREA_ALIGN   0x00000008
 #define COMMON_WORK_AREA_ADDR    0x000c0000
 #define COMMON_WORK_AREA_DRM     0x000c0000 /* _DRM is obsolete macro. to use _ADDR */
@@ -79,14 +82,20 @@
 /*
  * Section IDs
  */
+
 #define SECTION_NO0       0
 #define SECTION_NO1       1
+
+/*
+ * Number of sections
+ */
 
 #define NUM_MEM_SECTIONS  2
 
 /*
  * Pool IDs
  */
+
 const MemMgrLite::PoolId S0_NULL_POOL                = { 0, SECTION_NO0};  /*  0 */
 const MemMgrLite::PoolId S0_DEC_ES_MAIN_BUF_POOL     = { 1, SECTION_NO0};  /*  1 */
 const MemMgrLite::PoolId S0_REND_PCM_BUF_POOL        = { 2, SECTION_NO0};  /*  2 */
@@ -120,14 +129,16 @@ const MemMgrLite::PoolId S1_SENSOR_DATA_BUF_POOL     = { 2, SECTION_NO1};  /* 23
 #define NUM_MEM_LAYOUTS      4
 #define NUM_MEM_POOLS       21
 
-
 /*
  * Pool areas
  */
+
 /* Section0 Layout0: */
+
 #define MEMMGR_S0_L0_WORK_SIZE   0x00000124
 
 /* Skip 0x0004 bytes for alignment. */
+
 #define S0_L0_DEC_ES_MAIN_BUF_POOL_ALIGN    0x00000008
 #define S0_L0_DEC_ES_MAIN_BUF_POOL_L_FENCE  0x000c0004
 #define S0_L0_DEC_ES_MAIN_BUF_POOL_ADDR     0x000c0008
@@ -219,9 +230,11 @@ const MemMgrLite::PoolId S1_SENSOR_DATA_BUF_POOL     = { 2, SECTION_NO1};  /* 23
 /* Remainder COMMON_WORK_AREA=0x00003884 */
 
 /* Section0 Layout1: */
+
 #define MEMMGR_S0_L1_WORK_SIZE   0x00000080
 
 /* Skip 0x0004 bytes for alignment. */
+
 #define S0_L1_OUTPUT_BUF_POOL_ALIGN    0x00000008
 #define S0_L1_OUTPUT_BUF_POOL_L_FENCE  0x000c0004
 #define S0_L1_OUTPUT_BUF_POOL_ADDR     0x000c0008
@@ -247,6 +260,7 @@ const MemMgrLite::PoolId S1_SENSOR_DATA_BUF_POOL     = { 2, SECTION_NO1};  /* 23
 #define S0_L1_ENC_APU_CMD_POOL_SEG_SIZE 0x0000005c
 
 /* Skip 0x0004 bytes for alignment. */
+
 #define S0_L1_SRC_APU_CMD_POOL_ALIGN    0x00000008
 #define S0_L1_SRC_APU_CMD_POOL_L_FENCE  0x000e3134
 #define S0_L1_SRC_APU_CMD_POOL_ADDR     0x000e3138
@@ -256,6 +270,7 @@ const MemMgrLite::PoolId S1_SENSOR_DATA_BUF_POOL     = { 2, SECTION_NO1};  /* 23
 #define S0_L1_SRC_APU_CMD_POOL_SEG_SIZE 0x0000005c
 
 /* Skip 0x0004 bytes for alignment. */
+
 #define S0_L1_PRE_APU_CMD_POOL_ALIGN    0x00000008
 #define S0_L1_PRE_APU_CMD_POOL_L_FENCE  0x000e3254
 #define S0_L1_PRE_APU_CMD_POOL_ADDR     0x000e3258
@@ -267,9 +282,11 @@ const MemMgrLite::PoolId S1_SENSOR_DATA_BUF_POOL     = { 2, SECTION_NO1};  /* 23
 /* Remainder COMMON_WORK_AREA=0x00019c90 */
 
 /* Section0 Layout2: */
+
 #define MEMMGR_S0_L2_WORK_SIZE   0x00000090
 
 /* Skip 0x0004 bytes for alignment. */
+
 #define S0_L2_MIC_IN_BUF_POOL_ALIGN    0x00000008
 #define S0_L2_MIC_IN_BUF_POOL_L_FENCE  0x000c0004
 #define S0_L2_MIC_IN_BUF_POOL_ADDR     0x000c0008
@@ -313,9 +330,11 @@ const MemMgrLite::PoolId S1_SENSOR_DATA_BUF_POOL     = { 2, SECTION_NO1};  /* 23
 /* Remainder COMMON_WORK_AREA=0x00038934 */
 
 /* Section0 Layout3: */
+
 #define MEMMGR_S0_L3_WORK_SIZE   0x0000019c
 
 /* Skip 0x0004 bytes for alignment. */
+
 #define S0_L3_DEC_ES_MAIN_BUF_POOL_ALIGN    0x00000008
 #define S0_L3_DEC_ES_MAIN_BUF_POOL_L_FENCE  0x000c0004
 #define S0_L3_DEC_ES_MAIN_BUF_POOL_ADDR     0x000c0008
@@ -333,6 +352,7 @@ const MemMgrLite::PoolId S1_SENSOR_DATA_BUF_POOL     = { 2, SECTION_NO1};  /* 23
 #define S0_L3_REND_PCM_BUF_POOL_SEG_SIZE 0x00001004
 
 /* Skip 0x0004 bytes for alignment. */
+
 #define S0_L3_SRC_WORK_MAIN_BUF_POOL_ALIGN    0x00000008
 #define S0_L3_SRC_WORK_MAIN_BUF_POOL_L_FENCE  0x000cb02c
 #define S0_L3_SRC_WORK_MAIN_BUF_POOL_ADDR     0x000cb030
@@ -358,6 +378,7 @@ const MemMgrLite::PoolId S1_SENSOR_DATA_BUF_POOL     = { 2, SECTION_NO1};  /* 23
 #define S0_L3_REND_PCM_SUB_BUF_POOL_SEG_SIZE 0x00001004
 
 /* Skip 0x0004 bytes for alignment. */
+
 #define S0_L3_SRC_WORK_SUB_BUF_POOL_ALIGN    0x00000008
 #define S0_L3_SRC_WORK_SUB_BUF_POOL_L_FENCE  0x000d505c
 #define S0_L3_SRC_WORK_SUB_BUF_POOL_ADDR     0x000d5060
@@ -383,6 +404,7 @@ const MemMgrLite::PoolId S1_SENSOR_DATA_BUF_POOL     = { 2, SECTION_NO1};  /* 23
 #define S0_L3_PF0_PCM_BUF_POOL_SEG_SIZE 0x00001004
 
 /* Skip 0x0004 bytes for alignment. */
+
 #define S0_L3_PF1_PCM_BUF_POOL_ALIGN    0x00000008
 #define S0_L3_PF1_PCM_BUF_POOL_L_FENCE  0x000d7414
 #define S0_L3_PF1_PCM_BUF_POOL_ADDR     0x000d7418
@@ -392,6 +414,7 @@ const MemMgrLite::PoolId S1_SENSOR_DATA_BUF_POOL     = { 2, SECTION_NO1};  /* 23
 #define S0_L3_PF1_PCM_BUF_POOL_SEG_SIZE 0x00001004
 
 /* Skip 0x0004 bytes for alignment. */
+
 #define S0_L3_PF0_APU_CMD_POOL_ALIGN    0x00000008
 #define S0_L3_PF0_APU_CMD_POOL_L_FENCE  0x000d8424
 #define S0_L3_PF0_APU_CMD_POOL_ADDR     0x000d8428
@@ -433,6 +456,7 @@ const MemMgrLite::PoolId S1_SENSOR_DATA_BUF_POOL     = { 2, SECTION_NO1};  /* 23
 #define S0_L3_ENC_APU_CMD_POOL_SEG_SIZE 0x0000005c
 
 /* Skip 0x0004 bytes for alignment. */
+
 #define S0_L3_SRC_APU_CMD_POOL_ALIGN    0x00000008
 #define S0_L3_SRC_APU_CMD_POOL_L_FENCE  0x000de094
 #define S0_L3_SRC_APU_CMD_POOL_ADDR     0x000de098
@@ -442,6 +466,7 @@ const MemMgrLite::PoolId S1_SENSOR_DATA_BUF_POOL     = { 2, SECTION_NO1};  /* 23
 #define S0_L3_SRC_APU_CMD_POOL_SEG_SIZE 0x0000005c
 
 /* Skip 0x0004 bytes for alignment. */
+
 #define S0_L3_PRE_APU_CMD_POOL_ALIGN    0x00000008
 #define S0_L3_PRE_APU_CMD_POOL_L_FENCE  0x000de1b4
 #define S0_L3_PRE_APU_CMD_POOL_ADDR     0x000de1b8
@@ -453,9 +478,11 @@ const MemMgrLite::PoolId S1_SENSOR_DATA_BUF_POOL     = { 2, SECTION_NO1};  /* 23
 /* Remainder COMMON_WORK_AREA=0x0001ed30 */
 
 /* Section1 Layout0: */
+
 #define MEMMGR_S1_L0_WORK_SIZE   0x00000040
 
 /* Skip 0x0004 bytes for alignment. */
+
 #define S1_L0_SENSOR_DSP_CMD_BUF_POOL_ALIGN    0x00000008
 #define S1_L0_SENSOR_DSP_CMD_BUF_POOL_ADDR     0x000f9780
 #define S1_L0_SENSOR_DSP_CMD_BUF_POOL_SIZE     0x00001800

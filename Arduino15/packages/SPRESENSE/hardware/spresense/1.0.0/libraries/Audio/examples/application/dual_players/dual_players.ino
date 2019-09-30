@@ -31,6 +31,8 @@
 #define VOLUME_PLAY0      -160
 #define VOLUME_PLAY1      -160
 
+SDClass theSD;
+
 /**
  *  @brief Repeated transfer of data read into the decoder
  */
@@ -76,7 +78,6 @@ static int player_thread(int argc, FAR char *argv[])
   AudioClass::PlayerId  play_id;
   err_t                 err;
   File                  file;
-  SDClass               theSD;
   const char           *file_name;
 
   /* Get static audio instance */
@@ -105,7 +106,7 @@ static int player_thread(int argc, FAR char *argv[])
 
       if (err != AUDIOLIB_ECODE_OK)
         {
-          printf("Player1 initialize error\n");
+          printf("Player%d initialize error\n", play_id);
           break;
         }
 
@@ -171,6 +172,10 @@ void setup()
   /* start audio system */
 
   theAudio->begin();
+
+  /* Mount SD card */
+
+  theSD.begin();
 
   /* Set output device to speaker */
 
