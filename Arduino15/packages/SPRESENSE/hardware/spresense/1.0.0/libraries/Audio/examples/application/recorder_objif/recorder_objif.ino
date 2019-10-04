@@ -21,6 +21,7 @@
 #include <MediaRecorder.h>
 #include <MemoryUtil.h>
 
+#define RECORD_FILE_NAME "Sound.mp3"
 #define ANALOG_MIC_GAIN  0 /* +0dB */
 
 SDClass theSD;
@@ -118,7 +119,7 @@ static bool mediarecorder_done_callback(AsRecorderEvent event, uint32_t result, 
  * Set input device to Mic <br>
  * Initialize recorder to encode stereo mp3 stream with 48kHz sample rate <br>
  * System directory "/mnt/sd0/BIN" will be searched for MP3 encoder (MP3ENC file)
- * Open "Sound.mp3" file <br>
+ * Open RECORD_FILE_NAME file <br>
  */
 
 void setup()
@@ -158,7 +159,17 @@ void setup()
                     recoding_bitrate,
                     "/mnt/sd0/BIN");
 
-  s_myFile = theSD.open("Sound.mp3", FILE_WRITE);
+  /* Open file for data write on SD card */
+
+  theSD.begin();
+
+  if (theSD.exists(RECORD_FILE_NAME))
+    {
+      printf("Remove existing file [%s].\n", RECORD_FILE_NAME);
+      theSD.remove(RECORD_FILE_NAME);
+    }
+
+  s_myFile = theSD.open(RECORD_FILE_NAME, FILE_WRITE);
 
   /* Verify file open */
 
@@ -168,7 +179,7 @@ void setup()
       exit(1);
     }
 
-  printf("Open! %d\n", s_myFile);
+  printf("Open! [%s]\n", RECORD_FILE_NAME);
 
   /* Set Gain */
 
