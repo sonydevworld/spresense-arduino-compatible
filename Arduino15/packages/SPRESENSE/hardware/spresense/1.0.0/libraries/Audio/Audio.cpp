@@ -649,10 +649,15 @@ err_t AudioClass::initPlayer(PlayerId id, uint8_t codec_type, const char* codec_
   command.player.init_param.channel_number= channel_number;
   command.player.init_param.sampling_rate = sampling_rate;
   snprintf(command.player.init_param.dsp_path, AS_AUDIO_DSP_PATH_LEN, "%s", codec_path);
+
+  sem_wait(&m_sem);
+
   AS_SendAudioCommand(&command);
 
   AudioResult result;
   AS_ReceiveAudioResult(&result);
+
+  sem_post(&m_sem);
 
   if (result.header.result_code != AUDRLT_INITPLAYERCMPLT)
     {
@@ -668,7 +673,6 @@ err_t AudioClass::initPlayer(PlayerId id, uint8_t codec_type, const char* codec_
 /*--------------------------------------------------------------------------*/
 err_t AudioClass::startPlayer(PlayerId id)
 {
-
   AudioCommand command;
 
   command.header.packet_length = LENGTH_PLAY_PLAYER;
@@ -676,10 +680,15 @@ err_t AudioClass::startPlayer(PlayerId id)
   command.header.sub_code      = 0x00;
 
   command.player.player_id = (id == Player0) ? AS_PLAYER_ID_0 : AS_PLAYER_ID_1;
+
+  sem_wait(&m_sem);
+
   AS_SendAudioCommand(&command);
 
   AudioResult result;
   AS_ReceiveAudioResult(&result);
+
+  sem_post(&m_sem);
 
   if (result.header.result_code != AUDRLT_PLAYCMPLT)
     {
@@ -738,10 +747,15 @@ err_t AudioClass::stopPlayer(PlayerId id, uint8_t mode)
 
   command.player.player_id = (id == Player0) ? AS_PLAYER_ID_0 : AS_PLAYER_ID_1;
   command.player.stop_param.stop_mode = mode;
+
+  sem_wait(&m_sem);
+
   AS_SendAudioCommand(&command);
 
   AudioResult result;
   AS_ReceiveAudioResult(&result);
+
+  sem_post(&m_sem);
 
   if (result.header.result_code != AUDRLT_STOPCMPLT)
     {
@@ -799,10 +813,14 @@ err_t AudioClass::setVolume(int master, int player0, int player1)
   command.set_volume_param.input2_db = player1;
   command.set_volume_param.master_db = master;
 
+  sem_wait(&m_sem);
+
   AS_SendAudioCommand(&command);
 
   AudioResult result;
   AS_ReceiveAudioResult(&result);
+
+  sem_post(&m_sem);
 
   if (result.header.result_code != AUDRLT_SETVOLUMECMPLT)
     {
@@ -828,10 +846,14 @@ err_t AudioClass::setLRgain(PlayerId id, unsigned char l_gain, unsigned char r_g
   command.player.set_gain_param.l_gain = l_gain;
   command.player.set_gain_param.r_gain = r_gain;
 
+  sem_wait(&m_sem);
+
   AS_SendAudioCommand(&command);
 
   AudioResult result;
   AS_ReceiveAudioResult(&result);
+
+  sem_post(&m_sem);
 
   if (result.header.result_code != AUDRLT_SETGAIN_CMPLT)
     {
