@@ -94,6 +94,7 @@ enum CamErr {
  *        [ja] Cameraホワイトバランス設定値
  */
 enum CAM_WHITE_BALANCE {
+  CAM_WHITE_BALANCE_AUTO          = V4L2_WHITE_BALANCE_AUTO,          /**< [en] Automatic    <BR> [ja] 自動 */
   CAM_WHITE_BALANCE_INCANDESCENT  = V4L2_WHITE_BALANCE_INCANDESCENT,  /**< [en] Incandescent <BR> [ja] 白熱電球 */
   CAM_WHITE_BALANCE_FLUORESCENT   = V4L2_WHITE_BALANCE_FLUORESCENT,   /**< [en] Fluorescent  <BR> [ja] 蛍光灯 */
   CAM_WHITE_BALANCE_DAYLIGHT      = V4L2_WHITE_BALANCE_DAYLIGHT,      /**< [en] Daylight     <BR> [ja] 晴天 */
