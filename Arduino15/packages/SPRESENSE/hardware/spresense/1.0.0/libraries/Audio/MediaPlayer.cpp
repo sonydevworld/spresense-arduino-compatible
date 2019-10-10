@@ -454,7 +454,7 @@ err_t MediaPlayer::write_fifo(uint8_t *data, uint32_t size, char *p_es_buf, CMN_
 
   if (vacant_size < size)
     {
-      return MEDIAPLAYER_ECODE_OK;
+      return MEDIAPLAYER_ECODE_SIMPLEFIFO_ERROR;
     }
 
   if (!data || !size)
