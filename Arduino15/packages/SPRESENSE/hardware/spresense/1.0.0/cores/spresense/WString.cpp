@@ -54,7 +54,7 @@ static char* utoa(int value, char * buf, int base)
     return buf;
 }
 
-static char * dtostrf(float value, unsigned int width, unsigned int decimalPlaces, char* buf)
+static char * dtostrf(double value, unsigned int width, unsigned int decimalPlaces, char* buf)
 {
     char fmt[20];
 
