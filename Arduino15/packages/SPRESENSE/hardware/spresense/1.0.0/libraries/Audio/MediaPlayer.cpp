@@ -436,19 +436,17 @@ err_t MediaPlayer::writeFrames(PlayerId id, uint8_t *data, uint32_t size)
       return MEDIAPLAYER_ECODE_SIMPLEFIFO_ERROR;
     }
 
-  char *buf = (id == Player0) ? m_es_player0_buf : m_es_player1_buf;
-
   CMN_SimpleFifoHandle *handle =
     (id == Player0) ?
       &m_player0_simple_fifo_handle : &m_player1_simple_fifo_handle;
 
-  ret = write_fifo(data, size, buf, handle);
+  ret = write_fifo(data, size, handle);
 
   return ret;
 }
 
 /*--------------------------------------------------------------------------*/
-err_t MediaPlayer::write_fifo(uint8_t *data, uint32_t size, char *p_es_buf, CMN_SimpleFifoHandle *handle)
+err_t MediaPlayer::write_fifo(uint8_t *data, uint32_t size, CMN_SimpleFifoHandle *handle)
 {
   uint32_t vacant_size = CMN_SimpleFifoGetVacantSize(handle);
 
@@ -461,12 +459,8 @@ err_t MediaPlayer::write_fifo(uint8_t *data, uint32_t size, char *p_es_buf, CMN_
     {
       return MEDIAPLAYER_ECODE_COMMAND_ERROR;
     }
-  else
-    {
-      memcpy(p_es_buf, data, size);
-    }
 
-  if (CMN_SimpleFifoOffer(handle, (const void*)(p_es_buf), size) == 0)
+  if (CMN_SimpleFifoOffer(handle, (const void*)data, size) == 0)
     {
       print_err("Simple FIFO is full!\n");
       return MEDIAPLAYER_ECODE_SIMPLEFIFO_ERROR;
