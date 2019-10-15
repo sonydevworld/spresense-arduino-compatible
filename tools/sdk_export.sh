@@ -37,8 +37,8 @@ if [ ! ${IMPORT_ONLY} ]; then
 	echo "Configure SDK components..."
 	echo "Kernel : ${SDK_KERNEL_CONF}"
 	echo "SDK    : ${SDK_CONFIG}"
-	./tools/config.py --kernel ${SDK_KERNEL_CONF}
-	./tools/config.py ${SDK_CONFIG}
+	./tools/config.py --kernel ${SDK_KERNEL_CONF} ${SDK_KERNEL_CONF_OPTION}
+	./tools/config.py ${SDK_CONFIG} ${SDK_CONFIG_OPTION}
 fi
 
 ## Build kernel

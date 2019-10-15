@@ -203,15 +203,17 @@ function install_sdk_from_build()
 		export SDK_CONFIG=`cat ${SCRIPT_DIR}/configs/${SDK_CONF}.conf | head -n 1`
 	fi
 
+	export SDK_KERNEL_CONF_OPTION=""
+	export SDK_CONFIG_OPTION=""
 	# Add configuration option
 	if [ "${CONFIG_EDIT}" != "" ]; then
 		CONFIG_OPTION=`echo ${CONFIG_EDIT} | cut -d " " -f 1`
 		CONFIG_TARGET=`echo ${CONFIG_EDIT} | cut -d " " -f 2`
 		if [ "`echo ${CONFIG_TARGET} | grep -i kernel`" != "" ]; then
-			export SDK_KERNEL_CONF="${CONFIG_OPTION} ${SDK_KERNEL_CONF}"
+			export SDK_KERNEL_CONF_OPTION="${CONFIG_OPTION}"
 		fi
 		if [ "`echo ${CONFIG_TARGET} | grep -i sdk`" != "" ]; then
-			export SDK_CONFIG="${CONFIG_OPTION} ${SDK_CONFIG}"
+			export SDK_CONFIG_OPTION="${CONFIG_OPTION}"
 		fi
 	fi
 
