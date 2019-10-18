@@ -21,10 +21,10 @@
  * @file Camera.h
  * @author Sony Semiconductor Solutions Corporation
  * @brief Camera Library for Arduino IDE on Spresense.
- * @details By using this library, you can use the follow features on SPRESSENSE.
+ * @details By using this library, you can use the follow features on SPRESENSE.
  *           - Get Picture from Camera module as a Jpeg format data.
  *           - Get Image from Camera module for preview image.
- *          このライブラリを使うことで、以下の機能をSPREENSE上で利用することが出来ます。
+ *          このライブラリを使うことで、以下の機能をSPRESENSE上で利用することが出来ます。
  *           - SPRESENSE CameraモジュールからJpegフォーマットデータとして写真を取得
  *           - SPRESENSE Cameraモジュールからプレビューイメージとして画像を取得
  */
@@ -578,7 +578,7 @@ public:
    *               video stream from Spresense Camera starts. The video image
    *               from Camera can be captured by callback of #camera_cb_t <BR>
    *          [ja] Spresense CameraのVideoストリームを開始/停止する。このメソッド
-   *               がenableで呼び出されるとSpresens CameraのVideoストリームが動き
+   *               がenableで呼び出されるとSpresense CameraのVideoストリームが動き
    *               出す。Video画像は #camera_cb_t のコールバック関数の呼び出しによ
    *               り取得できる。
    * @return [en] Error code defined as #CamErr. <BR>
