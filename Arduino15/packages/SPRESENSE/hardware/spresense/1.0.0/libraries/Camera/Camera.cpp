@@ -826,18 +826,20 @@ CamErr CameraClass::create_dq_thread()
 
 void CameraClass::delete_dq_thread()
 {
-  loop_dqbuf_en = false;
+  if (loop_dqbuf_en)
+    {
+      loop_dqbuf_en = false;
 
-  ioctl(video_fd, VIDIOC_CANCEL_DQBUF, V4L2_BUF_TYPE_VIDEO_CAPTURE);
-  pthread_join(dq_tid, NULL);
-  dq_tid = -1;
+      ioctl(video_fd, VIDIOC_CANCEL_DQBUF, V4L2_BUF_TYPE_VIDEO_CAPTURE);
+      pthread_join(dq_tid, NULL);
+      dq_tid = -1;
 
-  CamImage *req = NULL;
-  mq_send(frame_exchange_mq, (const char *)&req, sizeof(CamImage *), 0);
-  pthread_join(frame_tid, NULL);
-  frame_tid = -1;
-
-  mq_close(frame_exchange_mq);
+      CamImage *req = NULL;
+      mq_send(frame_exchange_mq, (const char *)&req, sizeof(CamImage *), 0);
+      pthread_join(frame_tid, NULL);
+      frame_tid = -1;
+      mq_close(frame_exchange_mq);
+    }
 }
 
 // Public : Start to use the Camera.
