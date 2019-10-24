@@ -27,6 +27,7 @@
 #include <chip/cxd5602_memorymap.h>
 #include <common/up_arch.h>
 #include <armv7-m/nvic.h>
+#include <assert.h>
 #include "MP.h"
 
 /****************************************************************************
@@ -127,6 +128,9 @@ int MPClass::Send(int8_t msgid, uint32_t msgdata, int subid)
   if (ret) {
     return ret;
   }
+
+  /* msgid must be 0 or positive value */
+  assert(0 <= msgid);
 
   ret = mpmq_send(&_mq[subid], msgid, msgdata);
 
