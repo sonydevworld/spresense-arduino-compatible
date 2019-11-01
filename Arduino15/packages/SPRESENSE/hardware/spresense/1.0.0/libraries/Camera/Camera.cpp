@@ -852,13 +852,6 @@ CamErr CameraClass::begin(int buff_num, CAM_VIDEO_FPS fps, int video_width, int 
       return CAM_ERR_INVALID_PARAM;
     }
 
-  if (video_fmt != CAM_IMAGE_PIX_FMT_YUV422)
-    {
-      // NOTE:: Only YUV422 is supported on this version.
-
-      return CAM_ERR_INVALID_PARAM;
-    }
-
   if (buff_num < 0)
     {
       return CAM_ERR_INVALID_PARAM;
