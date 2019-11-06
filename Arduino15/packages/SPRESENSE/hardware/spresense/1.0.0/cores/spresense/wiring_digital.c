@@ -88,9 +88,10 @@ static const struct {
     { PIN_D38, PIN_SDIO_CLKI     },
     { PIN_D39, PIN_HIF_GPIO0     },
     { PIN_D40, PIN_AP_CLK        },
-    { PIN_D41, PIN_PMIC_INT      },
+    { PIN_D41, PIN_RTC_IRQ_OUT   },
     { PIN_D42, PIN_SPI2_CS_X     },
     { PIN_D43, PIN_SPI2_SCK      },
+    { PIN_D44, PIN_GNSS_1PPS_OUT },
 };
 
 uint8_t pin_convert(uint8_t pin)
