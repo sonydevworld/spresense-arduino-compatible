@@ -1,13 +1,17 @@
-.phony: packages clean
+#
+# Makefile for creating Arduino boards manager package
+#
 
-
-INSTALLED_VERSION?=1.0.0
-SHASUM=shasum.txt
-PWD=$(shell pwd)
 
 ifdef RELEASE_NAME
-R_NAME=-$(RELEASE_NAME)
+R_NAME             = -$(RELEASE_NAME)
 endif
+
+INSTALLED_VERSION ?= 1.0.0
+SHASUM             = shasum.txt
+PWD                = $(shell pwd)
+
+.phony: packages clean
 
 packages: $(SHASUM)
 
