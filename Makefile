@@ -3,23 +3,26 @@
 #
 
 
-ifdef RELEASE_NAME
-R_NAME             = -$(RELEASE_NAME)
-endif
+RELEASE_NAME      ?= v1.0.0
+VERSION_PATTERN    = ^v[0-9]{1}.[0-9]{1}.[0-9]{1}$$
 
 OUT               ?= out
 INSTALLED_VERSION ?= 1.0.0
 SHASUM             = $(OUT)/shasum.txt
-SPR_LIBRARY        = $(OUT)/spresense$(R_NAME).tar.gz
-SPR_SDK            = $(OUT)/spresense-sdk$(R_NAME).tar.gz
-SPR_TOOLS          = $(OUT)/spresense-tools$(R_NAME).tar.gz
+SPR_LIBRARY        = $(OUT)/spresense-$(RELEASE_NAME).tar.gz
+SPR_SDK            = $(OUT)/spresense-sdk-$(RELEASE_NAME).tar.gz
+SPR_TOOLS          = $(OUT)/spresense-tools-$(RELEASE_NAME).tar.gz
 PWD                = $(shell pwd)
 Q                  = @
 
-.phony: packages clean
+.phony: check packages clean
 
-packages: $(SHASUM)
+packages: check $(SHASUM)
 	$(Q) echo "Done."
+
+check:
+	$(Q) echo $(RELEASE_NAME) | grep -E $(VERSION_PATTERN) > /dev/null \
+		|| (echo "ERROR: Invalid version name $(RELEASE_NAME)." &&  exit 1)
 
 $(SHASUM): $(SPR_LIBRARY) $(SPR_SDK) $(SPR_TOOLS)
 	$(Q) -sha256sum $^ > $@
