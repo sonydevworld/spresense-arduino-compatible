@@ -110,6 +110,13 @@ def get_first_package(pkg_json):
 def get_platforms(package):
 	return package['platforms']
 
+# Get base platform from package_index.json's platform
+def get_base_platform(platforms, base_version):
+	for platform in platforms:
+		if platform['version'] == base_version:
+			return platform
+	return platforms[-1]
+
 # Get tool definitions from package
 def get_tools(package):
 	return package['tools']
@@ -139,6 +146,7 @@ if __name__ == "__main__":
 	parser.add_argument('-i', '--input_json', metavar='package_index.json', default='package_index.json', type=str, help='Input package_*_index.json path')
 	parser.add_argument('-o', '--output_json', metavar='package_index.json', default='package_index.json', type=str, help='Output package_*_index.json path')
 	parser.add_argument('-v', '--version', metavar='x.y.z', default=None, type=str, help='Version number for add package')
+	parser.add_argument('-b', '--base_version', metavar='x.y.z', default=None, type=str, help='Version number for package base')
 	args = parser.parse_args()
 
 	if args.archive == None:
@@ -170,14 +178,17 @@ if __name__ == "__main__":
 	# Sort platform list by version number
 	platforms.sort(key=lambda x: getVersionTuple(x))
 
+	# Get base platform by base_version
+	base_platform = get_base_platform(platforms, args.base_version)
+
 	# If argument 'url' is not set, use package_index.json's first URL.
 	if args.url != '':
 		base_url = args.url
 	else:
-		base_url = get_url_base(platforms[0], args.version);
+		base_url = get_url_base(base_platform, args.version);
 
 	# Clone platform item for create new platform
-	new_platform = copy.deepcopy(platforms[0])
+	new_platform = copy.deepcopy(base_platform)
 	new_platform['version'] = args.version
 
 	# Check platform file(packages/*/hardware/) update
@@ -206,7 +217,7 @@ if __name__ == "__main__":
 	tools.sort(key=lambda x: getVersionTuple(x))
 
 	# Check tools achive update
-	toolDeps = get_tool_dependencies(platforms[0])
+	toolDeps = get_tool_dependencies(base_platform)
 	for key in toolDeps:
 		archive = "%s-v%s.tar.gz" % (key, args.version)
 		if archive in update_archives:

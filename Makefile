@@ -3,9 +3,10 @@
 #
 
 
-VERSION           ?= 1.0.0
+BASE_VERSION       = $(shell cat tools/version)
+VERSION           ?= $(shell echo $(BASE_VERSION) | cut -d "." -f -2).$(shell expr $(shell echo $(BASE_VERSION) | cut -d "." -f 3) + 1)
 RELEASE_NAME       = v$(VERSION)
-VERSION_PATTERN    = ^[0-9]{1}.[0-9]{1}.[0-9]{1}$$
+VERSION_PATTERN    = ^[0-9]{1}.[0-9]{1}.[0-9]+$$
 
 OUT               ?= out
 INSTALLED_VERSION  = 1.0.0
@@ -33,7 +34,7 @@ check:
 
 $(INSTALL_JSON):
 	$(Q) wget $(BOARD_MANAGER_URL) -O $(TEMP_JSON)
-	$(Q) tools/python/update_package_json.py -a $(ARCHIVEDIR) -i $(TEMP_JSON) -o $@ -v $(VERSION)
+	$(Q) tools/python/update_package_json.py -a $(ARCHIVEDIR) -i $(TEMP_JSON) -o $@ -v $(VERSION) -b $(BASE_VERSION)
 	$(Q) rm $(TEMP_JSON)
 
 $(SHASUM): $(SPR_LIBRARY) $(SPR_SDK) $(SPR_TOOLS)
