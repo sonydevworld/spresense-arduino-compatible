@@ -3,17 +3,17 @@
 #
 
 
-RELEASE_NAME      ?= v1.0.0
-VERSION_PATTERN    = ^v[0-9]{1}.[0-9]{1}.[0-9]{1}$$
+VERSION           ?= 1.0.0
+RELEASE_NAME       = v$(VERSION)
+VERSION_PATTERN    = ^[0-9]{1}.[0-9]{1}.[0-9]{1}$$
 
 OUT               ?= out
-INSTALLED_VERSION ?= 1.0.0
+INSTALLED_VERSION  = 1.0.0
 SHASUM             = $(OUT)/shasum.txt
 ARCHIVEDIR         = $(OUT)/archive
 SPR_LIBRARY        = $(ARCHIVEDIR)/spresense-$(RELEASE_NAME).tar.gz
 SPR_SDK            = $(ARCHIVEDIR)/spresense-sdk-$(RELEASE_NAME).tar.gz
 SPR_TOOLS          = $(ARCHIVEDIR)/spresense-tools-$(RELEASE_NAME).tar.gz
-PACKAGEJSON        = $(OUT)/package_spresense_index.json
 PWD                = $(shell pwd)
 Q                  = @
 
@@ -28,15 +28,13 @@ packages: check $(SHASUM) $(INSTALL_JSON)
 	$(Q) echo "Done."
 
 check:
-	$(Q) echo $(RELEASE_NAME) | grep -E $(VERSION_PATTERN) > /dev/null \
-		|| (echo "ERROR: Invalid version name $(RELEASE_NAME)." &&  exit 1)
+	$(Q) echo $(VERSION) | grep -E $(VERSION_PATTERN) > /dev/null \
+		|| (echo "ERROR: Invalid version name $(VERSION) (expected pattern is x.y.z)." &&  exit 1)
 
-$(TEMP_JSON):
-	$(Q) wget $(BOARD_MANAGER_URL) -O $@
-
-$(INSTALL_JSON): $(TEMP_JSON)
-	$(Q) cp -a $< $@
-	$(Q) rm $<
+$(INSTALL_JSON):
+	$(Q) wget $(BOARD_MANAGER_URL) -O $(TEMP_JSON)
+	$(Q) tools/python/update_package_json.py -a $(ARCHIVEDIR) -i $(TEMP_JSON) -o $@ -v $(VERSION)
+	$(Q) rm $(TEMP_JSON)
 
 $(SHASUM): $(SPR_LIBRARY) $(SPR_SDK) $(SPR_TOOLS)
 	$(Q) -sha256sum $^ > $@
@@ -61,5 +59,4 @@ $(ARCHIVEDIR): $(OUT)
 
 clean:
 	$(Q) -rm -rf $(OUT)
-	$(Q) rm -f $(TEMP_JSON)
 
