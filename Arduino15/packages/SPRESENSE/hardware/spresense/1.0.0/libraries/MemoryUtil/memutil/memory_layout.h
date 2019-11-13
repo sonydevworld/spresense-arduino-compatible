@@ -40,8 +40,7 @@
 
 #define MEM_LAYOUT_PLAYER          (0)
 #define MEM_LAYOUT_RECORDER        (1)
-#define MEM_LAYOUT_SOUNDEFFECT     (2)
-#define MEM_LAYOUT_RECORDINGPLAYER (3)
+#define MEM_LAYOUT_RECORDINGPLAYER (2)
 #define MEM_LAYOUT_SENSORS         (0)
 
 #endif /* __AUDIO_LAYOUT_H_INCLUDED__ */
