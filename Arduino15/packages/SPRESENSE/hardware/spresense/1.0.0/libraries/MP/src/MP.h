@@ -138,7 +138,8 @@ public:
 
   /**
    * @brief Send any 32bit-data to the other processor
-   * @param [in] msgid - user-defined message ID
+   * @param [in] msgid - user-defined message ID (0~127)
+   *                     It must be zero or positive value.
    * @param [in] msgdata - user-defined message data (32bit)
    * @param [in] subid - SubCore number(1~5) to send any message.
    *                     If core is SubCore, send to MainCore by default.
@@ -166,7 +167,8 @@ public:
 
   /**
    * @brief Send the address of any message to the other processor
-   * @param [in] msgid - user-defined message ID
+   * @param [in] msgid - user-defined message ID (0~127)
+   *                     It must be zero or positive value.
    * @param [in] msgaddr - pointer to user-defined message address
    * @param [in] subid - SubCore number(1~5) to send any message.
    *                     If core is SubCore, send to MainCore by default.

@@ -40,7 +40,6 @@
  */
 
 #include <pins_arduino.h>
-#include <semaphore.h>
 
 class File;
 
@@ -251,8 +250,6 @@ public:
    *
    *          In this function, setting HW necessary for sound recording, and setting ES buffer configuration etc.
    *
-   *          This function can select either input interface MIC or I2S as an argument.
-   *          When I2S is selected, it becomes input of 2 channels of L/R.
    *          The type of MIC is determined by configuration of sdk. The default is an analog microphone.
    *          The value of CXD56_AUDIO_MIC_CHANNEL_SEL can be used to select the analog microphone
    *          or digital microphone and assign the microphone channel.
@@ -263,8 +260,7 @@ public:
    *
    */
   err_t setRecorderMode(
-      uint8_t input_device /**< Select input device. AS_SETRECDR_STS_INPUTDEVICE_MIC or
-                                AS_SETRECDR_STS_INPUTDEVICE_I2S. */
+      uint8_t input_device /**< Set AS_SETRECDR_STS_INPUTDEVICE_MIC. */
   );
 
   /**
@@ -276,8 +272,7 @@ public:
    *
    */
   err_t setRecorderMode(
-      uint8_t input_device, /**< Select input device. AS_SETRECDR_STS_INPUTDEVICE_MIC or
-                                 AS_SETRECDR_STS_INPUTDEVICE_I2S. */
+      uint8_t input_device, /**< Set AS_SETRECDR_STS_INPUTDEVICE_MIC. */
       int32_t input_gain    /**< Input gain : value range
                                  Analog Mic  -7850:-78.50dB, ... , -5:-0.05dB, 0:0dB, 5:+0.5dB, ... , 210:+21.0dB
                                  Digital Mic -7850:-78.50dB, ... , -5:-0.05dB, 0:0dB (Max is 0dB.)
@@ -292,8 +287,7 @@ public:
    *
    */
   err_t setRecorderMode(
-      uint8_t input_device, /**< Select input device. AS_SETRECDR_STS_INPUTDEVICE_MIC or
-                                 AS_SETRECDR_STS_INPUTDEVICE_I2S. */
+      uint8_t input_device, /**< Set AS_SETRECDR_STS_INPUTDEVICE_MIC. */
       int32_t input_gain,   /**< Input gain : value range
                                  Analog Mic  -7850:-78.50dB, ... , -5:-0.05dB, 0:0dB, 5:+0.5dB, ... , 210:+21.0dB
                                  Digital Mic -7850:-78.50dB, ... , -5:-0.05dB, 0:0dB (Max is 0dB.)
@@ -309,8 +303,7 @@ public:
    *
    */
   err_t setRecorderMode(
-      uint8_t input_device, /**< Select input device. AS_SETRECDR_STS_INPUTDEVICE_MIC or
-                                 AS_SETRECDR_STS_INPUTDEVICE_I2S. */
+      uint8_t input_device, /**< Set AS_SETRECDR_STS_INPUTDEVICE_MIC. */
       int32_t input_gain,   /**< Input gain : value range
                                  Analog Mic  -7850:-78.50dB, ... , -5:-0.05dB, 0:0dB, 5:+0.5dB, ... , 210:+21.0dB
                                  Digital Mic -7850:-78.50dB, ... , -5:-0.05dB, 0:0dB (Max is 0dB.)
@@ -870,17 +863,10 @@ private:
     : m_player0_simple_fifo_buf(NULL)
     , m_player1_simple_fifo_buf(NULL)
     , m_attention_callback(NULL)
-  {
-    /* Initialize semaphore */
-
-    sem_init(&m_sem, 0, 1);
-  }
+  {}
   AudioClass(const AudioClass&);
   AudioClass& operator=(const AudioClass&);
-  ~AudioClass()
-  {
-    sem_destroy(&m_sem);
-  }
+  ~AudioClass() {}
 
   char m_es_player0_buf[FIFO_FRAME_SIZE];
   char m_es_player1_buf[WRITE_FIFO_FRAME_SIZE];
@@ -939,10 +925,6 @@ private:
 
   bool check_decode_dsp(uint8_t codec_type, const char *path);
   bool check_encode_dsp(uint8_t codec_type, const char *path, uint32_t fs);
-
-  /* Semaphore for locking commands */
-
-  sem_t m_sem;
 };
 
 extern AudioClass Audio;

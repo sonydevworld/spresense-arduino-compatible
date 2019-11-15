@@ -69,11 +69,11 @@ err_t MediaPlayer::create(PlayerId id, AudioAttentionCb attcb)
   player_create_param.msgq_id.player = (id == Player0) ? MSGQ_AUD_PLY : MSGQ_AUD_SUB_PLY;
   player_create_param.msgq_id.mng    = MSGQ_AUD_MGR;
   player_create_param.msgq_id.mixer  = MSGQ_AUD_OUTPUT_MIX;
-  player_create_param.msgq_id.dsp    = MSGQ_AUD_DSP;
+  player_create_param.msgq_id.dsp    = (id == Player0) ? MSGQ_AUD_DSP : MSGQ_AUD_SUB_DSP;
   player_create_param.pool_id.es     = (id == Player0) ? S0_DEC_ES_MAIN_BUF_POOL : S0_DEC_ES_SUB_BUF_POOL;
   player_create_param.pool_id.pcm    = (id == Player0) ? S0_REND_PCM_BUF_POOL : S0_REND_PCM_SUB_BUF_POOL;
   player_create_param.pool_id.dsp    = S0_DEC_APU_CMD_POOL;
-  player_create_param.pool_id.src_work = S0_SRC_WORK_MAIN_BUF_POOL;
+  player_create_param.pool_id.src_work = (id == Player0) ? S0_SRC_WORK_MAIN_BUF_POOL : S0_SRC_WORK_SUB_BUF_POOL;
 
   bool result;
 
@@ -436,37 +436,31 @@ err_t MediaPlayer::writeFrames(PlayerId id, uint8_t *data, uint32_t size)
       return MEDIAPLAYER_ECODE_SIMPLEFIFO_ERROR;
     }
 
-  char *buf = (id == Player0) ? m_es_player0_buf : m_es_player1_buf;
-
   CMN_SimpleFifoHandle *handle =
     (id == Player0) ?
       &m_player0_simple_fifo_handle : &m_player1_simple_fifo_handle;
 
-  ret = write_fifo(data, size, buf, handle);
+  ret = write_fifo(data, size, handle);
 
   return ret;
 }
 
 /*--------------------------------------------------------------------------*/
-err_t MediaPlayer::write_fifo(uint8_t *data, uint32_t size, char *p_es_buf, CMN_SimpleFifoHandle *handle)
+err_t MediaPlayer::write_fifo(uint8_t *data, uint32_t size, CMN_SimpleFifoHandle *handle)
 {
   uint32_t vacant_size = CMN_SimpleFifoGetVacantSize(handle);
 
   if (vacant_size < size)
     {
-      return MEDIAPLAYER_ECODE_OK;
+      return MEDIAPLAYER_ECODE_SIMPLEFIFO_ERROR;
     }
 
   if (!data || !size)
     {
       return MEDIAPLAYER_ECODE_COMMAND_ERROR;
     }
-  else
-    {
-      memcpy(p_es_buf, data, size);
-    }
 
-  if (CMN_SimpleFifoOffer(handle, (const void*)(p_es_buf), size) == 0)
+  if (CMN_SimpleFifoOffer(handle, (const void*)data, size) == 0)
     {
       print_err("Simple FIFO is full!\n");
       return MEDIAPLAYER_ECODE_SIMPLEFIFO_ERROR;
