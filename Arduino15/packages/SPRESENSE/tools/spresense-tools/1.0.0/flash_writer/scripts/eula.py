@@ -162,7 +162,7 @@ class EULAWindow(wx.Frame):
 		# store accept checkbox status
 		self.is_accepted = False
 
-		wx.Frame.__init__(self, None, id=wx.ID_ANY, title=TITLE, style=wx.STAY_ON_TOP|wx.DEFAULT_FRAME_STYLE^wx.RESIZE_BORDER)
+		wx.Frame.__init__(self, None, id=wx.ID_ANY, title=TITLE, style=wx.DEFAULT_FRAME_STYLE^wx.RESIZE_BORDER)
 
 		self.updater = updater
 
