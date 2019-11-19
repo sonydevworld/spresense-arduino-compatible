@@ -13,6 +13,7 @@ WINDOW_WIDTH  = 700
 WINDOW_HEIGHT = 500
 
 FONT_SIZE = 14
+BOX_SIZE = FONT_SIZE * 1.3
 PADDING_H = 20
 PADDING_V = 5
 
@@ -31,25 +32,181 @@ OK_BTN_ID        = 1
 CANCEL_BTN_ID    = 2
 ACCEPT_CHK_ID    = 3
 
+class CheckBox(wx.Panel):
+	# Static definition for checkbox color metrix
+	STATUS_DEFAULT_ID = 1
+	STATUS_OVER_ID    = 2
+	STATUS_PRESS_ID   = 3
+	BOX_COLOR = {
+		STATUS_DEFAULT_ID : {"forground": wx.Colour( 69,  69,  69), "background": wx.Colour(255, 255, 255)},
+		STATUS_OVER_ID    : {"forground": wx.Colour( 23, 132, 219), "background": wx.Colour(255, 255, 255)},
+		STATUS_PRESS_ID   : {"forground": wx.Colour( 18,  97, 161), "background": wx.Colour(204, 228, 247)},
+	}
+
+	# Checkbox status
+	isChecked = False
+
+	# Checkbox event callback
+	cbCallback = None
+
+	def createResizedBox(self, parent, decrease):
+		size = BOX_SIZE - decrease * 2
+		box = wx.Panel(parent, id=wx.ID_ANY)
+
+		box.SetSize((size, size))
+		box.SetPosition((decrease, decrease))
+
+		return box
+
+	def __init__(self, parent, id=-1, label=""):
+		wx.Panel.__init__(self, parent, id)
+
+		# Spacer for top
+		spacer = wx.Panel(self, id=wx.ID_ANY)
+		spacer.SetMinSize((PADDING_V, PADDING_V))
+
+		# Box
+		self.fore = self.createResizedBox(self, 0)
+		self.back = self.createResizedBox(self.fore, 2)
+		self.check = self.createResizedBox(self.fore, 5)
+
+		# Label
+		self.text = wx.StaticText(self, id=wx.ID_ANY, label=label)
+
+		# Keep the size of checkbox
+		def size(evt):
+			pos = self.fore.GetPosition()
+			self.fore.SetPosition((pos[0], pos[1] + 1))
+			self.fore.SetSize((BOX_SIZE, BOX_SIZE))
+		self.fore.Bind(wx.EVT_SIZE, size)
+
+		# Checkbox layout
+		sizer = wx.GridBagSizer(0, PADDING_H / 2)
+
+		sizer.Add(spacer,    (0, 0), (1, 2), flag=wx.EXPAND)
+		sizer.Add(self.fore, (1, 0), (1, 1), flag=wx.GROW)
+		sizer.Add(self.text, (1, 1), (1, 1), flag=wx.GROW)
+
+		self.SetSizer(sizer)
+
+		# Register event
+		self.Bind(wx.EVT_ENTER_WINDOW, self.uiEventhandler)
+		self.Bind(wx.EVT_LEAVE_WINDOW, self.uiEventhandler)
+		self.Bind(wx.EVT_LEFT_DOWN,    self.uiEventhandler)
+		self.Bind(wx.EVT_LEFT_UP,      self.uiEventhandler)
+
+		# Initial state
+		self.isEntered = False
+		self.isPressed = False
+
+		# Update UI by initial state
+		self.UpdateCheckBoxStatus()
+
+	def UpdateCheckBoxColor(self, id):
+		self.fore.SetBackgroundColour(self.BOX_COLOR[id]["forground"])
+		if self.isChecked:
+			self.check.SetBackgroundColour(self.BOX_COLOR[id]["forground"])
+		else:
+			self.check.SetBackgroundColour(self.BOX_COLOR[id]["background"])
+		self.back.SetBackgroundColour(self.BOX_COLOR[id]["background"])
+
+	def UpdateCheckBoxStatus(self):
+		if self.isPressed and self.isEntered:
+			self.UpdateCheckBoxColor(self.STATUS_PRESS_ID)
+		elif self.isPressed:
+			self.UpdateCheckBoxColor(self.STATUS_OVER_ID)
+		elif self.isEntered:
+			self.UpdateCheckBoxColor(self.STATUS_OVER_ID)
+		else:
+			self.UpdateCheckBoxColor(self.STATUS_DEFAULT_ID)
+
+	def uiEventhandler(self, evt):
+		if evt.EventType == wx.EVT_ENTER_WINDOW.typeId:
+			self.isEntered = True
+		elif evt.EventType == wx.EVT_LEAVE_WINDOW.typeId:
+			self.isEntered = False
+		elif evt.EventType == wx.EVT_LEFT_DOWN.typeId:
+			self.isPressed = True
+		elif evt.EventType == wx.EVT_LEFT_UP.typeId:
+			self.isPressed = False
+			if self.isEntered and self.cbCallback:
+				self.isChecked = not self.isChecked
+				self.cbCallback(self)
+		self.UpdateCheckBoxStatus()
+
+	def Bind(self, evtid, func):
+		if evtid == wx.EVT_CHECKBOX:
+			self.cbCallback = func
+		else:
+			wx.Panel.Bind(self, evtid, func)
+			self.text.Bind(evtid, func)
+			self.fore.Bind(evtid, func)
+			self.back.Bind(evtid, func)
+			self.check.Bind(evtid, func)
+
+	def SetFont(self, font):
+		self.text.SetFont(font)
+
+	def SetValue(self, value):
+		self.isChecked = value
+
+	def IsChecked(self):
+		return self.isChecked
+
 # Name       : EULAWindow
 # Description: Show EULA binary Update Window
 class EULAWindow(wx.Frame):
 
-	def setFontStyle(self, compnent, size, weight):
-		font = compnent.GetFont()
-		font.SetWeight(weight)
-		font.SetPointSize(size)
-		compnent.SetFont(font)
+	def __init__(self, updater):
 
-	def getImageLabel(self, parent, file_name):
-		logo_image = wx.Image(file_name)
-		image_size = logo_image.GetSize()
-		image_bitmap = logo_image.ConvertToBitmap()
-		label = wx.StaticBitmap(parent, id=wx.ID_ANY, bitmap=image_bitmap)
-		label.SetSize(image_size[0], image_size[1])
-		return label
+		# store accept checkbox status
+		self.is_accepted = False
 
-	# For Dialog header part
+		wx.Frame.__init__(self, None, id=wx.ID_ANY, title=TITLE, style=wx.STAY_ON_TOP|wx.DEFAULT_FRAME_STYLE^wx.RESIZE_BORDER)
+
+		self.updater = updater
+
+		# Get current display size
+		display_size = wx.GetDisplaySize()
+
+		# Set window size for layout
+		window_width = WINDOW_WIDTH
+		window_height = WINDOW_HEIGHT
+
+		# Centering in display
+		window_pos_x = (display_size[0] - window_width) / 2
+		window_pos_y = (display_size[1] - window_height) / 2
+
+		# Set main window layout
+		self.SetSize(window_width, window_height)
+		self.SetPosition((window_pos_x, window_pos_y))
+
+		# Top panel (for subject)
+		top_panel = self.getDialogHeader(self)
+
+		# HTML panel (for display EULA description)
+		htm_panel = self.getDialogBody(self)
+
+		# Footer panel
+		footer_panel = self.getDialogFooter(self)
+
+		# Layout
+		main_sizer = wx.FlexGridSizer(rows=3, cols=1, gap=(0, 0))
+		main_sizer.Add(top_panel, flag=wx.GROW)
+		main_sizer.Add(htm_panel, flag=wx.GROW)
+		main_sizer.Add(footer_panel, flag=wx.GROW)
+
+		# Set free size for HTML view
+		main_sizer.AddGrowableRow(1)
+		main_sizer.AddGrowableCol(0)
+
+		self.SetSizer(main_sizer)
+
+		# Show
+		self.Show()
+
+	# Name       : getDialogHeader
+	# Description: Create a header component
 	def getDialogHeader(self, parent):
 		# EULA description file path
 		if hasattr(sys, '_MEIPASS'):
@@ -102,7 +259,8 @@ class EULAWindow(wx.Frame):
 
 		return header
 
-	# For Dialog hooter part
+	# Name       : getDialogFooter
+	# Description: Create a footer component
 	def getDialogFooter(self, parent):
 		# Footer panel (for take event)
 		footer = wx.Panel(parent, id=wx.ID_ANY, style=wx.SIMPLE_BORDER)
@@ -111,7 +269,7 @@ class EULAWindow(wx.Frame):
 		footer.SetBackgroundColour(wx.Colour(0xF3, 0xEC, 0xD8, 0xFF))
 
 		# Accept check box
-		accept_chk = wx.CheckBox(footer, ACCEPT_CHK_ID, ACCEPT_CHK)
+		accept_chk = CheckBox(footer, ACCEPT_CHK_ID, ACCEPT_CHK)
 		self.setFontStyle(accept_chk, FONT_SIZE, wx.FONTWEIGHT_NORMAL)
 
 		# Operation buttons panel
@@ -138,9 +296,8 @@ class EULAWindow(wx.Frame):
 		footer.SetSizer(sizer)
 
 		# Set event handler
-		parent.Bind(wx.EVT_BUTTON, self.eulaEventHandler, self.ok_btn)
-		parent.Bind(wx.EVT_BUTTON, self.eulaEventHandler, cn_btn)
-		parent.Bind(wx.EVT_CHECKBOX, self.eulaEventHandler, accept_chk)
+		parent.Bind(wx.EVT_BUTTON, self.eulaEventHandler)
+		accept_chk.Bind(wx.EVT_CHECKBOX, self.eulaEventHandler)
 
 		# Set default state
 		accept_chk.SetValue(False)
@@ -148,7 +305,8 @@ class EULAWindow(wx.Frame):
 
 		return footer
 
-	# For EULA view part
+	# Name       : getDialogBody
+	# Description: Create a dialog main contents
 	def getDialogBody(self, parent):
 		# EULA description file path
 		if hasattr(sys, '_MEIPASS'):
@@ -174,53 +332,23 @@ class EULAWindow(wx.Frame):
 
 		return htm_panel
 
-	def __init__(self, updater):
+	# Name       : setFontStyle
+	# Description: Set a font style for component
+	def setFontStyle(self, compnent, size, weight):
+		font = compnent.GetFont()
+		font.SetWeight(weight)
+		font.SetPointSize(size)
+		compnent.SetFont(font)
 
-		# store accept checkbox status
-		self.is_accepted = False
-
-		wx.Frame.__init__(self, None, id=wx.ID_ANY, title=TITLE, style=wx.STAY_ON_TOP|wx.DEFAULT_FRAME_STYLE^wx.RESIZE_BORDER)
-
-		self.updater = updater
-
-		# Get current display size
-		display_size = wx.GetDisplaySize()
-
-		# Set window size for layout
-		window_width = WINDOW_WIDTH
-		window_height = WINDOW_HEIGHT
-
-		# Centering in display
-		window_pos_x = (display_size[0] - window_width) / 2
-		window_pos_y = (display_size[1] - window_height) / 2
-
-		# Set main window layout
-		self.SetSize(window_width, window_height)
-		self.SetPosition((window_pos_x, window_pos_y))
-
-		# Top panel (for subject)
-		top_panel = self.getDialogHeader(self)
-
-		# HTML panel (for display EULA description)
-		htm_panel = self.getDialogBody(self)
-
-		# Footer panel
-		footer_panel = self.getDialogFooter(self)
-
-		# Layout
-		main_sizer = wx.FlexGridSizer(rows=3, cols=1, gap=(0, 0))
-		main_sizer.Add(top_panel, flag=wx.GROW)
-		main_sizer.Add(htm_panel, flag=wx.GROW)
-		main_sizer.Add(footer_panel, flag=wx.GROW)
-
-		# Set free size for HTML view
-		main_sizer.AddGrowableRow(1)
-		main_sizer.AddGrowableCol(0)
-
-		self.SetSizer(main_sizer)
-
-		# Show
-		self.Show()
+	# Name       : getImageLabel
+	# Description: Get a image label
+	def getImageLabel(self, parent, file_name):
+		logo_image = wx.Image(file_name)
+		image_size = logo_image.GetSize()
+		image_bitmap = logo_image.ConvertToBitmap()
+		label = wx.StaticBitmap(parent, id=wx.ID_ANY, bitmap=image_bitmap)
+		label.SetSize(image_size[0], image_size[1])
+		return label
 
 	# Name       : eulaEventHandler
 	# Description: Handle EULA window events
