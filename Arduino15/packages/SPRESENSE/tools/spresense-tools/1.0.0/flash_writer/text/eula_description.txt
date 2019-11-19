@@ -299,7 +299,8 @@ Should you have any questions concerning this EULA, you may contact SONY
  by writing to SONY at applicable contact address of each area or 
 country.
 
-&nbsp;
+<br>
+<br>
 
 Copyright © 2017 Sony Semiconductor Solutions Corporation.
 
