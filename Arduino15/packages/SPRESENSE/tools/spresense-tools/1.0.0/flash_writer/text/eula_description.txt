@@ -302,7 +302,7 @@ country.
 <br>
 <br>
 
-Copyright © 2017 Sony Semiconductor Solutions Corporation.
+Copyright © 2017-2019 Sony Semiconductor Solutions Corporation.
 
 </body>
 </html>
