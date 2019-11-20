@@ -141,7 +141,6 @@ class CheckBox(wx.Panel):
 		else:
 			wx.Panel.Bind(self, evtid, func)
 			self.text.Bind(evtid, func)
-			self.fore.Bind(evtid, func)
 			self.back.Bind(evtid, func)
 			self.check.Bind(evtid, func)
 
