@@ -50,6 +50,7 @@
  ****************************************************************************/
 
 #include "LTEAccessProvider.h"
+#include "LTEModemVerification.h"
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -62,6 +63,7 @@
  * @{
  */
 #define LTE        LTEAccessProvider
+#define LTEModem   LTEModemVerification
 
 /** @} */
 
