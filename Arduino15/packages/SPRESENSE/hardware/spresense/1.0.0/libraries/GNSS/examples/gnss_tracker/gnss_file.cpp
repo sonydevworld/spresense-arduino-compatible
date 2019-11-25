@@ -114,7 +114,7 @@ int ReadChar(char* pBuff, int BufferSize, const char* pName, int flag)
   }
   else
   {
-    /* Write file. */
+    /* Read file. */
     read_result = myFile.read(pBuff, BufferSize);
     if (read_result == 0)
     {
