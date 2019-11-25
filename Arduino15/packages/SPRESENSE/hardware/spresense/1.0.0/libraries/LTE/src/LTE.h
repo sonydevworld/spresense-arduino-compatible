@@ -51,6 +51,7 @@
 
 #include "LTEAccessProvider.h"
 #include "LTEModemVerification.h"
+#include "LTEScanNetworks.h"
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -64,6 +65,7 @@
  */
 #define LTE        LTEAccessProvider
 #define LTEModem   LTEModemVerification
+#define LTEScanner LTEScanNetworks
 
 /** @} */
 

@@ -8,6 +8,7 @@
 
 LTE	KEYWORD1
 LTEModem	KEYWORD1
+LTEScanner	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)
@@ -22,6 +23,8 @@ getTime	KEYWORD2
 getStatus	KEYWORD2
 getIMEI	KEYWORD2
 getFirmwareVersion  KEYWORD2
+getSignalStrength   KEYWORD2
+getCurrentCarrier   KEYWORD2
 
 #######################################
 # Constants (LITERAL1)
