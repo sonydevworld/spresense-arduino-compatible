@@ -3,13 +3,13 @@
 
 OVERVIEW:
 
-    The tiny_filer is a tiny filer for Flash devince on SPRESENSE.
+    The tiny_filer is a tiny filer for Flash device on SPRESENSE.
 
 USAGE:
 
     * Execute tiny_filer then root directory is shown.
 
-    * all file and directories on current directory are shown
+    * all files and directories on current directory are shown
       with number, path and additional information.
       - For directories, additional information is just "<DIR>".
       - For other files, additional information is file size.
@@ -22,6 +22,6 @@ USAGE:
 
     * Type 'd' + number to remove the file or directory.
       < WARNING > tiny_filer remove the file or directory
-                  without any confrimation.
+                  without any confirmation.
                   Please be careful.
 
