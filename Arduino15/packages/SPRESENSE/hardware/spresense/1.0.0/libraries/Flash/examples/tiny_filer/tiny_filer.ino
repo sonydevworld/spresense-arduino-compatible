@@ -1,5 +1,5 @@
 /**
- * @file read_write.ino
+ * @file tiny_filer.ino
  * @author Tomonobu.Saito@gmail.com
  * @brief Tiny Filer to explore in Flash device.
  */
