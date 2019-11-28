@@ -185,46 +185,33 @@ function install_sdk_from_build()
 		exit
 	fi
 
-	# Get SDK version from json
-	export SDK_VERSION=`${JSN_LOADER} -j ${JSN_NAME} -p ${PKG_NAME} -b ${BRD_NAME} -t ${SDK_NAME} -H ${AURDUINO_IDE_HOST} -k version`
-	export VARIANT_NAME=${VARIANT_NAME}
-
-	# Error handling
-	if [ "${SDK_VERSION}" == "" ]; then
-		echo "ERROR: Cannot detect SDK version. Please check ${JSN_NAME}."
-		exit
-	fi
-
-	# Get SDK comonent configuration
-	export SDK_KERNEL_CONF=${SDK_KERNEL_CONF}
-	if [ "${SDK_CONF}" == "" ]; then
-		export SDK_CONFIG=`cat ${SCRIPT_DIR}/configs/${VARIANT_NAME}.conf | head -n 1`
-	else
-		export SDK_CONFIG=`cat ${SCRIPT_DIR}/configs/${SDK_CONF}.conf | head -n 1`
-	fi
-
-	export SDK_KERNEL_CONF_OPTION=""
-	export SDK_CONFIG_OPTION=""
+	SDK_KERNEL_CONF_OPTION=""
+	SDK_CONFIG_OPTION=""
 	# Add configuration option
 	if [ "${CONFIG_EDIT}" != "" ]; then
 		CONFIG_OPTION=`echo ${CONFIG_EDIT} | cut -d " " -f 1`
 		CONFIG_TARGET=`echo ${CONFIG_EDIT} | cut -d " " -f 2`
 		if [ "`echo ${CONFIG_TARGET} | grep -i kernel`" != "" ]; then
-			export SDK_KERNEL_CONF_OPTION="${CONFIG_OPTION}"
+			SDK_KERNEL_CONF_OPTION="${CONFIG_OPTION}"
 		fi
 		if [ "`echo ${CONFIG_TARGET} | grep -i sdk`" != "" ]; then
-			export SDK_CONFIG_OPTION="${CONFIG_OPTION}"
+			SDK_CONFIG_OPTION="${CONFIG_OPTION}"
 		fi
 	fi
 
-	# Add import option
-	export IMPORT_ONLY=${IMPORT_ONLY}
-
 	# Export SDK build
-	${SCRIPT_DIR}/sdk_export.sh ${SPRESENSE_SDK_PATH}
+	if [ ! ${IMPORT_ONLY} ]; then
+		${SCRIPT_DIR}/sdk_export.sh -i ${SPRESENSE_SDK_PATH} \
+									-k ${SDK_KERNEL_CONF} \
+									-K "${SDK_KERNEL_CONF_OPTION}" \
+									-s ${SDK_CONF} \
+									-S "${SDK_CONFIG_OPTION}" \
+									-v ${VARIANT_NAME}
+	fi
 
 	# Import SDK build into Arduino15
-	${SCRIPT_DIR}/sdk_import.sh ${SPRESENSE_SDK_PATH}/sdk-export.zip
+	EXPORT_PACKAGE_NAME=SDK_EXPORT-${VARIANT_NAME}-${SDK_CONF}-${SDK_KERNEL_CONF}.zip
+	${SCRIPT_DIR}/sdk_import.sh ${SPRESENSE_SDK_PATH}/sdk/${EXPORT_PACKAGE_NAME}
 }
 
 # Option handler
@@ -233,7 +220,7 @@ function install_sdk_from_build()
 # -s: sdk archive path "your/path/to/sdk.tar.gz"
 # -v: board variant (default: spresense)
 # -k: kernel configuration (default: release)
-# -c: SDK configuration (default: )
+# -c: SDK configuration (default: spresense)
 # -H: target Arduino Host (Windows/Linux32/Linux64/Mac)
 # -M: manual configuration by menuconfig (Kernel/SDK)
 # -G: manual configuration by gconfig (Kernel/SDK)
@@ -243,7 +230,7 @@ SPRESENSE_SDK_PATH=""
 GCC_ARCHIVE_PATH=""
 SDK_ARCHIVE_PATH=""
 SDK_VARIANT_NAME="spresense"
-SDK_CONF=""
+SDK_CONF="spresense"
 SDK_KERNEL_CONF="release"
 AURDUINO_IDE_HOST=""
 CONFIG_EDIT=""
@@ -259,9 +246,9 @@ do
 		'k' ) SDK_KERNEL_CONF=$OPTARG;;
 		'c' ) SDK_CONF=$OPTARG;;
 		'H' ) AURDUINO_IDE_HOST=$OPTARG;;
-		'M' ) CONFIG_EDIT="-m $OPTARG";;
-		'G' ) CONFIG_EDIT="-g $OPTARG";;
-		'Q' ) CONFIG_EDIT="-q $OPTARG";;
+		'M' ) CONFIG_EDIT="m $OPTARG";;
+		'G' ) CONFIG_EDIT="g $OPTARG";;
+		'Q' ) CONFIG_EDIT="q $OPTARG";;
 		'i' ) IMPORT_ONLY=true;;
 		'p' ) PRIVATE_ACCESS=true;;
 		'h' ) show_help;;
