@@ -10,6 +10,30 @@ SCRIPT_DIR=`dirname "${SCRIPT_NAME}"`
 # Spresense Arduino compatible package import script
 #
 
+# Help message
+function show_help
+{
+	echo "Usage: $0 [OPTION...]"
+	echo ""
+	echo "Import SDK export archive into Arduino environment."
+	echo ""
+	echo "  Optional arguments:"
+	echo ""
+	echo "    -o: Prebuilt output directory"
+	echo "    -h: Show help (This message)"
+	echo ""
+}
+
+# Option handling
+SDK_DIR="${SCRIPT_DIR}/../Arduino15/packages/SPRESENSE/tools/spresense-sdk/1.0.0"
+while getopts o:h OPT
+do
+	case $OPT in
+		'o' ) SDK_DIR=`cd $OPTARG && pwd`;;
+		'h' ) show_help;;
+	esac
+done
+
 if [ $# != 1 ]; then
 	echo "Usage: $0 <SDK_Package_file>"
 	echo "       <SDK_Package_file> = SDK_EXPORT-<variant name>-<SDK config name>-<Kernel config name>.zip"
@@ -34,7 +58,6 @@ if [ "${PACKAGE_TYPE}" != "SDK_EXPORT" ]; then
 	exit 1
 fi
 
-SDK_DIR="${SCRIPT_DIR}/../Arduino15/packages/SPRESENSE/tools/spresense-sdk/1.0.0"
 mkdir -p ${SDK_DIR}
 
 echo "Local SDK import to ${SDK_DIR}"
