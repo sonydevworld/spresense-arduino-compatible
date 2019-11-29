@@ -35,8 +35,8 @@ do
 done
 
 if [ $# != 1 ]; then
-	echo "Usage: $0 <SDK_Package_file>"
-	echo "       <SDK_Package_file> = SDK_EXPORT-<variant name>-<SDK config name>-<Kernel config name>.zip"
+	echo "Usage: $0 <SDK export file>"
+	echo "       SDK export file: Zip file that created by 'make export' in Spresense SDK"
 	exit 1
 fi
 
@@ -46,21 +46,12 @@ if [ $? != 0 -o ! -f $1 ]; then
 	exit 1
 fi
 
-# Parse file name
-ARCHIVE_FILE=$1
-PACKAGE_TYPE=`basename ${ARCHIVE_FILE} | cut -d "-" -f 1`
-VARIANT=`basename ${ARCHIVE_FILE} | cut -d "-" -f 2`
-SDK_CONF=`basename ${ARCHIVE_FILE} | cut -d "-" -f 3`
-KERNEL_CONF=`basename ${ARCHIVE_FILE} | cut -d "-" -f 4- | cut -d "." -f 1`
-
-if [ "${PACKAGE_TYPE}" != "SDK_EXPORT" ]; then
-	echo "Archive name invalid. Correct file name is.. SDK_EXPORT-<variant name>-<SDK config name>-<Kernel config name>.zip"
-	exit 1
-fi
-
 mkdir -p ${SDK_DIR}
 
 echo "Local SDK import to ${SDK_DIR}"
+
+ARCHIVE_FILE=$1
+VARIANT=spresense
 
 # Extract to temp directory
 TMP_DIR=`mktemp -d`
@@ -71,6 +62,33 @@ unzip ${ARCHIVE_FILE} -d ${TMP_DIR} > /dev/null
 
 EXP_DIR=${TMP_DIR}/sdk-export
 IMP_DIR=${TMP_DIR}/sdk/1.0.0/${VARIANT}
+
+# Check MainCore/SubCore
+if [ "`grep "CONFIG_CXD56_SUBCORE=y" ${EXP_DIR}/sdk/.config`" != "" ]; then
+	SDK_CONF=spresense_sub
+else
+	SDK_CONF=spresense
+fi
+
+# Check release/debug kernel config
+if [ "`grep "CONFIG_DEBUG_FEATURES=y" ${EXP_DIR}/nuttx/.config`" != "" ]; then
+	CONFIG_ENABLE_DEBUG=true
+else
+	CONFIG_ENABLE_DEBUG=false
+fi
+
+# Select kernel config
+if [ "${SDK_CONF}" == "spresense" ]; then
+	KERNEL_CONF=""
+else
+	KERNEL_CONF="subcore-"
+fi
+
+if [ "${CONFIG_ENABLE_DEBUG}" == "true" ]; then
+	KERNEL_CONF="${KERNEL_CONF}debug"
+else
+	KERNEL_CONF="${KERNEL_CONF}release"
+fi
 
 # Temporary extract achive to temp directory
 mkdir -p ${IMP_DIR}
@@ -130,5 +148,12 @@ do
 	mkdir -p ${KERNEL_DIR}/include/`dirname ${cfile}`
 	mv ${COMMON_DIR}/include/${cfile} ${KERNEL_DIR}/include/${cfile}
 done
+
+#If target is subcore, copy prebuilt into debug
+if [ "${SDK_CONF}" == "spresense_sub" ]; then
+	DEBUG_KERNEL_DIR=${KERNEL_DIR}/../subcore-debug
+	rm -rf ${DEBUG_KERNEL_DIR}
+	cp -a ${KERNEL_DIR} ${DEBUG_KERNEL_DIR}
+fi
 
 echo "Done."
