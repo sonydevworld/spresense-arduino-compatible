@@ -9,6 +9,9 @@
 LTE	KEYWORD1
 LTEModem	KEYWORD1
 LTEScanner	KEYWORD1
+LTEClient	KEYWORD1
+LTETLSClient	KEYWORD1
+LTEUDP	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)
@@ -22,9 +25,25 @@ getIPAddress	KEYWORD2
 getTime	KEYWORD2
 getStatus	KEYWORD2
 getIMEI	KEYWORD2
-getFirmwareVersion  KEYWORD2
-getSignalStrength   KEYWORD2
-getCurrentCarrier   KEYWORD2
+getFirmwareVersion	KEYWORD2
+getSignalStrength	KEYWORD2
+getCurrentCarrier	KEYWORD2
+connect	KEYWORD2
+write	KEYWORD2
+available	KEYWORD2
+read	KEYWORD2
+peek	KEYWORD2
+flush	KEYWORD2
+stop	KEYWORD2
+connected	KEYWORD2
+setCACert	KEYWORD2
+setCertificate	KEYWORD2
+setPrivateKey	KEYWORD2
+beginPacket	KEYWORD2
+endPacket	KEYWORD2
+parsePacket	KEYWORD2
+remoteIP	KEYWORD2
+remotePort	KEYWORD2
 
 #######################################
 # Constants (LITERAL1)

@@ -52,6 +52,9 @@
 #include "LTEAccessProvider.h"
 #include "LTEModemVerification.h"
 #include "LTEScanNetworks.h"
+#include "LTEClient.h"
+#include "LTETLSClient.h"
+#include "LTEUDP.h"
 
 /****************************************************************************
  * Pre-processor Definitions
