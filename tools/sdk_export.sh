@@ -98,11 +98,11 @@ echo "SDK    : ${SDK_CONF_LIST}"
 
 # Build kernel
 echo "Build kernel..."
-make buildkernel &>/dev/null
+make buildkernel
 
 # Export
 echo "Export to Arduino..."
-make export >/dev/null
+make export
 
 # Check make result
 if [ $? != 0 ]; then
