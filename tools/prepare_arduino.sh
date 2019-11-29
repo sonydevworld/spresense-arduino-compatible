@@ -211,7 +211,7 @@ function install_sdk_from_build()
 
 	# Import SDK build into Arduino15
 	EXPORT_PACKAGE_NAME=SDK_EXPORT-${VARIANT_NAME}-${SDK_CONF}-${SDK_KERNEL_CONF}.zip
-	${SCRIPT_DIR}/sdk_import.sh ${SPRESENSE_SDK_PATH}/sdk/${EXPORT_PACKAGE_NAME}
+	${SCRIPT_DIR}/sdk_import.sh ${SCRIPT_DIR}/out/${EXPORT_PACKAGE_NAME}
 }
 
 # Option handler

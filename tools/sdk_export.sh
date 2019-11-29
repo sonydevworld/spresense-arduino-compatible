@@ -57,6 +57,7 @@ echo "Creating exported archive ${PACKAGE_NAME}..."
 
 SDK_DIR=`cd ${SDK_DIR} && pwd`
 TMP_DIR=`mktemp -d`
+OUT_DIR=${SCRIPT_DIR}/out
 
 echo "TMP_DIR = ${TMP_DIR}"
 
@@ -110,6 +111,8 @@ if [ $? != 0 ]; then
 	exit 1
 fi
 
-mv sdk-export.zip ${PACKAGE_NAME}
+# Move export arcihve into Arduino out directory
+mkdir -p ${OUT_DIR}
+mv sdk-export.zip ${OUT_DIR}/${PACKAGE_NAME}
 
 echo "done."
