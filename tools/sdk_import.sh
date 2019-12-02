@@ -170,4 +170,7 @@ if [ "${SDK_CONF}" == "spresense_sub" -a "${FORCE_KERNEL_TYPE}" == "" ]; then
 	cp -a ${KERNEL_DIR} ${DEBUG_KERNEL_DIR}
 fi
 
+# Remove temporary directory
+rm -rf ${TMP_DIR}
+
 echo "Done."

@@ -115,4 +115,7 @@ fi
 mkdir -p ${OUT_DIR}
 mv sdk-export.zip ${OUT_DIR}/${PACKAGE_NAME}
 
+# Remove temporary directory
+rm -rf ${TMP_DIR}
+
 echo "done."
