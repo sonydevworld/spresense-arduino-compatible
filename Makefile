@@ -2,6 +2,15 @@
 # Makefile for creating Arduino boards manager package
 #
 
+ifeq ($(V),1)
+export Q :=
+else
+ifeq ($(V),2)
+export Q :=
+else
+export Q := @
+endif
+endif
 
 BASE_VERSION       = $(shell cat tools/version)
 VERSION           ?= $(shell echo $(BASE_VERSION) | cut -d "." -f -2).$(shell expr $(shell echo $(BASE_VERSION) | cut -d "." -f 3) + 1)
@@ -15,12 +24,14 @@ SPR_LIBRARY        = $(ARCHIVEDIR)/spresense-$(RELEASE_NAME).tar.gz
 SPR_SDK            = $(ARCHIVEDIR)/spresense-sdk-$(RELEASE_NAME).tar.gz
 SPR_TOOLS          = $(ARCHIVEDIR)/spresense-tools-$(RELEASE_NAME).tar.gz
 PWD                = $(shell pwd)
-Q                  = @
 
 BOARD_MANAGER_URL ?= https://github.com/sonydevworld/spresense-arduino-compatible/releases/download/generic/package_spresense_index.json
 JSON_NAME          = package_spresense_index.json
 INSTALL_JSON       = $(OUT)/$(JSON_NAME)
 TEMP_JSON          = /tmp/$(JSON_NAME)
+
+SDK_PREBUILT_OUT  ?= tools/out
+SDK_PREBUILTS     := $(shell ls $(SDK_PREBUILT_OUT)/*.zip 2> /dev/null | sed s/$$/\'/ | sed s/^/\'/)
 
 .phony: check packages clean
 
@@ -30,6 +41,15 @@ packages: check $(SPR_LIBRARY) $(SPR_SDK) $(SPR_TOOLS) $(INSTALL_JSON)
 check:
 	$(Q) echo $(VERSION) | grep -E $(VERSION_PATTERN) > /dev/null \
 		|| (echo "ERROR: Invalid version name $(VERSION) (expected pattern is x.y.z)." &&  exit 1)
+
+prebuilt:
+	$(Q) if [ "$(SDK_PREBUILTS)" ]; then \
+			./tools/prepare_arduino.sh -p; \
+			for PREBUILT_ZIP in $(SDK_PREBUILTS); \
+			do \
+				./tools/sdk_import.sh $${PREBUILT_ZIP}; \
+			done \
+	fi
 
 $(INSTALL_JSON):
 	$(Q) wget $(BOARD_MANAGER_URL) -O $(TEMP_JSON)
