@@ -35,7 +35,7 @@ SDK_PREBUILTS     := $(shell ls $(SDK_PREBUILT_OUT)/*.zip 2> /dev/null | sed s/$
 
 .phony: check packages clean
 
-packages: check $(SPR_LIBRARY) $(SPR_SDK) $(SPR_TOOLS) $(INSTALL_JSON)
+packages: check clean $(SPR_LIBRARY) $(SPR_SDK) $(SPR_TOOLS) $(INSTALL_JSON)
 	$(Q) echo "Done."
 
 check:
@@ -44,6 +44,7 @@ check:
 
 prebuilt:
 	$(Q) if [ "$(SDK_PREBUILTS)" ]; then \
+			rm -f $(SPR_SDK); \
 			./tools/prepare_arduino.sh -p; \
 			for PREBUILT_ZIP in $(SDK_PREBUILTS); \
 			do \
@@ -56,7 +57,7 @@ $(INSTALL_JSON):
 	$(Q) tools/python/update_package_json.py -a $(ARCHIVEDIR) -i $(TEMP_JSON) -o $@ -v $(VERSION) -b $(BASE_VERSION)
 	$(Q) rm $(TEMP_JSON)
 
-$(SPR_LIBRARY): $(ARCHIVEDIR)
+$(SPR_LIBRARY): $(ARCHIVEDIR) prebuilt
 	$(Q) echo "Creating spresense.tar.gz ..."
 	$(Q) tar -C Arduino15/packages/SPRESENSE/hardware/spresense/ -czf $@ $(INSTALLED_VERSION)
 
