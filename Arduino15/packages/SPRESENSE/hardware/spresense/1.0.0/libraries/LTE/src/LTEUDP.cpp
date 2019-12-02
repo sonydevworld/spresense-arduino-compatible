@@ -383,7 +383,9 @@ int LTEUDP::parsePacket()
   len = recvfrom(_fd, buf, BUFFER_MAX_LEN, 0,
                  (struct sockaddr*)&fromaddr, (socklen_t *)&fromaddrlen);
   if (len < 0) {
-    LTEUDPERR("recvfrom() error : %d\n", errno);
+    if (errno != EAGAIN) {
+      LTEUDPERR("recvfrom() error : %d\n", errno);
+    }
     delete[] buf;
     return PARSE_FAILED;
   }
