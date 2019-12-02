@@ -147,6 +147,7 @@ if __name__ == "__main__":
 	parser.add_argument('-o', '--output_json', metavar='package_index.json', default='package_index.json', type=str, help='Output package_*_index.json path')
 	parser.add_argument('-v', '--version', metavar='x.y.z', default=None, type=str, help='Version number for add package')
 	parser.add_argument('-b', '--base_version', metavar='x.y.z', default=None, type=str, help='Version number for package base')
+	parser.add_argument('-l', '--local_name', metavar='', default="", type=str, help='Local package name')
 	args = parser.parse_args()
 
 	if args.archive == None:
@@ -171,6 +172,9 @@ if __name__ == "__main__":
 	# Spresense include only one package "SPRESENSE", so take first element
 	package = get_first_package(pkg_json)
 
+	# Append local name
+	package["name"] = "%s%s" % (package["name"], args.local_name)
+
 	# Add new platform item(New item are required if core lib is not updated.)
 	# Take current platforms list
 	platforms = get_platforms(package)
@@ -192,7 +196,7 @@ if __name__ == "__main__":
 	new_platform['version'] = args.version
 
 	# Check platform file(packages/*/hardware/) update
-	archive = "%s-v%s.tar.gz" % (new_platform['architecture'], args.version)
+	archive = "%s-v%s%s.tar.gz" % (new_platform['architecture'], args.version, args.local_name)
 	if archive in update_archives:
 		url = "%s/%s" % (base_url, archive)
 		new_platform['archiveFileName'] = archive
@@ -202,13 +206,17 @@ if __name__ == "__main__":
 
 	# Check tools dependency updates
 	for tool in new_platform['toolsDependencies']:
-		archive = "%s-v%s.tar.gz" % (tool['name'], args.version)
+		archive = "%s-v%s%s.tar.gz" % (tool['name'], args.version, args.local_name)
 		if archive in update_archives:
+			tool['packager'] = "%s%s" % (tool['packager'], args.local_name)
 			tool['version'] = args.version
+
+	if args.local_name != "":
+		# If local package creating, clear all versions
+		platforms.clear()
 
 	# Add new platform into package_index.json
 	platforms.append(new_platform)
-	
 
 	# Add new tool item(If tool is not updated, keep current)
 	tools = get_tools(package)
@@ -219,7 +227,7 @@ if __name__ == "__main__":
 	# Check tools achive update
 	toolDeps = get_tool_dependencies(base_platform)
 	for key in toolDeps:
-		archive = "%s-v%s.tar.gz" % (key, args.version)
+		archive = "%s-v%s%s.tar.gz" % (key, args.version, args.local_name)
 		if archive in update_archives:
 			# Clone tool item for create new item
 			tool = copy.deepcopy(tools[0])

@@ -12,6 +12,10 @@ export Q := @
 endif
 endif
 
+NAME_SUFFIX       ?= local
+ifneq ($(NAME_SUFFIX),)
+NAME_FOOTER := _$(NAME_SUFFIX)
+endif
 BASE_VERSION       = $(shell cat tools/version)
 VERSION           ?= $(shell echo $(BASE_VERSION) | cut -d "." -f -2).$(shell expr $(shell echo $(BASE_VERSION) | cut -d "." -f 3) + 1)
 RELEASE_NAME       = v$(VERSION)
@@ -20,13 +24,13 @@ VERSION_PATTERN    = ^[0-9]{1}.[0-9]{1}.[0-9]+$$
 OUT               ?= out
 INSTALLED_VERSION  = 1.0.0
 ARCHIVEDIR         = $(OUT)/staging/packages
-SPR_LIBRARY        = $(ARCHIVEDIR)/spresense-$(RELEASE_NAME).tar.gz
-SPR_SDK            = $(ARCHIVEDIR)/spresense-sdk-$(RELEASE_NAME).tar.gz
-SPR_TOOLS          = $(ARCHIVEDIR)/spresense-tools-$(RELEASE_NAME).tar.gz
+SPR_LIBRARY        = $(ARCHIVEDIR)/spresense-$(RELEASE_NAME)$(NAME_FOOTER).tar.gz
+SPR_SDK            = $(ARCHIVEDIR)/spresense-sdk-$(RELEASE_NAME)$(NAME_FOOTER).tar.gz
+SPR_TOOLS          = $(ARCHIVEDIR)/spresense-tools-$(RELEASE_NAME)$(NAME_FOOTER).tar.gz
 PWD                = $(shell pwd)
 
 BOARD_MANAGER_URL ?= https://github.com/sonydevworld/spresense-arduino-compatible/releases/download/generic/package_spresense_index.json
-JSON_NAME          = package_spresense_index.json
+JSON_NAME          = package_spresense$(NAME_FOOTER)_index.json
 INSTALL_JSON       = $(OUT)/$(JSON_NAME)
 TEMP_JSON          = /tmp/$(JSON_NAME)
 
@@ -54,7 +58,7 @@ prebuilt:
 
 $(INSTALL_JSON):
 	$(Q) wget $(BOARD_MANAGER_URL) -O $(TEMP_JSON)
-	$(Q) tools/python/update_package_json.py -a $(ARCHIVEDIR) -i $(TEMP_JSON) -o $@ -v $(VERSION) -b $(BASE_VERSION)
+	$(Q) tools/python/update_package_json.py -a $(ARCHIVEDIR) -l "$(NAME_FOOTER)" -i $(TEMP_JSON) -o $@ -v $(VERSION) -b $(BASE_VERSION)
 	$(Q) rm $(TEMP_JSON)
 
 $(SPR_LIBRARY): $(ARCHIVEDIR) prebuilt
