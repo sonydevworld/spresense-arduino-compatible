@@ -267,10 +267,6 @@ int LTEUDP::beginPacket(const char *host, uint16_t port)
     return BEGIN_FAILED;
   }
 
-  if (_wbuf) {
-    LTEUDPERR("beginPacket already\n");
-    return BEGIN_FAILED;
-  }
   memset(&hints, 0, sizeof(hints));
   hints.ai_family   = AF_INET;
   hints.ai_socktype = SOCK_DGRAM;
