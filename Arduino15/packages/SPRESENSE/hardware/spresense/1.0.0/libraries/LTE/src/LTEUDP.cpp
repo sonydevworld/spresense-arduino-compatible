@@ -188,14 +188,13 @@ LTEUDP::~LTEUDP()
 
 uint8_t LTEUDP::begin(uint16_t port)
 {
-  if (_fd != INVALID_FD) {
-    LTEUDPERR("begin already\n");
+  stop();
+
+  _wbuf = new uint8_t[BUFFER_MAX_LEN];
+  if (!_wbuf) {
+    LTEUDPERR("failed to allocate memory\n");
     return BEGIN_FAILED;
   }
-
-  int ret;
-  int val = 1;
-  struct sockaddr_in src_addr;
 
   _fd = socket(AF_INET, SOCK_DGRAM, 0);
   if (_fd < 0) {
@@ -203,16 +202,17 @@ uint8_t LTEUDP::begin(uint16_t port)
     return BEGIN_FAILED;
   }
 
-  ret = setsockopt(_fd, SOL_SOCKET,SO_REUSEADDR, &val, sizeof(val));
+  int ret;
+  int val = 1;
+
+  ret = setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val));
   if (ret < 0) {
     LTEUDPERR("setsockopt() error : %d\n", errno);
-    close(_fd);
-    _fd = INVALID_FD;
+    stop();
     return BEGIN_FAILED;
   }
 
-  fcntl(_fd, F_SETFL, fcntl(_fd, F_GETFL) | O_NONBLOCK);
-
+  struct sockaddr_in src_addr;
   memset(&src_addr, 0, sizeof(struct sockaddr_in));
   src_addr.sin_family      = AF_INET;
   src_addr.sin_port        = htons(port);
@@ -221,10 +221,10 @@ uint8_t LTEUDP::begin(uint16_t port)
   ret = bind(_fd, (struct sockaddr*)&src_addr, sizeof(struct sockaddr_in));
   if (ret < 0) {
     LTEUDPERR("bind() error : %d\n", errno);
-    close(_fd);
-    _fd = INVALID_FD;
+    stop();
     return BEGIN_FAILED;
   }
+  fcntl(_fd, F_SETFL, fcntl(_fd, F_GETFL) | O_NONBLOCK);
 
   return BEGIN_SUCCESS;
 }
@@ -274,32 +274,51 @@ int LTEUDP::beginPacket(const char *host, uint16_t port)
   String portStr(port);
 
   ret = getaddrinfo(host, portStr.c_str(), &hints, &ainfo);
-  if (ret == 0) {
-    IPAddress ip(((struct sockaddr_in*)ainfo->ai_addr)->sin_addr.s_addr);
-    freeaddrinfo(ainfo);
-
-    if (!_wbuf) {
-      _wbuf = new uint8_t[BUFFER_MAX_LEN];
-      if (!_wbuf) {
-        LTEUDPERR("failed to allocate memory\n");
-        return BEGIN_FAILED;
-      }
-    }
-    _remoteIp   = ip;
-    _remotePort = port;
-    _wbufSize   = 0;
-    ret         = BEGIN_SUCCESS;
-  } else {
+  if (ret != 0) {
     LTEUDPDBG("host not found\n");
-    ret = BEGIN_FAILED;
+    return BEGIN_FAILED;
   }
+
+  IPAddress ip(((struct sockaddr_in*)ainfo->ai_addr)->sin_addr.s_addr);
+  freeaddrinfo(ainfo);
+
+  int fd = INVALID_FD;
+
+  if (_fd == INVALID_FD) {
+    fd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (fd < 0) {
+      LTEUDPERR("socket() error : %d\n", errno);
+      return BEGIN_FAILED;
+    }
+    fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_NONBLOCK);
+  }
+
+  if (!_wbuf) {
+    _wbuf = new uint8_t[BUFFER_MAX_LEN];
+    if (!_wbuf) {
+      LTEUDPERR("failed to allocate memory\n");
+      if (fd != INVALID_FD) {
+        close(fd);
+      }
+      return BEGIN_FAILED;
+    }
+  }
+
+  if (_fd == INVALID_FD) {
+    _fd = fd;
+  }
+  _remoteIp   = ip;
+  _remotePort = port;
+  _wbufSize   = 0;
+  ret         = BEGIN_SUCCESS;
 
   return ret;
 }
 
 int LTEUDP::endPacket()
 {
-  if (!_wbuf) {
+  if (!_wbuf || (_fd == INVALID_FD)) {
+    LTEUDPDBG("not available\n");
     return END_FAILED;
   }
 
@@ -325,7 +344,8 @@ int LTEUDP::endPacket()
 
 size_t LTEUDP::write(uint8_t val)
 {
-  if (!_wbuf) {
+  if (!_wbuf || (_fd == INVALID_FD)) {
+    LTEUDPDBG("not available\n");
     return 0;
   }
 
@@ -367,6 +387,11 @@ int LTEUDP::parsePacket()
 
   if (_rbuf) {
     LTEUDPERR("parsePacket already\n");
+    return PARSE_FAILED;
+  }
+
+  if (_fd == INVALID_FD) {
+    LTEUDPDBG("not available\n");
     return PARSE_FAILED;
   }
 
