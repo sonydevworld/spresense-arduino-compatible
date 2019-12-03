@@ -416,7 +416,7 @@ int LTEUDP::parsePacket()
   _remotePort = ntohs(fromaddr.sin_port);
 
   if (len > 0) {
-    _rbuf = new LTEUDPBuffer(len);
+    _rbuf = new LTEUDPBuffer(BUFFER_MAX_LEN);
     if (!_rbuf) {
       LTEUDPERR("failed to allocate memory\n");
       delete[] buf;
