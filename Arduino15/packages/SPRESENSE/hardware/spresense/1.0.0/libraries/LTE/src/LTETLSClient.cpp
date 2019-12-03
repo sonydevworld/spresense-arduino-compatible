@@ -280,165 +280,219 @@ uint8_t LTETLSClient::connected()
 
 void LTETLSClient::setCACert(const char *rootCA)
 {
-  if (rootCA) {
-    if (_rootCA) {
-      delete[] _rootCA;
-    }
-
-    _rootCASize = strlen(rootCA) + 1;
-    _rootCA     = new char[_rootCASize];
-    strncpy(_rootCA, rootCA, _rootCASize - 1);
-    _rootCA[_rootCASize - 1] = '\0';
-  } else {
+  if (!rootCA || (strlen(rootCA) == SIZE_MAX)) {
     LTETLSCERR("invalid parameter\n");
+    return;
   }
+
+  if (_rootCA) {
+    delete[] _rootCA;
+    _rootCA = NULL;
+  }
+
+  _rootCASize = strlen(rootCA) + 1;
+  _rootCA = new char[_rootCASize];
+  if (!_rootCA) {
+    LTETLSCERR("failed to allocate memory\n");
+    return;
+  }
+
+  strncpy(_rootCA, rootCA, _rootCASize - 1);
+  _rootCA[_rootCASize - 1] = '\0';
 }
 
 void LTETLSClient::setCACert(const unsigned char *rootCA, size_t size)
 {
-  if (rootCA && size) {
-    if (_rootCA) {
-      delete[] _rootCA;
-    }
-
-    _rootCASize = size;
-    _rootCA     = new char[_rootCASize];
-    if (!_rootCA) {
-      LTETLSCERR("failed to allocate memory\n");
-      return;
-    }
-
-    memcpy(_rootCA, rootCA, _rootCASize);
-  } else {
+  if (!rootCA || (size == 0)) {
     LTETLSCERR("invalid parameter\n");
+    return;
   }
+
+  if (_rootCA) {
+    delete[] _rootCA;
+    _rootCA = NULL;
+  }
+
+  _rootCASize = size;
+  _rootCA     = new char[_rootCASize];
+  if (!_rootCA) {
+    LTETLSCERR("failed to allocate memory\n");
+    return;
+  }
+
+  memcpy(_rootCA, rootCA, _rootCASize);
 }
 
 void LTETLSClient::setCACert(Stream& stream, size_t size)
 {
-  if (size) {
-    if (_rootCA) {
-      delete[] _rootCA;
-    }
-
-    _rootCASize = size + 1;
-    _rootCA     = new char[_rootCASize];
-    if (size != stream.readBytes(_rootCA, size)) {
-      delete[] _rootCA;
-      _rootCA = NULL;
-    }
-    _rootCA[size] = '\0';
-  } else {
+  if ((size == 0) || (size == SIZE_MAX)) {
     LTETLSCERR("invalid parameter\n");
+    return;
   }
+
+  if (_rootCA) {
+    delete[] _rootCA;
+    _rootCA = NULL;
+  }
+
+  _rootCASize = size + 1;
+  _rootCA = new char[_rootCASize];
+  if (!_rootCA) {
+    LTETLSCERR("failed to allocate memory\n");
+    return;
+  }
+
+  if (size != stream.readBytes(_rootCA, size)) {
+    delete[] _rootCA;
+    _rootCA = NULL;
+    return;
+  }
+
+  _rootCA[size] = '\0';
 }
 
 void LTETLSClient::setCertificate(const char *clientCA)
 {
-  if (clientCA) {
-    if (_clientCA) {
-      delete[] _clientCA;
-    }
-
-    _clientCASize = strlen(clientCA) + 1;
-    _clientCA = new char[_clientCASize];
-    strncpy(_clientCA, clientCA, _clientCASize - 1);
-    _rootCA[_clientCASize - 1] = '\0';
-  } else {
+  if (!clientCA || (strlen(clientCA) == SIZE_MAX)) {
     LTETLSCERR("invalid parameter\n");
+    return;
   }
+
+  if (_clientCA) {
+    delete[] _clientCA;
+    _clientCA = NULL;
+  }
+
+  _clientCASize = strlen(clientCA) + 1;
+  _clientCA = new char[_clientCASize];
+  if (!_clientCA) {
+    LTETLSCERR("failed to allocate memory\n");
+    return;
+  }
+
+  strncpy(_clientCA, clientCA, _clientCASize - 1);
+  _clientCA[_clientCASize - 1] = '\0';
 }
 
 void LTETLSClient::setCertificate(const unsigned char *clientCA, size_t size)
 {
-  if (clientCA && size) {
-    if (_clientCA) {
-      delete[] _clientCA;
-    }
-
-    _clientCASize = size;
-    _clientCA = new char[_clientCASize];
-    if (!_clientCA) {
-      LTETLSCERR("failed to allocate memory\n");
-      return;
-    }
-
-    memcpy(_clientCA, clientCA, _clientCASize);
-  } else {
+  if (!clientCA || (size == 0)) {
     LTETLSCERR("invalid parameter\n");
+    return;
   }
+
+  if (_clientCA) {
+    delete[] _clientCA;
+    _clientCA = NULL;
+  }
+
+  _clientCASize = size;
+  _clientCA = new char[_clientCASize];
+  if (!_clientCA) {
+    LTETLSCERR("failed to allocate memory\n");
+    return;
+  }
+
+  memcpy(_clientCA, clientCA, _clientCASize);
 }
 
 void LTETLSClient::setCertificate(Stream& stream, size_t size)
 {
-  if (size) {
-    if (_clientCA) {
-      delete[] _clientCA;
-    }
-
-    _clientCASize = size + 1;
-    _clientCA = new char[_clientCASize];
-    if (size != stream.readBytes(_clientCA, size)) {
-      delete[] _clientCA;
-      _clientCA = NULL;
-    }
-    _clientCA[size] = '\0';
-  } else {
+  if ((size == 0) || (size == SIZE_MAX)) {
     LTETLSCERR("invalid parameter\n");
+    return;
   }
+
+  if (_clientCA) {
+    delete[] _clientCA;
+    _clientCA = NULL;
+  }
+
+  _clientCASize = size + 1;
+  _clientCA = new char[_clientCASize];
+  if (!_clientCA) {
+    LTETLSCERR("failed to allocate memory\n");
+    return;
+  }
+
+  if (size != stream.readBytes(_clientCA, size)) {
+    delete[] _clientCA;
+    _clientCA = NULL;
+    return;
+  }
+
+  _clientCA[size] = '\0';
 }
 
 void LTETLSClient::setPrivateKey(const char *privateKey)
 {
-  if (privateKey) {
-    if (_privateKey) {
-      delete[] _privateKey;
-    }
-
-    _privateKeySize = strlen(_privateKey) + 1;
-    _privateKey = new char[_privateKeySize];
-    strncpy(_privateKey, privateKey, _privateKeySize - 1);
-    _rootCA[_privateKeySize - 1] = '\0';
-  } else {
+  if (!privateKey || (strlen(privateKey) == SIZE_MAX)) {
     LTETLSCERR("invalid parameter\n");
+    return;
   }
+
+  if (_privateKey) {
+    delete[] _privateKey;
+    _privateKey = NULL;
+  }
+
+  _privateKeySize = strlen(privateKey) + 1;
+  _privateKey = new char[_privateKeySize];
+  if (!_privateKey) {
+    LTETLSCERR("failed to allocate memory\n");
+    return;
+  }
+
+  strncpy(_privateKey, privateKey, _privateKeySize - 1);
+  _privateKey[_privateKeySize - 1] = '\0';
 }
 
 void LTETLSClient::setPrivateKey(const unsigned char *privateKey, size_t size)
 {
-  if (privateKey && size) {
-    if (_privateKey) {
-      delete[] _privateKey;
-    }
-
-    _privateKeySize = size;
-    _privateKey = new char[_privateKeySize];
-    if (!_privateKey) {
-      LTETLSCERR("failed to allocate memory\n");
-      return;
-    }
-
-    memcpy(_privateKey, privateKey, _privateKeySize);
-  } else {
+  if (!privateKey || (size == 0)) {
     LTETLSCERR("invalid parameter\n");
+    return;
   }
+
+  if (_privateKey) {
+    delete[] _privateKey;
+    _privateKey = NULL;
+  }
+
+  _privateKeySize = size;
+  _privateKey = new char[_privateKeySize];
+  if (!_privateKey) {
+    LTETLSCERR("failed to allocate memory\n");
+    return;
+  }
+
+  memcpy(_privateKey, privateKey, _privateKeySize);
 }
 
 void LTETLSClient::setPrivateKey(Stream& stream, size_t size)
 {
-  if (size) {
-    if (_privateKey) {
-      delete[] _privateKey;
-    }
-
-    _privateKeySize = size + 1;
-    _privateKey = new char[_privateKeySize];
-    if (size != stream.readBytes(_privateKey, size)) {
-      delete[] _privateKey;
-      _privateKey = NULL;
-    }
-    _privateKey[size] = '\0';
-  } else {
+  if ((size == 0) || (size == SIZE_MAX)) {
     LTETLSCERR("invalid parameter\n");
+    return;
   }
+
+  if (_privateKey) {
+    delete[] _privateKey;
+    _privateKey = NULL;
+  }
+
+  _privateKeySize = size + 1;
+  _privateKey = new char[_privateKeySize];
+  if (!_privateKey) {
+    LTETLSCERR("failed to allocate memory\n");
+    return;
+  }
+
+  if (size != stream.readBytes(_privateKey, size)) {
+    delete[] _privateKey;
+    _privateKey = NULL;
+    return;
+  }
+
+  _privateKey[size] = '\0';
 }
