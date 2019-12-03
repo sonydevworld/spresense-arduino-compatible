@@ -133,24 +133,26 @@ err_t MediaRecorder::end(void)
 }
 
 /*--------------------------------------------------------------------------*/
-err_t MediaRecorder::activate(AsSetRecorderStsInputDevice input_device, MediaRecorderCallback mrcb)
+err_t MediaRecorder::activate(AsSetRecorderStsInputDevice input_device, MediaRecorderCallback mrcb, bool is_digital)
 {
-  return activate(input_device, mrcb, MEDIARECORDER_BUF_SIZE);
+  return activate(input_device, mrcb, MEDIARECORDER_BUF_SIZE, is_digital);
 }
  
 /*--------------------------------------------------------------------------*/
 err_t MediaRecorder::activate(AsSetRecorderStsInputDevice input_device,
                               MediaRecorderCallback mrcb,
-                              uint32_t recorder_bufsize)
+                              uint32_t recorder_bufsize,
+                              bool is_digital)
 {
-  return activate(input_device, mrcb, MEDIARECORDER_BUF_SIZE, AsMicFrontendPreProcThrough);
+  return activate(input_device, mrcb, MEDIARECORDER_BUF_SIZE, AsMicFrontendPreProcThrough, is_digital);
 }
 
 /*--------------------------------------------------------------------------*/
 err_t MediaRecorder::activate(AsSetRecorderStsInputDevice input_device,
                               MediaRecorderCallback mrcb,
                               uint32_t recorder_bufsize,
-                              AsMicFrontendPreProcType proc_type)
+                              AsMicFrontendPreProcType proc_type,
+                              bool is_digital)
 {
   /* Hold callback */
 
@@ -191,7 +193,7 @@ err_t MediaRecorder::activate(AsSetRecorderStsInputDevice input_device,
     {
       /* Activate Frontend (sync move) */
 
-      err_t fed_result = m_p_fed_ins->activate();
+      err_t fed_result = m_p_fed_ins->activate(is_digital);
       if (fed_result != FRONTEND_ECODE_OK)
         {
           m_mr_callback(AsRecorderEventAct, fed_result, 0);
