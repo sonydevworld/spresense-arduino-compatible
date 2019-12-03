@@ -113,6 +113,8 @@ size_t LTEUDPBuffer::write(const uint8_t *buffer, size_t size)
 
   _begin = 0;
   _end   = size;
+
+  return size;
 }
 
 int LTEUDPBuffer::available()
