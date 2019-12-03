@@ -79,11 +79,11 @@ static void modemRestartCallback(uint32_t reason)
             pthread_detach(g_recoveryThreadID);
           } else {
             LTEERR("Recovery thread creation failure.\n");
-            theLTECore.setStatus(ERROR);
+            theLTECore.setStatus(LTE_ERROR);
           }
       } else {
         LTEERR("Modem restart during recovery.\n");
-        theLTECore.setStatus(ERROR);
+        theLTECore.setStatus(LTE_ERROR);
       }
       break;
     case LTE_RESTART_USER_INITIATED:
@@ -101,12 +101,12 @@ static void activatePDNCallback(uint32_t result, lte_pdn_t *pdn)
   {
     case LTE_RESULT_ERROR:
       LTEERR("Attach Error.\n");
-      theLTECore.setStatus(ERROR);
+      theLTECore.setStatus(LTE_ERROR);
       theLTECore.printErrorInfo();
       return;
     case LTE_RESULT_CANCEL:
       LTEDBG("Attach cancel.\n");
-      if (CONNECTING == theLTECore.getStatus()) {
+      if (LTE_CONNECTING == theLTECore.getStatus()) {
         theLTECore.setStatus(LTE_SEARCHING);
       }
       return;
@@ -135,7 +135,7 @@ static void reportNetinfoCallback(lte_netinfo_t *info)
     /* In case of REJECT, cancel the activtePDN process. */
     if (info->nw_err.err_type == LTE_NETERR_REJECT) {
       LTEERR("Rejected from the network.\n");
-      theLTECore.setStatus(ERROR);
+      theLTECore.setStatus(LTE_ERROR);
       lte_activate_pdn_cancel();
     }
   }
@@ -146,7 +146,7 @@ static void reportNetinfoCallback(lte_netinfo_t *info)
 /****************************************************************************
  * LTECore implementation.
  ****************************************************************************/
-LTECore::LTECore():_networkStatus(OFF), _sessionID(0)
+LTECore::LTECore():_networkStatus(LTE_OFF), _sessionID(0)
 {
   memset(_modemPinCode, 0, LTE_NET_PINCODE_MAXLEN);
   memset(_apn.name, 0, LTE_NET_APN_MAXLEN);
@@ -210,7 +210,7 @@ LTEModemStatus LTECore::begin(bool restart)
   pthread_cond_wait(&(_resetCondition.cond), &(_resetCondition.mutex));
   pthread_mutex_unlock(&(_resetCondition.mutex));
 
-  setStatus(IDLE);
+  setStatus(LTE_IDLE);
 
   LTEDBG("Successful modem poweron.\n");
 
@@ -218,17 +218,17 @@ LTEModemStatus LTECore::begin(bool restart)
 
 errout:
   shutdown();
-  setStatus(ERROR);
+  setStatus(LTE_ERROR);
   return getStatus();
 }
 
 void LTECore::shutdown()
 {
-  if (OFF == getStatus()) {
+  if (LTE_OFF == getStatus()) {
     return;
   }
 
-  setStatus(OFF);  
+  setStatus(LTE_OFF);
   lte_finalize();
 
   /* Clear string. */
@@ -340,7 +340,7 @@ LTEModemStatus LTECore::startSearchNetwork(char* pinCode, bool synchronous)
         LTEERR("lte_activate_pdn result error : %d\n", result);
         goto errout;
       }
-      status = CONNECTING;
+      status = LTE_CONNECTING;
     }
   }
 
@@ -348,8 +348,8 @@ LTEModemStatus LTECore::startSearchNetwork(char* pinCode, bool synchronous)
 
 errout:
   memset(_modemPinCode, 0, LTE_NET_PINCODE_MAXLEN);
-  setStatus(ERROR);
-  return ERROR;
+  setStatus(LTE_ERROR);
+  return LTE_ERROR;
 }
 
 LTEModemStatus LTECore::connectNetwork(char* apn, char* userName, char* password, LTENetworkAuthType authType, LTENetworkIPType ipType, bool synchronous, bool cancelable)
@@ -366,8 +366,8 @@ LTEModemStatus LTECore::connectNetwork(char* apn, char* userName, char* password
 
   if (!apnSetting.apn || apnSetting.apn && (0 == strlen(apnSetting.apn))) {
     LTEERR("Invalid APN name.\n");
-    setStatus(ERROR);
-    return ERROR;
+    setStatus(LTE_ERROR);
+    return LTE_ERROR;
   }
 
   /* If the user name and password are NULL or 0 length,
@@ -438,7 +438,7 @@ LTEModemStatus LTECore::connectNetwork(char* apn, char* userName, char* password
       LTEERR("lte_activate_pdn result error : %d\n", result);
       goto errout;
     }
-    status = CONNECTING;
+    status = LTE_CONNECTING;
   }
 
   /* Copy to private members */
@@ -465,8 +465,8 @@ errout:
   _apn.authType = LTE_NET_AUTHTYPE_CHAP;
   _apn.ipType   = LTE_NET_IPTYPE_V4V6;
 
-  setStatus(ERROR);
-  return ERROR;
+  setStatus(LTE_ERROR);
+  return LTE_ERROR;
 }
 
 LTEModemStatus LTECore::disconnectNetwork()
@@ -510,14 +510,14 @@ LTEModemStatus LTECore::disconnectNetwork()
 
     /* Poll every 100ms until activate_pdn returns. */
 
-    while(CONNECTING == getStatus()) {
+    while(LTE_CONNECTING == getStatus()) {
       usleep(100 * 1000);
     }
   }
 
   return getStatus();
 errout:
-  setStatus(ERROR);
+  setStatus(LTE_ERROR);
   return getStatus();
 }
 
@@ -558,7 +558,7 @@ void LTECore::recovery()
 
   switch (oldStat) {
     case LTE_SEARCHING:
-    case CONNECTING:
+    case LTE_CONNECTING:
     case LTE_READY:
       newStat = startSearchNetwork(_modemPinCode, true);
       if ((LTE_SEARCHING == newStat) &&
@@ -568,7 +568,7 @@ void LTECore::recovery()
       }
 
       setStatus(newStat);
-      if (ERROR != newStat) {
+      if (LTE_ERROR != newStat) {
         LTEDBG("Recovery Complete  : %d\n", newStat);
       } else {
         LTEERR("Recovery Failed  : %d\n", newStat);

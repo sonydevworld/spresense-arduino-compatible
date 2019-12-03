@@ -60,10 +60,10 @@ LTEAccessProvider::~LTEAccessProvider()
 
 LTEModemStatus LTEAccessProvider::begin(char* pinCode, bool restart, bool synchronous)
 {
-  LTEModemStatus networkStatus = OFF;
+  LTEModemStatus networkStatus = LTE_OFF;
 
   networkStatus = theLTECore.begin(restart);
-  if (ERROR != networkStatus) {
+  if (LTE_ERROR != networkStatus) {
     networkStatus = theLTECore.startSearchNetwork(pinCode, synchronous);
     theLTECore.setStatus(networkStatus);
   }
@@ -77,10 +77,10 @@ void LTEAccessProvider::shutdown()
 LTEModemStatus LTEAccessProvider::attach(char *apn, char *userName, char* password, LTENetworkAuthType authType, LTENetworkIPType ipType, bool synchronous)
 {
   LTEModemStatus networkStatus = getStatus();
-  if (CONNECTING == networkStatus) {
+  if (LTE_CONNECTING == networkStatus) {
     LTEERR("This method cannot be called while waiting for a connection.\n");
-    theLTECore.setStatus(ERROR);
-    return ERROR;
+    theLTECore.setStatus(LTE_ERROR);
+    return LTE_ERROR;
   }
 
   networkStatus = theLTECore.connectNetwork(apn, userName, password, authType, ipType, synchronous);

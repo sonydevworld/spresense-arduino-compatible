@@ -94,9 +94,9 @@ public:
    * @details [ja] モデムの電源をONにします。モデムの電源がONの場合はモデムの電源をOFFにしてから電源をONにします。
    *               このメソッドはほかのメソッドを利用する前に必ず呼び出す必要があります。
    *
-   * @return [en] Returns IDLE on success, ERROR if an error occurs.
+   * @return [en] Returns LTE_IDLE on success, LTE_ERROR if an error occurs.
    *
-   * @return [ja] 成功時はIDLE、エラーが発生した場合、ERRORを返します。
+   * @return [ja] 成功時はLTE_IDLE、エラーが発生した場合、LTE_ERRORを返します。
    */
   LTEModemStatus begin();
 

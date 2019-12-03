@@ -105,9 +105,9 @@ public:
    * @param [in] restart [en] Restart flag <BR> [ja] 再起動フラグ
    * @param [in] synchronous [en] Synchronization wait flag <BR> [ja] 同期待ちフラグ
    *
-   * @return [en] Returns LTE_SEARCHING on success, ERROR if an error occurs.
+   * @return [en] Returns LTE_SEARCHING on success, LTE_ERROR if an error occurs.
    *
-   * @return [ja] 成功時はLTE_SEARCHING、エラーが発生した場合、ERRORを返します。
+   * @return [ja] 成功時はLTE_SEARCHING、エラーが発生した場合、LTE_ERRORを返します。
    */
   LTEModemStatus begin(char* pinCode = NULL, bool restart = true, bool synchronous = true);
 
@@ -143,21 +143,21 @@ public:
    *                    [ja] 接続IP形式。 #LTENetworkIPType で定義された値を設定してください。
    * @param [in] synchronous [en] Synchronization wait flag <BR> [ja] 同期待ちフラグ
    *
-   * @attention [en] If rejected from the LTE network, the status changes to ERROR.
+   * @attention [en] If rejected from the LTE network, the status changes to LTE_ERROR.
    *
-   * @attention [ja] LTEネットワークからリジェクトされた場合、ステータスはERRORに遷移します。
+   * @attention [ja] LTEネットワークからリジェクトされた場合、ステータスはLTE_ERRORに遷移します。
    *
    * @return [en] The return value on success depends on the value of synchronous.
    *         - If synchronous is true <BR>
-   *          Returns LTE_READY on success, ERROR if an error occurs.
+   *          Returns LTE_READY on success, LTE_ERROR if an error occurs.
    *         - If synchronous is false <BR>
-   *          Returns CONNECTING on success, ERROR if an error occurs.
+   *          Returns LTE_CONNECTING on success, LTE_ERROR if an error occurs.
    *
    * @return [ja] 成功時の戻り値は、synchronousパラメータの値によって変わります。
    *         - synchronousの値がtrueの場合 <BR>
-   *          成功時はLTE_READY、エラーが発生した場合、ERRORを返します。
+   *          成功時はLTE_READY、エラーが発生した場合、LTE_ERRORを返します。
    *         - synchronousの値がfalseの場合 <BR>
-   *          成功時はCONNECTING、エラーが発生した場合、ERRORを返します。
+   *          成功時はLTE_CONNECTING、エラーが発生した場合、LTE_ERRORを返します。
    */
   LTEModemStatus attach(char *apn, char *userName = NULL, char* password = NULL, LTENetworkAuthType authType = LTE_NET_AUTHTYPE_CHAP, LTENetworkIPType ipType = LTE_NET_IPTYPE_V4V6, bool synchronous = true);
 
@@ -170,20 +170,20 @@ public:
    * @details [ja] LTEネットワークからモデムを切り離します。attach()を非同期実行中に本メソッドが呼ばれた場合、
    *               モデムの登録処理をキャンセルします。
    *
-   * @attention [en] If this method is called when the modem status is CONNECTING, LTE_READY may be returned in conflict with the LTE network registration process.
+   * @attention [en] If this method is called when the modem status is LTE_CONNECTING, LTE_READY may be returned in conflict with the LTE network registration process.
    *                 When detaching from the LTE network, please execute detach() again.
    *
-   * @attention [ja] モデムの状態がCONNECTINGの時に本メソッドを呼んだ場合、LTEネットワークへの登録処理と競合して、LTE_READYが返る場合があります。
+   * @attention [ja] モデムの状態がLTE_CONNECTINGの時に本メソッドを呼んだ場合、LTEネットワークへの登録処理と競合して、LTE_READYが返る場合があります。
    *                 LTEネットワークから切り離す場合、 detach() をもう一度実行してください。
    *
    * @retval LTE_SEARCHING [en] Returns when the modem is detached from the LTE network.<BR>
    *                       [ja] LTEネットワークからモデムが切り離された場合に返す。
    *
-   * @retval LTE_READY [en] Returns when the modem is registered to the LTE network by calling this method if the modem status is CONNECTING.<BR>
-   *                   [ja] モデムの状態がCONNECTINGの時に本メソッドを呼び出し、LTEネットワークにモデムが登録された場合に返す。
+   * @retval LTE_READY [en] Returns when the modem is registered to the LTE network by calling this method if the modem status is LTE_CONNECTING.<BR>
+   *                   [ja] モデムの状態がLTE_CONNECTINGの時に本メソッドを呼び出し、LTEネットワークにモデムが登録された場合に返す。
    *
-   * @retval ERROR [en] Returns when an error occurred.<BR>
-   *               [ja] エラーが発生した場合に返す。
+   * @retval LTE_ERROR [en] Returns when an error occurred.<BR>
+   *                   [ja] エラーが発生した場合に返す。
    */
   LTEModemStatus detach();
 

@@ -55,12 +55,12 @@
  *        [ja] モデムのステータスコード
  */
 enum LTEModemStatus {
-  ERROR = 0,     /**< [en] Error */
-  IDLE,          /**< [en] Powered on */
-  CONNECTING,    /**< [en] Connecting network */
-  LTE_SEARCHING, /**< [en] Ready to connect to the APN */
-  LTE_READY,     /**< [en] APN conneced */
-  OFF            /**< [en] Powered off */
+  LTE_ERROR = 0,  /**< [en] Error */
+  LTE_IDLE,       /**< [en] Powered on */
+  LTE_CONNECTING, /**< [en] Connecting network */
+  LTE_SEARCHING,  /**< [en] Ready to connect to the APN */
+  LTE_READY,      /**< [en] APN conneced */
+  LTE_OFF         /**< [en] Powered off */
 };
 
 /**
