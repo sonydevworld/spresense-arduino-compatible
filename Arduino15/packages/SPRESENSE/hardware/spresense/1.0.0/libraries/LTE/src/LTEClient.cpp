@@ -142,6 +142,12 @@ int LTEClient::connect(const char *host, uint16_t port)
   fcntl(_fd, F_SETFL, fcntl(_fd, F_GETFL) | O_NONBLOCK);
 
   _buf = new uint8_t[BUFFER_MAX_LEN];
+  if (!_buf) {
+    LTECERR("failed to allocate memory\n");
+    close(_fd);
+    _fd = INVALID_FD;
+    return NOT_CONNECTED;
+  }
   _connected = CONNECTED;
 
   LTECDBG("connected to %s\n", host);

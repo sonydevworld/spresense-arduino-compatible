@@ -82,13 +82,20 @@ LTEUDPBuffer::LTEUDPBuffer()
 
 LTEUDPBuffer::LTEUDPBuffer(size_t size): _maxSize(size), _begin(0), _end(0)
 {
-  _buf = new char[size];
+  if (size != 0) {
+    _buf = new char[size];
+    if (!_buf) {
+      LTEUDPERR("failed to allocate memory\n");
+    }
+  }
 }
 
 LTEUDPBuffer::~LTEUDPBuffer()
 {
-  delete[] _buf;
-  _buf = NULL;
+  if (_buf) {
+    delete[] _buf;
+    _buf = NULL;
+  }
 }
 
 size_t LTEUDPBuffer::write(uint8_t val)
@@ -416,6 +423,11 @@ int LTEUDP::parsePacket()
 
   if (len > 0) {
     _rbuf = new LTEUDPBuffer(len);
+    if (!_rbuf) {
+      LTEUDPERR("failed to allocate memory\n");
+      delete[] buf;
+      return PARSE_FAILED;
+    }
     _rbuf->write(buf, len);
   }
   delete[] buf;

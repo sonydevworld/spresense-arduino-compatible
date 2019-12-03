@@ -187,6 +187,10 @@ int tlsConnect(tlsClientContext_t *tlsCtx, const char *host, uint32_t port,
   ret = mbedtls_ssl_get_verify_result(&tlsCtx->ssl);
   if (ret != 0) {
     buf = new char[BUF_LEN];
+    if (!buf) {
+      TLSCERR("failed to allocate memory\n");
+      return -1;
+    }
     memset(buf, 0, BUF_LEN);
     mbedtls_x509_crt_verify_info(buf, BUF_LEN, " ", ret);
     TLSCERR("Failed to verify perr certificates: %s\n", buf);

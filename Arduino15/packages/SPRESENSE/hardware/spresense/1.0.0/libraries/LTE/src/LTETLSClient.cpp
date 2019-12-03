@@ -108,6 +108,10 @@ int LTETLSClient::connect(const char *host, uint16_t port)
   stop();
 
   _tlsContext = new tlsClientContext_t;
+  if (!_tlsContext) {
+    LTETLSCERR("failed to allocate memory\n");
+    return NOT_CONNECTED;
+  }
   tlsInit(_tlsContext);
 
   ret = tlsConnect(_tlsContext, host, port, _rootCA, _rootCASize,
@@ -299,6 +303,11 @@ void LTETLSClient::setCACert(const unsigned char *rootCA, size_t size)
 
     _rootCASize = size;
     _rootCA     = new char[_rootCASize];
+    if (!_rootCA) {
+      LTETLSCERR("failed to allocate memory\n");
+      return;
+    }
+
     memcpy(_rootCA, rootCA, _rootCASize);
   } else {
     LTETLSCERR("invalid parameter\n");
@@ -349,6 +358,11 @@ void LTETLSClient::setCertificate(const unsigned char *clientCA, size_t size)
 
     _clientCASize = size;
     _clientCA = new char[_clientCASize];
+    if (!_clientCA) {
+      LTETLSCERR("failed to allocate memory\n");
+      return;
+    }
+
     memcpy(_clientCA, clientCA, _clientCASize);
   } else {
     LTETLSCERR("invalid parameter\n");
@@ -399,6 +413,11 @@ void LTETLSClient::setPrivateKey(const unsigned char *privateKey, size_t size)
 
     _privateKeySize = size;
     _privateKey = new char[_privateKeySize];
+    if (!_privateKey) {
+      LTETLSCERR("failed to allocate memory\n");
+      return;
+    }
+
     memcpy(_privateKey, privateKey, _privateKeySize);
   } else {
     LTETLSCERR("invalid parameter\n");
