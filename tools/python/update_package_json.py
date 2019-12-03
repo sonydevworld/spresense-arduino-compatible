@@ -147,7 +147,9 @@ if __name__ == "__main__":
 	parser.add_argument('-o', '--output_json', metavar='package_index.json', default='package_index.json', type=str, help='Output package_*_index.json path')
 	parser.add_argument('-v', '--version', metavar='x.y.z', default=None, type=str, help='Version number for add package')
 	parser.add_argument('-b', '--base_version', metavar='x.y.z', default=None, type=str, help='Version number for package base')
-	parser.add_argument('-l', '--local_name', metavar='', default="", type=str, help='Local package name')
+	parser.add_argument('-p', '--platform_name', metavar='', default="", type=str, help='Platform name')
+	parser.add_argument('-m', '--maintainer_name', metavar='', default="", type=str, help='Maintainer name')
+	parser.add_argument('-s', '--package_suffix', metavar='', default="", type=str, help='Package suffix text')
 	args = parser.parse_args()
 
 	if args.archive == None:
@@ -173,7 +175,12 @@ if __name__ == "__main__":
 	package = get_first_package(pkg_json)
 
 	# Append local name
-	package["name"] = "%s%s" % (package["name"], args.local_name)
+	if args.package_suffix != "":
+		package["name"] = "%s%s" % (package["name"], args.package_suffix)
+
+	# Append maintainer name
+	if args.maintainer_name != "":
+		package["maintainer"] = args.maintainer_name
 
 	# Add new platform item(New item are required if core lib is not updated.)
 	# Take current platforms list
@@ -196,7 +203,7 @@ if __name__ == "__main__":
 	new_platform['version'] = args.version
 
 	# Check platform file(packages/*/hardware/) update
-	archive = "%s-v%s%s.tar.gz" % (new_platform['architecture'], args.version, args.local_name)
+	archive = "%s-v%s%s.tar.gz" % (new_platform['architecture'], args.version, args.package_suffix)
 	if archive in update_archives:
 		url = "%s/%s" % (base_url, archive)
 		new_platform['archiveFileName'] = archive
@@ -204,14 +211,18 @@ if __name__ == "__main__":
 		new_platform['size'] = get_archive_size("%s/%s" % (args.archive, archive))
 		new_platform['checksum'] = get_archive_sha256_sum("%s/%s" % (args.archive, archive))
 
+		# Append platform name
+		if args.platform_name != "":
+			new_platform["name"] = args.platform_name
+
 	# Check tools dependency updates
 	for tool in new_platform['toolsDependencies']:
-		archive = "%s-v%s%s.tar.gz" % (tool['name'], args.version, args.local_name)
+		archive = "%s-v%s%s.tar.gz" % (tool['name'], args.version, args.package_suffix)
 		if archive in update_archives:
-			tool['packager'] = "%s%s" % (tool['packager'], args.local_name)
+			tool['packager'] = "%s%s" % (tool['packager'], args.package_suffix)
 			tool['version'] = args.version
 
-	if args.local_name != "":
+	if args.package_suffix != "":
 		# If local package creating, clear all versions
 		platforms.clear()
 
@@ -227,7 +238,7 @@ if __name__ == "__main__":
 	# Check tools achive update
 	toolDeps = get_tool_dependencies(base_platform)
 	for key in toolDeps:
-		archive = "%s-v%s%s.tar.gz" % (key, args.version, args.local_name)
+		archive = "%s-v%s%s.tar.gz" % (key, args.version, args.package_suffix)
 		if archive in update_archives:
 			# Clone tool item for create new item
 			tool = copy.deepcopy(tools[0])

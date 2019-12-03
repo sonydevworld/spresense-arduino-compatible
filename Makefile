@@ -16,6 +16,8 @@ NAME_SUFFIX       ?= local
 ifneq ($(NAME_SUFFIX),)
 NAME_FOOTER := _$(NAME_SUFFIX)
 endif
+PLATFORM_NAME     ?= Spresense $(NAME_SUFFIX) Board
+MAINTAINER_NAME   ?= Spresense $(NAME_SUFFIX) Community
 BASE_VERSION       = $(shell cat tools/version)
 VERSION           ?= $(shell echo $(BASE_VERSION) | cut -d "." -f -2).$(shell expr $(shell echo $(BASE_VERSION) | cut -d "." -f 3) + 1)
 RELEASE_NAME       = v$(VERSION)
@@ -63,7 +65,14 @@ prebuilt:
 
 $(INSTALL_JSON):
 	$(Q) wget $(BOARD_MANAGER_URL) -O $(TEMP_JSON)
-	$(Q) tools/python/update_package_json.py -a $(ARCHIVEDIR) -l "$(NAME_FOOTER)" -i $(TEMP_JSON) -o $@ -v $(VERSION) -b $(BASE_VERSION)
+	$(Q) tools/python/update_package_json.py -a $(ARCHIVEDIR) \
+	                                         -m "$(MAINTAINER_NAME)" \
+	                                         -p "$(PLATFORM_NAME)" \
+	                                         -s "$(NAME_FOOTER)" \
+	                                         -i $(TEMP_JSON) \
+	                                         -o $@ \
+	                                         -v $(VERSION) \
+	                                         -b $(BASE_VERSION)
 
 $(SPR_LIBRARY): $(ARCHIVEDIR) prebuilt
 	$(Q) echo "Creating spresense.tar.gz ..."
