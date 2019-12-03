@@ -76,7 +76,6 @@ int tlsConnect(tlsClientContext_t *tlsCtx, const char *host, uint32_t port,
                const char *privateKey,  size_t privateKeySize)
 {
   int   ret;
-  char *portChar;
   char *buf;
 
   TLSCDBG("Start tls_connect\n");
@@ -160,9 +159,6 @@ int tlsConnect(tlsClientContext_t *tlsCtx, const char *host, uint32_t port,
    */
   ret = mbedtls_net_connect(&tlsCtx->serverFd, host, portStr.c_str(),
                             MBEDTLS_NET_PROTO_TCP);
-
-  delete[] portChar;
-
   if (ret != 0) {
     TLSCERR("mbedtls_net_connect() error : -0x%x\n", -ret);
     return ret;
