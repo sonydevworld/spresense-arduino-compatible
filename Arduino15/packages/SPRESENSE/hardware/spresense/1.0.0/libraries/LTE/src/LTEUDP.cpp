@@ -212,14 +212,6 @@ uint8_t LTEUDP::begin(uint16_t port)
   }
 
   int ret;
-  int val = 1;
-
-  ret = setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val));
-  if (ret < 0) {
-    LTEUDPERR("setsockopt() error : %d\n", errno);
-    stop();
-    return BEGIN_FAILED;
-  }
 
   struct sockaddr_in src_addr;
   memset(&src_addr, 0, sizeof(struct sockaddr_in));
