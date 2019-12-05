@@ -108,7 +108,7 @@ IPAddress LTEAccessProvider::getIPAddress()
 
   netinfo.pdn_stat = pdnStatus;
 
-  result = lte_get_netinfo_sync(&netinfo);
+  result = lte_get_netinfo_sync(LTE_NET_PDN_NUM, &netinfo);
   if (result < 0) {
     LTEERR("lte_get_netinfo_sync result error : %d\n", result);
     if (-EPROTO == result) {
