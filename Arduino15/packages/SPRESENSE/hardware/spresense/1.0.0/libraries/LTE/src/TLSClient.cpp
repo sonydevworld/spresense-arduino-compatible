@@ -82,7 +82,9 @@ int tlsConnect(tlsClientContext_t *tlsCtx, const char *host, uint32_t port,
 
   /* Setup mbedTLS stuff */
   ret = mbedtls_ctr_drbg_seed(&tlsCtx->ctrDrbg, mbedtls_entropy_func,
-                              &tlsCtx->entropy, g_pers, strlen(g_pers));
+                              &tlsCtx->entropy,
+                              reinterpret_cast<const unsigned char*>(g_pers),
+                              strlen(g_pers));
   if (ret != 0) {
     TLSCERR("mbedtls_ctr_drbg_seed() error : -0x%x\n", -ret);
     return ret;
@@ -93,7 +95,9 @@ int tlsConnect(tlsClientContext_t *tlsCtx, const char *host, uint32_t port,
 
     /* Setup certificates. */
     mbedtls_x509_crt_init(&tlsCtx->caCert);
-    ret = mbedtls_x509_crt_parse(&tlsCtx->caCert, rootCA, rootCASize);
+    ret = mbedtls_x509_crt_parse(&tlsCtx->caCert,
+                                 reinterpret_cast<const unsigned char*>(rootCA),
+                                 rootCASize);
     if (ret != 0) {
       TLSCERR("mbedtls_x509_crt_parse() error : -0x%x\n", -ret);
       return ret;
@@ -109,7 +113,9 @@ int tlsConnect(tlsClientContext_t *tlsCtx, const char *host, uint32_t port,
 
     TLSCDBG("Loading client certificates\n");
 
-    ret = mbedtls_x509_crt_parse(&tlsCtx->cliCert, clientCA, clientCASize);
+    ret = mbedtls_x509_crt_parse(&tlsCtx->cliCert,
+                                 reinterpret_cast<const unsigned char*>(clientCA),
+                                 clientCASize);
     if (ret != 0) {
       TLSCERR("mbedtls_x509_crt_parse() error : -0x%x\n", -ret);
       return ret;
@@ -118,7 +124,8 @@ int tlsConnect(tlsClientContext_t *tlsCtx, const char *host, uint32_t port,
     TLSCDBG("Loading private key\n");
 
     ret = mbedtls_pk_parse_key(&tlsCtx->cliKey,
-                               privateKey, privateKeySize, NULL, 0);
+                               reinterpret_cast<const unsigned char*>(privateKey),
+                               privateKeySize, NULL, 0);
     if (ret != 0) {
       TLSCERR("mbedtls_pk_parse_key() error : -0x%x\n", -ret);
       return ret;
@@ -234,7 +241,7 @@ int tlsRead(tlsClientContext_t *tlsCtx, uint8_t *buffer, int len)
   return ret;
 }
 
-int tlsWrite(tlsClientContext_t *tlsCtx, uint8_t *buffer, int len)
+int tlsWrite(tlsClientContext_t *tlsCtx, const uint8_t *buffer, int len)
 {
   int ret;
 

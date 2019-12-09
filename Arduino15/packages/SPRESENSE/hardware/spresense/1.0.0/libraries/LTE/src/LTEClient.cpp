@@ -163,7 +163,7 @@ size_t LTEClient::write(uint8_t val)
 size_t LTEClient::write(const uint8_t *buf, size_t size)
 {
   int      ret;
-  uint8_t *buf_ptr    = buf;
+  uint8_t *buf_ptr    = const_cast<uint8_t*>(buf);
   size_t   remain_len = size;
 
   if (!size || !buf) {

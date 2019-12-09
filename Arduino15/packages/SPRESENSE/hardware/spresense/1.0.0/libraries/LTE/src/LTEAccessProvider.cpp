@@ -142,7 +142,7 @@ IPAddress LTEAccessProvider::getIPAddress()
 
   LTEDBG("Successful get IP address : %s\n", netinfo.pdn_stat[pdnNo].address[0].address);
 
-  if (!ipAddress.fromString(netinfo.pdn_stat[pdnNo].address[0].address)) {
+  if (!ipAddress.fromString(reinterpret_cast<char*>(netinfo.pdn_stat[pdnNo].address[0].address))) {
     LTEERR("IP address converting error.\n");
   }
 

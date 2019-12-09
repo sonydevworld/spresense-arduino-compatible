@@ -99,7 +99,7 @@ String LTEScanNetworks::getCurrentCarrier()
     return String("N/A");
   }
 
-  if (0 == strlen(carrier)) {
+  if (0 == strlen(reinterpret_cast<char*>(carrier))) {
     LTEERR("Carrier name could not be obtained from the LTE network.\n");
     return String("N/A");
   } else {

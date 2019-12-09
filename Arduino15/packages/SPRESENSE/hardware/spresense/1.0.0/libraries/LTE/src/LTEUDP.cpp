@@ -219,7 +219,8 @@ uint8_t LTEUDP::begin(uint16_t port)
   src_addr.sin_port        = htons(port);
   src_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
-  ret = bind(_fd, (struct sockaddr*)&src_addr, sizeof(struct sockaddr_in));
+  ret = bind(_fd, reinterpret_cast<struct sockaddr*>(&src_addr),
+             sizeof(struct sockaddr_in));
   if (ret < 0) {
     LTEUDPERR("bind() error : %d\n", errno);
     stop();
@@ -280,7 +281,7 @@ int LTEUDP::beginPacket(const char *host, uint16_t port)
     return BEGIN_FAILED;
   }
 
-  IPAddress ip(((struct sockaddr_in*)ainfo->ai_addr)->sin_addr.s_addr);
+  IPAddress ip(reinterpret_cast<struct sockaddr_in*>(ainfo->ai_addr)->sin_addr.s_addr);
   freeaddrinfo(ainfo);
 
   int fd = INVALID_FD;
@@ -327,12 +328,12 @@ int LTEUDP::endPacket()
   struct sockaddr_in dstaddr;
 
   memset(&dstaddr, 0, sizeof(dstaddr));
-  dstaddr.sin_addr.s_addr = (uint32_t)_remoteIp;
+  dstaddr.sin_addr.s_addr = static_cast<uint32_t>(_remoteIp);
   dstaddr.sin_family      = AF_INET;
   dstaddr.sin_port        = htons(_remotePort);
 
   len = sendto(_fd, _wbuf, _wbufSize, 0,
-               (struct sockaddr*)&dstaddr, sizeof(dstaddr));
+               reinterpret_cast<struct sockaddr*>(&dstaddr), sizeof(dstaddr));
   if(len < 0) {
     LTEUDPERR("sendto() error : %d\n", errno);
     return END_FAILED;
@@ -403,7 +404,8 @@ int LTEUDP::parsePacket()
   }
 
   len = recvfrom(_fd, buf, BUFFER_MAX_LEN, 0,
-                 (struct sockaddr*)&fromaddr, (socklen_t *)&fromaddrlen);
+                 reinterpret_cast<struct sockaddr*>(&fromaddr),
+                 reinterpret_cast<socklen_t*>(&fromaddrlen));
   if (len < 0) {
     if (errno != EAGAIN) {
       LTEUDPERR("recvfrom() error : %d\n", errno);
@@ -422,7 +424,7 @@ int LTEUDP::parsePacket()
       delete[] buf;
       return PARSE_FAILED;
     }
-    _rbuf->write(buf, len);
+    _rbuf->write(reinterpret_cast<const uint8_t*>(buf), len);
   }
   delete[] buf;
 
