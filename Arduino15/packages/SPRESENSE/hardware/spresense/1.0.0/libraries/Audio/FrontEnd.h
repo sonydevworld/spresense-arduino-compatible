@@ -126,7 +126,7 @@ public:
    *
    */
 
-  err_t activate(bool is_digital = false);
+  err_t activate(void);
 
   /**
    * @brief Activate the FrontEnd.
@@ -140,8 +140,11 @@ public:
    */
 
   err_t activate(
+      MicFrontendCallback fedcb
+  );
+  err_t activate(
       MicFrontendCallback fedcb,
-      bool                is_digital = false
+      bool                is_digital
   );
 
   /**

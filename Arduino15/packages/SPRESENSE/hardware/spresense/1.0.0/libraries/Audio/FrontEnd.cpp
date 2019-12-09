@@ -117,9 +117,15 @@ err_t FrontEnd::end(void)
 }
 
 /*--------------------------------------------------------------------------*/
-err_t FrontEnd::activate(bool is_digital)
+err_t FrontEnd::activate(void)
 {
-  return activate(NULL, is_digital);
+  return activate(NULL);
+}
+
+/*--------------------------------------------------------------------------*/
+err_t FrontEnd::activate(MicFrontendCallback fedcb)
+{
+  return activate(fedcb, false);
 }
 
 /*--------------------------------------------------------------------------*/

@@ -152,8 +152,7 @@ public:
 
   err_t activate(
       AsSetRecorderStsInputDevice input_device, /**< Select input device. AS_SETRECDR_STS_INPUTDEVICE_MIC or AS_SETRECDR_STS_INPUTDEVICE_I2S*/
-      MediaRecorderCallback mrcb,               /**< Sepcify callback function which is called to notify API results. */
-      bool is_digital = false
+      MediaRecorderCallback mrcb                /**< Sepcify callback function which is called to notify API results. */
   );
 
   /**
@@ -167,8 +166,7 @@ public:
   err_t activate(
       AsSetRecorderStsInputDevice input_device, /**< Select input device. AS_SETRECDR_STS_INPUTDEVICE_MIC or AS_SETRECDR_STS_INPUTDEVICE_I2S*/
       MediaRecorderCallback mrcb,               /**< Sepcify callback function which is called to notify API results. */
-      uint32_t recorder_bufsize,
-      bool is_digital = false
+      uint32_t recorder_bufsize
   );
 
 
