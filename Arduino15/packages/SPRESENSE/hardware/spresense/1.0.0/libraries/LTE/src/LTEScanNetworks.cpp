@@ -65,7 +65,7 @@ LTEModemStatus LTEScanNetworks::begin()
 String LTEScanNetworks::getSignalStrength()
 {
   int32_t       result  = 0;
-  lte_quality_t quality = {0};
+  lte_quality_t quality;
 
   result = lte_get_quality_sync(&quality);
   if (result < 0) {

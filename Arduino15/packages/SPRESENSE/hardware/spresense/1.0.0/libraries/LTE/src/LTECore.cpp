@@ -254,7 +254,9 @@ void LTECore::shutdown()
 
 LTEModemStatus LTECore::startSearchNetwork(char* pinCode, bool synchronous)
 {
-  int32_t        result = 0;
+  int32_t        result        = 0;
+  bool           imsCapability = false;
+  LTEModemStatus status        = LTE_SEARCHING;
 
   if (pinCode && (0 != strnlen(pinCode, LTE_NET_PINCODE_MAXLEN - 1))) {
 
@@ -292,10 +294,6 @@ LTEModemStatus LTECore::startSearchNetwork(char* pinCode, bool synchronous)
 
   LTEDBG("Successful start searching.\n");
 
-  bool imsCapability = false;
-
-  LTEModemStatus status = LTE_SEARCHING;
-
   result = lte_get_imscap_sync(&imsCapability);
   if (result < 0) {
     LTEERR("lte_get_imscap_sync result error : %d", result);
@@ -311,8 +309,10 @@ LTEModemStatus LTECore::startSearchNetwork(char* pinCode, bool synchronous)
    * Synchronous parameter has no meaning when IMS is invalid. 
    */
   if (imsCapability) {
-  
-    lte_apn_setting_t imsSetting = {0};
+
+    lte_apn_setting_t imsSetting;
+
+    memset(&imsSetting, 0, sizeof(lte_apn_setting_t));
 
     /* For IMS connections, APN name does not make sense. */
     
@@ -321,7 +321,7 @@ LTEModemStatus LTECore::startSearchNetwork(char* pinCode, bool synchronous)
     imsSetting.auth_type = LTE_NET_AUTHTYPE_NONE;
 
     if (synchronous) {
-      lte_pdn_t imsResult = {0};
+      lte_pdn_t imsResult;
 
       result = lte_activate_pdn_sync(&imsSetting, &imsResult);
       if (result < 0) {
@@ -353,30 +353,30 @@ errout:
   return LTE_ERROR;
 }
 
-LTEModemStatus LTECore::connectNetwork(char* apn, char* userName, char* password, LTENetworkAuthType authType, LTENetworkIPType ipType, bool synchronous, bool cancelable)
+LTEModemStatus LTECore::connectNetwork(const char *apn, const char *userName, const char *password, LTENetworkAuthType authType, LTENetworkIPType ipType, bool synchronous, bool cancelable)
 {
   int32_t           result     = 0;
   LTEModemStatus    status     = LTE_SEARCHING;
-  lte_apn_setting_t apnSetting = {reinterpret_cast<int8_t*>(apn),
+  lte_apn_setting_t apnSetting = {reinterpret_cast<int8_t*>(const_cast<char*>(apn)),
                                   ipType,
                                   authType,
                                   LTE_APN_TYPE_IA | LTE_APN_TYPE_DEFAULT,
-                                  reinterpret_cast<int8_t*>(userName),
-                                  reinterpret_cast<int8_t*>(password)
+                                  reinterpret_cast<int8_t*>(const_cast<char*>(userName)),
+                                  reinterpret_cast<int8_t*>(const_cast<char*>(password))
                                   };
 
-  if (!apnSetting.apn || apnSetting.apn && (0 == strlen(reinterpret_cast<char*>(apnSetting.apn)))) {
+  if (!apnSetting.apn || (0 == strlen(reinterpret_cast<char*>(apnSetting.apn)))) {
     LTEERR("Invalid APN name.\n");
     setStatus(LTE_ERROR);
     return LTE_ERROR;
   }
 
   /* If the user name and password are NULL or 0 length,
-  * there is no authentication.
-  */
+   * there is no authentication.
+   */
 
-  if ((!apnSetting.user_name || apnSetting.user_name && (0 == strlen(reinterpret_cast<char*>(apnSetting.user_name)))) ||
-      (!apnSetting.password || apnSetting.password && (0 == strlen(reinterpret_cast<char*>(apnSetting.password))))) {
+  if (!apnSetting.user_name || (0 == strlen(reinterpret_cast<char*>(apnSetting.user_name))) ||
+      !apnSetting.password || (0 == strlen(reinterpret_cast<char*>(apnSetting.password)))) {
     apnSetting.user_name = NULL;
     apnSetting.password = NULL;
     apnSetting.auth_type = LTE_NET_AUTHTYPE_NONE;
@@ -408,7 +408,7 @@ LTEModemStatus LTECore::connectNetwork(char* apn, char* userName, char* password
   }
 
   if (synchronous) {
-    lte_pdn_t resultPDN = {0};
+    lte_pdn_t resultPDN;
 
     result = lte_activate_pdn_sync(&apnSetting, &resultPDN);
     if (result < 0) {
@@ -431,7 +431,7 @@ LTEModemStatus LTECore::connectNetwork(char* apn, char* userName, char* password
     }
 
     status = LTE_READY;
-  
+
     LTEDBG("Successful PDN attach.\n");
   } else {
     result = lte_activate_pdn(&apnSetting, activatePDNCallback);
@@ -493,9 +493,9 @@ LTEModemStatus LTECore::disconnectNetwork()
     _apn.password[0] = '\0';
     _apn.authType    = LTE_NET_AUTHTYPE_CHAP;
     _apn.ipType      = LTE_NET_IPTYPE_V4V6;
-  
+
     setSessionID(0);
-  
+
     setStatus(LTE_SEARCHING);
 
   } else {
@@ -532,7 +532,7 @@ void LTECore::signalModemReset()
 void LTECore::printErrorInfo()
 {
   int32_t        result  = 0;
-  lte_errinfo_t  errinfo = {0};
+  lte_errinfo_t  errinfo;
 
   result = lte_get_errinfo(&errinfo);
   if (result == 0) {

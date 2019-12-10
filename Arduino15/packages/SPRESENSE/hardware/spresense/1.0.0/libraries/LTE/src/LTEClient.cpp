@@ -72,7 +72,7 @@
  * Public Functions
  ****************************************************************************/
 
-LTEClient::LTEClient(): _fd(INVALID_FD), _connected(NOT_CONNECTED), _buf(NULL)
+LTEClient::LTEClient(): _fd(INVALID_FD), _buf(NULL), _connected(NOT_CONNECTED)
 {
 }
 

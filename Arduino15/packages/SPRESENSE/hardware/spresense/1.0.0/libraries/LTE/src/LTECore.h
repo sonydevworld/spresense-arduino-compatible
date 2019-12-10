@@ -98,7 +98,7 @@ public:
   LTEModemStatus begin(bool restart);
   void shutdown();
   LTEModemStatus startSearchNetwork(char* pinCode, bool synchronous);
-  LTEModemStatus connectNetwork(char* apn, char* userName, char* password, LTENetworkAuthType authType, LTENetworkIPType ipType, bool synchronous, bool cancelable = true);
+  LTEModemStatus connectNetwork(const char *apn, const char *userName, const char *password, LTENetworkAuthType authType, LTENetworkIPType ipType, bool synchronous, bool cancelable = true);
   LTEModemStatus disconnectNetwork();
   void signalModemReset();
   void printErrorInfo();

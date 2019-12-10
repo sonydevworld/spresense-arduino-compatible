@@ -74,7 +74,7 @@ void LTEAccessProvider::shutdown()
 {
   theLTECore.shutdown();
 }
-LTEModemStatus LTEAccessProvider::attach(char *apn, char *userName, char* password, LTENetworkAuthType authType, LTENetworkIPType ipType, bool synchronous)
+LTEModemStatus LTEAccessProvider::attach(const char *apn, const char *userName, const char *password, LTENetworkAuthType authType, LTENetworkIPType ipType, bool synchronous)
 {
   LTEModemStatus networkStatus = getStatus();
   if (LTE_CONNECTING == networkStatus) {
@@ -102,8 +102,8 @@ LTEModemStatus LTEAccessProvider::detach()
 IPAddress LTEAccessProvider::getIPAddress()
 {
   int            result  = 0;
-  lte_netinfo_t  netinfo = {0};
-  lte_pdn_t      pdnStatus[LTE_NET_PDN_NUM] = {0};
+  lte_netinfo_t  netinfo;
+  lte_pdn_t      pdnStatus[LTE_NET_PDN_NUM];
   IPAddress      ipAddress;
 
   netinfo.pdn_stat = pdnStatus;
@@ -117,9 +117,11 @@ IPAddress LTEAccessProvider::getIPAddress()
     goto exit;
   }
 
-  int i        = 0;
-  int pdnNo    = -1;
-  int pdnCount = ((LTE_NET_PDN_NUM < netinfo.pdn_num) ? LTE_NET_PDN_NUM : netinfo.pdn_num);
+  int i;
+  int pdnNo;
+  int pdnCount;
+  pdnCount = ((LTE_NET_PDN_NUM < netinfo.pdn_num) ? LTE_NET_PDN_NUM : netinfo.pdn_num);
+  pdnNo = -1;
 
   for (i = 0; i < pdnCount; i++) {
     if (0 != (netinfo.pdn_stat[i].apn_type & LTE_APN_TYPE_DEFAULT)) {
@@ -159,7 +161,7 @@ unsigned long LTEAccessProvider::getTime()
     return 0;
   }
 
-  lte_localtime_t localTime = {0};
+  lte_localtime_t localTime;
 
   result = lte_get_localtime_sync(&localTime);
   if (result < 0) {  

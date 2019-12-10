@@ -66,8 +66,8 @@ LTETLSClient::LTETLSClient()
 , _clientCASize(0)
 , _privateKey(NULL)
 , _privateKeySize(0)
-, _connected(NOT_CONNECTED)
 , _tlsContext(NULL)
+, _connected(NOT_CONNECTED)
 {
 }
 

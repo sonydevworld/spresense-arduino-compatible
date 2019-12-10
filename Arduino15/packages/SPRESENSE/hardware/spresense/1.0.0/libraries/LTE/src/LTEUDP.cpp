@@ -156,7 +156,7 @@ int LTEUDPBuffer::read(char* buffer, size_t size)
     return FAILED;
   }
 
-  if (size > avail_size) {
+  if (size > static_cast<size_t>(avail_size)) {
     size = avail_size;
   }
 

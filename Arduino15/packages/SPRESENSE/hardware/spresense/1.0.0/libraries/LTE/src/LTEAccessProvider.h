@@ -159,7 +159,7 @@ public:
    *         - synchronousの値がfalseの場合 <BR>
    *          成功時はLTE_CONNECTING、エラーが発生した場合、LTE_ERRORを返します。
    */
-  LTEModemStatus attach(char *apn, char *userName = NULL, char* password = NULL, LTENetworkAuthType authType = LTE_NET_AUTHTYPE_CHAP, LTENetworkIPType ipType = LTE_NET_IPTYPE_V4V6, bool synchronous = true);
+  LTEModemStatus attach(const char *apn, const char *userName = NULL, const char *password = NULL, LTENetworkAuthType authType = LTE_NET_AUTHTYPE_CHAP, LTENetworkIPType ipType = LTE_NET_IPTYPE_V4V6, bool synchronous = true);
 
   /**
    * @brief Detach the modem from the LTE network.

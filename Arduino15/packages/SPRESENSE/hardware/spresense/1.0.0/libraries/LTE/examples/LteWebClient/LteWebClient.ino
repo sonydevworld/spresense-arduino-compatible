@@ -85,7 +85,7 @@ void loop()
   if (int len = client.available()) {
     char buff[len + 1];
     buff[len] = '\0';
-    client.read(buff, len);
+    client.read((uint8_t*)buff, len);
     Serial.print(buff);
   }
 
