@@ -115,7 +115,7 @@ public:
    *
    * @details [en] Send one byte data to the server the client is connected to.
    *
-   * @details [ja] クライアントが接続されているサーバーに1バイトのデータを送信します。
+   * @details [ja] 接続先のサーバーに1バイトのデータを送信します。
    *
    * @param [in] val [en] A value to send as a single byte. <BR>
    *                 [ja] 送信する値。
@@ -131,7 +131,7 @@ public:
    *
    * @details [en] Send series of bytes data to the server the client is connected to.
    *
-   * @details [ja] クライアントが接続されているサーバーに一連のデータを送信します。
+   * @details [ja] 接続先のサーバーに一連のデータを送信します。
    *
    * @param [in] buf [en] A buffer to send. <BR>
    *                 [ja] 送信バッファー。
@@ -162,7 +162,7 @@ public:
    *
    * @details [en] Read the next byte received from the server the client is connected to.
    *
-   * @details [ja] クライアントが接続されているサーバーから受信したデータを読み出します。
+   * @details [ja] 接続先のサーバーから受信したデータを読み出します。
    *
    * @return [en] The next byte, or -1 if none is available.
    *
@@ -175,7 +175,7 @@ public:
    *
    * @details [en] Read series of bytes received from the server the client is connected to.
    *
-   * @details [ja] クライアントが接続されているサーバーから受信した一連のデータを読み出します。
+   * @details [ja] 接続先のサーバーから受信した一連のデータを読み出します。
    *
    * @param [out] buf [en] A buffer to read. <BR>
    *                  [ja] 受信バッファー。
@@ -193,7 +193,7 @@ public:
    *
    * @details [en] Returns the next byte received from the server without removing it from the buffer.
    *
-   * @details [ja] クライアントが接続されているサーバーから受信したデータを、バッファーから削除せずに読み出します。
+   * @details [ja] 接続先のサーバーから受信したデータを、バッファーから削除せずに読み出します。
    *
    * @return [en] The next byte, or -1 if none is available.
    *
