@@ -30,9 +30,9 @@ spresense-arduino-compatible
 ```
 
 # Getting started
-### [Spresense Arduino Library Getting Started Guide (English)](https://developer.sony.com/develop/spresense/developer-tools/get-started-using-arduino-ide/set-up-the-arduino-ide)
+### [Spresense Arduino Library Getting Started Guide (English)](https://developer.sony.com/develop/spresense/docs/arduino_set_up_en.html)
 
-### [Arduino IDEでの開発 (日本語)](https://developer.sony.com/ja/develop/spresense/developer-tools/get-started-using-arduino-ide)
+### [Spresense Arduino スタートガイド (日本語)](https://developer.sony.com/develop/spresense/docs/arduino_set_up_ja.html)
 
 # How to prepare Arduino environment
 ## Pull or Import GCC and Prebuilt SDK
