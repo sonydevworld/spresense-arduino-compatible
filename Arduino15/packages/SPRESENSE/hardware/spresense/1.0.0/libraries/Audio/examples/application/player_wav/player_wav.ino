@@ -20,6 +20,8 @@
 #include <SDHCI.h>
 #include <Audio.h>
 
+#define PLAYBACK_FILE_NAME "Sound.wav"
+
 SDClass theSD;
 AudioClass *theAudio;
 
@@ -56,7 +58,7 @@ static void audio_attention_cb(const ErrorAttentionParam *atprm)
  * Set output device to speaker <br>
  * Set main player to decode stereo wav. Stream sample rate is auto detect. <br>
  * System directory "/mnt/sd0/BIN" will be searched for WAV decoder (WAVDEC file)
- * Open "Sound.wav" file <br>
+ * Open PLAYBACK_FILE_NAME file <br>
  * Set master volume to -16.0 dB
  */
 
@@ -70,14 +72,17 @@ void setup()
 
   fmt_chunk_t fmt;
 
-  handel_wav_parser_t *handle = (handel_wav_parser_t *)theParser.parseChunk("/mnt/sd0/Sound.wav", &fmt);
+  handel_wav_parser_t *handle
+    = (handel_wav_parser_t *)theParser.parseChunk("/mnt/sd0/"PLAYBACK_FILE_NAME, &fmt);
   if (handle == NULL)
     {
       printf("Wav parser error.\n");
       exit(1);
     }
 
-  s_remain_size = handle->data_size + sizeof(WAVHEADER);
+  // Get data chunk info from wav format
+  uint32_t data_offset = handle->data_offset;
+  s_remain_size = handle->data_size;
 
   theParser.resetParser((handel_wav_parser *)handle);
 
@@ -116,7 +121,7 @@ void setup()
     }
 
   /* Open file placed on SD card */
-  myFile = theSD.open("Sound.wav");
+  myFile = theSD.open(PLAYBACK_FILE_NAME);
 
   /* Verify file open */
   if (!myFile)
@@ -124,7 +129,10 @@ void setup()
       printf("File open error\n");
       exit(1);
     }
-  printf("Open! %d\n",myFile);
+  printf("Open! %s\n", myFile.name());
+
+  /* Set file position to beginning of data */
+  myFile.seek(data_offset);
 
   for (uint32_t i = 0; i < sc_prestore_frames; i++)
     {

@@ -22,6 +22,8 @@
 
 #include <arch/board/board.h>
 
+#define RECORD_FILE_NAME "Sound.wav"
+
 SDClass theSD;
 AudioClass *theAudio;
 
@@ -50,7 +52,7 @@ static void audio_attention_cb(const ErrorAttentionParam *atprm)
  *
  * Select input device as microphone <br>
  * Initialize filetype to stereo wav with 48 Kb/s sampling rate <br>
- * Open "Sound.wav" file in write mode
+ * Open RECORD_FILE_NAME file in write mode
  */
 
 /* Sampling rate
@@ -105,13 +107,24 @@ void setup()
   puts("Init Recorder!");
 
   /* Open file for data write on SD card */
-  myFile = theSD.open("Sound.wav", FILE_WRITE);
+
+  theSD.begin();
+
+  if (theSD.exists(RECORD_FILE_NAME))
+    {
+      printf("Remove existing file [%s].\n", RECORD_FILE_NAME);
+      theSD.remove(RECORD_FILE_NAME);
+    }
+
+  myFile = theSD.open(RECORD_FILE_NAME, FILE_WRITE);
   /* Verify file open */
   if (!myFile)
     {
       printf("File open error\n");
       exit(1);
     }
+
+  printf("Open! [%s]\n", RECORD_FILE_NAME);
 
   theAudio->writeWavHeader(myFile);
   puts("Write Header!");

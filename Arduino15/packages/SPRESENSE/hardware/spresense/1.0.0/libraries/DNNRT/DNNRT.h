@@ -64,6 +64,11 @@ public:
    *
    * @param nnbfile nnb network model binary file
    * @return 0 on success, otherwise error.
+   * @retval -16(-EBUSY) dnnrt-mp included in bootloader isn't installed,
+   *                     or no memory space to load it.
+   * @retval -1 no memory space to load nnbfile
+   * @retval -2 communication error with dnnrt-mp
+   * @retval -3 illegal input/output data in network model
    */  
   int begin(File &nnbfile);
 

@@ -21,6 +21,8 @@
 #include <MediaRecorder.h>
 #include <MemoryUtil.h>
 
+#define RECORD_FILE_NAME "Sound.wav"
+
 MediaRecorder *theRecorder;
 SDClass theSD;
 
@@ -113,7 +115,7 @@ static bool mediarecorder_done_callback(AsRecorderEvent event, uint32_t result, 
  * Set input device to Mic <br>
  * Initialize recorder to encode stereo wav stream with 48kHz sample rate <br>
  * System directory "/mnt/sd0/BIN" will be searched for SRC filter (SRC file)
- * Open "Sound.wav" file <br>
+ * Open RECORD_FILE_NAME file <br>
  */
 
 void setup()
@@ -153,7 +155,17 @@ void setup()
                     AS_BITRATE_8000, /* Bitrate is effective only when mp3 recording */
                     "/mnt/sd0/BIN");
 
-  s_myFile = theSD.open("Sound.wav", FILE_WRITE);
+  /* Open file for data write on SD card */
+  
+  theSD.begin();
+
+  if (theSD.exists(RECORD_FILE_NAME))
+    {
+      printf("Remove existing file [%s].\n", RECORD_FILE_NAME);
+      theSD.remove(RECORD_FILE_NAME);
+    }
+
+  s_myFile = theSD.open(RECORD_FILE_NAME, FILE_WRITE);
 
   /* Verify file open */
 
@@ -163,7 +175,7 @@ void setup()
       exit(1);
     }
 
-  printf("Open! %d\n", s_myFile);
+  printf("Open! [%s]\n", RECORD_FILE_NAME);
 
   /* Write wav header (Write to top of file. File size is tentative.) */
 

@@ -23,6 +23,8 @@
 #include <OutputMixer.h>
 #include <MemoryUtil.h>
 
+#define RECORD_FILE_NAME "Sound.wav"
+
 SDClass theSD;
 File s_myFile;
 
@@ -140,7 +142,7 @@ void mediaplayer_decode_callback(AsPcmDataParam pcm_param)
  * Set input device to Mic <br>
  * Initialize recorder to encode stereo wav stream with 48kHz sample rate <br>
  * System directory "/mnt/sd0/BIN" will be searched for SRC filter (SRC file)
- * Open "Sound.wav" file <br>
+ * Open RECORD_FILE_NAME file <br>
  */
 
 void setup()
@@ -190,12 +192,18 @@ void setup()
 
   theMixer->setVolume(0, 0, 0);
 
+  if (theSD.exists(RECORD_FILE_NAME))
+    {
+      printf("Remove existing file [%s].\n", RECORD_FILE_NAME);
+      theSD.remove(RECORD_FILE_NAME);
+    }
+
   /* Open file to record */
   
-  s_myFile = theSD.open("Sound.wav", FILE_WRITE);
-  
-  puts("Open!");
-  
+  s_myFile = theSD.open(RECORD_FILE_NAME, FILE_WRITE);
+
+  printf("Open! [%s]\n", RECORD_FILE_NAME);
+
   /* Verify file open */
   
   if (!s_myFile)

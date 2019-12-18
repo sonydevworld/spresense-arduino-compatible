@@ -182,7 +182,8 @@ public:
       AsSetRecorderStsInputDevice input_device, /**< Select input device. AS_SETRECDR_STS_INPUTDEVICE_MIC or AS_SETRECDR_STS_INPUTDEVICE_I2S*/
       MediaRecorderCallback mrcb,               /**< Sepcify callback function which is called to notify API results. */
       uint32_t recorder_bufsize,
-      AsMicFrontendPreProcType proc_type
+      AsMicFrontendPreProcType proc_type,
+      bool is_digital = false
   );
 
   /**

@@ -82,15 +82,6 @@ extern const PoolSectionAttr MemoryPoolLayouts[NUM_MEM_SECTIONS][NUM_MEM_LAYOUTS
     },
     {/* Layout:2 */
      /* pool_ID                          type         seg  fence  addr        size         */
-      { S0_MIC_IN_BUF_POOL             , BasicType  ,   5,  true, 0x000c0008, 0x00000960 },  /* COMMON_WORK_AREA */
-      { S0_I2S_IN_BUF_POOL             , BasicType  ,   5,  true, 0x000c0970, 0x000012c0 },  /* COMMON_WORK_AREA */
-      { S0_HP_OUT_BUF_POOL             , BasicType  ,   5,  true, 0x000c1c38, 0x000012c0 },  /* COMMON_WORK_AREA */
-      { S0_I2S_OUT_BUF_POOL            , BasicType  ,   5,  true, 0x000c2f00, 0x000012c0 },  /* COMMON_WORK_AREA */
-      { S0_MFE_OUT_BUF_POOL            , BasicType  ,   8,  true, 0x000c41c8, 0x00000500 },  /* COMMON_WORK_AREA */
-      { S0_NULL_POOL, 0, 0, false, 0, 0 },
-    },
-    {/* Layout:3 */
-     /* pool_ID                          type         seg  fence  addr        size         */
       { S0_DEC_ES_MAIN_BUF_POOL        , BasicType  ,   4,  true, 0x000c0008, 0x00006000 },  /* COMMON_WORK_AREA */
       { S0_REND_PCM_BUF_POOL           , BasicType  ,   5,  true, 0x000c6010, 0x00005014 },  /* COMMON_WORK_AREA */
       { S0_SRC_WORK_MAIN_BUF_POOL      , BasicType  ,   1,  true, 0x000cb030, 0x00001000 },  /* COMMON_WORK_AREA */

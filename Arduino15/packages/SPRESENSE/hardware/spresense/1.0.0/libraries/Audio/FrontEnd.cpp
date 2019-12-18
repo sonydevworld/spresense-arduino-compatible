@@ -125,6 +125,12 @@ err_t FrontEnd::activate(void)
 /*--------------------------------------------------------------------------*/
 err_t FrontEnd::activate(MicFrontendCallback fedcb)
 {
+  return activate(fedcb, false);
+}
+
+/*--------------------------------------------------------------------------*/
+err_t FrontEnd::activate(MicFrontendCallback fedcb, bool is_digital)
+{
   bool result;
 
   /* Activate Frontend */
@@ -150,6 +156,17 @@ err_t FrontEnd::activate(MicFrontendCallback fedcb)
       if (!result)
         {
           print_err("Error: AS_ReceiveObjectReply() failure!\n");
+          return FRONTEND_ECODE_COMMAND_ERROR;
+        }
+    }
+
+  /* Set digial mic */
+
+  if (is_digital)
+    {
+      if (cxd56_audio_set_micmap(0x56789ABC) != CXD56_AUDIO_ECODE_OK)
+        {
+          print_err("Error: set_micmap() failure!\n");
           return FRONTEND_ECODE_COMMAND_ERROR;
         }
     }

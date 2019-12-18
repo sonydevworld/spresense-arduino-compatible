@@ -39,8 +39,10 @@
 
 #include "msgq_id.h"
 
-extern const MsgQueDef MsgqPoolDefs[NUM_MSGQ_POOLS] = {
-   /* n_drm, n_size, n_num, h_drm, h_size, h_num */
+extern const MsgQueDef MsgqPoolDefs[NUM_MSGQ_POOLS] =
+{
+  /* n_drm, n_size, n_num, h_drm, h_size, h_num */
+
   { 0x00000000, 0, 0, 0x00000000, 0, 0, 0 }, /* MSGQ_NULL */
   { 0xfd7f8, 88, 10, 0xffffffff, 0, 0 }, /* MSGQ_AUD_MGR */
   { 0xfdb68, 40, 2, 0xffffffff, 0, 0 }, /* MSGQ_AUD_APP */

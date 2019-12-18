@@ -1,0 +1,62 @@
+#######################################
+# Syntax Coloring Map For LTE
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+LTE	KEYWORD1
+LTEModem	KEYWORD1
+LTEScanner	KEYWORD1
+LTEClient	KEYWORD1
+LTETLSClient	KEYWORD1
+LTEUDP	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+begin	KEYWORD2
+shutdown	KEYWORD2
+attach	KEYWORD2
+detach	KEYWORD2
+getIPAddress	KEYWORD2
+getTime	KEYWORD2
+getStatus	KEYWORD2
+getIMEI	KEYWORD2
+getFirmwareVersion	KEYWORD2
+getSignalStrength	KEYWORD2
+getCurrentCarrier	KEYWORD2
+connect	KEYWORD2
+write	KEYWORD2
+available	KEYWORD2
+read	KEYWORD2
+peek	KEYWORD2
+flush	KEYWORD2
+stop	KEYWORD2
+connected	KEYWORD2
+setCACert	KEYWORD2
+setCertificate	KEYWORD2
+setPrivateKey	KEYWORD2
+beginPacket	KEYWORD2
+endPacket	KEYWORD2
+parsePacket	KEYWORD2
+remoteIP	KEYWORD2
+remotePort	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+LTE_ERROR   LITERAL1
+LTE_IDLE   LITERAL1
+LTE_CONNECTING   LITERAL1
+LTE_SEARCHING   LITERAL1
+LTE_READY   LITERAL1
+LTE_OFF   LITERAL1
+LTE_NET_IPTYPE_V4   LITERAL1
+LTE_NET_IPTYPE_V6   LITERAL1
+LTE_NET_IPTYPE_V4V6   LITERAL1
+LTE_NET_AUTHTYPE_NONE   LITERAL1
+LTE_NET_AUTHTYPE_PAP   LITERAL1
+LTE_NET_AUTHTYPE_CHAP   LITERAL1

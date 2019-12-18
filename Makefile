@@ -1,71 +1,104 @@
-.phony: packages windows linux macosx base extract clean_base clean
+#
+# Makefile for creating Arduino boards manager package
+#
 
-BUILDCHAIN_PKGNAME_PREFIX=gcc-arm-none-eabi-5.4.1-
-BUILDCHAIN_VERSION=5.4.1
-BUILDCHAIN_PATH=packages/SPRESENSE/tools/gcc-arm-none-eabi/
-
-ARCHIVE_PREFIX=manual-install-spresense-arduino-
-PREBUILT_PGK=spresense-prebuilt-sdk-SPRESENSE_ADN_1.0.0_SDK_1.0.001.zip
-INSTALLED_VERSION?=1.0.0
-SHASUM=shasum.txt
-ZIP_SETTINGS=-q9r
-TMPDIR=/tmp/
-PWD=$(shell pwd)
-OS=windows linux macosx
-
-ifdef RELEASE_NAME
-R_NAME=-$(RELEASE_NAME)
+ifeq ($(V),1)
+export Q :=
+else
+ifeq ($(V),2)
+export Q :=
+else
+export Q := @
+endif
 endif
 
-packages: $(SHASUM) $(OS) clean_base
+NAME_SUFFIX       ?= local
+ifneq ($(NAME_SUFFIX),)
+NAME_FOOTER := _$(NAME_SUFFIX)
+endif
+PLATFORM_NAME     ?= Spresense $(NAME_SUFFIX) Board
+MAINTAINER_NAME   ?= Spresense $(NAME_SUFFIX) Community
+BASE_VERSION       = $(shell cat tools/version)
+VERSION           ?= $(shell echo $(BASE_VERSION) | cut -d "." -f -2).$(shell expr $(shell echo $(BASE_VERSION) | cut -d "." -f 3) + 1)
+RELEASE_NAME       = v$(VERSION)
+VERSION_PATTERN    = ^[0-9]{1}.[0-9]{1}.[0-9]+$$
 
-$(SHASUM): spresense-tools$(R_NAME).tar.gz spresense-sdk$(R_NAME).tar.gz spresense$(R_NAME).tar.gz $(addsuffix  .tar.gz, $(addprefix $(BUILDCHAIN_PKGNAME_PREFIX), $(OS)))
-	-sha256sum $^ > $@
+OUT               ?= out
+INSTALLED_VERSION  = 1.0.0
+ARCHIVEDIR         = $(OUT)/staging/packages
+SPR_LIBRARY        = $(ARCHIVEDIR)/spresense-$(RELEASE_NAME)$(NAME_FOOTER).tar.gz
+SPR_SDK            = $(ARCHIVEDIR)/spresense-sdk-$(RELEASE_NAME)$(NAME_FOOTER).tar.gz
+SPR_TOOLS          = $(ARCHIVEDIR)/spresense-tools-$(RELEASE_NAME)$(NAME_FOOTER).tar.gz
 
-spresense$(R_NAME).tar.gz: $(BUILDCHAIN_PATH)
-	tar -C Arduino15/packages/SPRESENSE/hardware/spresense/ -czf $(PWD)/$@ $(INSTALLED_VERSION)
+TEMP_STAGE_DIR    := $(shell mktemp -d)
 
-spresense-sdk$(R_NAME).tar.gz: $(BUILDCHAIN_PATH)
-	tar -C Arduino15/packages/SPRESENSE/tools/spresense-sdk/ -czf $(PWD)/$@ $(INSTALLED_VERSION)
+PWD                = $(shell pwd)
 
-spresense-tools$(R_NAME).tar.gz: $(BUILDCHAIN_PATH)
-	tar -C Arduino15/packages/SPRESENSE/tools/spresense-tools/ -czf $(PWD)/$@ $(INSTALLED_VERSION)
+BOARD_MANAGER_URL ?= https://github.com/sonydevworld/spresense-arduino-compatible/releases/download/generic/package_spresense_index.json
+JSON_NAME          = package_spresense$(NAME_FOOTER)_index.json
+INSTALL_JSON       = $(OUT)/$(JSON_NAME)
+TEMP_JSON          = /tmp/$(JSON_NAME)
 
-$(BUILDCHAIN_PKGNAME_PREFIX)%.tar.gz:
-	tar -C Arduino15/$(BUILDCHAIN_PATH)  -czf $(PWD)/$@ $(BUILDCHAIN_VERSION)/$(subst .tar.gz, ,$*)
+SDK_PREBUILT_OUT  ?= tools/out
+SDK_PREBUILTS     := $(shell ls $(SDK_PREBUILT_OUT)/*.zip 2> /dev/null | sed s/$$/\'/ | sed s/^/\'/)
 
-$(OS): base
-	cp $(TMPDIR)$(ARCHIVE_PREFIX).zip $(ARCHIVE_PREFIX)$@$(R_NAME).zip
-	(cd Arduino15/; zip $(ZIP_SETTINGS) ../$(ARCHIVE_PREFIX)$@$(R_NAME).zip  $(BUILDCHAIN_PATH)$(BUILDCHAIN_VERSION)/$@/*)
+.phony: check packages clean
 
-base: $(BUILDCHAIN_PATH)
-	(cd Arduino15/; zip $(ZIP_SETTINGS) $(TMPDIR)$(ARCHIVE_PREFIX) . -x$(BUILDCHAIN_PATH)$(BUILDCHAIN_VERSION)/*)
+packages: check clean $(SPR_LIBRARY) $(SPR_SDK) $(SPR_TOOLS) $(INSTALL_JSON)
+	$(Q) rm -rf $(TEMP_STAGE_DIR)
+	$(Q) rm $(TEMP_JSON)
+	$(Q) echo "Done."
 
-$(BUILDCHAIN_PATH):
-	./tools/prepare_arduino.sh -H Windows -s $(PREBUILT_PGK) -g $(BUILDCHAIN_PKGNAME_PREFIX)windows.zip
-	./tools/prepare_arduino.sh -H Linux64 -s $(PREBUILT_PGK) -g $(BUILDCHAIN_PKGNAME_PREFIX)linux.zip
-	./tools/prepare_arduino.sh -H Mac -s $(PREBUILT_PGK) -g $(BUILDCHAIN_PKGNAME_PREFIX)macosx.zip
+check:
+	$(Q) echo $(VERSION) | grep -E $(VERSION_PATTERN) > /dev/null \
+		|| (echo "ERROR: Invalid version name $(VERSION) (expected pattern is x.y.z)." &&  exit 1)
 
-extract: $(addsuffix _extract, $(OS))
-	@mkdir -p extract/packages/tools extract/packages/sdk extract/packages/spresense
-	-tar -xf spresense-tools*.tar.gz -C extract/packages/tools
-	-tar -xf spresense-sdk*.tar.gz -C extract/packages/sdk
-	-tar -xf spresense-v*.tar.gz -C extract/packages/spresense
-	@-tar -xf spresense.tar.gz -C extract/packages/spresense
+prebuilt:
+	$(Q) if [ "$(SDK_PREBUILTS)" ]; then \
+			rm -f $(SPR_SDK); \
+			./tools/prepare_arduino.sh -p; \
+			for PREBUILT_ZIP in $(SDK_PREBUILTS); \
+			do \
+				./tools/sdk_import.sh $${PREBUILT_ZIP}; \
+			done \
+	fi
 
-%_extract:
-	@mkdir -p extract/$(ARCHIVE_PREFIX)/$* extract/gcc/
-	unzip -q $(ARCHIVE_PREFIX)$**.zip -d extract/$(ARCHIVE_PREFIX)/$*
-	tar -xf $(BUILDCHAIN_PKGNAME_PREFIX)$*.tar.gz -C extract/gcc/
+$(INSTALL_JSON):
+	$(Q) wget $(BOARD_MANAGER_URL) -O $(TEMP_JSON)
+	$(Q) tools/python/update_package_json.py -a $(ARCHIVEDIR) \
+	                                         -m "$(MAINTAINER_NAME)" \
+	                                         -p "$(PLATFORM_NAME)" \
+	                                         -s "$(NAME_FOOTER)" \
+	                                         -i $(TEMP_JSON) \
+	                                         -o $@ \
+	                                         -v $(VERSION) \
+	                                         -b $(BASE_VERSION)
 
-clean_base:
-	-rm -v $(TMPDIR)$(ARCHIVE_PREFIX).zip
+$(SPR_LIBRARY): $(ARCHIVEDIR) prebuilt
+	$(Q) echo "Creating spresense.tar.gz ..."
+	$(Q) cp -a Arduino15/packages/SPRESENSE/hardware/spresense $(TEMP_STAGE_DIR)/spresense
+	$(Q) if [ "$(NAME_SUFFIX)" ]; then \
+			echo "spresense.name=Spresense $(NAME_SUFFIX)" > $(TEMP_STAGE_DIR)/spresense/1.0.0/boards.local.txt; \
+			echo "name=Spresense $(NAME_SUFFIX) Boards" > $(TEMP_STAGE_DIR)/spresense/1.0.0/platform.local.txt; \
+	fi
+	$(Q) tar -C $(TEMP_STAGE_DIR)/spresense -czf $@ $(INSTALLED_VERSION)
+
+$(SPR_SDK): $(ARCHIVEDIR)
+	$(Q) if [ -d Arduino15/packages/SPRESENSE/tools/spresense-sdk ]; then \
+		echo "Creating spresense-sdk.tar.gz ..."; \
+		tar -C Arduino15/packages/SPRESENSE/tools/spresense-sdk/ -czf $@ $(INSTALLED_VERSION); \
+	fi
+
+$(SPR_TOOLS): $(ARCHIVEDIR)
+	$(Q) echo "Creating spresense-tools.tar.gz ..."
+	$(Q) tar -C Arduino15/packages/SPRESENSE/tools/spresense-tools/ -czf $@ $(INSTALLED_VERSION)
+
+$(OUT):
+	$(Q) mkdir -p $@
+
+$(ARCHIVEDIR): $(OUT)
+	$(Q) mkdir -p $@
 
 clean:
-	-rm -rf extract
-	-rm  $(TMPDIR)$(ARCHIVE_PREFIX).zip
-	-rm  $(ARCHIVE_PREFIX)*.zip
-	-rm -r $(BUILDCHAIN_PATH)
-	-rm spresense-v* spresense.zip spresense-sdk* spresense-tools* $(ARCHIVE_PREFIX)*
-	-rm  $(BUILDCHAIN_PKGNAME_PREFIX)*.tar.gz
+	$(Q) -rm -rf $(OUT)
 

@@ -113,6 +113,9 @@ public:
    * @param [in] subid - SubCore number(1~5) launched from MainCore.
    *                     If core is SubCore, call without this argument.
    * @return error code. It returns minus value on failure.
+   * @retval -22(-EINVAL) Invalid argument
+   * @retval -2(-ENOENT) No such SubCore program
+   * @retval -116(-ETIMEDOUT) No response of boot completion from SubCore
    * @details MainCore boots the specified SubCore. On the other hand, the
    *          launched SubCore notifies MainCore to boot completion by
    *          calling this API.
@@ -128,6 +131,8 @@ public:
    * @param [in] subid - SubCore number(1~5) finalized from MainCore.
    *                     If core is SubCore, this API does nothing.
    * @return error code. It returns minus value on failure.
+   * @retval -22(-EINVAL) Invalid argument
+   * @retval -19(-ENODEV) No such SubCore program
    * @details MainCore finalizes the specified SubCore.
    */
 #ifdef CONFIG_CXD56_SUBCORE
@@ -144,6 +149,8 @@ public:
    * @param [in] subid - SubCore number(1~5) to send any message.
    *                     If core is SubCore, send to MainCore by default.
    * @return error code. It returns minus value on failure.
+   * @retval -22(-EINVAL) Invalid argument
+   * @retval -19(-ENODEV) No such SubCore program
    */
 #ifdef CONFIG_CXD56_SUBCORE
   int Send(int8_t msgid, uint32_t msgdata, int subid = 0);
@@ -158,6 +165,9 @@ public:
    * @param [in] subid - SubCore number(1~5) to receive any message.
    *                     If core is SubCore, receive from MainCore by default.
    * @return msgid or error code. It returns minus value on failure.
+   * @retval -22(-EINVAL) Invalid argument
+   * @retval -19(-ENODEV) No such SubCore program
+   * @retval -116(-ETIMEDOUT) Timeout to receive from other core
    */
 #ifdef CONFIG_CXD56_SUBCORE
   int Recv(int8_t *msgid, uint32_t *msgdata, int subid = 0);
@@ -173,6 +183,8 @@ public:
    * @param [in] subid - SubCore number(1~5) to send any message.
    *                     If core is SubCore, send to MainCore by default.
    * @return error code. It returns minus value on failure.
+   * @retval -22(-EINVAL) Invalid argument
+   * @retval -19(-ENODEV) No such SubCore program
    */
 #ifdef CONFIG_CXD56_SUBCORE
   int Send(int8_t msgid, void *msgaddr, int subid = 0);
@@ -187,6 +199,9 @@ public:
    * @param [in] subid - SubCore number(1~5) to receive any message.
    *                     If core is SubCore, receive from MainCore by default.
    * @return msgid or error code. It returns minus value on failure.
+   * @retval -22(-EINVAL) Invalid argument
+   * @retval -19(-ENODEV) No such SubCore program
+   * @retval -116(-ETIMEDOUT) Timeout to receive from other core
    */
 #ifdef CONFIG_CXD56_SUBCORE
   int Recv(int8_t *msgid, void *msgaddr, int subid = 0);
@@ -200,6 +215,8 @@ public:
    * @param [in] subid - SubCore number(1~5) to send any message.
    *                     If core is SubCore, send to MainCore by default.
    * @return error code. It returns minus value on failure.
+   * @retval -22(-EINVAL) Invalid argument
+   * @retval -19(-ENODEV) No such SubCore program
    * @details The size of object must be 128 bytes or less.
    */
 #ifdef CONFIG_CXD56_SUBCORE
@@ -214,6 +231,9 @@ public:
    * @param [in] subid - SubCore number(1~5) to receive any message.
    *                     If core is SubCore, receive from MainCore by default.
    * @return msgid or error code. It returns minus value on failure.
+   * @retval -22(-EINVAL) Invalid argument
+   * @retval -19(-ENODEV) No such SubCore program
+   * @retval -116(-ETIMEDOUT) Timeout to receive from other core
    * @details The size of object must be 128 bytes or less.
    */
 #ifdef CONFIG_CXD56_SUBCORE
@@ -227,6 +247,9 @@ public:
    * @param [in] subid - SubCore number(1~5) to send any message.
    *                     If core is SubCore, send to MainCore by default.
    * @return error code. It returns minus value on failure.
+   * @retval -22(-EINVAL) Invalid argument
+   * @retval -19(-ENODEV) No such SubCore program
+   * @retval -116(-ETIMEDOUT) Timeout to receive from other core
    * @details Please call after SendObject().
    */
 #ifdef CONFIG_CXD56_SUBCORE
@@ -261,7 +284,7 @@ public:
    * @brief Get memory information
    * @param [out] usedMem - Total size of used memory [byte]
    * @param [out] freeMem - Total size of free memory [byte]
-   * @param [out] largestFreeMem - Size of the largest free memory [byte]
+   * @param [out] largestFreeMem - Size of the largest continuous free memory [byte]
    */
   void GetMemoryInfo(int &usedMem, int &freeMem, int &largestFreeMem);
 
@@ -282,6 +305,7 @@ public:
    * @brief Allocate memory from shared memory
    * @param [in] size - size. This is align up to 128KByte.
    * @return memory allocated physical address
+   *         If it fails to allocate memory, returns NULL.
    */
   void *AllocSharedMemory(size_t size);
 

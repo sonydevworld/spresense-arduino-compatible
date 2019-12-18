@@ -30,9 +30,9 @@ spresense-arduino-compatible
 ```
 
 # Getting started
-### [Spresense Arduino Library Getting Started Guide (English)](https://developer.sony.com/develop/spresense/developer-tools/get-started-using-arduino-ide/set-up-the-arduino-ide)
+### [Spresense Arduino Library Getting Started Guide (English)](https://developer.sony.com/develop/spresense/docs/arduino_set_up_en.html)
 
-### [Arduino IDEでの開発 (日本語)](https://developer.sony.com/ja/develop/spresense/developer-tools/get-started-using-arduino-ide)
+### [Spresense Arduino スタートガイド (日本語)](https://developer.sony.com/develop/spresense/docs/arduino_set_up_ja.html)
 
 # How to prepare Arduino environment
 ## Pull or Import GCC and Prebuilt SDK
@@ -56,7 +56,8 @@ spresense-arduino-compatible
 |-------:|:----------------------------------|:-----------------------------------------------|
 | -S     | path/to/spresense-sdk-path        | Local Spresense SDK build root path            |
 | -v     | Board_variant                     | Target board variant (default:spresense)       |
-| -k     | release or debug                  | Target kerneo configuration (default: release) |
+| -c     | spresense or spresense_sub        | Target SDK configuration (default: spresense)  |
+| -k     | release or debug                  | Target kernel configuration (default: release) |
 | -M     | "SDK" or "Kernel" or "SDK/Kernel" | Manual configuration by menuconfig             |
 | -G     | "SDK" or "Kernel" or "SDK/Kernel" | Manual configuration by gconfig                |
 | -Q     | "SDK" or "Kernel" or "SDK/Kernel" | Manual configuration by qconfig                |
@@ -72,44 +73,65 @@ spresense-arduino-compatible
 
 ### Example
 
-#### Pull GCC and Spresense SDK prebuilt from network
+#### Export Spresense SDK prebuilt binary for MainCore/Debug:Disabled from local repository.
 
 ```
-./tools/prepare_arduino.sh
+$ ./tools/prepare_arduino.sh -S path/to/spresense -p
 ```
 
-#### Pull GCC and Spresense SDK prebuilt from local archive
+#### Export Spresense SDK prebuilt binary for MainCore/Debug:Enabled from local repository.
 
 ```
-./tools/prepare_arduino.sh -s path/to/spresense-sdk.tar.gz -g path/to/gcc-arm-none-eabi-5.4.1-linux.tar.gz
+$ ./tools/prepare_arduino.sh -S path/to/spresense -k debug -p
 ```
 
-#### Update SDK prebuilt by using default configuration
+#### Export Spresense SDK prebuilt binary for SubCore/Debug:Disabled from local repository.
 
 ```
-./tools/prepare_arduino.sh -H Windows -S /home/user1/spresense -k release -v spresense -p
+$ ./tools/prepare_arduino.sh -S path/to/spresense -c spresense_sub -k subcore-release -p
 ```
 
-#### Update SDK prebuilt by using default configuration and manual configuration change
+#### Export Spresense SDK prebuilt binary for SubCore/Debug:Enabled from local repository.
 
 ```
-./tools/prepare_arduino.sh -H Windows -S /home/user1/spresense -k release -v spresense -M SDK/Kernel -p
+$ ./tools/prepare_arduino.sh -S path/to/spresense -c spresense_sub -k subcore-debug -p
 ```
 
-* Menu configuration will open twice as 'NuttX Configuration' and 'SDK configuration'
-
-# Creating platform specific packages
-
-To create a platform specific package for installation simply type:
+#### Export Spresense SDK prebuilt binary for MainCore/Debug:Disabled from local repository *with configuration change*.
 
 ```
-make packages           - will create packages for all platforms
+$ ./tools/prepare_arduino.sh -S path/to/spresense -M SDK/Kernel -p
+```
+
+* Menu configuration will open twice as `NuttX Configuration` and `SDK configuration`
+
+# Creating Arduino boards manager local install package
+
+To create a Arduino boards manager files for manual installation simply type:
+
+```
+$ make
 ```
 
 This command will generate the following files:
 
 ```
-spresense-arduino-linux.zip
-spresense-arduino-macosx.zip
-spresense-arduino-windows.zip
+out/package_spresense_local_index.json
+out/staging/spresense-v*.*.*_local.tar.gz
+out/staging/spresense-tools-v*.*.*_local.tar.gz
+out/staging/spresense-sdk-v*.*.*_local.tar.gz
 ```
+
+# Manual install
+
+1. Copy `out/staging` into *\<Arduino15\>* directory.
+2. Set *package_spresense_local_index.json URL* into `Additional Boards Manager URLs` in Arduino IDE.
+3. Install local spresense board package by `Boards Manager` in Arduino IDE as same as official package. 
+
+## *\<Arduino15\>*:
+* Windows: `%userprofile%\AppData\Local\Arduino15`
+* macOS: `~/Library/Arduino15`
+* Ubuntu: `~/.arduino15`
+
+## *package_spresense_local_index.json URL*:
+`file://path/to/out/package_spresense_local_index.json`

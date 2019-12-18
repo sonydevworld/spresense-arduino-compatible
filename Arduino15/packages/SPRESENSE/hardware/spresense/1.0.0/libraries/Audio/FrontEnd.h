@@ -142,6 +142,10 @@ public:
   err_t activate(
       MicFrontendCallback fedcb
   );
+  err_t activate(
+      MicFrontendCallback fedcb,
+      bool                is_digital
+  );
 
   /**
    * @brief Initialize the FrontEnd 
