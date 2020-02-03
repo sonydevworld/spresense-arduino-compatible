@@ -409,7 +409,6 @@ err_t MediaPlayer::write_fifo(File& myFile, char *p_es_buf, CMN_SimpleFifoHandle
 
   if(ret == 0)
     {
-      myFile.close();
       return MEDIAPLAYER_ECODE_FILEEND;
     }
 

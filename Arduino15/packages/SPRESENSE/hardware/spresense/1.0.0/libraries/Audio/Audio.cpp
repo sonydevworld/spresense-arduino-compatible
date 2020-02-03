@@ -1368,7 +1368,6 @@ err_t AudioClass::readFrames(File& myFile)
       if (ret < 0)
         {
           print_err("ERROR: Cannot write recorded data to output file.\n");
-          myFile.close();
           return AUDIOLIB_ECODE_FILEACCESS_ERROR;
         }
     }
@@ -1670,7 +1669,6 @@ err_t AudioClass::write_fifo(int fd, char *buf, uint32_t write_size, CMN_SimpleF
 
    if(ret == 0)
     {
-      close(fd);
       return AUDIOLIB_ECODE_FILEEND;
     }
 
@@ -1706,7 +1704,6 @@ err_t AudioClass::write_fifo(File& myFile, char *p_es_buf, uint32_t write_size, 
 
   if(ret == 0)
     {
-      myFile.close();
       return AUDIOLIB_ECODE_FILEEND;
     }
 
