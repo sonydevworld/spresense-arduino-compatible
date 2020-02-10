@@ -532,6 +532,10 @@ int analogRead(uint8_t pin)
         printf("ERROR: Failed to start ADC\n");
         goto out;
       }
+
+      /* Warm up ADC */
+      up_mdelay(1);
+
       ad_pin_fd[aidx] = fd;
   } else {
       fd = ad_pin_fd[aidx];
