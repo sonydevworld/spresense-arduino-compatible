@@ -57,14 +57,14 @@ public:
   /**
    * @brief Setter APIs of RtcTime
    */
-  void unixtime(uint32_t sec) { _sec = sec; }
-  void nsec(long nsec) { _nsec = nsec; }
-  void year(int year) { _year = year; }
-  void month(int month) { _month = month; }
-  void day(int day) { _day = day; }
-  void hour(int hour) { _hour = hour; }
-  void minute(int minute) { _minute = minute; }
-  void second(int second) { _second = second; }
+  void unixtime(uint32_t sec);
+  void nsec(long nsec);
+  void year(int year);
+  void month(int month);
+  void day(int day);
+  void hour(int hour);
+  void minute(int minute);
+  void second(int second);
 
   /**
    * @brief operator APIs to compare and calculate with RtcTime
@@ -100,6 +100,8 @@ private:
   int      _hour;   /* Hours (0-23) */
   int      _minute; /* Minutes (0-59) */
   int      _second; /* Seconds (0-61, allows for leap seconds) */
+  void update(int year, int month, int day, int hour, int minute, int second);
+  void update();
 };
 
 /** @} rtc */
