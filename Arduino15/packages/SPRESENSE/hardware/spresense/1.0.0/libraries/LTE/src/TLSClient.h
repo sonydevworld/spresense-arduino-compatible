@@ -50,6 +50,7 @@ typedef struct tlsClientContext_s
 void tlsInit(tlsClientContext_t *tlsCtx);
 void tlsShutdown(tlsClientContext_t *tlsCtx);
 int tlsConnect(tlsClientContext_t *tlsCtx, const char *host, uint32_t port,
+               uint32_t timeout,
                const char *rootCA, size_t rootCASize, 
                const char *clientCA,  size_t clientCASize, 
                const char *privateKey,  size_t privateKeySize);

@@ -36,8 +36,7 @@
 #endif
 #define TLSCERR(format, ...) printf("ERROR: " format, ##__VA_ARGS__)
 
-#define BUF_LEN          512
-#define TLS_READ_TIMEOUT 10000
+#define BUF_LEN 512
 
 /****************************************************************************
  * Private Data
@@ -71,6 +70,7 @@ void tlsShutdown(tlsClientContext_t *tlsCtx)
 }
 
 int tlsConnect(tlsClientContext_t *tlsCtx, const char *host, uint32_t port,
+               uint32_t timeout,
                const char *rootCA, size_t rootCASize, 
                const char *clientCA,  size_t clientCASize, 
                const char *privateKey,  size_t privateKeySize)
@@ -148,7 +148,7 @@ int tlsConnect(tlsClientContext_t *tlsCtx, const char *host, uint32_t port,
 
   mbedtls_ssl_conf_rng(&tlsCtx->conf, mbedtls_ctr_drbg_random,
                        &tlsCtx->ctrDrbg);
-  mbedtls_ssl_conf_read_timeout(&tlsCtx->conf, TLS_READ_TIMEOUT);
+  mbedtls_ssl_conf_read_timeout(&tlsCtx->conf, timeout);
   mbedtls_ssl_setup(&tlsCtx->ssl, &tlsCtx->conf);
   ret = mbedtls_ssl_set_hostname(&tlsCtx->ssl, host);
   if (ret != 0) {

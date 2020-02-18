@@ -39,6 +39,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <sys/time.h>
 
 /* To avoid multiple define in <netinet/in.h> and <IPAddress.h> */
 #ifdef INADDR_NONE
@@ -323,4 +324,28 @@ uint8_t LTEClient::connected()
   }
 
   return _connected;
+}
+
+int LTEClient::setTimeout(uint32_t milliseconds)
+{
+  int ret;
+  struct timeval tv;
+
+  tv.tv_sec = milliseconds / 1000;
+  tv.tv_usec = (milliseconds - (tv.tv_sec * 1000)) * 1000;
+  ret = setsockopt(_fd, SOL_SOCKET, SO_RCVTIMEO,
+                   reinterpret_cast<const void*>(&tv),
+                   sizeof(struct timeval));
+  if (ret < 0) {
+    LTECERR("setsockopt(SO_RCVTIMEO) error : %d\n", errno);
+  } else {
+    ret = setsockopt(_fd, SOL_SOCKET, SO_SNDTIMEO,
+                     reinterpret_cast<const void*>(&tv),
+                     sizeof(struct timeval));
+    if (ret < 0) {
+      LTECERR("setsockopt(SO_SNDTIMEO) error : %d\n", errno);
+    }
+  }
+
+  return ret;
 }

@@ -368,6 +368,19 @@ public:
    */
   void setPrivateKey(Stream& stream, size_t size);
 
+  /**
+   * @brief Set the timeout when the client receive (including TLS handshake).
+   *
+   * @details [en] Set the timeout when the client receive (including TLS handshake). 0 means disabled (no timeout). If this method has not been called, the timeout is 10 seconds.
+   *
+   * @details [ja] クライアントが受信をする際のタイムアウトを設定します(TLSハンドシェイクを含みます)。0は無効（タイムアウトしない）を意味します。本メソッドを呼び出さない場合のタイムアウトは10秒です。
+   *
+   * @return [en] Returns 0 if succeeded, -1 if not.
+   *
+   * @return [ja] 成功した場合は0を、そうでない場合は-1を返します。
+   */
+  int setTimeout(uint32_t milliseconds);
+
 private:
   int _peekVal;
   char *_rootCA;
@@ -378,6 +391,7 @@ private:
   size_t _privateKeySize;
   tlsClientContext_t *_tlsContext;
   uint8_t _connected;
+  uint32_t _timeout;
 };
 
 /** @} ltetlsclient */
