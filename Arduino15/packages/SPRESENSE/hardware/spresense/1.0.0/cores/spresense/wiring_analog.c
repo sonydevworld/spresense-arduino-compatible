@@ -27,6 +27,7 @@
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <common/up_arch.h>
+#include <nuttx/arch.h>
 #include <nuttx/config.h>
 #include <sdk/config.h>
 #include <nuttx/drivers/pwm.h>
