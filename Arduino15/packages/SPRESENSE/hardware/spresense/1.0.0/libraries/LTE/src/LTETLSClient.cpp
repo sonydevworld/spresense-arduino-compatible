@@ -53,6 +53,7 @@
 #define NOT_CONNECTED  0
 #define CONNECTED      1
 #define FAILED         -1
+#define TLS_READ_TIMEOUT 10000
 
 /****************************************************************************
  * Public Functions
@@ -68,6 +69,7 @@ LTETLSClient::LTETLSClient()
 , _privateKeySize(0)
 , _tlsContext(NULL)
 , _connected(NOT_CONNECTED)
+, _timeout(TLS_READ_TIMEOUT)
 {
 }
 
@@ -114,7 +116,7 @@ int LTETLSClient::connect(const char *host, uint16_t port)
   }
   tlsInit(_tlsContext);
 
-  ret = tlsConnect(_tlsContext, host, port, _rootCA, _rootCASize,
+  ret = tlsConnect(_tlsContext, host, port, _timeout, _rootCA, _rootCASize,
                    _clientCA, _clientCASize, _privateKey, _privateKeySize);
   if (ret < 0) {
     stop();
@@ -495,4 +497,11 @@ void LTETLSClient::setPrivateKey(Stream& stream, size_t size)
   }
 
   _privateKey[size] = '\0';
+}
+
+int LTETLSClient::setTimeout(uint32_t milliseconds)
+{
+  _timeout = milliseconds;
+
+  return 0;
 }

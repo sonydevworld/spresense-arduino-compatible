@@ -332,6 +332,19 @@ public:
    */
   uint16_t remotePort();
 
+  /**
+   * @brief Set the timeout when send or receive.
+   *
+   * @details [en] Set the timeout send or receive. 0 means disabled (no timeout). If this method has not been called, the timeout is 0.
+   *
+   * @details [ja] 送受信をする際のタイムアウトを設定します。0は無効（タイムアウトしない）を意味します。本メソッドを呼び出さない場合のタイムアウトは0です。
+   *
+   * @return [en] Returns 0 if succeeded, -1 if not.
+   *
+   * @return [ja] 成功した場合は0を、そうでない場合は-1を返します。
+   */
+  int setTimeout(uint32_t milliseconds);
+
 private:
   int _fd;
   uint8_t *_wbuf;

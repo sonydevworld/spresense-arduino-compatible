@@ -27,6 +27,7 @@
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <common/up_arch.h>
+#include <nuttx/arch.h>
 #include <nuttx/config.h>
 #include <sdk/config.h>
 #include <nuttx/drivers/pwm.h>
@@ -532,6 +533,10 @@ int analogRead(uint8_t pin)
         printf("ERROR: Failed to start ADC\n");
         goto out;
       }
+
+      /* Warm up ADC */
+      up_mdelay(1);
+
       ad_pin_fd[aidx] = fd;
   } else {
       fd = ad_pin_fd[aidx];

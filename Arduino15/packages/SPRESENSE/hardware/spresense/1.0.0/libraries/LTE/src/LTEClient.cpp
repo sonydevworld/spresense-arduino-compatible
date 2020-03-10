@@ -39,7 +39,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
-#include <fcntl.h>
+#include <sys/time.h>
 
 /* To avoid multiple define in <netinet/in.h> and <IPAddress.h> */
 #ifdef INADDR_NONE
@@ -139,8 +139,6 @@ int LTEClient::connect(const char *host, uint16_t port)
     return NOT_CONNECTED;
   }
 
-  fcntl(_fd, F_SETFL, fcntl(_fd, F_GETFL) | O_NONBLOCK);
-
   _buf = new uint8_t[BUFFER_MAX_LEN];
   if (!_buf) {
     LTECERR("failed to allocate memory\n");
@@ -203,7 +201,7 @@ int LTEClient::available()
     return NOT_AVAILABLE;
   }
 
-  len = recv(_fd, _buf, BUFFER_MAX_LEN, MSG_PEEK);
+  len = recv(_fd, _buf, BUFFER_MAX_LEN, MSG_PEEK | MSG_DONTWAIT);
   if (len < 0) {
     if (errno != EAGAIN) {
       LTECERR("recv() error : %d\n", errno);
@@ -250,7 +248,7 @@ int LTEClient::read(uint8_t *buf, size_t size)
     return 0;
   }
 
-  len = recv(_fd, buf, size, 0);
+  len = recv(_fd, buf, size, MSG_DONTWAIT);
   if (len < 0) {
     if (errno != EAGAIN) {
       LTECERR("recv() error : %d\n", errno);
@@ -277,7 +275,7 @@ int LTEClient::peek()
     return FAILED;
   }
 
-  len = recv(_fd, _buf, 1, MSG_PEEK);
+  len = recv(_fd, _buf, 1, MSG_PEEK | MSG_DONTWAIT);
   if (len < 0) {
     if (errno != EAGAIN) {
       LTECERR("recv() error : %d\n", errno);
@@ -316,7 +314,7 @@ uint8_t LTEClient::connected()
   ssize_t len;
 
   if (_connected) {
-    len = recv(_fd, _buf, 0, 0);
+    len = recv(_fd, _buf, 0, MSG_DONTWAIT);
     if (len < 0) {
       if (errno != EAGAIN) {
         LTECERR("recv() error : %d\n", errno);
@@ -328,3 +326,26 @@ uint8_t LTEClient::connected()
   return _connected;
 }
 
+int LTEClient::setTimeout(uint32_t milliseconds)
+{
+  int ret;
+  struct timeval tv;
+
+  tv.tv_sec = milliseconds / 1000;
+  tv.tv_usec = (milliseconds - (tv.tv_sec * 1000)) * 1000;
+  ret = setsockopt(_fd, SOL_SOCKET, SO_RCVTIMEO,
+                   reinterpret_cast<const void*>(&tv),
+                   sizeof(struct timeval));
+  if (ret < 0) {
+    LTECERR("setsockopt(SO_RCVTIMEO) error : %d\n", errno);
+  } else {
+    ret = setsockopt(_fd, SOL_SOCKET, SO_SNDTIMEO,
+                     reinterpret_cast<const void*>(&tv),
+                     sizeof(struct timeval));
+    if (ret < 0) {
+      LTECERR("setsockopt(SO_SNDTIMEO) error : %d\n", errno);
+    }
+  }
+
+  return ret;
+}

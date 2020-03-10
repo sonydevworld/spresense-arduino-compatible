@@ -39,7 +39,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
-#include <fcntl.h>
+#include <sys/time.h>
 
 /* To avoid multiple define in <netinet/in.h> and <IPAddress.h> */
 #ifdef INADDR_NONE
@@ -226,7 +226,6 @@ uint8_t LTEUDP::begin(uint16_t port)
     stop();
     return BEGIN_FAILED;
   }
-  fcntl(_fd, F_SETFL, fcntl(_fd, F_GETFL) | O_NONBLOCK);
 
   return BEGIN_SUCCESS;
 }
@@ -292,7 +291,6 @@ int LTEUDP::beginPacket(const char *host, uint16_t port)
       LTEUDPERR("socket() error : %d\n", errno);
       return BEGIN_FAILED;
     }
-    fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_NONBLOCK);
   }
 
   if (!_wbuf) {
@@ -403,7 +401,7 @@ int LTEUDP::parsePacket()
     return PARSE_FAILED;
   }
 
-  len = recvfrom(_fd, buf, BUFFER_MAX_LEN, 0,
+  len = recvfrom(_fd, buf, BUFFER_MAX_LEN, MSG_DONTWAIT,
                  reinterpret_cast<struct sockaddr*>(&fromaddr),
                  reinterpret_cast<socklen_t*>(&fromaddrlen));
   if (len < 0) {
@@ -521,4 +519,28 @@ IPAddress LTEUDP::remoteIP()
 uint16_t LTEUDP::remotePort()
 {
   return _remotePort;
+}
+
+int LTEUDP::setTimeout(uint32_t milliseconds)
+{
+  int ret;
+  struct timeval tv;
+
+  tv.tv_sec = milliseconds / 1000;
+  tv.tv_usec = (milliseconds - (tv.tv_sec * 1000)) * 1000;
+  ret = setsockopt(_fd, SOL_SOCKET, SO_RCVTIMEO,
+                   reinterpret_cast<const void*>(&tv),
+                   sizeof(struct timeval));
+  if (ret < 0) {
+    LTEUDPERR("setsockopt(SO_RCVTIMEO) error : %d\n", errno);
+  } else {
+    ret = setsockopt(_fd, SOL_SOCKET, SO_SNDTIMEO,
+                     reinterpret_cast<const void*>(&tv),
+                     sizeof(struct timeval));
+    if (ret < 0) {
+      LTEUDPERR("setsockopt(SO_SNDTIMEO) error : %d\n", errno);
+    }
+  }
+
+  return ret;
 }
