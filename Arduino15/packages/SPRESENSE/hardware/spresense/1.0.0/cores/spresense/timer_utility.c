@@ -7,7 +7,7 @@
 #include <errno.h>
 #include <common/up_arch.h>
 #include <cxd56_clock.h>
-#include <chip/cxd56_timer.h>
+#include <arch/chip/hardware/cxd56_timer.h>
 #include <arch/chip/timer.h>
 #include "utility.h"
 

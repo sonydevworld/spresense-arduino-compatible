@@ -23,8 +23,8 @@
 #include <sdk/config.h>
 #include <arch/board/board.h>
 #include <arch/chip/pin.h>
-#include <chip/cxd5602_memorymap.h>
-#include <chip/cxd5602_topreg.h>
+#include <chip/hardware/cxd5602_memorymap.h>
+#include <chip/hardware/cxd5602_topreg.h>
 #include <common/up_arch.h>
 #include <Arduino.h>
 #include "utility.h"
