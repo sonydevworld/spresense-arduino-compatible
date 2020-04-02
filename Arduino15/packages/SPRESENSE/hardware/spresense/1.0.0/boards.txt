@@ -59,7 +59,7 @@ spresense.menu.Core.Main.build.stack=-Wl,--defsym,__stack=_vectors+{upload.maxim
 spresense.build.ldscript=-T{variant.path}/ramconfig.ld
 spresense.build.root={runtime.tools.spresense-sdk.path}/spresense
 spresense.build.kernel={build.root}/{build.type}
-spresense.build.libpath={build.kernel}/prebuilt
+spresense.build.libpath={build.kernel}/nuttx
 
 spresense.menu.Debug.Disabled=Disabled
 spresense.menu.Debug.Disabled.build.debug=
