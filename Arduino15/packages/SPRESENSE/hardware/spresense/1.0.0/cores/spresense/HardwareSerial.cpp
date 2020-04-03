@@ -54,11 +54,6 @@ void HardwareSerial::begin(unsigned long baud, uint8_t config)
         _fd = -1;
     }
 
-    if (config != SERIAL_8N1) {
-        printf("UART only supports SERIAL_8N1\n");
-        return;
-    }
-
     if ((ret = ch_to_tty(&tty)))
         return;
 
@@ -93,7 +88,8 @@ void HardwareSerial::begin(unsigned long baud, uint8_t config)
     if (ret != 0)
         return;
     tio.c_speed = baud;
-    tio.c_cflag = config;
+    tio.c_cflag &= ~0xff;
+    tio.c_cflag |= config;
     tio.c_oflag &= ~OPOST;
     ioctl(_fd, TCSETS, (long unsigned int)&tio);
     ioctl(_fd, TCFLSH, NULL);
