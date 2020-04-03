@@ -23,8 +23,8 @@
 
 #include <sdk/config.h>
 #include <stdio.h>
-#include <chip/cxd5602_backupmem.h>
-#include <chip/cxd5602_memorymap.h>
+#include <chip/hardware/cxd5602_backupmem.h>
+#include <chip/hardware/cxd5602_memorymap.h>
 #include <common/up_arch.h>
 #include <armv7-m/nvic.h>
 #include <assert.h>

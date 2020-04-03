@@ -36,7 +36,7 @@
 #include <nuttx/arch.h>
 #include <arch/cxd56xx/irq.h>
 #include <cxd56_spi.h>
-#include <chip/cxd5602_memorymap.h>
+#include <chip/hardware/cxd5602_memorymap.h>
 #include <chip/cxd56_spi.h>
 #include <cxd56_clock.h>
 #include "wiring_private.h"
