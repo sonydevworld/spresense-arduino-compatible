@@ -175,15 +175,17 @@ void RtcClass::setAlarm(RtcTime &tim)
 
   /* Set the alarm of the absolute time */
   setalm.id           = 0;
-  setalm.signo        = ALARM_SIGNO;
   setalm.pid          = _pid;
-  setalm.sigvalue.sival_int = 0;
   setalm.time.tm_sec  = tim.second();
   setalm.time.tm_min  = tim.minute();
   setalm.time.tm_hour = tim.hour();
   setalm.time.tm_mday = tim.day();
   setalm.time.tm_mon  = tim.month() - 1;
   setalm.time.tm_year = tim.year() - 1900;
+
+  setalm.event.sigev_notify = SIGEV_SIGNAL;
+  setalm.event.sigev_signo  = ALARM_SIGNO;
+  setalm.event.sigev_value.sival_int = 0;
 
   ret = ioctl(_fd, RTC_SET_ALARM, (unsigned long)((uintptr_t)&setalm));
   if (ret < 0) {
@@ -203,10 +205,13 @@ void RtcClass::setAlarmSeconds(uint32_t seconds)
 
   /* Set the alarm expired after the specified seconds */
   setrel.id      = 0;
-  setrel.signo   = ALARM_SIGNO;
   setrel.pid     = _pid;
-  setrel.sigvalue.sival_int = 0;
   setrel.reltime = (time_t)seconds;
+
+  setrel.event.sigev_notify = SIGEV_SIGNAL;
+  setrel.event.sigev_signo  = ALARM_SIGNO;
+  setrel.event.sigev_value.sival_int = 0;
+
 
   ret = ioctl(_fd, RTC_SET_RELATIVE, (unsigned long)((uintptr_t)&setrel));
   if (ret < 0) {
