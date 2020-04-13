@@ -19,7 +19,7 @@ function show_help
 	echo ""
 	echo "  Optional arguments:"
 	echo ""
-	echo "    -k: Force kernel type(release/debug)"
+	echo "    -k: Force build type(release/debug)"
 	echo "    -o: Prebuilt output directory"
 	echo "    -h: Show help (This message)"
 	echo ""
@@ -27,11 +27,11 @@ function show_help
 
 # Option handling
 SDK_DIR="${SCRIPT_DIR}/../Arduino15/packages/SPRESENSE/tools/spresense-sdk/1.0.0"
-FORCE_KERNEL_TYPE=""
+FORCE_BUILD_TYPE=""
 while getopts k:o:h OPT
 do
 	case $OPT in
-		'k' ) FORCE_KERNEL_TYPE=$OPTARG ;;
+		'k' ) FORCE_BUILD_TYPE=$OPTARG ;;
 		'o' ) SDK_DIR=`cd $OPTARG && pwd`;;
 		'h' ) show_help;;
 	esac
@@ -77,53 +77,53 @@ else
 fi
 
 # Check release/debug kernel config
-if [ "${FORCE_KERNEL_TYPE}" == "" ]; then
+if [ "${FORCE_BUILD_TYPE}" == "" ]; then
 	if [ "`grep "CONFIG_DEBUG_FEATURES=y" ${EXP_DIR}/nuttx/.config`" != "" ]; then
 		CONFIG_ENABLE_DEBUG=true
 	else
 		CONFIG_ENABLE_DEBUG=false
 	fi
 else
-	if [ "${FORCE_KERNEL_TYPE}" == "debug" ]; then
+	if [ "${FORCE_BUILD_TYPE}" == "debug" ]; then
 		CONFIG_ENABLE_DEBUG=true
 	else
 		CONFIG_ENABLE_DEBUG=false
 	fi
 fi
 
-# Select kernel config
+# Select build type
 if [ "${SDK_CONF}" == "spresense" ]; then
-	KERNEL_CONF=""
+	BUILD_TYPE=""
 else
-	KERNEL_CONF="subcore-"
+	BUILD_TYPE="subcore-"
 fi
 
 if [ "${CONFIG_ENABLE_DEBUG}" == "true" ]; then
-	KERNEL_CONF="${KERNEL_CONF}debug"
+	BUILD_TYPE="${BUILD_TYPE}debug"
 else
-	KERNEL_CONF="${KERNEL_CONF}release"
+	BUILD_TYPE="${BUILD_TYPE}release"
 fi
 
 # Temporary extract achive to temp directory
 mkdir -p ${IMP_DIR}
 
 # Move nuttx includes into kernel directory
-mv ${EXP_DIR}/nuttx ${IMP_DIR}/${KERNEL_CONF}
-rm -f ${IMP_DIR}/${KERNEL_CONF}/.config
+mv ${EXP_DIR}/nuttx ${IMP_DIR}/${BUILD_TYPE}
+rm -f ${IMP_DIR}/${BUILD_TYPE}/.config
 
 # Move application includes
-mkdir -p ${IMP_DIR}/${KERNEL_CONF}/include/apps
-mv ${EXP_DIR}/sdk/modules/include/* ${IMP_DIR}/${KERNEL_CONF}/include/apps
-mv ${EXP_DIR}/sdk/bsp/include/sdk ${IMP_DIR}/${KERNEL_CONF}/include
+mkdir -p ${IMP_DIR}/${BUILD_TYPE}/include/apps
+mv ${EXP_DIR}/sdk/modules/include/* ${IMP_DIR}/${BUILD_TYPE}/include/apps
+mv ${EXP_DIR}/sdk/bsp/include/sdk ${IMP_DIR}/${BUILD_TYPE}/include
 
 # Move prebuilt binary
-mkdir -p ${IMP_DIR}/${KERNEL_CONF}/prebuilt/libs
-mv ${EXP_DIR}/sdk/libs/* ${IMP_DIR}/${KERNEL_CONF}/prebuilt/libs/
-mv ${IMP_DIR}/${KERNEL_CONF}/prebuilt/libs/libsdk.a ${IMP_DIR}/${KERNEL_CONF}/prebuilt/libs/libnuttx.a
+mkdir -p ${IMP_DIR}/${BUILD_TYPE}/prebuilt/libs
+mv ${EXP_DIR}/sdk/libs/* ${IMP_DIR}/${BUILD_TYPE}/prebuilt/libs/
+mv ${IMP_DIR}/${BUILD_TYPE}/prebuilt/libs/libsdk.a ${IMP_DIR}/${BUILD_TYPE}/prebuilt/libs/libnuttx.a
 
 # create debug, release
-cp -a ${IMP_DIR}/${KERNEL_CONF}/build ${IMP_DIR}/${KERNEL_CONF}/prebuilt/
-rm -rf ${IMP_DIR}/${KERNEL_CONF}/build ${IMP_DIR}/${KERNEL_CONF}/libs
+cp -a ${IMP_DIR}/${BUILD_TYPE}/build ${IMP_DIR}/${BUILD_TYPE}/prebuilt/
+rm -rf ${IMP_DIR}/${BUILD_TYPE}/build ${IMP_DIR}/${BUILD_TYPE}/libs
 
 # Move LICENSE file
 mv ${EXP_DIR}/LICENSE ${IMP_DIR}/
@@ -137,7 +137,7 @@ rm -rf ${EXP_DIR}
 
 # Copy generated files
 BOAR_VARIANT_DIR=${SDK_DIR}/${VARIANT}
-KERNEL_DIR=${BOAR_VARIANT_DIR}/${KERNEL_CONF}
+KERNEL_DIR=${BOAR_VARIANT_DIR}/${BUILD_TYPE}
 COMMON_DIR=${BOAR_VARIANT_DIR}/common
 
 # Delete previous built result
@@ -164,7 +164,7 @@ do
 done
 
 #If target is subcore, copy prebuilt into debug
-if [ "${SDK_CONF}" == "spresense_sub" -a "${FORCE_KERNEL_TYPE}" == "" ]; then
+if [ "${SDK_CONF}" == "spresense_sub" -a "${FORCE_BUILD_TYPE}" == "" ]; then
 	DEBUG_KERNEL_DIR=${KERNEL_DIR}/../subcore-debug
 	rm -rf ${DEBUG_KERNEL_DIR}
 	cp -a ${KERNEL_DIR} ${DEBUG_KERNEL_DIR}

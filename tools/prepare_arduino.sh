@@ -60,7 +60,6 @@ function show_help()
 	echo "       -S: Spresense SDK build root path (if you use local build)"
 	echo "       -v: Spresense variant name (default: spresense)"
 	echo "       -c: Spresense SDK configuration. (spresense or spresense_sub) (default: spresense)"
-	echo "       -k: Spresense kernel configuration (release or debug) (default: release)"
 	echo "       -M: Manual build configuration by menuconfig (SDK or Kernel or SDK/Kernel)."
 	echo "       -G: Manual build configuration by gconfig (SDK or Kernel or SDK/Kernel)."
 	echo "       -Q: Manual build configuration by qconfig (SDK or Kernel or SDK/Kernel)."
@@ -177,15 +176,11 @@ function install_sdk_from_build()
 		exit
 	fi
 
-	SDK_KERNEL_CONF_OPTION=""
 	SDK_CONFIG_OPTION=""
 	# Add configuration option
 	if [ "${CONFIG_EDIT}" != "" ]; then
 		CONFIG_OPTION=`echo ${CONFIG_EDIT} | cut -d " " -f 1`
 		CONFIG_TARGET=`echo ${CONFIG_EDIT} | cut -d " " -f 2`
-		if [ "`echo ${CONFIG_TARGET} | grep -i kernel`" != "" ]; then
-			SDK_KERNEL_CONF_OPTION="${CONFIG_OPTION}"
-		fi
 		if [ "`echo ${CONFIG_TARGET} | grep -i sdk`" != "" ]; then
 			SDK_CONFIG_OPTION="${CONFIG_OPTION}"
 		fi
@@ -194,15 +189,13 @@ function install_sdk_from_build()
 	# Export SDK build
 	if [ ! ${IMPORT_ONLY} ]; then
 		${SCRIPT_DIR}/sdk_export.sh -i ${SPRESENSE_SDK_PATH} \
-									-k ${SDK_KERNEL_CONF} \
-									-K "${SDK_KERNEL_CONF_OPTION}" \
 									-s ${SDK_CONF} \
 									-S "${SDK_CONFIG_OPTION}" \
 									-v ${VARIANT_NAME}
 	fi
 
 	# Import SDK build into Arduino15
-	EXPORT_PACKAGE_NAME=SDK_EXPORT-${VARIANT_NAME}-${SDK_CONF}-${SDK_KERNEL_CONF}.zip
+	EXPORT_PACKAGE_NAME=SDK_EXPORT-${VARIANT_NAME}-${SDK_CONF}.zip
 	${SCRIPT_DIR}/sdk_import.sh ${SCRIPT_DIR}/out/${EXPORT_PACKAGE_NAME}
 }
 
@@ -211,7 +204,6 @@ function install_sdk_from_build()
 # -g: gcc archive path "your/path/to/gcc.tar.gz"
 # -s: sdk archive path "your/path/to/sdk.tar.gz"
 # -v: board variant (default: spresense)
-# -k: kernel configuration (default: release)
 # -c: SDK configuration (default: spresense)
 # -H: target Arduino Host (Windows/Linux32/Linux64/Mac)
 # -M: manual configuration by menuconfig (Kernel/SDK)
@@ -223,19 +215,17 @@ GCC_ARCHIVE_PATH=""
 SDK_ARCHIVE_PATH=""
 SDK_VARIANT_NAME="spresense"
 SDK_CONF="spresense"
-SDK_KERNEL_CONF="release"
 AURDUINO_IDE_HOST=""
 CONFIG_EDIT=""
 IMPORT_ONLY=""
 PRIVATE_ACCESS=""
-while getopts S:g:s:v:k:c:H:M:G:Q:iph OPT
+while getopts S:g:s:v:c:H:M:G:Q:iph OPT
 do
 	case $OPT in
 		'S' ) SPRESENSE_SDK_PATH=$OPTARG;;
 		'g' ) GCC_ARCHIVE_PATH=$OPTARG;;
 		's' ) SDK_ARCHIVE_PATH=$OPTARG;;
 		'v' ) SDK_VARIANT_NAME=$OPTARG;;
-		'k' ) SDK_KERNEL_CONF=$OPTARG;;
 		'c' ) SDK_CONF=$OPTARG;;
 		'H' ) AURDUINO_IDE_HOST=$OPTARG;;
 		'M' ) CONFIG_EDIT="m $OPTARG";;
