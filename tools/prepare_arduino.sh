@@ -168,12 +168,20 @@ function install_sdk_from_build()
 	TARGET_HOST=$4
 	SDK_NAME=$5
 	VARIANT_NAME=$6
+	DEBUG_OPT=$7
 
 	echo "Install SDK from Spresense build..."
 	debug_print "Using ${SPRESENSE_SDK_PATH}"
 	if [ ! -d "${SPRESENSE_SDK_PATH}" ]; then
 		echo "No such directory(${SPRESENSE_SDK_PATH})"
 		exit
+	fi
+
+	# Build type
+	if [ "${DEBUG_OPT}" == "disable" ]; then
+		BUILD_TYPE="release"
+	elif [ "${DEBUG_OPT}" == "enable" ]; then
+		BUILD_TYPE="debug"
 	fi
 
 	SDK_CONFIG_OPTION=""
@@ -191,11 +199,12 @@ function install_sdk_from_build()
 		${SCRIPT_DIR}/sdk_export.sh -i ${SPRESENSE_SDK_PATH} \
 									-s ${SDK_CONF} \
 									-S "${SDK_CONFIG_OPTION}" \
+									-d ${DEBUG_OPT} \
 									-v ${VARIANT_NAME}
 	fi
 
 	# Import SDK build into Arduino15
-	EXPORT_PACKAGE_NAME=SDK_EXPORT-${VARIANT_NAME}-${SDK_CONF}.zip
+	EXPORT_PACKAGE_NAME=SDK_EXPORT-${VARIANT_NAME}-${SDK_CONF}-${BUILD_TYPE}.tar.gz
 	${SCRIPT_DIR}/sdk_import.sh ${SCRIPT_DIR}/out/${EXPORT_PACKAGE_NAME}
 }
 
@@ -205,6 +214,7 @@ function install_sdk_from_build()
 # -s: sdk archive path "your/path/to/sdk.tar.gz"
 # -v: board variant (default: spresense)
 # -c: SDK configuration (default: spresense)
+# -d: Debug configuration (default: disable)
 # -H: target Arduino Host (Windows/Linux32/Linux64/Mac)
 # -M: manual configuration by menuconfig (Kernel/SDK)
 # -G: manual configuration by gconfig (Kernel/SDK)
@@ -215,11 +225,12 @@ GCC_ARCHIVE_PATH=""
 SDK_ARCHIVE_PATH=""
 SDK_VARIANT_NAME="spresense"
 SDK_CONF="spresense"
+DEBUG_OPT="disable"
 AURDUINO_IDE_HOST=""
 CONFIG_EDIT=""
 IMPORT_ONLY=""
 PRIVATE_ACCESS=""
-while getopts S:g:s:v:c:H:M:G:Q:iph OPT
+while getopts S:g:s:v:c:d:H:M:G:Q:iph OPT
 do
 	case $OPT in
 		'S' ) SPRESENSE_SDK_PATH=$OPTARG;;
@@ -227,6 +238,7 @@ do
 		's' ) SDK_ARCHIVE_PATH=$OPTARG;;
 		'v' ) SDK_VARIANT_NAME=$OPTARG;;
 		'c' ) SDK_CONF=$OPTARG;;
+		'd' ) DEBUG_OPT=$OPTARG;;
 		'H' ) AURDUINO_IDE_HOST=$OPTARG;;
 		'M' ) CONFIG_EDIT="m $OPTARG";;
 		'G' ) CONFIG_EDIT="g $OPTARG";;
@@ -272,7 +284,7 @@ if [ "${SDK_ARCHIVE_PATH}" != "" ]; then
 	install_tool_from_archive ${PACKAGE_NAME} ${SDK_NAME} ${SDK_ARCHIVE_PATH}
 elif [ "${SPRESENSE_SDK_PATH}" != "" ]; then
 	# Using SDK build
-	install_sdk_from_build ${PACKAGE_NAME} ${BOARD_NAME} ${JSON_FILE} ${AURDUINO_IDE_HOST} ${SDK_NAME} ${SDK_VARIANT_NAME}
+	install_sdk_from_build ${PACKAGE_NAME} ${BOARD_NAME} ${JSON_FILE} ${AURDUINO_IDE_HOST} ${SDK_NAME} ${SDK_VARIANT_NAME} ${DEBUG_OPT}
 else
 	# Using HTTP install
 	install_tool_from_http ${PACKAGE_NAME} ${BOARD_NAME} ${JSON_FILE} ${AURDUINO_IDE_HOST} ${SDK_NAME}
