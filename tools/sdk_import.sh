@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eu
+set -u
 
 CURRENT_DIR=`pwd`
 SCRIPT_NAME=$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)/$(basename "${BASH_SOURCE[0]}")
@@ -57,7 +57,22 @@ mkdir -p ${SDK_DIR}
 echo "Local SDK import to ${SDK_DIR}"
 
 ARCHIVE_FILE=$1
-VARIANT=spresense
+
+# Check archive file name
+ARCHIVE_NAME=`basename ${ARCHIVE_FILE} .tar.gz`
+EXP_LABEL=`echo ${ARCHIVE_NAME} | cut -d "-" -f 1`
+VARIANT=`echo ${ARCHIVE_NAME} | cut -d "-" -f 2`
+SDK_CONF=`echo ${ARCHIVE_NAME} | cut -d "-" -f 3`
+DBG_TYPE=`echo ${ARCHIVE_NAME} | cut -d "-" -f 4`
+
+if [ "${EXP_LABEL}" != "SDK_EXPORT" ]; then
+	echo "Error: Please use correct SDK export archive (${ARCHIVE_NAME})"
+	exit
+fi
+
+echo "Arduino SW variant         : ${VARIANT}"
+echo "Spresense SDK configuration: ${SDK_CONF}"
+echo "SW debug variant           : ${DBG_TYPE}"
 
 # Extract to temp directory
 TMP_DIR=`mktemp -d`
@@ -69,16 +84,9 @@ tar xvzf ${ARCHIVE_FILE} -C ${TMP_DIR} > /dev/null
 EXP_DIR=${TMP_DIR}/sdk-export
 IMP_DIR=${SDK_DIR}/${VARIANT}
 
-# Check MainCore/SubCore
-if [ "`grep "CONFIG_CXD56_AUDIO=y" ${EXP_DIR}/nuttx/.config`" != "" ]; then
-	SDK_CONF=spresense
-else
-	SDK_CONF=spresense_sub
-fi
-
 # Check release/debug kernel config
 if [ "${FORCE_BUILD_TYPE}" == "" ]; then
-	if [ "`grep "CONFIG_DEBUG_FEATURES=y" ${EXP_DIR}/nuttx/.config`" != "" ]; then
+	if [ "${DBG_TYPE}" == "debug" ]; then
 		CONFIG_ENABLE_DEBUG=true
 	else
 		CONFIG_ENABLE_DEBUG=false
