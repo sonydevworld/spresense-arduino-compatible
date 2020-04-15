@@ -29,6 +29,7 @@ function show_help
 }
 
 # Option handling
+SDK_DIR=""
 VARIANT_NAME=spresense
 SDK_CONF=spresense
 SDK_OPTION=""
@@ -45,7 +46,13 @@ do
 	esac
 done
 
-PACKAGE_NAME=SDK_EXPORT-${VARIANT_NAME}-${SDK_CONF}.zip
+# Option check
+if [ "${SDK_DIR}" == "" -o ! -d "${SDK_DIR}" ]; then
+	echo "Please choose correct SDK path (${SDK_DIR})"
+	exit
+fi
+
+PACKAGE_NAME=SDK_EXPORT-${VARIANT_NAME}-${SDK_CONF}.tar.gz
 
 echo "Creating exported archive ${PACKAGE_NAME}..."
 
@@ -86,8 +93,8 @@ echo "SDK    : ${SDK_CONF_LIST}"
 ./tools/config.py ${SDK_OPTION} ${SDK_CONF_LIST}
 
 # Export
-echo "Export to Arduino..."
-make export
+echo "SDK Export to Arduino..."
+make exportsdk
 
 # Check make result
 if [ $? != 0 ]; then
@@ -97,7 +104,7 @@ fi
 
 # Move export arcihve into Arduino out directory
 mkdir -p ${OUT_DIR}
-mv sdk-export.zip ${OUT_DIR}/${PACKAGE_NAME}
+mv sdk-export.tar.gz ${OUT_DIR}/${PACKAGE_NAME}
 
 # Remove temporary directory
 rm -rf ${TMP_DIR}
