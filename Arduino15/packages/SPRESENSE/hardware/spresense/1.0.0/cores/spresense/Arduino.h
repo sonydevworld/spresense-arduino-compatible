@@ -78,6 +78,7 @@ int digitalRead(uint8_t);
 /* Analog I/O */
 void analogReference(uint8_t mode);
 int analogRead(uint8_t);
+void analogReadMap(uint8_t pin, int16_t min, int16_t max);
 void analogWriteSetDefaultFreq(uint32_t);
 uint32_t analogWriteGetDefaultFreq(void);
 void analogWriteFreq(uint8_t, int, uint32_t);

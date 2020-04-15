@@ -126,6 +126,11 @@ typedef struct {
     const char* dev_path;
 } adc_t;
 
+typedef struct {
+    int16_t min;
+    int16_t max;
+} adc_map_t;
+
 static analog_timer_info_t s_sim_timers[] __attribute__((aligned (4))) = {
     /* pin,  dut, run, adr, freq, on, off, exp */
     { PIN_D00, 0,   0,   0,   0,   0,   0,   0 },
@@ -171,6 +176,23 @@ static adc_t s_adcs[] __attribute__((aligned (4))) = {
     { PIN_A3, 0,   0,   "/dev/lpadc3" },
     { PIN_A4, 0,   0,   "/dev/hpadc0" },
     { PIN_A5, 0,   0,   "/dev/hpadc1" },
+};
+
+static adc_map_t s_adc_map[] = {
+    { SHRT_MIN, SHRT_MAX }, // A0
+    { SHRT_MIN, SHRT_MAX }, // A1
+    { SHRT_MIN, SHRT_MAX }, // A2
+    { SHRT_MIN, SHRT_MAX }, // A3
+#ifdef CONFIG_CXD56_HPADC0_INPUT_GAIN_M6DB
+    {   -29362,    26375 }, // A4
+#else
+    { SHRT_MIN, SHRT_MAX }, // A4
+#endif
+#ifdef CONFIG_CXD56_HPADC1_INPUT_GAIN_M6DB
+    {   -29362,    26375 }, // A5
+#else
+    { SHRT_MIN, SHRT_MAX }, // A5
+#endif
 };
 
 static int s_timer_fd = -1;
@@ -558,7 +580,17 @@ int analogRead(uint8_t pin)
     }
   } while (nbytes == 0);
 
-  ret = map(sample, SHRT_MIN, SHRT_MAX, 0, 1023);
+  int16_t minVal = s_adc_map[aidx].min;
+  int16_t maxVal = s_adc_map[aidx].max;
+
+  if (minVal == maxVal) {
+    /* Return a raw value without clipping */
+    ret = sample;
+  } else {
+    /* Return a value clipped from 0 to 1023 */
+    sample = constrain(sample, minVal, maxVal);
+    ret = map(sample, minVal, maxVal, 0, 1023);
+  }
 
 out:
 #if 0
@@ -574,6 +606,23 @@ out:
   s_adcs[aidx].running = false;
 
   return ret;
+}
+
+void analogReadMap(uint8_t pin, int16_t min, int16_t max)
+{
+  uint8_t aidx = _PIN_OFFSET(pin);
+  if (aidx > 5) {
+    printf("ERROR: Invalid pin number [%u]\n", pin);
+    printf("pin must be specified A0 to A5\n");
+    return;
+  }
+  if (min > max) {
+    printf("ERROR: Invalid parameter (%d > %d)\n", min, max);
+    return;
+  }
+  s_adc_map[aidx].min = min;
+  s_adc_map[aidx].max = max;
+  return;
 }
 
 void analogWriteSetDefaultFreq(uint32_t freq)
