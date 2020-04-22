@@ -37,13 +37,15 @@
 
 #ifndef SUBCORE
 static void (*g_isr)(void) = NULL;
+static int g_alarm = 0;
 
 static void alarm_handler(int signo, FAR siginfo_t *info, FAR void *ucontext)
 {
   (void)signo;
   (void)info;
   (void)ucontext;
-  /* do nothing */
+  /* Set alarm flag */
+  g_alarm = 1;
 }
 
 static int alarm_daemon(int argc, FAR char *argv[])
@@ -57,9 +59,9 @@ static int alarm_daemon(int argc, FAR char *argv[])
 
   /* Make sure that the alarm signal is unmasked */
 
-  sigemptyset(&set);
-  sigaddset(&set, ALARM_SIGNO);
-  ret = sigprocmask(SIG_UNBLOCK, &set, NULL);
+  sigfillset(&set);
+  sigdelset(&set, ALARM_SIGNO);
+  ret = sigprocmask(SIG_SETMASK, &set, NULL);
   assert(ret == OK);
 
   /* Register alarm signal handler */
@@ -78,11 +80,13 @@ static int alarm_daemon(int argc, FAR char *argv[])
   for (; ; )
     {
       ret = sigwaitinfo(&set, NULL);
-      if (ret < 0) {
+      if ((ret < 0) && (errno != EINTR)) {
         ERRMSG("%s() (errno=%d)\n", __FUNCTION__, errno);
       }
-      if (g_isr) {
+      if (g_alarm && g_isr) {
         g_isr();
+        /* Clear alarm flag */
+        g_alarm = 0;
       }
     }
 
