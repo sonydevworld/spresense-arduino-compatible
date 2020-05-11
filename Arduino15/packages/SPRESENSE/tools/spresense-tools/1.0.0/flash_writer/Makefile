@@ -1,4 +1,4 @@
-# getspkinfo/Makefile
+# flash_writer/Makefile
 
 UNAME := $(shell uname -o 2>/dev/null)
 PYINSTALLER := pyinstaller
