@@ -339,7 +339,7 @@ public:
    *         [jp] #CAM_IMAGE_PIX_FMT で定義されているピクセルフォーマット
    */
   CAM_IMAGE_PIX_FMT getPixFormat() { return (img_buff != NULL) ? img_buff->pix_fmt : CAM_IMAGE_PIX_FMT_NONE; }
- 
+
   /**
    * @brief Constuctor of CamImage class
    * @details [en] Construct empty CamImage instance. <BR>
@@ -566,11 +566,11 @@ public:
    */
   CamErr begin(
     int buff_num = 1,                       /**< [en] Number of video stream image buffer.(Default : 1)                          <BR> [ja] Videoストリームで利用するバッファの数 (デフォルト 1枚) */
-    CAM_VIDEO_FPS fps = CAM_VIDEO_FPS_30,   /**< [en] Frame rate of video stream. Choose one in #CAM_VIDEO_FPS (Default : 30FPS) <BR> [ja] Videoストリームのフレームレート。 #CAM_VIDEO_FPS の中から選択 (デ>フォルト 30FPS) */ 
+    CAM_VIDEO_FPS fps = CAM_VIDEO_FPS_30,   /**< [en] Frame rate of video stream. Choose one in #CAM_VIDEO_FPS (Default : 30FPS) <BR> [ja] Videoストリームのフレームレート。 #CAM_VIDEO_FPS の中から選択 (デ>フォルト 30FPS) */
     int video_width   = CAM_IMGSIZE_QVGA_H, /**< [en] Image buffer width of video stream.(px)(Default : QVGA)                    <BR> [ja] Videoストリーム画像の横サイズ (単位ピクセル)(デフォルト QVGA) */
     int video_height  = CAM_IMGSIZE_QVGA_V, /**< [en] Image buffer height of video stream.(px)(Default : QVGA)                   <BR> [ja] Videoストリーム画像の縦サイズ (単位ピクセル)(デフォルト QVGA) */
     CAM_IMAGE_PIX_FMT video_fmt = CAM_IMAGE_PIX_FMT_YUV422  /**< [en] Video stream image buffer pixel format.(Default : YUV422) <BR> [ja] Videoストリームで利用するバッファのピクセルフォーマット (デフォルト YUV422) */
-  ); 
+  );
 
   /**
    * @brief Start / Stop Video Stream
@@ -606,6 +606,15 @@ public:
    *         [ja] #CamErr で定義されているエラーコード
    */
   CamErr setAutoExposure(bool enable /**< [en] Start or Stop Auto Exposure. (true : start, false : stop) <BR> [ja] 自動露光調整の開始/停止 (true : 開始、false : 停止) */);
+
+  /**
+   * @brief Set Exposure Time
+   * @details [en] exposure_time_ms time in milli seconds <BR>
+   *          [ja]
+   * @return [en] Error code defined as #CamErr. <BR>
+   *         [ja]
+   */
+  CamErr setAbsoluteExposure(uint32_t exposure_time_ms);
 
   /**
    * @brief Control Auto ISO Sensitivity (WIll obsolete after v1.2.0)
