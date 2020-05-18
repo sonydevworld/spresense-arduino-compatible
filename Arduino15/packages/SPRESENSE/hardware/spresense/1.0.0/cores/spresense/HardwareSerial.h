@@ -56,6 +56,10 @@
 #define SERIAL_7O2 0x36
 #define SERIAL_8O2 0x37
 
+#define SERIAL_CTS (0x100)
+#define SERIAL_RTS (0x200)
+#define SERIAL_RTSCTS (SERIAL_CTS | SERIAL_RTS)
+
 #if defined(CONFIG_CXD56_UART1)
 #define SERIAL_DEFAULT_CHANNEL 1
 #elif defined(CONFIG_CXD56_UART2)
@@ -72,7 +76,7 @@ class HardwareSerial : public Stream
   public:
     HardwareSerial(uint8_t channel = SERIAL_DEFAULT_CHANNEL);
     void begin(unsigned long baud) { begin(baud, SERIAL_8N1); }
-    void begin(unsigned long baud, uint8_t config);
+    void begin(unsigned long baud, uint16_t config);
     void end(void);
 
     virtual int available(void);
