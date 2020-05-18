@@ -213,7 +213,6 @@ void setup() {
       break;
     }
 
-
     /* Start positioning */
     result = Gnss.start(COLD_START);
     if (result != 0)
@@ -226,6 +225,9 @@ void setup() {
       Serial.println("Gnss setup OK");
     }
   }
+
+  /* Start 1PSS output to PIN_D02 */
+  //Gnss.start1PPS();
 
   /* Turn off all LED:Setup done. */
   ledOff(PIN_LED0);
