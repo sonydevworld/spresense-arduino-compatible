@@ -97,6 +97,8 @@ enum SpSatelliteType {
     SBAS      = (1U << 2),
     QZ_L1CA   = (1U << 3),
     QZ_L1S    = (1U << 5),
+    BEIDOU    = (1U << 6),
+    GALILEO   = (1U << 7),
     UNKNOWN   = 0,
 };
 
