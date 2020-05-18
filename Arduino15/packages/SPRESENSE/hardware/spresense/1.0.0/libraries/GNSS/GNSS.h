@@ -443,6 +443,18 @@ public:
      */
     void* getDCReport(void);
 
+    /**
+     * @brief Start 1PPS output
+     * @return none
+     */
+    void start1PPS(void);
+
+    /**
+     * @brief Stop 1PPS output
+     * @return none
+     */
+    void stop1PPS(void);
+
 private:
     int fd_;                          /* file descriptor */
     unsigned long SatelliteSystem;    /* satellite type */
