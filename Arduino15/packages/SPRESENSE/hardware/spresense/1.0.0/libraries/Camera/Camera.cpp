@@ -1014,11 +1014,11 @@ CamErr CameraClass::setAutoExposure(bool enable)
 }
 
 // Public : Set exposure time in ms.
-CamErr CameraClass::setAbsoluteExposure(uint32_t exposure_time_ms)
+CamErr CameraClass::setAbsoluteExposure(uint32_t exposure_time)
 {
   return set_ext_ctrls(V4L2_CTRL_CLASS_CAMERA,
                        V4L2_CID_EXPOSURE_ABSOLUTE,
-                       exposure_time_ms);
+                       exposure_time);
 }
 
 // Public : Turn on/off Auto ISO Sensitivity.

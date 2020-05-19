@@ -609,12 +609,14 @@ public:
 
   /**
    * @brief Set Exposure Time
-   * @details [en] exposure_time_ms time in milli seconds <BR>
+   * @details [en] To manually set the absolute exposure time it is first needed to disable auto exposure function by calling setAutoExposure(false).  <BR>
    *          [ja]
+   *
+   * @param exposure_time Exposure time in 100 µS units. 1 unit is 1/10000th of a second. 10000 is one second.
    * @return [en] Error code defined as #CamErr. <BR>
    *         [ja]
    */
-  CamErr setAbsoluteExposure(uint32_t exposure_time_ms);
+  CamErr setAbsoluteExposure(uint32_t exposure_time);
 
   /**
    * @brief Control Auto ISO Sensitivity (WIll obsolete after v1.2.0)
