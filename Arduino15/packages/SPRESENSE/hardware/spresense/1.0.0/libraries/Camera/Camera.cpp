@@ -556,7 +556,7 @@ CamErr CameraClass::set_frame_parameters( enum v4l2_buf_type type, int video_wid
     {
       return convert_errno2camerr(errno);
     }
-  
+
   return CAM_ERR_SUCCESS;
 }
 
@@ -709,7 +709,7 @@ static struct fps_to_timeparframe
 {
   CAM_VIDEO_FPS fps;
   uint32_t n;
-  uint32_t d; 
+  uint32_t d;
 } fps2tpf[] = {
   {CAM_VIDEO_FPS_5,   1, 5},
   {CAM_VIDEO_FPS_6,   1, 6},
@@ -918,7 +918,7 @@ CamErr CameraClass::begin(int buff_num, CAM_VIDEO_FPS fps, int video_width, int 
     {
       goto label_err_with_memaligned;
     }
-  
+
   ret = set_video_frame_rate(fps);
   if (ret != CAM_ERR_SUCCESS)
     {
@@ -944,7 +944,7 @@ CamErr CameraClass::startStreaming(bool enable, camera_cb_t cb)
   enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   CamErr err = CAM_ERR_SUCCESS;
   unsigned long req = enable ? VIDIOC_STREAMON : VIDIOC_STREAMOFF;
-  
+
   if (is_device_ready())
     {
       lock_video_cb();
@@ -1011,6 +1011,14 @@ CamErr CameraClass::setAutoExposure(bool enable)
   return set_ext_ctrls(V4L2_CTRL_CLASS_CAMERA,
                        V4L2_CID_EXPOSURE_AUTO,
                        enable ? V4L2_EXPOSURE_AUTO : V4L2_EXPOSURE_MANUAL);
+}
+
+// Public : Set exposure time in ms.
+CamErr CameraClass::setAbsoluteExposure(uint32_t exposure_time)
+{
+  return set_ext_ctrls(V4L2_CTRL_CLASS_CAMERA,
+                       V4L2_CID_EXPOSURE_ABSOLUTE,
+                       exposure_time);
 }
 
 // Public : Turn on/off Auto ISO Sensitivity.
@@ -1229,7 +1237,7 @@ void CameraClass::frame_handle_thread(void *arg)
 }
 
 
-// Private Static : 
+// Private Static :
 void CameraClass::release_buf(ImgBuff *buf)
 {
   int idx = buf->idx;
