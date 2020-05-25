@@ -95,6 +95,7 @@ bool IIRClass::create_coef(filterType_t type, int cutoff, float q)
   coef[3] = -(a1/a0);
   coef[4] = -(a2/a0);
 
+  return true;
 }
 
 
