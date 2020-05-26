@@ -926,7 +926,6 @@ void loop() {
   static int State = eStateActive;
   static int TimeOut = IDLE_ACTIVE_TIME;
   static bool PosFixflag = false;
-  static int skipUnstableCount = 10;
   static char *pNmeaBuff     = NULL;
   static char *pBinaryBuffer = NULL;
 
@@ -951,9 +950,6 @@ void loop() {
 
       /* Set new mode. */
       State = eStateActive;
-
-      /* Reset unstable counter */
-      skipUnstableCount = 10;
 
       /* Go to Active mode. */
       SleepOut();
