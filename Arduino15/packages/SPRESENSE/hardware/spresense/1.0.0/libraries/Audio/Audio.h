@@ -274,7 +274,7 @@ public:
   err_t setRecorderMode(
       uint8_t input_device, /**< Set AS_SETRECDR_STS_INPUTDEVICE_MIC. */
       int32_t input_gain    /**< Input gain : value range
-                                 Analog Mic  -7850:-78.50dB, ... , -5:-0.05dB, 0:0dB, 5:+0.5dB, ... , 210:+21.0dB
+                                 Analog Mic  0:0dB, 5:+0.5dB, ... , 210:+21.0dB (Max is 21dB.)
                                  Digital Mic -7850:-78.50dB, ... , -5:-0.05dB, 0:0dB (Max is 0dB.)
                                  set #AS_MICGAIN_HOLD is keep setting. */
   );
@@ -289,7 +289,7 @@ public:
   err_t setRecorderMode(
       uint8_t input_device, /**< Set AS_SETRECDR_STS_INPUTDEVICE_MIC. */
       int32_t input_gain,   /**< Input gain : value range
-                                 Analog Mic  -7850:-78.50dB, ... , -5:-0.05dB, 0:0dB, 5:+0.5dB, ... , 210:+21.0dB
+                                 Analog Mic  0:0dB, 5:+0.5dB, ... , 210:+21.0dB (Max is 21dB.)
                                  Digital Mic -7850:-78.50dB, ... , -5:-0.05dB, 0:0dB (Max is 0dB.)
                                  set #AS_MICGAIN_HOLD is keep setting. */
       uint32_t bufsize      /**< Buffer size of recorder. */
@@ -305,7 +305,7 @@ public:
   err_t setRecorderMode(
       uint8_t input_device, /**< Set AS_SETRECDR_STS_INPUTDEVICE_MIC. */
       int32_t input_gain,   /**< Input gain : value range
-                                 Analog Mic  -7850:-78.50dB, ... , -5:-0.05dB, 0:0dB, 5:+0.5dB, ... , 210:+21.0dB
+                                 Analog Mic  0:0dB, 5:+0.5dB, ... , 210:+21.0dB (Max is 21dB.)
                                  Digital Mic -7850:-78.50dB, ... , -5:-0.05dB, 0:0dB (Max is 0dB.)
                                  set #AS_MICGAIN_HOLD is keep setting. */
       uint32_t bufsize,     /**< Buffer size of recorder. */
@@ -358,7 +358,7 @@ public:
       ThroughI2sOut i2s_out,  /**< Set I2S output source. Use ThroughI2sOut enum type. */
       bool sp_out,            /**< sp_out : Use speaker output. */
       int32_t input_gain,     /**< Input gain : value range
-                                 Analog Mic  -7850:-78.50dB, ... , -5:-0.05dB, 0:0dB, 5:+0.5dB, ... , 210:+21.0dB
+                                 Analog Mic  0:0dB, 5:+0.5dB, ... , 210:+21.0dB (Max is 21dB.)
                                  Digital Mic -7850:-78.50dB, ... , -5:-0.05dB, 0:0dB (Max is 0dB.)
                                  set #AS_MICGAIN_HOLD is keep setting. */
       uint8_t sp_drv /**< Select audio speaker driver mode. AS_SP_DRV_MODE_LINEOUT or
