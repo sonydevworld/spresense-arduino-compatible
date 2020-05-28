@@ -32,7 +32,6 @@ OutputMixer *theMixer;
 /* Select mic channel number */
 const int mic_channel_num = 1;
 //const int mic_channel_num = 2;
-//const int mic_channel_num = 4;
 
 const int32_t s_buffer_size = 768 * mic_channel_num * sizeof(uint16_t);
 uint8_t s_buffer[s_buffer_size];
