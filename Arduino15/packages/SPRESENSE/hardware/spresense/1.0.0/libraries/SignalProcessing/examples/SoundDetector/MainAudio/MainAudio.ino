@@ -51,8 +51,7 @@ void setup()
 
   Serial.println("Init Audio Recorder");
   /* Select input device as AMIC */
-  //theAudio->setRecorderMode(AS_SETRECDR_STS_INPUTDEVICE_MIC, 210);
-  theAudio->setRecorderMode(AS_SETRECDR_STS_INPUTDEVICE_MIC);
+  theAudio->setRecorderMode(AS_SETRECDR_STS_INPUTDEVICE_MIC, 210);
 
   /* Set PCM capture */
   uint8_t channel;
