@@ -98,6 +98,7 @@ void setup()
   if (ret < 0) {
     errorLoop(2);
   }
+
   /* receive with non-blocking */
 //  MP.RecvTimeout(MP_RECV_POLLING);
   MP.RecvTimeout(100000);
@@ -124,15 +125,15 @@ void loop()
   static float pLpfTmp[FFT_LEN];
   static q15_t pOut[RESULT_SIZE][FFT_LEN];
   static int pos=0;
-  static int pitch_shift=10;
+  static int pitch_shift = 0;
 
   /* Receive PCM captured buffer from MainCore */
   ret = MP.Recv(&rcvid, &request);
   if (ret >= 0) {
       FFT.put((q15_t*)request->buffer,request->sample);
+      pitch_shift = request->pitch_shift;
   }
   while(!FFT.empty(0)){
-//      result.channel = MAX_CHANNEL_NUM;
     for (int i = 0; i < MAX_CHANNEL_NUM; i++) {
 
       int cnt = FFT.get_raw(&pTmp[(MAX_SHIFT+pitch_shift)*2],i);
@@ -149,8 +150,6 @@ void loop()
 
       arm_biquad_cascade_df2T_f32(&bS, pDst, pLpfTmp, FFT_LEN);
       arm_float_to_q15(pLpfTmp,&pOut[pos][0],FFT_LEN);
-
-//      for(int i=4; i<FFT_LEN/6;i++){ pOut[pos][i] <<= 2;}
 
       result[pos].buffer = MP.Virt2Phys(&pOut[pos][0]);
       result[pos].sample = FFT_LEN;
