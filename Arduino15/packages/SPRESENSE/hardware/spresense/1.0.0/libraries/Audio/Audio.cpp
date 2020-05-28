@@ -1330,7 +1330,7 @@ err_t AudioClass::writeWavHeader(File& myFile)
   m_wav_format.data_size  = m_es_size;
 
   int ret = myFile.write((uint8_t*)&m_wav_format, sizeof(WAVHEADER));
-  if (ret < 0)
+  if (ret != sizeof(WAVHEADER))
     {
       print_err("Fail to write file(wav header)\n");
       return AUDIOLIB_ECODE_FILEACCESS_ERROR;
@@ -1365,7 +1365,7 @@ err_t AudioClass::readFrames(File& myFile)
       m_es_size += size;
       data_size -= size;
 
-      if (ret < 0)
+      if (ret <= 0)
         {
           print_err("ERROR: Cannot write recorded data to output file.\n");
           return AUDIOLIB_ECODE_FILEACCESS_ERROR;
