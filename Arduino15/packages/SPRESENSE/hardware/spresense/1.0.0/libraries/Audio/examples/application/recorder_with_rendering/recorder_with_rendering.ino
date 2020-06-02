@@ -264,7 +264,7 @@ void loop()
 
               /* Write captured data to the file too */
               
-              if (s_myFile.write((uint8_t*)s_buffer, read_size) <= 0)
+              if (s_myFile.write((uint8_t*)s_buffer, read_size) < 0)
                 {
                   puts("File write error!");
                   goto exitRecording;

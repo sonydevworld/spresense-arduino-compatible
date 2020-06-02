@@ -245,7 +245,7 @@ err_t execute_aframe(uint32_t* size)
        return err;
     }
   int ret = s_myFile.write((uint8_t*)&s_buffer, *size);
-  if (ret <= 0)
+  if (ret < 0)
     {
       puts("File write error.");
       err = MEDIARECORDER_ECODE_FILEACCESS_ERROR;

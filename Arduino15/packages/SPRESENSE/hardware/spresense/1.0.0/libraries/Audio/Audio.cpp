@@ -1365,7 +1365,7 @@ err_t AudioClass::readFrames(File& myFile)
       m_es_size += size;
       data_size -= size;
 
-      if (ret <= 0)
+      if (ret < 0)
         {
           print_err("ERROR: Cannot write recorded data to output file.\n");
           return AUDIOLIB_ECODE_FILEACCESS_ERROR;
