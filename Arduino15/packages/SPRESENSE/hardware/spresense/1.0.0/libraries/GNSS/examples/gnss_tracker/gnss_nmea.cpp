@@ -95,9 +95,9 @@ static void CoordinateToString(char *pBuffer, int length, double Coordinate,
   }
   fixeddig = CordInfo[cordinate_type].fixeddigit;
   Degree = (int) tmp;
-  tmp = (tmp - (double)Degree) * 60;
+  tmp = (tmp - (double)Degree) * 60 + 0.00005;
   Minute = (int)tmp;
-  tmp = (tmp - (double)Minute) * 10000 + 0.5;
+  tmp = (tmp - (double)Minute) * 10000;
   Minute2 = (int)tmp;
 
   snprintf(pBuffer, length, "%0*d%02d.%04d,%c,", fixeddig, Degree, Minute, Minute2, direction);
