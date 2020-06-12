@@ -23,7 +23,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <arch/chip/cxd56_audio.h>
+#include <arch/board/cxd56_audio.h>
 #include <arch/board/board.h>
 
 #include "OutputMixer.h"

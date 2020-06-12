@@ -23,8 +23,8 @@
 
 #include <sdk/config.h>
 #include <stdio.h>
-#include <chip/cxd5602_backupmem.h>
-#include <chip/cxd5602_memorymap.h>
+#include <chip/hardware/cxd5602_backupmem.h>
+#include <chip/hardware/cxd5602_memorymap.h>
 #include <common/up_arch.h>
 #include <armv7-m/nvic.h>
 #include <assert.h>
@@ -55,14 +55,14 @@ MPClass::MPClass() : _recvTimeout(MP_RECV_BLOCKING)
 {
   memset(_mq, 0, sizeof(_mq));
   _rmng = (struct ResourceManagement*)BACKUP_MEM;
-#ifndef CONFIG_CXD56_SUBCORE
+#ifndef SUBCORE
   memset(_rmng, 0, sizeof(ResourceManagement));
   _rmng->magic = MP_MAGIC;
   sq_init(&_shmlist);
 #endif
 }
 
-#ifdef CONFIG_CXD56_SUBCORE
+#ifdef SUBCORE
 int MPClass::begin()
 {
   int ret = 0;
@@ -97,7 +97,7 @@ int MPClass::begin(int subid)
 }
 #endif
 
-#ifdef CONFIG_CXD56_SUBCORE
+#ifdef SUBCORE
 int MPClass::end()
 {
   /* do nothing */
@@ -282,7 +282,7 @@ void MPClass::DisableConsole()
   putreg32(bit, NVIC_IRQ_CLEAR(irq));
 }
 
-#ifndef CONFIG_CXD56_SUBCORE
+#ifndef SUBCORE
 void *MPClass::AllocSharedMemory(size_t size)
 {
   void    *virt;
@@ -333,13 +333,13 @@ void MPClass::FreeSharedMemory(void *addr)
     free(node);
   }
 }
-#endif /* !CONFIG_CXD56_SUBCORE */
+#endif /* !SUBCORE */
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
 
-#ifdef CONFIG_CXD56_SUBCORE
+#ifdef SUBCORE
 int MPClass::checkid(int subid)
 {
   int ret;
@@ -391,7 +391,7 @@ int MPClass::checkid(int subid)
 }
 #endif
 
-#ifndef CONFIG_CXD56_SUBCORE
+#ifndef SUBCORE
 int MPClass::load(int subid)
 {
   int ret;

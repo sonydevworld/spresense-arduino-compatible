@@ -34,7 +34,7 @@
 
 #include <sys/boardctl.h>
 #include <nuttx/usb/usbdev.h>
-#include <nuttx/fs/mkfatfs.h>
+#include <fsutils/mkfatfs.h>
 #include <arch/board/board.h>
 
 #ifndef CONFIG_SYSTEM_USBMSC_NLUNS

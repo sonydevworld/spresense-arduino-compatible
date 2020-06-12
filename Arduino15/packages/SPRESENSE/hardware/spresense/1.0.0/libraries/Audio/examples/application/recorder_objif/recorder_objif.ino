@@ -241,6 +241,8 @@ err_t execute_aframe(uint32_t* size)
   if(((err == MEDIARECORDER_ECODE_OK) || (err == MEDIARECORDER_ECODE_INSUFFICIENT_BUFFER_AREA)) && (*size > 0)) 
     {
       signal_process(*size);
+    }else{
+       return err;
     }
   int ret = s_myFile.write((uint8_t*)&s_buffer, *size);
   if (ret < 0)

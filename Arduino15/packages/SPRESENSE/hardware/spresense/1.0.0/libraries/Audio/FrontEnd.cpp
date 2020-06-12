@@ -24,7 +24,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
-#include <arch/chip/cxd56_audio.h>
+#include <arch/board/cxd56_audio.h>
 
 #include "FrontEnd.h"
 #include "MemoryUtil.h"

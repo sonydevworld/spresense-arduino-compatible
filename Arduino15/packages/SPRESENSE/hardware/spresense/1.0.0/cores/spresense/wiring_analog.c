@@ -30,12 +30,14 @@
 #include <nuttx/arch.h>
 #include <nuttx/config.h>
 #include <sdk/config.h>
-#include <nuttx/drivers/pwm.h>
+#include <nuttx/timers/pwm.h>
 #include <cxd56_pinconfig.h>
 #include <cxd56_adc.h>
 #include <cxd56_clock.h>
-#include <arch/chip/cxd56_scu.h>
-#include <arch/chip/cxd56_adc.h>
+#include <arch/cxd56xx/scu.h>
+#include <arch/cxd56xx/adc.h>
+#include <arch/chip/hardware/cxd56_scu.h>
+#include <arch/chip/hardware/cxd56_adc.h>
 #include <Arduino.h>
 #include "utility.h"
 #include "wiring_private.h"
@@ -492,9 +494,9 @@ int analogRead(uint8_t pin)
   ssize_t nbytes = 0;
 
   uint8_t aidx = _PIN_OFFSET(pin);
-  if ((pin < PIN_A0) || (pin > PIN_A5)) {
+  if (aidx > 5) {
     printf("ERROR: Invalid pin number [%u]\n", pin);
-    printf("pin must be specified as A0 to A5\n");
+    printf("pin must be specified A0 to A5\n");
     return 0;
   }
   if (s_adcs[aidx].running) {

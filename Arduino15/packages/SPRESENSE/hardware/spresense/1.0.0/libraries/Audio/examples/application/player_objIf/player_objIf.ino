@@ -1,5 +1,5 @@
 /*
- *  player_ObjIf.ino - Object I/F based sound player example application
+ *  player_objIf.ino - Object I/F based sound player example application
  *  Copyright 2018 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or

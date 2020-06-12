@@ -24,7 +24,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
-#include <arch/chip/cxd56_audio.h>
+#include <arch/board/cxd56_audio.h>
 
 #include "MediaRecorder.h"
 #include "MemoryUtil.h"
@@ -610,7 +610,7 @@ err_t MediaRecorder::writeWavHeader(File& myfile)
   m_wav_format.data_size  = m_es_size;
 
   int ret = myfile.write((uint8_t*)&m_wav_format, sizeof(WAVHEADER));
-  if (ret < 0)
+  if (ret != sizeof(WAVHEADER))
     {
       print_err("Fail to write file(wav header)\n");
       return MEDIARECORDER_ECODE_FILEACCESS_ERROR;

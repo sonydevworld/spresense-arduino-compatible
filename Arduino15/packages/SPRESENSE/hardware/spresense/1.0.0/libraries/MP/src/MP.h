@@ -120,7 +120,7 @@ public:
    *          launched SubCore notifies MainCore to boot completion by
    *          calling this API.
    */
-#ifdef CONFIG_CXD56_SUBCORE
+#ifdef SUBCORE
   int begin();
 #else
   int begin(int subid);
@@ -135,7 +135,7 @@ public:
    * @retval -19(-ENODEV) No such SubCore program
    * @details MainCore finalizes the specified SubCore.
    */
-#ifdef CONFIG_CXD56_SUBCORE
+#ifdef SUBCORE
   int end();
 #else
   int end(int subid);
@@ -152,7 +152,7 @@ public:
    * @retval -22(-EINVAL) Invalid argument
    * @retval -19(-ENODEV) No such SubCore program
    */
-#ifdef CONFIG_CXD56_SUBCORE
+#ifdef SUBCORE
   int Send(int8_t msgid, uint32_t msgdata, int subid = 0);
 #else
   int Send(int8_t msgid, uint32_t msgdata, int subid);
@@ -169,7 +169,7 @@ public:
    * @retval -19(-ENODEV) No such SubCore program
    * @retval -116(-ETIMEDOUT) Timeout to receive from other core
    */
-#ifdef CONFIG_CXD56_SUBCORE
+#ifdef SUBCORE
   int Recv(int8_t *msgid, uint32_t *msgdata, int subid = 0);
 #else
   int Recv(int8_t *msgid, uint32_t *msgdata, int subid);
@@ -186,7 +186,7 @@ public:
    * @retval -22(-EINVAL) Invalid argument
    * @retval -19(-ENODEV) No such SubCore program
    */
-#ifdef CONFIG_CXD56_SUBCORE
+#ifdef SUBCORE
   int Send(int8_t msgid, void *msgaddr, int subid = 0);
 #else
   int Send(int8_t msgid, void *msgaddr, int subid);
@@ -203,7 +203,7 @@ public:
    * @retval -19(-ENODEV) No such SubCore program
    * @retval -116(-ETIMEDOUT) Timeout to receive from other core
    */
-#ifdef CONFIG_CXD56_SUBCORE
+#ifdef SUBCORE
   int Recv(int8_t *msgid, void *msgaddr, int subid = 0);
 #else
   int Recv(int8_t *msgid, void *msgaddr, int subid);
@@ -219,7 +219,7 @@ public:
    * @retval -19(-ENODEV) No such SubCore program
    * @details The size of object must be 128 bytes or less.
    */
-#ifdef CONFIG_CXD56_SUBCORE
+#ifdef SUBCORE
   template <typename T> int SendObject(T &t, int subid = 0);
 #else
   template <typename T> int SendObject(T &t, int subid);
@@ -236,7 +236,7 @@ public:
    * @retval -116(-ETIMEDOUT) Timeout to receive from other core
    * @details The size of object must be 128 bytes or less.
    */
-#ifdef CONFIG_CXD56_SUBCORE
+#ifdef SUBCORE
   template <typename T> int RecvObject(T &t, int subid = 0);
 #else
   template <typename T> int RecvObject(T &t, int subid);
@@ -252,7 +252,7 @@ public:
    * @retval -116(-ETIMEDOUT) Timeout to receive from other core
    * @details Please call after SendObject().
    */
-#ifdef CONFIG_CXD56_SUBCORE
+#ifdef SUBCORE
   int SendWaitComplete(int subid = 0);
 #else
   int SendWaitComplete(int subid);
@@ -300,7 +300,7 @@ public:
    */
   void DisableConsole();
 
-#ifndef CONFIG_CXD56_SUBCORE
+#ifndef SUBCORE
   /**
    * @brief Allocate memory from shared memory
    * @param [in] size - size. This is align up to 128KByte.
@@ -327,7 +327,7 @@ private:
   } *_rmng;
 
   int checkid(int subid);
-#ifndef CONFIG_CXD56_SUBCORE
+#ifndef SUBCORE
   mptask_t _mptask[MP_MAX_SUBID];
   int load(int subid);
   int unload(int subid);

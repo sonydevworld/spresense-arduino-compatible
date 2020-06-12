@@ -40,6 +40,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <sys/time.h>
+#include <unistd.h>
 
 /* To avoid multiple define in <netinet/in.h> and <IPAddress.h> */
 #ifdef INADDR_NONE
@@ -208,6 +209,7 @@ int LTEClient::available()
       stop();
     } else {
       len = NOT_AVAILABLE;
+      usleep(10);
     }
   } else if (len == 0) {
     /* 0 means disconnected from server */

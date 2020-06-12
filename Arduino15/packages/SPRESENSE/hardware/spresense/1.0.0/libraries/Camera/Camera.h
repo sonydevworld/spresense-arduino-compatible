@@ -49,7 +49,7 @@
 #include <pthread.h>
 #include <mqueue.h>
 
-#include <video/video.h>
+#include <nuttx/video/video.h>
 
 class CameraClass;
 class CamImage;

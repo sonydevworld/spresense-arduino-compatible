@@ -42,7 +42,7 @@ const int accel_sample_size       = sizeof(float) * 3;
 /**
  * @brief Call result of sensing
  */
-unsigned char step_counter_result(sensor_command_data_mh_t &data)
+bool step_counter_result(sensor_command_data_mh_t &data)
 {
   /* Display result of sensing */
 

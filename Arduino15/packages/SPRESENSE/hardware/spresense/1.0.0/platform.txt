@@ -17,7 +17,7 @@ compiler.warning_flags.all=-Wall -Wextra
 
 compiler.path={runtime.tools.gcc-arm-none-eabi.path}/{runtime.os}/bin/
 compiler.sdk.path={build.kernel}
-compiler.cpreprocessor.flags= "-I{build.kernel}/include" "-I{build.root}/common/include" "-I{build.root}/common/arch" "-I{build.root}/common/arch/chip" "-I{build.root}/common/include/apps" "-I{build.root}/common/include/sdk" "-I{variant.path}" {build.debug} -DCONFIG_WCHAR_BUILTIN -DCONFIG_HAVE_DOUBLE
+compiler.cpreprocessor.flags= "-I{build.kernel}/nuttx" "-I{build.kernel}/nuttx/include" "-I{build.kernel}/nuttx/arch" "-I{build.kernel}/nuttx/arch/chip" "-I{build.kernel}/sdk/include" "-I{build.kernel}/sdk/modules/include" "-I{build.kernel}/sdk/apps/include" "-I{build.kernel}/sdk/system/include" "-I{build.kernel}/sdk/externals/include" "-I{build.kernel}/sdk/externals/include/cmsis" "-I{variant.path}" {build.debug} -DCONFIG_WCHAR_BUILTIN -DCONFIG_HAVE_DOUBLE
 
 
 compiler.c.cmd=arm-none-eabi-gcc
