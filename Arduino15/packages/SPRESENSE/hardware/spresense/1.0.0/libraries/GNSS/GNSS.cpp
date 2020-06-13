@@ -876,6 +876,36 @@ void* SpGnss::getDCReport(void)
     return &s_dcreport;
 }
 
+/**
+ * @brief Start 1PPS output
+ * @return none
+ */
+void SpGnss::start1PPS(void)
+{
+    int ret;
+
+    ret = ioctl(fd_, CXD56_GNSS_IOCTL_SET_1PPS_OUTPUT, 1);
+    if (ret < 0)
+    {
+        PRINT_E("SpGnss E: 1PPS start error\n");
+    }
+}
+
+/**
+ * @brief Stop 1PPS output
+ * @return none
+ */
+void SpGnss::stop1PPS(void)
+{
+    int ret;
+
+    ret = ioctl(fd_, CXD56_GNSS_IOCTL_SET_1PPS_OUTPUT, 0);
+    if (ret < 0)
+    {
+        PRINT_E("SpGnss E: 1PPS stop error\n");
+    }
+}
+
 /*
  * Private function: inquire
  */

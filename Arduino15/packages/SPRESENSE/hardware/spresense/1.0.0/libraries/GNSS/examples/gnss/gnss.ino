@@ -47,8 +47,12 @@ enum ParamSat {
   eSatGlonass,        /**< GLONASS                 World wide coverage  */
   eSatGpsSbas,        /**< GPS+SBAS                North America        */
   eSatGpsGlonass,     /**< GPS+Glonass             World wide coverage  */
+  eSatGpsBeidou,      /**< GPS+BeiDou              World wide coverage  */
+  eSatGpsGalileo,     /**< GPS+Galileo             World wide coverage  */
   eSatGpsQz1c,        /**< GPS+QZSS_L1CA           East Asia & Oceania  */
   eSatGpsGlonassQz1c, /**< GPS+Glonass+QZSS_L1CA   East Asia & Oceania  */
+  eSatGpsBeidouQz1c,  /**< GPS+BeiDou+QZSS_L1CA    East Asia & Oceania  */
+  eSatGpsGalileoQz1c, /**< GPS+Galileo+QZSS_L1CA   East Asia & Oceania  */
   eSatGpsQz1cQz1S,    /**< GPS+QZSS_L1CA+QZSS_L1S  Japan                */
 };
 
@@ -168,6 +172,16 @@ void setup() {
       Gnss.select(GLONASS);
       break;
 
+    case eSatGpsBeidou:
+      Gnss.select(GPS);
+      Gnss.select(BEIDOU);
+      break;
+
+    case eSatGpsGalileo:
+      Gnss.select(GPS);
+      Gnss.select(GALILEO);
+      break;
+
     case eSatGpsQz1c:
       Gnss.select(GPS);
       Gnss.select(QZ_L1CA);
@@ -179,6 +193,18 @@ void setup() {
       Gnss.select(QZ_L1S);
       break;
 
+    case eSatGpsBeidouQz1c:
+      Gnss.select(GPS);
+      Gnss.select(BEIDOU);
+      Gnss.select(QZ_L1CA);
+      break;
+
+    case eSatGpsGalileoQz1c:
+      Gnss.select(GPS);
+      Gnss.select(GALILEO);
+      Gnss.select(QZ_L1CA);
+      break;
+
     case eSatGpsGlonassQz1c:
     default:
       Gnss.select(GPS);
@@ -186,7 +212,6 @@ void setup() {
       Gnss.select(QZ_L1CA);
       break;
     }
-
 
     /* Start positioning */
     result = Gnss.start(COLD_START);
@@ -200,6 +225,9 @@ void setup() {
       Serial.println("Gnss setup OK");
     }
   }
+
+  /* Start 1PSS output to PIN_D02 */
+  //Gnss.start1PPS();
 
   /* Turn off all LED:Setup done. */
   ledOff(PIN_LED0);
@@ -296,6 +324,14 @@ static void print_condition(SpNavData *pNavData)
 
       case QZ_L1S:
         pType = "Q1S";
+        break;
+
+      case BEIDOU:
+        pType = "BDS";
+        break;
+
+      case GALILEO:
+        pType = "GAL";
         break;
 
       default:

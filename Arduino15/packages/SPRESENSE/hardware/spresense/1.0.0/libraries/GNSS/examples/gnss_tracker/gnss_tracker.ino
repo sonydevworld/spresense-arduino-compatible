@@ -82,7 +82,11 @@ enum ParamSat {
   eSatGpsSbas,        /**< GPS+SBAS */
   eSatGpsGlonass,     /**< GPS+Glonass */
   eSatGpsQz1c,        /**< GPS+QZSS_L1CA */
+  eSatGpsBeidou,      /**< GPS+BeiDou */
+  eSatGpsGalileo,     /**< GPS+Galileo */
   eSatGpsGlonassQz1c, /**< GPS+Glonass+QZSS_L1CA */
+  eSatGpsBeidouQz1c,  /**< GPS+BeiDou+QZSS_L1CA */
+  eSatGpsGalileoQz1c, /**< GPS+Galileo+QZSS_L1CA */
   eSatGpsQz1cQz1S,    /**< GPS+QZSS_L1CA+QZSS_L1S */
 };
 
@@ -235,12 +239,28 @@ static String MakeParameterString(ConfigParam *pConfigParam)
       pData = "GPS+GLONASS";
       break;
 
+    case eSatGpsBeidou:
+      pData = "GPS+BEIDOU";
+      break;
+
+    case eSatGpsGalileo:
+      pData = "GPS+GALILEO";
+      break;
+
     case eSatGpsQz1c:
       pData = "GPS+QZSS_L1CA";
       break;
 
     case eSatGpsQz1cQz1S:
       pData = "GPS+QZSS_L1CA+QZSS_L1S";
+      break;
+
+    case eSatGpsBeidouQz1c:
+      pData = "GPS+BEIDOU+QZSS_L1CA";
+      break;
+
+    case eSatGpsGalileoQz1c:
+      pData = "GPS+GALILEO+QZSS_L1CA";
       break;
 
     case eSatGpsGlonassQz1c:
@@ -442,6 +462,14 @@ static int ReadParameter(ConfigParam *pConfigParam)
       {
         pConfigParam->SatelliteSystem = eSatGpsGlonassQz1c;
       }
+      else if (!ParamCompare(pParamData, "GPS+BEIDOU+QZSS_L1CA"))
+      {
+        pConfigParam->SatelliteSystem = eSatGpsBeidouQz1c;
+      }
+      else if (!ParamCompare(pParamData, "GPS+GALILEO+QZSS_L1CA"))
+      {
+        pConfigParam->SatelliteSystem = eSatGpsGalileoQz1c;
+      }
       else if (!ParamCompare(pParamData, "GPS+QZSS_L1CA+QZSS_L1S"))
       {
         pConfigParam->SatelliteSystem = eSatGpsQz1cQz1S;
@@ -453,6 +481,14 @@ static int ReadParameter(ConfigParam *pConfigParam)
       else if (!ParamCompare(pParamData, "GPS+GLONASS"))
       {
         pConfigParam->SatelliteSystem = eSatGpsGlonass;
+      }
+      else if (!ParamCompare(pParamData, "GPS+BEIDOU"))
+      {
+        pConfigParam->SatelliteSystem = eSatGpsBeidou;
+      }
+      else if (!ParamCompare(pParamData, "GPS+GALILEO"))
+      {
+        pConfigParam->SatelliteSystem = eSatGpsGalileo;
       }
       else if (!ParamCompare(pParamData, "GLONASS"))
       {
@@ -735,6 +771,16 @@ static int SetupPositioning(void)
       Gnss.select(GLONASS);
       break;
 
+    case eSatGpsBeidou:
+      Gnss.select(GPS);
+      Gnss.select(BEIDOU);
+      break;
+
+    case eSatGpsGalileo:
+      Gnss.select(GPS);
+      Gnss.select(GALILEO);
+      break;
+
     case eSatGpsQz1c:
       Gnss.select(GPS);
       Gnss.select(QZ_L1CA);
@@ -744,6 +790,18 @@ static int SetupPositioning(void)
       Gnss.select(GPS);
       Gnss.select(QZ_L1CA);
       Gnss.select(QZ_L1S);
+      break;
+
+    case eSatGpsBeidouQz1c:
+      Gnss.select(GPS);
+      Gnss.select(BEIDOU);
+      Gnss.select(QZ_L1CA);
+      break;
+
+    case eSatGpsGalileoQz1c:
+      Gnss.select(GPS);
+      Gnss.select(GALILEO);
+      Gnss.select(QZ_L1CA);
       break;
 
     case eSatGpsGlonassQz1c:
@@ -868,7 +926,6 @@ void loop() {
   static int State = eStateActive;
   static int TimeOut = IDLE_ACTIVE_TIME;
   static bool PosFixflag = false;
-  static int skipUnstableCount = 10;
   static char *pNmeaBuff     = NULL;
   static char *pBinaryBuffer = NULL;
 
@@ -893,9 +950,6 @@ void loop() {
 
       /* Set new mode. */
       State = eStateActive;
-
-      /* Reset unstable counter */
-      skipUnstableCount = 10;
 
       /* Go to Active mode. */
       SleepOut();

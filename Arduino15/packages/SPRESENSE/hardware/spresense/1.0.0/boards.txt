@@ -1,5 +1,6 @@
 menu.Debug=Debug
 menu.Core=Core
+menu.Memory=Memory
 menu.UploadSpeed=UploadSpeed
 
 ############## Spresense BOARD ##############
@@ -44,6 +45,45 @@ spresense.menu.Core.Sub3.build.flash_name=sub3
 spresense.menu.Core.Sub4.build.flash_name=sub4
 spresense.menu.Core.Sub5.build.flash_name=sub5
 
+spresense.menu.Memory.768= 768 KB (Default)
+spresense.menu.Memory.128= 128 KB
+spresense.menu.Memory.256= 256 KB
+spresense.menu.Memory.384= 384 KB
+spresense.menu.Memory.512= 512 KB
+spresense.menu.Memory.640= 640 KB
+spresense.menu.Memory.896= 896 KB
+spresense.menu.Memory.1024=1024 KB
+spresense.menu.Memory.1152=1152 KB
+spresense.menu.Memory.1280=1280 KB
+spresense.menu.Memory.1408=1408 KB
+spresense.menu.Memory.1536=1536 KB
+
+spresense.menu.Memory.128.upload.maximum_size=131072
+spresense.menu.Memory.256.upload.maximum_size=262144
+spresense.menu.Memory.384.upload.maximum_size=393216
+spresense.menu.Memory.512.upload.maximum_size=524288
+spresense.menu.Memory.640.upload.maximum_size=655360
+spresense.menu.Memory.768.upload.maximum_size=786432
+spresense.menu.Memory.896.upload.maximum_size=917504
+spresense.menu.Memory.1024.upload.maximum_size=1048576
+spresense.menu.Memory.1152.upload.maximum_size=1179648
+spresense.menu.Memory.1280.upload.maximum_size=1310720
+spresense.menu.Memory.1408.upload.maximum_size=1441792
+spresense.menu.Memory.1536.upload.maximum_size=1572864
+
+spresense.menu.Memory.128.upload.maximum_data_size=131072
+spresense.menu.Memory.256.upload.maximum_data_size=262144
+spresense.menu.Memory.384.upload.maximum_data_size=393216
+spresense.menu.Memory.512.upload.maximum_data_size=524288
+spresense.menu.Memory.640.upload.maximum_data_size=655360
+spresense.menu.Memory.768.upload.maximum_data_size=786432
+spresense.menu.Memory.896.upload.maximum_data_size=917504
+spresense.menu.Memory.1024.upload.maximum_data_size=1048576
+spresense.menu.Memory.1152.upload.maximum_data_size=1179648
+spresense.menu.Memory.1280.upload.maximum_data_size=1310720
+spresense.menu.Memory.1408.upload.maximum_data_size=1441792
+spresense.menu.Memory.1536.upload.maximum_data_size=1572864
+
 spresense.build.extra_flags=-DSUBCORE={index}
 spresense.menu.Core.Main.build.extra_flags=
 
@@ -54,12 +94,12 @@ spresense.build.variant=spresense_sub
 spresense.menu.Core.Main.build.variant=spresense
 
 spresense.build.stack=
-spresense.menu.Core.Main.build.stack=-Wl,--defsym,__stack=_vectors+{upload.maximum_size}
+spresense.menu.Core.Main.build.stack=-Wl,--defsym,__reserved_ramsize=1572864-{upload.maximum_size}
 
 spresense.build.ldscript=-T{variant.path}/ramconfig.ld
 spresense.build.root={runtime.tools.spresense-sdk.path}/spresense
 spresense.build.kernel={build.root}/{build.type}
-spresense.build.libpath={build.kernel}/prebuilt
+spresense.build.libpath={build.kernel}/nuttx
 
 spresense.menu.Debug.Disabled=Disabled
 spresense.menu.Debug.Disabled.build.debug=

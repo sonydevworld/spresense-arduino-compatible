@@ -30,7 +30,7 @@
 #include <errno.h>
 
 #include <Camera.h>
-#include <imageproc/imageproc.h>
+#include <arch/board/cxd56_imageproc.h>
 
 /****************************************************************************
  * ImgBuff implementation.

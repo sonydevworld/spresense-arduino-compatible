@@ -32,30 +32,33 @@
 
 
 #define SERIAL_5N1 0x00
-#define SERIAL_6N1 0x02
-#define SERIAL_7N1 0x04
-#define SERIAL_8N1 0x06
-#define SERIAL_5N2 0x08
-#define SERIAL_6N2 0x0A
-#define SERIAL_7N2 0x0C
-#define SERIAL_8N2 0x0E
-#define SERIAL_5E1 0x20
-#define SERIAL_6E1 0x22
-#define SERIAL_7E1 0x24
-#define SERIAL_8E1 0x26
-#define SERIAL_5E2 0x28
-#define SERIAL_6E2 0x2A
-#define SERIAL_7E2 0x2C
-#define SERIAL_8E2 0x2E
+#define SERIAL_6N1 0x01
+#define SERIAL_7N1 0x02
+#define SERIAL_8N1 0x03
+#define SERIAL_5N2 0x04
+#define SERIAL_6N2 0x05
+#define SERIAL_7N2 0x06
+#define SERIAL_8N2 0x07
+#define SERIAL_5E1 0x10
+#define SERIAL_6E1 0x11
+#define SERIAL_7E1 0x12
+#define SERIAL_8E1 0x13
+#define SERIAL_5E2 0x14
+#define SERIAL_6E2 0x15
+#define SERIAL_7E2 0x16
+#define SERIAL_8E2 0x17
 #define SERIAL_5O1 0x30
-#define SERIAL_6O1 0x32
-#define SERIAL_7O1 0x34
-#define SERIAL_8O1 0x36
-#define SERIAL_5O2 0x38
-#define SERIAL_6O2 0x3A
-#define SERIAL_7O2 0x3C
-#define SERIAL_8O2 0x3E
+#define SERIAL_6O1 0x31
+#define SERIAL_7O1 0x32
+#define SERIAL_8O1 0x33
+#define SERIAL_5O2 0x34
+#define SERIAL_6O2 0x35
+#define SERIAL_7O2 0x36
+#define SERIAL_8O2 0x37
 
+#define SERIAL_CTS (0x100)
+#define SERIAL_RTS (0x200)
+#define SERIAL_RTSCTS (SERIAL_CTS | SERIAL_RTS)
 
 #if defined(CONFIG_CXD56_UART1)
 #define SERIAL_DEFAULT_CHANNEL 1
@@ -73,7 +76,7 @@ class HardwareSerial : public Stream
   public:
     HardwareSerial(uint8_t channel = SERIAL_DEFAULT_CHANNEL);
     void begin(unsigned long baud) { begin(baud, SERIAL_8N1); }
-    void begin(unsigned long baud, uint8_t config);
+    void begin(unsigned long baud, uint16_t config);
     void end(void);
 
     virtual int available(void);

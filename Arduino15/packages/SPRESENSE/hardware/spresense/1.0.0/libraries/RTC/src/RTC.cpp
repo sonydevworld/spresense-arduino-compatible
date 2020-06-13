@@ -37,13 +37,15 @@
 
 #ifndef SUBCORE
 static void (*g_isr)(void) = NULL;
+static int g_alarm = 0;
 
 static void alarm_handler(int signo, FAR siginfo_t *info, FAR void *ucontext)
 {
   (void)signo;
   (void)info;
   (void)ucontext;
-  /* do nothing */
+  /* Set alarm flag */
+  g_alarm = 1;
 }
 
 static int alarm_daemon(int argc, FAR char *argv[])
@@ -57,9 +59,9 @@ static int alarm_daemon(int argc, FAR char *argv[])
 
   /* Make sure that the alarm signal is unmasked */
 
-  sigemptyset(&set);
-  sigaddset(&set, ALARM_SIGNO);
-  ret = sigprocmask(SIG_UNBLOCK, &set, NULL);
+  sigfillset(&set);
+  sigdelset(&set, ALARM_SIGNO);
+  ret = sigprocmask(SIG_SETMASK, &set, NULL);
   assert(ret == OK);
 
   /* Register alarm signal handler */
@@ -78,11 +80,13 @@ static int alarm_daemon(int argc, FAR char *argv[])
   for (; ; )
     {
       ret = sigwaitinfo(&set, NULL);
-      if (ret < 0) {
+      if ((ret < 0) && (errno != EINTR)) {
         ERRMSG("%s() (errno=%d)\n", __FUNCTION__, errno);
       }
-      if (g_isr) {
+      if (g_alarm && g_isr) {
         g_isr();
+        /* Clear alarm flag */
+        g_alarm = 0;
       }
     }
 
@@ -175,15 +179,17 @@ void RtcClass::setAlarm(RtcTime &tim)
 
   /* Set the alarm of the absolute time */
   setalm.id           = 0;
-  setalm.signo        = ALARM_SIGNO;
   setalm.pid          = _pid;
-  setalm.sigvalue.sival_int = 0;
   setalm.time.tm_sec  = tim.second();
   setalm.time.tm_min  = tim.minute();
   setalm.time.tm_hour = tim.hour();
   setalm.time.tm_mday = tim.day();
   setalm.time.tm_mon  = tim.month() - 1;
   setalm.time.tm_year = tim.year() - 1900;
+
+  setalm.event.sigev_notify = SIGEV_SIGNAL;
+  setalm.event.sigev_signo  = ALARM_SIGNO;
+  setalm.event.sigev_value.sival_int = 0;
 
   ret = ioctl(_fd, RTC_SET_ALARM, (unsigned long)((uintptr_t)&setalm));
   if (ret < 0) {
@@ -203,10 +209,13 @@ void RtcClass::setAlarmSeconds(uint32_t seconds)
 
   /* Set the alarm expired after the specified seconds */
   setrel.id      = 0;
-  setrel.signo   = ALARM_SIGNO;
   setrel.pid     = _pid;
-  setrel.sigvalue.sival_int = 0;
   setrel.reltime = (time_t)seconds;
+
+  setrel.event.sigev_notify = SIGEV_SIGNAL;
+  setrel.event.sigev_signo  = ALARM_SIGNO;
+  setrel.event.sigev_value.sival_int = 0;
+
 
   ret = ioctl(_fd, RTC_SET_RELATIVE, (unsigned long)((uintptr_t)&setrel));
   if (ret < 0) {

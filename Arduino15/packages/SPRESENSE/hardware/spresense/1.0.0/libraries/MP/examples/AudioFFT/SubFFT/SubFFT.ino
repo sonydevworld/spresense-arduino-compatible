@@ -26,7 +26,7 @@
 /* Use CMSIS library */
 #define ARM_MATH_CM4
 #define __FPU_PRESENT 1U
-#include <cmsis/arm_math.h>
+#include <arm_math.h>
 
 #include "RingBuff.h"
 

@@ -267,6 +267,7 @@ void loop()
               if (s_myFile.write((uint8_t*)s_buffer, read_size) < 0)
                 {
                   puts("File write error!");
+                  goto exitRecording;
                 }
             }
         }

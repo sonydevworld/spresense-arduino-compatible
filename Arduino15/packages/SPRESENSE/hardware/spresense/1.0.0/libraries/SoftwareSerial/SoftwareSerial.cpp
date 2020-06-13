@@ -136,7 +136,8 @@ bool SoftwareSerial::listen()
     int irq = cxd56_gpioint_config(pin_convert(_receivePin),
                                    GPIOINT_NOISE_FILTER_DISABLE |
                                    GPIOINT_PSEUDO_EDGE_FALL,
-                                   SoftwareSerial::handle_interrupt);
+                                   SoftwareSerial::handle_interrupt,
+                                   NULL);
 
     if (irq >= 0) 
     {
