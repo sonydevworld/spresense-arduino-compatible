@@ -134,7 +134,7 @@ public:
                                  w/ positioning augmentation of SBAS or QZSS L1S */
   unsigned char  svid;      /**< Satellite ID */
   unsigned char  elevation; /**< Elevation of satellite [degree] */
-  unsigned char  azimuth;   /**< Azimuth of satellite [degree]; Clockwise from the north */
+  unsigned short azimuth;   /**< Azimuth of satellite [degree]; Clockwise from the north */
   float sigLevel;           /**< C/N [dBHz] */
 };
 
