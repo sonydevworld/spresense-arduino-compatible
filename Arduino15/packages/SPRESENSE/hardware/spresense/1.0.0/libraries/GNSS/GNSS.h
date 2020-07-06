@@ -134,7 +134,7 @@ public:
                                  w/ positioning augmentation of SBAS or QZSS L1S */
   unsigned char  svid;      /**< Satellite ID */
   unsigned char  elevation; /**< Elevation of satellite [degree] */
-  unsigned char  azimuth;   /**< Azimuth of satellite [degree]; Clockwise from the north */
+  signed short   azimuth;   /**< Azimuth of satellite [degree]; Clockwise from the north */
   float sigLevel;           /**< C/N [dBHz] */
 };
 
@@ -217,7 +217,7 @@ public:
      * @param [in] index Array number of the satellite array
      * @return Value of array SatelliteAzimuth
      */
-    unsigned char getSatelliteAzimuth(unsigned long index);
+    signed short getSatelliteAzimuth(unsigned long index);
 
     /**
      * @brief Get satellite signal level(C/N)

@@ -181,7 +181,7 @@ unsigned char SpNavData::getSatelliteElevation(unsigned long index)
  * @param [in] index Array index of the satellite array
  * @return Value of array SatelliteAzimuth
  */
-unsigned char SpNavData::getSatelliteAzimuth(unsigned long index)
+signed short SpNavData::getSatelliteAzimuth(unsigned long index)
 {
     if(index < numSatellites)
     {
