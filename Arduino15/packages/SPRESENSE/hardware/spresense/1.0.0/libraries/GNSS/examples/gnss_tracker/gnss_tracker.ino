@@ -982,7 +982,7 @@ void loop() {
       /* Get NavData. */
       Gnss.getNavData(&NavData);
 
-      LedSet = ((NavData.posDataExist) && (NavData.posFixMode != 0));
+      LedSet = ((NavData.posDataExist) && (NavData.posFixMode != FixInvalid));
       if(PosFixflag != LedSet)
       {
         Led_isPosfix(LedSet);
