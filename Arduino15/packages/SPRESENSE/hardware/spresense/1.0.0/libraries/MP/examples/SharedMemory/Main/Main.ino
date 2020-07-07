@@ -37,6 +37,11 @@ void setup()
 
   /* Allocate Shared Memory */
   uint8_t *addr = (uint8_t *)MP.AllocSharedMemory(MEMSIZE);
+  if (!addr) {
+    printf("Error: out of memory\n");
+    return;
+  }
+
   printf("SharedMemory Address=@%08x\n", (uint32_t)addr);
 
   /* memory fill */
