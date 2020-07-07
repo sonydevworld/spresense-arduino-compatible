@@ -270,6 +270,24 @@ void TwoWire::setClock(uint32_t clock)
     }
 }
 
+void TwoWire::setWireTimeout(uint32_t timeout, bool reset_with_timeout)
+{
+    // dummy function
+    return;
+}
+
+bool TwoWire::getWireTimeoutFlag(void)
+{
+    // dummy function always returns false
+    return false;
+}
+
+void TwoWire::clearWireTimeoutFlag(void)
+{
+    // dummy function
+    return;
+}
+
 // sets function called on slave write
 void TwoWire::onReceive(TWIReceiveHandler handler)
 {
