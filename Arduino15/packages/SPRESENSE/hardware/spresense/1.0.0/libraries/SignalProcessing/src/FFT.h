@@ -150,7 +150,7 @@ private:
       case 1024:
         arm_rfft_1024_fast_init_f32(&S);
         break;
-      case 2096:
+      case 2048:
         arm_rfft_2048_fast_init_f32(&S);
         break;
       case 4096:
