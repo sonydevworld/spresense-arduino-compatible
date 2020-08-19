@@ -351,8 +351,12 @@ void setup()
   initMemoryPools();
   createStaticPools(MEM_LAYOUT_PLAYER);
 
-  /* Use SD card */
-  theSD.begin();
+  /* Initialize SD */
+  while (!theSD.begin())
+    {
+      /* wait until SD card is mounted. */
+      Serial.println("Insert SD card.");
+    }
 
   /* Start audio system */
   theMixer  = OutputMixer::getInstance();

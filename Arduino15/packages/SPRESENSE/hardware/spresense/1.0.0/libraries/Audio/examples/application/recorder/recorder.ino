@@ -74,6 +74,13 @@ static const int32_t recoding_size = recoding_byte_per_second * recoding_time;
 
 void setup()
 {
+  /* Initialize SD */
+  while (!theSD.begin())
+    {
+      /* wait until SD card is mounted. */
+      Serial.println("Insert SD card.");
+    }
+
   theAudio = AudioClass::getInstance();
 
   theAudio->begin(audio_attention_cb);
@@ -91,8 +98,6 @@ void setup()
   puts("Init Recorder!");
 
   /* Open file for data write on SD card */
-
-  theSD.begin();
 
   if (theSD.exists(RECORD_FILE_NAME))
     {

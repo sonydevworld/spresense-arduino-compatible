@@ -179,6 +179,13 @@ void setup()
    */
   thePlayer->init(MediaPlayer::Player0, AS_CODECTYPE_MP3, "/mnt/sd0/BIN", AS_SAMPLINGRATE_48000, AS_CHANNEL_STEREO);
 
+  /* Initialize SD */
+  while (!theSD.begin())
+    {
+      /* wait until SD card is mounted. */
+      Serial.println("Insert SD card.");
+    }
+
   myFile = theSD.open("Sound.mp3");
 
   /* Verify file open */
