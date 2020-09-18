@@ -124,6 +124,13 @@ static bool mediarecorder_done_callback(AsRecorderEvent event, uint32_t result, 
 
 void setup()
 {
+  /* Initialize SD */
+  while (!theSD.begin())
+    {
+      /* wait until SD card is mounted. */
+      Serial.println("Insert SD card.");
+    }
+
   /* Initialize memory pools and message libs */
 
   initMemoryPools();
@@ -160,8 +167,6 @@ void setup()
                     "/mnt/sd0/BIN");
 
   /* Open file for data write on SD card */
-
-  theSD.begin();
 
   if (theSD.exists(RECORD_FILE_NAME))
     {

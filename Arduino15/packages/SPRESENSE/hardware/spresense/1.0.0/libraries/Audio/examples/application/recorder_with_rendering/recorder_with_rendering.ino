@@ -147,7 +147,12 @@ void mediaplayer_decode_callback(AsPcmDataParam pcm_param)
 
 void setup()
 {
-  theSD.begin();
+  /* Initialize SD */
+  while (!theSD.begin())
+    {
+      /* wait until SD card is mounted. */
+      Serial.println("Insert SD card.");
+    }
 
   /* Initialize memory pools and message libs */
 

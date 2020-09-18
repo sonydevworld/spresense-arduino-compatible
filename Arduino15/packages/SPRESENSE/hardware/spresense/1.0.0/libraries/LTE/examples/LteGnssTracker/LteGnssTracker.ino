@@ -158,7 +158,7 @@ void loop()
     SpNavData navData;
     Gnss.getNavData(&navData);
 
-    bool posFix = ((navData.posDataExist) && (navData.posFixMode != 0));
+    bool posFix = ((navData.posDataExist) && (navData.posFixMode != FixInvalid));
     if (posFix) {
       Serial.println("Position is fixed.");
       String nmeaString = getNmeaGga(&navData);

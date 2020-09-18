@@ -135,7 +135,12 @@ void setup()
       ; /* wait for serial port to connect. Needed for native USB port only */
     }
 
-  theSD.begin();
+  /* Initialize SD */
+  while (!theSD.begin())
+    {
+      /* wait until SD card is mounted. */
+      Serial.println("Insert SD card.");
+    }
 
   /* Shooting JPEG sequence without frame's gap requires multiple buffers. */
 

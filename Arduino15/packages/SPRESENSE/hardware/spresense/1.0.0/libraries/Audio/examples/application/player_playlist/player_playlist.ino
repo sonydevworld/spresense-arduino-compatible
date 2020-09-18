@@ -250,9 +250,12 @@ void setup()
   printf("Repeat=%s\n", (preset.repeat) ? "On" : "Off");
   printf("Auto=%s\n", (preset.autoplay) ? "On" : "Off");
 
-  /* Use SD card */
-
-  theSD.begin();
+  /* Initialize SD */
+  while (!theSD.begin())
+    {
+      /* wait until SD card is mounted. */
+      Serial.println("Insert SD card.");
+    }
 
   /* Initialize playlist */
 

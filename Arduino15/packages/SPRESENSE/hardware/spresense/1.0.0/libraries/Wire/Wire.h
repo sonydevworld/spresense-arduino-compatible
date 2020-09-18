@@ -88,6 +88,9 @@ public:
     uint8_t endTransmission(void) { return endTransmission(true); }
 
     void setClock(uint32_t clock);
+    void setWireTimeout(uint32_t timeout = 25000, bool reset_with_timeout = false);
+    bool getWireTimeoutFlag(void);
+    void clearWireTimeoutFlag(void);
     void onReceive(TWIReceiveHandler handler);
     void onRequest(TWIRequestHandler handler);
 

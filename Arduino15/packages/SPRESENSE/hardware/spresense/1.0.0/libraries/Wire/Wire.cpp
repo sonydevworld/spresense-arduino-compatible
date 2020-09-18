@@ -270,6 +270,29 @@ void TwoWire::setClock(uint32_t clock)
     }
 }
 
+void TwoWire::setWireTimeout(uint32_t timeout, bool reset_with_timeout)
+{
+    // dummy function
+    unuse(timeout);
+    unuse(reset_with_timeout);
+    printf("ERROR: setWireTimeout is not supported\n");
+    return;
+}
+
+bool TwoWire::getWireTimeoutFlag(void)
+{
+    // dummy function always returns false
+    printf("ERROR: getWireTimeoutFlag is not supported\n");
+    return false;
+}
+
+void TwoWire::clearWireTimeoutFlag(void)
+{
+    // dummy function
+    printf("ERROR: clearWireTimeoutFlag is not supported\n");
+    return;
+}
+
 // sets function called on slave write
 void TwoWire::onReceive(TWIReceiveHandler handler)
 {

@@ -49,9 +49,10 @@ void setup() {
   }
   int ret = dnnrt.begin(nnbfile);
   if (ret < 0) {
-    Serial.print("Runtime initialization failure. ");
+    Serial.println("Runtime initialization failure.");
     if (ret == -16) {
-      Serial.println("Please update bootloader!");
+      Serial.print("Please install bootloader!");
+      Serial.println(" or consider memory configuration!");
     } else {
       Serial.println(ret);
     }
