@@ -1,6 +1,6 @@
 /*
  *  Camera.h - Camera include file for the Spresense SDK
- *  Copyright 2018 Sony Semiconductor Solutions Corporation
+ *  Copyright 2018, 2020 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -247,7 +247,7 @@ class ImgBuff {
   sem_t my_sem;
 
   ImgBuff();
-  ImgBuff(enum v4l2_buf_type type, int w, int h, CAM_IMAGE_PIX_FMT fmt, CameraClass *cam);
+  ImgBuff(enum v4l2_buf_type type, int w, int h, CAM_IMAGE_PIX_FMT fmt, int jpgbufsize_divisor, CameraClass *cam);
   ~ImgBuff();
 
   bool is_valid(){ return (buff != NULL); };
@@ -262,7 +262,7 @@ class ImgBuff {
   bool decRef();
 
   bool generate_imgmem(size_t s);
-  size_t calc_img_size(int w, int h, CAM_IMAGE_PIX_FMT fmt);
+  size_t calc_img_size(int w, int h, CAM_IMAGE_PIX_FMT fmt, int jpgbufsize_divisor);
   void update_actual_size(size_t sz);
 
   static void delete_inst(ImgBuff *buf);
@@ -282,7 +282,7 @@ class CamImage {
 private:
   ImgBuff *img_buff;
 
-  CamImage(enum v4l2_buf_type type, int w, int h, CAM_IMAGE_PIX_FMT fmt, CameraClass *cam=NULL);
+  CamImage(enum v4l2_buf_type type, int w, int h, CAM_IMAGE_PIX_FMT fmt, int jpgbufsize_divisor = 7, CameraClass *cam = NULL);
   void setActualSize(size_t sz) { img_buff->update_actual_size(sz); };
   void setIdx(int i){ if(img_buff != NULL) img_buff->idx = i; }
   bool isIdx(int i){ return (img_buff != NULL) ? (img_buff->idx == i) : false; }
@@ -501,14 +501,14 @@ private:
   CamErr convert_errno2camerr(int err);
   bool check_video_fmtparam(int w, int h, CAM_VIDEO_FPS fps, CAM_IMAGE_PIX_FMT fmt);
   CamErr set_frame_parameters( enum v4l2_buf_type type, int video_width, int video_height, int buf_num, CAM_IMAGE_PIX_FMT video_fmt );
-  CamErr create_videobuff(int w, int h, int buff_num, CAM_IMAGE_PIX_FMT fmt);
+  CamErr create_videobuff(int w, int h, int buff_num, CAM_IMAGE_PIX_FMT fmt, int jpgbufsize_divisor);
   void delete_videobuff();
   CamErr enqueue_video_buffs();
   CamErr enqueue_video_buff(CamImage *img);
   bool is_device_ready();
   CamErr set_video_frame_rate(CAM_VIDEO_FPS fps);
   CamErr set_ext_ctrls(uint16_t ctl_cls, uint16_t cid, int32_t value);
-  CamErr create_stillbuff(int w, int h, CAM_IMAGE_PIX_FMT fmt);
+  CamErr create_stillbuff(int w, int h, CAM_IMAGE_PIX_FMT fmt, int jpgbufsize_divisor);
   CamErr create_dq_thread();
   void   delete_dq_thread();
 
@@ -566,10 +566,12 @@ public:
    */
   CamErr begin(
     int buff_num = 1,                       /**< [en] Number of video stream image buffer.(Default : 1)                          <BR> [ja] Videoストリームで利用するバッファの数 (デフォルト 1枚) */
-    CAM_VIDEO_FPS fps = CAM_VIDEO_FPS_30,   /**< [en] Frame rate of video stream. Choose one in #CAM_VIDEO_FPS (Default : 30FPS) <BR> [ja] Videoストリームのフレームレート。 #CAM_VIDEO_FPS の中から選択 (デ>フォルト 30FPS) */
+    CAM_VIDEO_FPS fps = CAM_VIDEO_FPS_30,   /**< [en] Frame rate of video stream. Choose one in #CAM_VIDEO_FPS (Default : 30FPS) <BR> [ja] Videoストリームのフレームレート。 #CAM_VIDEO_FPS の中から選択 (デフォルト 30FPS) */
     int video_width   = CAM_IMGSIZE_QVGA_H, /**< [en] Image buffer width of video stream.(px)(Default : QVGA)                    <BR> [ja] Videoストリーム画像の横サイズ (単位ピクセル)(デフォルト QVGA) */
     int video_height  = CAM_IMGSIZE_QVGA_V, /**< [en] Image buffer height of video stream.(px)(Default : QVGA)                   <BR> [ja] Videoストリーム画像の縦サイズ (単位ピクセル)(デフォルト QVGA) */
-    CAM_IMAGE_PIX_FMT video_fmt = CAM_IMAGE_PIX_FMT_YUV422  /**< [en] Video stream image buffer pixel format.(Default : YUV422) <BR> [ja] Videoストリームで利用するバッファのピクセルフォーマット (デフォルト YUV422) */
+    CAM_IMAGE_PIX_FMT video_fmt = CAM_IMAGE_PIX_FMT_YUV422, /**< [en] Video stream image buffer pixel format.(Default : YUV422) <BR> [ja] Videoストリームで利用するバッファのピクセルフォーマット (デフォルト YUV422) */
+    int jpgbufsize_divisor = 7              /**< [en] The divisor of JPEG buffer size formula. buffer size = video_width * video_height * 2 / jpgbufsize_divisor (Default : 7) <BR>
+                                             * [ja] JPEG用バッファサイズ計算式における除数。バッファサイズ = video_width * video_height * 2 / jpgbufsize_divisor (デフォルト : 7) */
   );
 
   /**
@@ -688,7 +690,9 @@ public:
   CamErr setStillPictureImageFormat(
     int img_width,                                    /**< [en] Image width of Still picture.(px)   <BR> [ja] 静止画写真の横サイズ (単位ピクセル) */
     int img_height,                                   /**< [en] Image height of Still picture.(px)  <BR> [ja] 静止画写真の縦サイズ (単位ピクセル) */
-    CAM_IMAGE_PIX_FMT img_fmt = CAM_IMAGE_PIX_FMT_JPG /**< [en] Image pixel format. (Default JPEG) <BR> [ja] 静止画ピクセルフォーマット (デフォルト JPEG) */
+    CAM_IMAGE_PIX_FMT img_fmt = CAM_IMAGE_PIX_FMT_JPG,/**< [en] Image pixel format. (Default JPEG) <BR> [ja] 静止画ピクセルフォーマット (デフォルト JPEG) */
+    int jpgbufsize_divisor = 7              /**< [en] The divisor of JPEG buffer size formula. buffer size = img_width * img_height * 2 / jpgbufsize_divisor (Default : 7) <BR>
+                                             * [ja] JPEG用バッファサイズ計算式における除数。バッファサイズ = img_width * img_height * 2 / jpgbufsize_divisor (デフォルト : 7) */
   );
 
   /**
