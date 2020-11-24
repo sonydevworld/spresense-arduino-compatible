@@ -44,6 +44,8 @@ compiler.elf2hex.flags=
 
 compiler.size.cmd=arm-none-eabi-size
 
+compiler.ldflags=
+compiler.libraries.ldflags=
 
 # This can be overriden in boards.txt
 build.extra_flags=
@@ -78,7 +80,7 @@ archive_file_path={build.path}/{archive_file}
 recipe.ar.pattern="{compiler.path}{compiler.ar.cmd}" {compiler.ar.flags} {compiler.ar.extra_flags} "{archive_file_path}" "{object_file}"
 
 ## Combine gc-sections, archives, and objects
-recipe.c.combine.pattern="{compiler.path}{compiler.c.elf.cmd}" {compiler.c.elf.flags} {compiler.c.elf.extra_flags} -Xlinker "-Map={build.path}/output.map" -o  "{build.path}/{build.project_name}.elf" -Wl,--start-group {object_files} -u spresense_main "{build.path}/{archive_file}" {compiler.c.elf.libs} -Wl,--end-group "-L{build.path}"
+recipe.c.combine.pattern="{compiler.path}{compiler.c.elf.cmd}" {compiler.c.elf.flags} {compiler.c.elf.extra_flags} -Xlinker "-Map={build.path}/output.map" -o "{build.path}/{build.project_name}.elf" -Wl,--start-group {object_files} -u spresense_main "{build.path}/{archive_file}" {compiler.c.elf.libs} {compiler.ldflags} {compiler.libraries.ldflags} -Wl,--end-group "-L{build.path}"
 
 ## Create hex
 recipe.objcopy.hex.pattern="{runtime.tools.spresense-tools.path}/mkspk/{runtime.os}/mkspk" -c 2 "{build.path}/{build.project_name}.elf" "{build.flash_name}" "{build.path}/{build.project_name}.spk"
