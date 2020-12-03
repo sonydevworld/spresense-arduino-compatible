@@ -257,7 +257,6 @@ void loop()
 stop_player:
   thePlayer->stop(MediaPlayer::Player0);
   myFile.close();
-  thePlayer->deactivate();
-  thePlayer->end();
+  thePlayer->deactivate(MediaPlayer::Player0);
   exit(1);
 }
