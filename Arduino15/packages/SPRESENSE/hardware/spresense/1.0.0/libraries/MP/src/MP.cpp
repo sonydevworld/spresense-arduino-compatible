@@ -213,7 +213,7 @@ uint32_t MPClass::Virt2Phys(void *virt)
   int8_t tag;
 
   va = (uint32_t)virt >> 16;
-  if (va & 0xfff0)
+  if (va & 0x0ff0)
     {
       return (uint32_t)virt;
     }
