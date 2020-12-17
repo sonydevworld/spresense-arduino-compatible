@@ -143,6 +143,13 @@ void setup()
 
   usleep(100 * 1000); /* waiting for Mic startup */
 
+  /* Initialize SD */
+  while (!theSD.begin())
+    {
+      /* wait until SD card is mounted. */
+      Serial.println("Insert SD card.");
+    }
+
   /*
    * Initialize recorder to decode stereo wav stream with 48kHz sample rate
    * Search for SRC filter in "/mnt/sd0/BIN" directory
@@ -156,8 +163,6 @@ void setup()
                     "/mnt/sd0/BIN");
 
   /* Open file for data write on SD card */
-  
-  theSD.begin();
 
   if (theSD.exists(RECORD_FILE_NAME))
     {

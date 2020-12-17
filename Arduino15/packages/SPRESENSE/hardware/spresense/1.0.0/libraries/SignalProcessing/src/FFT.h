@@ -32,8 +32,8 @@
 /*------------------------------------------------------------------*/
 /* WINDOW TYPE */
 typedef enum e_windowType {
-  WindoHamming,
-  WindoHanning,
+  WindowHamming,
+  WindowHanning,
   WindowRectangle
 } windowType_t;
 
@@ -44,7 +44,7 @@ template <int MAX_CHNUM, int FFTLEN> class FFTClass
 {
 public:
   void begin(){
-      begin(WindoHamming, MAX_CHNUM, (FFTLEN/2));
+      begin(WindowHamming, MAX_CHNUM, (FFTLEN/2));
   }
 
   bool begin(windowType_t type, int channel, int overlap){
@@ -119,9 +119,9 @@ private:
 
   void create_coef(windowType_t type){
     for (int i = 0; i < FFTLEN / 2; i++){
-      if(type == WindoHamming){
+      if(type == WindowHamming){
         coef[i] = 0.54f - (0.46f * arm_cos_f32(2 * PI * (float)i / (FFTLEN - 1)));
-      }else if(type == WindoHanning){
+      }else if(type == WindowHanning){
         coef[i] = 0.54f - (1.0f * arm_cos_f32(2 * PI * (float)i / (FFTLEN - 1)));
       }else{
         coef[i] = 1;
@@ -150,7 +150,7 @@ private:
       case 1024:
         arm_rfft_1024_fast_init_f32(&S);
         break;
-      case 2096:
+      case 2048:
         arm_rfft_2048_fast_init_f32(&S);
         break;
       case 4096:

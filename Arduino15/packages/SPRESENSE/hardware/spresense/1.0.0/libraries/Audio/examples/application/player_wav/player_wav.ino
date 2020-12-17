@@ -66,7 +66,12 @@ static const uint32_t sc_prestore_frames = 10;
  
 void setup()
 {
-  theSD.begin();
+  /* Initialize SD */
+  while (!theSD.begin())
+    {
+      /* wait until SD card is mounted. */
+      Serial.println("Insert SD card.");
+    }
 
   // Get wav file info
 
