@@ -149,7 +149,7 @@ public:
     SpGnssTime time;    /**< Time when this position data was updated */
     unsigned char type;           /**< Position type; 0:Invalid, 1:GNSS, 2:reserv, 3:user set, 4:previous */
     unsigned char numSatellites;  /**< Number of visible satellites */
-    unsigned char posFixMode;     /**< FIX mode, 0:Invalid, 1:2D FIX, 2:3D FIX */
+    unsigned char posFixMode;     /**< FIX mode, 1:Invalid, 2:2D FIX, 3:3D FIX */
     unsigned char posDataExist;   /**< Is position data existed, 0:none, 1:exist */
     unsigned char numSatellitesCalcPos; /**< Number of satellites to calculate the position */
     unsigned short satelliteType;       /**< using sv system, bit field; bit0:GPS, bit1:GLONASS */

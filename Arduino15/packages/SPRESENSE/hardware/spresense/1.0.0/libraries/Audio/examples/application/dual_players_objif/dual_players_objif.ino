@@ -387,7 +387,11 @@ void setup()
 
   /* Mount SD card */
 
-  theSD.begin();
+  while (!theSD.begin())
+    {
+      /* wait until SD card is mounted. */
+      Serial.println("Insert SD card.");
+    }
 
   /* Initialize memory pools and message libs */
 

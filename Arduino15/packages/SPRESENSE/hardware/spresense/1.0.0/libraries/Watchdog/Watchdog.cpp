@@ -66,28 +66,42 @@ void WatchdogClass::begin(void)
 void WatchdogClass::start(uint32_t timeout) {
   int ret;
 
-  ret = ioctl(wd_fd, WDIOC_SETTIMEOUT, (unsigned long)timeout);
-  if (ret < 0)
+  if (0 <= wd_fd)
     {
-      watchdog_printf("watchdog: ioctl(WDIOC_SETTIMEOUT) failed\n");
-      return;
+      ret = ioctl(wd_fd, WDIOC_SETTIMEOUT, (unsigned long)timeout);
+      if (ret < 0)
+        {
+          watchdog_printf("watchdog: ioctl(WDIOC_SETTIMEOUT) failed\n");
+          return;
+        }
+
+      ret = ioctl(wd_fd, WDIOC_START, 0);
+      if (ret < 0)
+        {
+          watchdog_printf("watchdog: ioctl(WDIOC_START) failed\n");
+        }
     }
-  
-  ret = ioctl(wd_fd, WDIOC_START, 0);
-  if (ret < 0)
+  else
     {
-      watchdog_printf("wdog_main: ioctl(WDIOC_START) failed\n");
+      watchdog_printf("watchdog: watchdog not initialized.\n");
     }
 }
 
 // Public : Send kick to avoid bite
 void WatchdogClass::kick(void) {
   int ret;
-  
-  ret = ioctl(wd_fd, WDIOC_KEEPALIVE, 0);
-  if (ret < 0)
+
+  if (0 <= wd_fd)
     {
-      watchdog_printf("wdog_main: ioctl(WDIOC_KEEPALIVE) failed\n");
+      ret = ioctl(wd_fd, WDIOC_KEEPALIVE, 0);
+      if (ret < 0)
+        {
+          watchdog_printf("watchdog: ioctl(WDIOC_KEEPALIVE) failed\n");
+        }
+    }
+  else
+    {
+      watchdog_printf("watchdog: watchdog not initialized.\n");
     }
 }
 
@@ -96,31 +110,49 @@ uint32_t WatchdogClass::timeleft(void) {
   struct watchdog_status_s status;
   int ret;
 
-  ret = ioctl(wd_fd, WDIOC_GETSTATUS, (unsigned long)&status);
-  if (ret < 0)
+  if (0 <= wd_fd)
     {
-      watchdog_printf("wdog_main: ioctl(WDIOC_GETSTATUS) failed\n");
-    }
+      ret = ioctl(wd_fd, WDIOC_GETSTATUS, (unsigned long)&status);
+      if (ret < 0)
+        {
+          watchdog_printf("watchdog: ioctl(WDIOC_GETSTATUS) failed\n");
+        }
 
-  return status.timeleft;
+      return status.timeleft;
+    }
+  else
+    {
+      watchdog_printf("watchdog: watchdog not initialized.\n");
+      return -1;
+    }
 }
 
 // Public : Stop the Watchdog
 void WatchdogClass::stop(void) {
   int ret;
-  
-  ret = ioctl(wd_fd, WDIOC_STOP, 0);
-  if (ret < 0)
+
+  if (0 <= wd_fd)
     {
-      watchdog_printf("wdog_main: ioctl(WDIOC_STOP) failed\n");
+      ret = ioctl(wd_fd, WDIOC_STOP, 0);
+      if (ret < 0)
+        {
+          watchdog_printf("watchdog: ioctl(WDIOC_STOP) failed\n");
+        }
+    }
+  else
+    {
+      watchdog_printf("watchdog: watchdog not initialized.\n");
     }
 }
 
 // Public : Finalize to use the Watchdog
 void WatchdogClass::end(void)
 {
-    stop();
-    close(wd_fd);
-    wd_fd = -1;
+  if (0 <= wd_fd)
+    {
+      stop();
+      close(wd_fd);
+      wd_fd = -1;
+    }
 }
 
