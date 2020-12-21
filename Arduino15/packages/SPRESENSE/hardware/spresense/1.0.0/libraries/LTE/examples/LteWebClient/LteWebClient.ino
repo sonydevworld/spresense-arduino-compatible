@@ -1,6 +1,6 @@
 /*
  *  LteWebClient.ino - Example for Web client using LTE
- *  Copyright 2019 Sony Semiconductor Solutions Corporation
+ *  Copyright 2019, 2021 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -29,8 +29,16 @@
 #define LTE_USER_NAME "user"     // replace with your username
 #define LTE_PASSWORD  "password" // replace with your password
 
+/* RAT to use
+ * Refer to the cellular carriers information
+ * to find out which RAT your SIM supports.
+ */
+
+#define LTE_RAT (LTE_MODEM_RAT_CATM)
+
 // initialize the library instance
 LTE lteAccess;
+LTEModem modem;
 LTEClient client;
 
 // URL, path & port (for example: arduino.cc)
@@ -47,6 +55,20 @@ void setup()
   }
 
   Serial.println("Starting web client.");
+
+  if (modem.begin() == LTE_IDLE) {
+    // If the RAT set on the modem is not what you expected, switch it.
+    if (modem.getRAT() != LTE_RAT) {
+      if (modem.setRAT(LTE_RAT) < 0) {
+        Serial.println("Set RAT failed");
+        // do nothing forevermore:
+        for (;;)
+          sleep(1);
+      } else {
+        Serial.println("Set RAT succeeded");
+      }
+    }
+  }
 
   // If your SIM has PIN, pass it as a parameter of begin() in quotes
   while (true) {
