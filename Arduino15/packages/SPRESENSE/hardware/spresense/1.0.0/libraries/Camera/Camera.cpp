@@ -1,6 +1,6 @@
 /*
  *  Camera.cpp - Camera implementation file for the Spresense SDK
- *  Copyright 2018 Sony Semiconductor Solutions Corporation
+ *  Copyright 2018, 2020 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -42,12 +42,13 @@ ImgBuff::ImgBuff()
 }
 
 ImgBuff::ImgBuff(enum v4l2_buf_type type,
-                 int w, int h, CAM_IMAGE_PIX_FMT fmt, CameraClass *cam)
+                 int w, int h, CAM_IMAGE_PIX_FMT fmt, int jpgbufsize_divisor,
+                 CameraClass *cam)
   : ref_count(0), buff(NULL), width(0), height(0), idx(-1), is_queue(false),
     buf_type(type), pix_fmt(CAM_IMAGE_PIX_FMT_NONE),
     buf_size(0), actual_size(0), cam_ref(NULL)
 {
-  buf_size = calc_img_size(w, h, fmt);
+  buf_size = calc_img_size(w, h, fmt, jpgbufsize_divisor);
   if ((buf_size >= 1) && generate_imgmem(buf_size))
     {
       sem_init(&my_sem, 0, 1);
@@ -123,9 +124,7 @@ void ImgBuff::delete_inst(ImgBuff *buf)
     }
 }
 
-#define JPG_COMPRESS_RATIO  (7)
-
-size_t ImgBuff::calc_img_size(int w, int h, CAM_IMAGE_PIX_FMT fmt)
+size_t ImgBuff::calc_img_size(int w, int h, CAM_IMAGE_PIX_FMT fmt, int jpgbufsize_divisor)
 {
   size_t ret = -1;
 
@@ -138,11 +137,7 @@ size_t ImgBuff::calc_img_size(int w, int h, CAM_IMAGE_PIX_FMT fmt)
             ret = w * h * 2;
             break;
           case CAM_IMAGE_PIX_FMT_JPG:
-            // In SPRESENSE SDK, JPEG compression quality=80 by default.
-            // In such setting, the maximum actual measured size of JPEG image
-            //  is about width * height * 2 / 9.
-            // Therefore, devide by JPG_COMPRESS_RATIO = 7 with margin.
-            ret = (size_t)(w * h * 2 / JPG_COMPRESS_RATIO);
+            ret = (size_t)(w * h * 2 / jpgbufsize_divisor);
             break;
           default:
             break;
@@ -300,7 +295,7 @@ CamErr CamImage::resizeImageByHW(CamImage &img, int width, int height)
       return CAM_ERR_INVALID_PARAM;
     }
 
-  CamImage *tmp_img = new CamImage(V4L2_BUF_TYPE_VIDEO_CAPTURE, width, height, getPixFormat(), NULL);
+  CamImage *tmp_img = new CamImage(V4L2_BUF_TYPE_VIDEO_CAPTURE, width, height, getPixFormat());
   if( tmp_img == NULL || !tmp_img->is_valid() )
     {
       if(tmp_img != NULL) delete tmp_img;
@@ -376,7 +371,7 @@ CamErr CamImage::clipAndResizeImageByHW(
       return CAM_ERR_INVALID_PARAM;
     }
 
-  CamImage *tmp_img = new CamImage(V4L2_BUF_TYPE_VIDEO_CAPTURE, width, height, getPixFormat(), NULL);
+  CamImage *tmp_img = new CamImage(V4L2_BUF_TYPE_VIDEO_CAPTURE, width, height, getPixFormat());
   if( tmp_img == NULL || !tmp_img->is_valid() )
     {
       if(tmp_img != NULL) delete tmp_img;
@@ -422,9 +417,10 @@ bool CamImage::isAvailable(void)
 
 
 CamImage::CamImage(enum v4l2_buf_type type,
-                   int w, int h, CAM_IMAGE_PIX_FMT fmt, CameraClass *cam)
+                   int w, int h, CAM_IMAGE_PIX_FMT fmt, int jpgbufsize_divisor,
+                   CameraClass *cam)
 {
-  img_buff = new ImgBuff(type, w, h, fmt, cam);
+  img_buff = new ImgBuff(type, w, h, fmt, jpgbufsize_divisor, cam);
 
   if (!img_buff->is_valid())
     {
@@ -561,7 +557,8 @@ CamErr CameraClass::set_frame_parameters( enum v4l2_buf_type type, int video_wid
 }
 
 // Private : Create Video frame buffers.
-CamErr CameraClass::create_videobuff(int w, int h, int buff_num, CAM_IMAGE_PIX_FMT fmt)
+CamErr CameraClass::create_videobuff(int w, int h, int buff_num, CAM_IMAGE_PIX_FMT fmt,
+                                     int jpgbufsize_divisor)
 {
   int i;
 
@@ -574,7 +571,7 @@ CamErr CameraClass::create_videobuff(int w, int h, int buff_num, CAM_IMAGE_PIX_F
   for (i = 0; i < buff_num; i++)
     {
       video_imgs[i]
-       = new CamImage(V4L2_BUF_TYPE_VIDEO_CAPTURE, w, h, fmt, this);
+       = new CamImage(V4L2_BUF_TYPE_VIDEO_CAPTURE, w, h, fmt, jpgbufsize_divisor, this);
       if ((video_imgs[i] == NULL) || !video_imgs[i]->is_valid())
         {
           if (video_imgs[i] != NULL)
@@ -602,7 +599,8 @@ CamErr CameraClass::create_videobuff(int w, int h, int buff_num, CAM_IMAGE_PIX_F
 #define STILL_BUFF_IDX  (1000)
 
 // Private : Create Still picture buffers.
-CamErr CameraClass::create_stillbuff(int w, int h, CAM_IMAGE_PIX_FMT fmt)
+CamErr CameraClass::create_stillbuff(int w, int h, CAM_IMAGE_PIX_FMT fmt,
+                                     int jpgbufsize_divisor)
 {
   if (still_img != NULL)
     {
@@ -617,7 +615,8 @@ CamErr CameraClass::create_stillbuff(int w, int h, CAM_IMAGE_PIX_FMT fmt)
         }
     }
 
-  still_img = new CamImage(V4L2_BUF_TYPE_STILL_CAPTURE, w, h, fmt, this);
+  still_img = new CamImage(V4L2_BUF_TYPE_STILL_CAPTURE, w, h, fmt,
+                           jpgbufsize_divisor, this);
 
   if (still_img == NULL)
     {
@@ -843,7 +842,8 @@ void CameraClass::delete_dq_thread()
 }
 
 // Public : Start to use the Camera.
-CamErr CameraClass::begin(int buff_num, CAM_VIDEO_FPS fps, int video_width, int video_height, CAM_IMAGE_PIX_FMT video_fmt )
+CamErr CameraClass::begin(int buff_num, CAM_VIDEO_FPS fps, int video_width, int video_height,
+                          CAM_IMAGE_PIX_FMT video_fmt, int jpgbufsize_divisor)
 {
   CamErr ret = CAM_ERR_SUCCESS;
 
@@ -853,6 +853,11 @@ CamErr CameraClass::begin(int buff_num, CAM_VIDEO_FPS fps, int video_width, int 
     }
 
   if (buff_num < 0)
+    {
+      return CAM_ERR_INVALID_PARAM;
+    }
+
+  if ((video_fmt == CAM_IMAGE_PIX_FMT_JPG) && (jpgbufsize_divisor <= 0))
     {
       return CAM_ERR_INVALID_PARAM;
     }
@@ -906,7 +911,8 @@ CamErr CameraClass::begin(int buff_num, CAM_VIDEO_FPS fps, int video_width, int 
     }
 
   // Create Buffer
-  ret = create_videobuff(video_width, video_height, buff_num, video_fmt);
+  ret = create_videobuff(video_width, video_height, buff_num, video_fmt,
+                         jpgbufsize_divisor);
   if (ret != CAM_ERR_SUCCESS)
     {
       goto label_err_no_memaligned;
@@ -1069,9 +1075,15 @@ CamErr CameraClass::setColorEffect(CAM_COLOR_FX effect)
 }
 
 // Public : Still Picture Format.
-CamErr CameraClass::setStillPictureImageFormat( int img_width, int img_height, CAM_IMAGE_PIX_FMT img_fmt )
+CamErr CameraClass::setStillPictureImageFormat(int img_width, int img_height, CAM_IMAGE_PIX_FMT img_fmt,
+                                               int jpgbufsize_divisor)
 {
   CamErr err = CAM_ERR_SUCCESS;
+
+  if ((img_fmt == CAM_IMAGE_PIX_FMT_JPG) && (jpgbufsize_divisor <= 0))
+    {
+      return CAM_ERR_INVALID_PARAM;
+    }
 
   if (is_device_ready())
     {
@@ -1080,7 +1092,7 @@ CamErr CameraClass::setStillPictureImageFormat( int img_width, int img_height, C
                                CAM_VIDEO_FPS_NONE,
                                img_fmt))
         {
-          err = create_stillbuff(img_width, img_height, img_fmt);
+          err = create_stillbuff(img_width, img_height, img_fmt, jpgbufsize_divisor);
           if (err == CAM_ERR_SUCCESS)
             {
               err = set_frame_parameters(V4L2_BUF_TYPE_STILL_CAPTURE,
@@ -1125,7 +1137,15 @@ CamImage CameraClass::takePicture( )
                   still_img->img_buff->queued(false);
                   if (ioctl(video_fd, VIDIOC_TAKEPICT_STOP, false) == 0)
                     {
-                      still_img->setActualSize((size_t)buf.bytesused);
+                      if ((buf.flags & V4L2_BUF_FLAG_ERROR) == 0)
+                        {
+                          still_img->setActualSize((size_t)buf.bytesused);
+                        }
+                      else
+                        {
+                          still_img->setActualSize((size_t)0);
+                        }
+
                       return *still_img;
                     }
                 }
@@ -1193,7 +1213,15 @@ void CameraClass::dqbuf_thread(void *arg)
           img->img_buff->queued(false);
           if (img != NULL)
             {
-              img->setActualSize((size_t)buf.bytesused);
+              if ((buf.flags & V4L2_BUF_FLAG_ERROR) == 0)
+                {
+                  img->setActualSize((size_t)buf.bytesused);
+                }
+              else
+                {
+                  img->setActualSize((size_t)0);
+                }
+
               if(mq_send(cam->frame_exchange_mq, (const char *)&img, sizeof(CamImage *), 0)
                   < 0)
                 {
