@@ -1,6 +1,6 @@
 /*
  *  LTEDefinition.h - LTEDefinition include file for Spresense Arduino
- *  Copyright 2019 Sony Semiconductor Solutions Corporation
+ *  Copyright 2019, 2021 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -47,6 +47,26 @@
 #define LTEDBG(format, ...)
 #endif
 #define LTEERR(format, ...) printf("ERROR: " format, ##__VA_ARGS__)
+
+/**
+ * @defgroup LTERatType
+ *
+ * @brief RAT(Radio Access Technology)
+ */
+
+/**
+ * RAT(Radio Access Technology): Cat.M
+ */
+
+#define LTE_MODEM_RAT_CATM  (2)
+
+/**
+ * RAT(Radio Access Technology): NB-IoT
+ */
+
+#define LTE_MODEM_RAT_NBIOT (3)
+
+/** @} */
 
 /**
  * @enum LTEModemStatus

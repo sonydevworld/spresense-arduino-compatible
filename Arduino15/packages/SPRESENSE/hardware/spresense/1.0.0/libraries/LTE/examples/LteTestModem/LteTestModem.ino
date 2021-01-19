@@ -1,6 +1,6 @@
 /*
  *  LteTestModem.ino - Example for obtaining modem information
- *  Copyright 2019 Sony Semiconductor Solutions Corporation
+ *  Copyright 2019, 2021 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -30,7 +30,7 @@ LTEModem modem;
 // IMEI variable
 String IMEI = "";
 String VERSION = "";
-
+int    RAT = -1;
 void setup() {
   // initialize serial communications and wait for port to open:
   Serial.begin(115200);
@@ -56,6 +56,21 @@ void loop() {
   //Firmware version of the modem.
   VERSION = modem.getFirmwareVersion();
   Serial.println("VERSION: " + VERSION);
+
+  RAT = modem.getRAT();
+
+  // If -ENOTSUP is returned, your LTE board does not support this API.
+  switch (RAT) {
+    case LTE_MODEM_RAT_CATM:
+      Serial.println("RAT: Cat.M");
+      break;
+    case LTE_MODEM_RAT_NBIOT:
+      Serial.println("RAT: NB-IoT");
+      break;
+    default:
+      Serial.println("RAT: Unknown type [" + String(RAT) + "]");
+      break;
+  }
 
   sleep(1);
 }
