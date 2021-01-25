@@ -30,7 +30,7 @@ LTEModem modem;
 // IMEI variable
 String IMEI = "";
 String VERSION = "";
-int    RAT = -1;
+LTENetworkRatType RAT = LTE_NET_RAT_UNKNOWN;
 void setup() {
   // initialize serial communications and wait for port to open:
   Serial.begin(115200);
@@ -40,10 +40,15 @@ void setup() {
 
   // start modem test (reset and check response)
   Serial.println("Starting modem test...");
+  // Power on the modem
   if (LTE_IDLE == modem.begin()) {
     Serial.println("modem.begin() succeeded.");
   } else {
-    Serial.println("ERROR, no modem answer.");
+    Serial.println("Could not transition to LTE_IDLE.");
+    Serial.println("Please check the status of the LTE board.");
+    for (;;) {
+      sleep(1);
+    }
   }
 }
 
@@ -57,6 +62,7 @@ void loop() {
   VERSION = modem.getFirmwareVersion();
   Serial.println("VERSION: " + VERSION);
 
+  // Current RAT of the modem.
   RAT = modem.getRAT();
 
   switch (RAT) {

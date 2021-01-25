@@ -105,6 +105,14 @@ public:
    * @param [in] restart [en] Restart flag <BR> [ja] 再起動フラグ
    * @param [in] synchronous [en] Synchronization wait flag <BR> [ja] 同期待ちフラグ
    *
+   * @attention [en] If you enter the PIN code, check the operation on the serial console in advance.
+   *                 If the PIN code is incorrect, an error message will be displayed with the remaining try count that can be executed.
+   *                 If you have locked your modem beyond the remaining try count, please refer to the SIM manual to find out how to unlock it.
+   *
+   * @attention [ja] PINロック解除コードを入力した場合は、事前にシリアルコンソールでの動作確認を行ってください。
+   *                 PINロック解除コードが間違っている場合は残り施行可能回数と共にエラーメッセージが出力されます。
+   *                 残り施行可能回数を超えてロックされてしまった場合はSIMの説明書を参照して解除方法を確認してください。
+
    * @return [en] Returns LTE_SEARCHING on success, LTE_ERROR if an error occurs.
    *
    * @return [ja] 成功時はLTE_SEARCHING、エラーが発生した場合、LTE_ERRORを返します。
@@ -125,11 +133,15 @@ public:
    *
    * @details [en] Register the modem on the LTE network.
    *               If the synchronous parameter is false, please check the modem
-   *               has been registered on the LTE network using the getStatus() method.
+   *               has been registered on the LTE network using the getStatus() method. <BR>
+   *               The RAT used in this method will be the one previously configured on the modem.
+   *               If you want to connect to the LTE network by specifying RAT, use the attach() method described later.
    *
    * @details [ja] LTEネットワークにモデムを登録します。
    *               synchronousパラメータがfalseの場合、getStatus()メソッドを使用して、
-   *               LTEネットワークにモデムが登録できたことを確認してください。
+   *               LTEネットワークにモデムが登録できたことを確認してください。 <BR>
+   *               このメソッドで使用されるRATは、以前モデムに設定されたものになります。
+   *               RATを指定してLTEネットワークに接続したい場合は、後述するattach()メソッドを使用してください。
    *
    * @param [in] apn [en] Access point name
    *                 [ja] アクセスポイント名
@@ -169,11 +181,15 @@ public:
   /**
    * @brief Register the modem on the LTE network after configuring RAT.
    *
-   * @details [en] Register the modem on the LTE network after configuring RAT.
+   * @details [en] Registers the modem with the LTE network for the specified RAT.
+   *               RAT can specify Cat.M / NB-IoT depending on the SIM contract you are using.
+   *               Please check your SIM contract and specify RAT. <BR>
    *               If the synchronous parameter is false, please check the modem
    *               has been registered on the LTE network using the getStatus() method.
    *
-   * @details [ja] RATを設定した後にLTEネットワークにモデムを登録します。
+   * @details [ja] 指定されたRATのLTEネットワークにモデムを登録します。
+   *               RATは使用しているSIM契約に応じて、Cat.M/NB-IoTを指定できます。
+   *               ご使用のSIMの契約を確認し、RATを指定してください。<BR>
    *               synchronousパラメータがfalseの場合、getStatus()メソッドを使用して、
    *               LTEネットワークにモデムが登録できたことを確認してください。
    *
