@@ -95,26 +95,7 @@ String LTEModemVerification::getFirmwareVersion()
   return String(reinterpret_cast<char*>(fwVersion.np_package));
 }
 
-int LTEModemVerification::setRAT(int type)
-{
-  int32_t result = 0;
-
-  result = lte_set_rat_sync((uint8_t)type, true);
-  if (result < 0) {
-    if (result == -ENOTSUP) {
-      LTEDBG("This API is not supported by the FW version of your modem.\n");
-      if (type == LTE_MODEM_RAT_CATM) {
-        return 0;
-      }
-    }
-    LTEERR("lte_set_rat_sync result error : %d\n", result);
-  } else {
-    LTEDBG("Successful set RAT : %d\n", result);
-  }
-  return (int)result;
-}
-
-int LTEModemVerification::getRAT()
+LTENetworkRatType LTEModemVerification::getRAT()
 {
   int32_t result = 0;
 
@@ -122,14 +103,16 @@ int LTEModemVerification::getRAT()
   if (result < 0) {
     if (result == -ENOTSUP) {
       LTEDBG("This API is not supported by the FW version of your modem.\n");
-      return LTE_MODEM_RAT_CATM;
+      LTEDBG("Returns LTE_NET_RAT_CATM.\n");
+      return LTE_NET_RAT_CATM;
     } else {
       LTEERR("lte_get_rat_sync result error : %d\n", result);
+      return LTE_NET_RAT_UNKNOWN;
     }
   } else {
     LTEDBG("Successful get RAT : %d\n", result);
   }
-  return (int)result;
+  return (LTENetworkRatType)result;
 }
 
 LTEModemStatus LTEModemVerification::getStatus()

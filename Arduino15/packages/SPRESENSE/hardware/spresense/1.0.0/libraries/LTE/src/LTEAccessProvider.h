@@ -1,6 +1,6 @@
 /*
  *  LTEAccessProvider.h - LTEAccessProvider include file for Spresense Arduino
- *  Copyright 2019 Sony Semiconductor Solutions Corporation
+ *  Copyright 2019, 2021 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -159,7 +159,61 @@ public:
    *         - synchronousの値がfalseの場合 <BR>
    *          成功時はLTE_CONNECTING、エラーが発生した場合、LTE_ERRORを返します。
    */
-  LTEModemStatus attach(const char *apn, const char *userName = NULL, const char *password = NULL, LTENetworkAuthType authType = LTE_NET_AUTHTYPE_CHAP, LTENetworkIPType ipType = LTE_NET_IPTYPE_V4V6, bool synchronous = true);
+  LTEModemStatus attach(const char *apn,
+                        const char *userName = NULL,
+                        const char *password = NULL,
+                        LTENetworkAuthType authType = LTE_NET_AUTHTYPE_CHAP,
+                        LTENetworkIPType ipType = LTE_NET_IPTYPE_V4V6,
+                        bool synchronous = true);
+
+  /**
+   * @brief Register the modem on the LTE network after configuring RAT.
+   *
+   * @details [en] Register the modem on the LTE network after configuring RAT.
+   *               If the synchronous parameter is false, please check the modem
+   *               has been registered on the LTE network using the getStatus() method.
+   *
+   * @details [ja] RATを設定した後にLTEネットワークにモデムを登録します。
+   *               synchronousパラメータがfalseの場合、getStatus()メソッドを使用して、
+   *               LTEネットワークにモデムが登録できたことを確認してください。
+   *
+   * @param [in] rat [en] RAT(Radio Access Technology). Set the value defined in #LTENetworkRatType. <BR>
+   *                 [ja] RAT(Radio Access Technology)。 #LTENetworkRatType で定義された値を設定してください。
+   * @param [in] apn [en] Access point name
+   *                 [ja] アクセスポイント名
+   * @param [in] userName [en] Authentication user name. If authentication is not required, set this parameter to NULL. <BR>
+   *                      [ja] 認証ユーザ名。ユーザ認証が必要ない場合、NULLを設定してください。
+   * @param [in] password [en] Authentication password. If authentication is not required, set this parameter to NULL. <BR>
+   *                      [ja] 認証パスワード。ユーザ認証が必要ない場合、NULLを設定してください。
+   * @param [in] authType [en] Authentication type. Set the value defined in #LTENetworkAuthType. <BR>
+   *                      [ja] 認証形式。 #LTENetworkAuthType で定義された値を設定してください。
+   * @param [in] ipType [en] Connection IP type. Set the value defined in #LTENetworkIPType. <BR>
+   *                    [ja] 接続IP形式。 #LTENetworkIPType で定義された値を設定してください。
+   * @param [in] synchronous [en] Synchronization wait flag <BR> [ja] 同期待ちフラグ
+   *
+   * @attention [en] If rejected from the LTE network, the status changes to LTE_ERROR.
+   *
+   * @attention [ja] LTEネットワークからリジェクトされた場合、ステータスはLTE_ERRORに遷移します。
+   *
+   * @return [en] The return value on success depends on the value of synchronous.
+   *         - If synchronous is true <BR>
+   *          Returns LTE_READY on success, LTE_ERROR if an error occurs.
+   *         - If synchronous is false <BR>
+   *          Returns LTE_CONNECTING on success, LTE_ERROR if an error occurs.
+   *
+   * @return [ja] 成功時の戻り値は、synchronousパラメータの値によって変わります。
+   *         - synchronousの値がtrueの場合 <BR>
+   *          成功時はLTE_READY、エラーが発生した場合、LTE_ERRORを返します。
+   *         - synchronousの値がfalseの場合 <BR>
+   *          成功時はLTE_CONNECTING、エラーが発生した場合、LTE_ERRORを返します。
+   */
+  LTEModemStatus attach(LTENetworkRatType rat,
+                        const char *apn,
+                        const char *userName = NULL,
+                        const char *password = NULL,
+                        LTENetworkAuthType authType = LTE_NET_AUTHTYPE_CHAP,
+                        LTENetworkIPType ipType = LTE_NET_IPTYPE_V4V6, 
+                        bool synchronous = true);
 
   /**
    * @brief Detach the modem from the LTE network.
