@@ -59,12 +59,11 @@ void loop() {
 
   RAT = modem.getRAT();
 
-  // If -ENOTSUP is returned, your LTE board does not support this API.
   switch (RAT) {
-    case LTE_MODEM_RAT_CATM:
+    case LTE_NET_RAT_CATM:
       Serial.println("RAT: Cat.M");
       break;
-    case LTE_MODEM_RAT_NBIOT:
+    case LTE_NET_RAT_NBIOT:
       Serial.println("RAT: NB-IoT");
       break;
     default:

@@ -31,9 +31,13 @@
 /* RAT to use
  * Refer to the cellular carriers information
  * to find out which RAT your SIM supports.
+ * If LTE_NET_RAT_KEEP is set, the RAT set on the modem will be kept.
+ * The RAT set on the modem can be checked with LTEModemVerification::getRAT().
  */
 
-#define LTE_RAT (LTE_MODEM_RAT_CATM)
+#define APP_LTE_RAT (LTE_NET_RAT_KEEP)
+// #define APP_LTE_RAT (LTE_NET_RAT_CATM)
+// #define APP_LTE_RAT (LTE_NET_RAT_NBIOT)
 
 #define NTP_SERVER_NAME "ntp.nict.jp"
 #define TIME_OFFSET     (9 * 60 * 60) // time offset in seconds(This example is JST)
@@ -41,7 +45,6 @@
 
 // initialize the library instance
 LTE lteAccess;
-LTEModem modem;
 LTEUDP ntpUDP;
 
 // You can specify the time server pool and the offset (in seconds, can be
@@ -59,24 +62,10 @@ void setup()
 
   Serial.println("Starting NTP client.");
 
-  if (modem.begin() == LTE_IDLE) {
-    // If the RAT set on the modem is not what you expected, switch it.
-    if (modem.getRAT() != LTE_RAT) {
-      if (modem.setRAT(LTE_RAT) < 0) {
-        Serial.println("Set RAT failed");
-        // do nothing forevermore:
-        for (;;)
-          sleep(1);
-      } else {
-        Serial.println("Set RAT succeeded");
-      }
-    }
-  }
-
   // If your SIM has PIN, pass it as a parameter of begin() in quotes
   while (true) {
     if (lteAccess.begin() == LTE_SEARCHING) {
-      if (lteAccess.attach(LTE_APN, LTE_USER_NAME, LTE_PASSWORD) == LTE_READY) {
+      if (lteAccess.attach(LTE_APN, LTE_USER_NAME, LTE_PASSWORD, LTE_NET_AUTHTYPE_CHAP, LTE_NET_IPTYPE_V4V6, APP_LTE_RAT) == LTE_READY) {
         Serial.println("attach succeeded.");
         break;
       }
