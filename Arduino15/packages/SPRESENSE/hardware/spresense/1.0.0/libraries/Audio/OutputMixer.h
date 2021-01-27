@@ -86,6 +86,24 @@ public:
     }
 
   /**
+   * @brief Initialize the OutputMixer.
+   *
+   * @details This function activates Audio HW.
+   *
+   */
+
+  err_t begin(void){ return activateBaseband(); }
+
+  /**
+   * @brief Finalize the OutputMixer.
+   *
+   * @details This function deactivates output mixer system.
+   *
+   */
+
+  err_t end(void){ return deactivateBaseband(); }
+
+  /**
    * @brief Creation of the OutputMixer.
    *
    * @details This function is called only once when using the OutputMixer.

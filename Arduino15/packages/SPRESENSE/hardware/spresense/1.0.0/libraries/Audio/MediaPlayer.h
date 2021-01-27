@@ -116,6 +116,15 @@ public:
   err_t begin(void);
 
   /**
+   * @brief Finalize the MediaPlayer.
+   *
+   * @details This function is called only once when finish the MediaPlayer.
+   *
+   */
+
+  err_t end(void){}
+
+  /**
    * @brief Creation of the MediaPlayer.
    *
    * @details This function is called only once when using the MediaPlayer.
