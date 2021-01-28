@@ -1,6 +1,6 @@
 /*
  *  LTEClient.cpp - LTEClient implementation file for Spresense Arduino
- *  Copyright 2019 Sony Semiconductor Solutions Corporation
+ *  Copyright 2019, 2021 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -62,12 +62,20 @@
 #endif
 #define LTECERR(format, ...) printf("ERROR:LTEClient:%d " format, __LINE__, ##__VA_ARGS__)
 
+#define SET_TIMEVAL(tv, ms) do { \
+                              tv.tv_sec = (ms) / 1000; \
+                              tv.tv_usec = ((ms) - (tv.tv_sec * 1000)) * 1000; \
+                            } while(0)
+
 #define BUFFER_MAX_LEN 1500
 #define INVALID_FD     -1
 #define NOT_CONNECTED  0
 #define CONNECTED      1
 #define NOT_AVAILABLE  0
 #define FAILED         -1
+/* It should take at least about 25ms, but it adds a margin to prevent timeouts. */
+#define TIMEOUT_VAL_MS 100
+#define NO_TIMEOUT_VAL  0
 
 /****************************************************************************
  * Public Functions
@@ -196,13 +204,31 @@ size_t LTEClient::write(const uint8_t *buf, size_t size)
 int LTEClient::available()
 {
   ssize_t len;
+  struct timeval tv;
 
   if (!_buf) {
     LTECDBG("not available\n");
     return NOT_AVAILABLE;
   }
 
-  len = recv(_fd, _buf, BUFFER_MAX_LEN, MSG_PEEK | MSG_DONTWAIT);
+  /* Should use MSG_DONTWAIT instead of receive timeout, but there is an issue
+   * with MSG_DONTWAIT. EAGAIN may be returned even though the receive buffer
+   * of the network stack is not empty.
+   * To avoid this issue, recv() needs to wait for a while, so set a timeout.
+   * If the receive buffer in the network stack is not empty,
+   * the recv() function will return within a timeout.
+   */
+  SET_TIMEVAL(tv, TIMEOUT_VAL_MS);
+  setsockopt(_fd, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const void*>(&tv),
+             sizeof(struct timeval));
+
+  len = recv(_fd, _buf, BUFFER_MAX_LEN, MSG_PEEK);
+
+  /* Roll back the receive timeout value */
+  SET_TIMEVAL(tv, NO_TIMEOUT_VAL);
+  setsockopt(_fd, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const void*>(&tv),
+             sizeof(struct timeval));
+
   if (len < 0) {
     if (errno != EAGAIN) {
       LTECERR("recv() error : %d\n", errno);
@@ -235,6 +261,7 @@ int LTEClient::read()
 int LTEClient::read(uint8_t *buf, size_t size)
 {
   ssize_t len;
+  struct timeval tv;
 
   if (size && !buf) {
     LTECERR("invalid parameter\n");
@@ -250,7 +277,24 @@ int LTEClient::read(uint8_t *buf, size_t size)
     return 0;
   }
 
-  len = recv(_fd, buf, size, MSG_DONTWAIT);
+  /* Should use MSG_DONTWAIT instead of receive timeout, but there is an issue
+   * with MSG_DONTWAIT. EAGAIN may be returned even though the receive buffer
+   * of the network stack is not empty.
+   * To avoid this issue, recv() needs to wait for a while, so set a timeout.
+   * If the receive buffer in the network stack is not empty,
+   * the recv() function will return within a timeout.
+   */
+  SET_TIMEVAL(tv, TIMEOUT_VAL_MS);
+  setsockopt(_fd, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const void*>(&tv),
+             sizeof(struct timeval));
+
+  len = recv(_fd, buf, size, 0);
+
+  /* Roll back the receive timeout value */
+  SET_TIMEVAL(tv, NO_TIMEOUT_VAL);
+  setsockopt(_fd, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const void*>(&tv),
+             sizeof(struct timeval));
+
   if (len < 0) {
     if (errno != EAGAIN) {
       LTECERR("recv() error : %d\n", errno);
@@ -271,13 +315,31 @@ int LTEClient::read(uint8_t *buf, size_t size)
 int LTEClient::peek()
 {
   ssize_t len;
+  struct timeval tv;
 
   if (!_buf) {
     LTECDBG("not available\n");
     return FAILED;
   }
 
-  len = recv(_fd, _buf, 1, MSG_PEEK | MSG_DONTWAIT);
+  /* Should use MSG_DONTWAIT instead of receive timeout, but there is an issue
+   * with MSG_DONTWAIT. EAGAIN may be returned even though the receive buffer
+   * of the network stack is not empty.
+   * To avoid this issue, recv() needs to wait for a while, so set a timeout.
+   * If the receive buffer in the network stack is not empty,
+   * the recv() function will return within a timeout.
+   */
+  SET_TIMEVAL(tv, TIMEOUT_VAL_MS);
+  setsockopt(_fd, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const void*>(&tv),
+             sizeof(struct timeval));
+
+  len = recv(_fd, _buf, 1, MSG_PEEK);
+
+  /* Roll back the receive timeout value */
+  SET_TIMEVAL(tv, NO_TIMEOUT_VAL);
+  setsockopt(_fd, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const void*>(&tv),
+             sizeof(struct timeval));
+
   if (len < 0) {
     if (errno != EAGAIN) {
       LTECERR("recv() error : %d\n", errno);
@@ -314,9 +376,27 @@ void LTEClient::stop()
 uint8_t LTEClient::connected()
 {
   ssize_t len;
+  struct timeval tv;
 
   if (_connected) {
-    len = recv(_fd, _buf, 0, MSG_DONTWAIT);
+    /* Should use MSG_DONTWAIT instead of receive timeout, but there is an
+     * issue with MSG_DONTWAIT. EAGAIN may be returned even though the
+     * receive buffer of the network stack is not empty.
+     * To avoid this issue, recv() needs to wait for a while, so set a
+     * timeout. If the receive buffer in the network stack is not empty,
+     * the recv() function will return within a timeout.
+     */
+    SET_TIMEVAL(tv, TIMEOUT_VAL_MS);
+    setsockopt(_fd, SOL_SOCKET, SO_RCVTIMEO,
+               reinterpret_cast<const void*>(&tv), sizeof(struct timeval));
+
+    len = recv(_fd, _buf, 0, 0);
+
+    /* Roll back the receive timeout value */
+    SET_TIMEVAL(tv, NO_TIMEOUT_VAL);
+    setsockopt(_fd, SOL_SOCKET, SO_RCVTIMEO,
+               reinterpret_cast<const void*>(&tv), sizeof(struct timeval));
+
     if (len < 0) {
       if (errno != EAGAIN) {
         LTECERR("recv() error : %d\n", errno);
