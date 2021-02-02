@@ -307,12 +307,11 @@ exitRecording:
   
   s_myFile.close();
 
-  thePlayer->deactivate();
-  thePlayer->end();
- 
+  thePlayer->deactivate(MediaPlayer::Player0);
+
   theRecorder->deactivate();
   theRecorder->end();
- 
+
   puts("End Recording with rendering");
 
   exit(1);
