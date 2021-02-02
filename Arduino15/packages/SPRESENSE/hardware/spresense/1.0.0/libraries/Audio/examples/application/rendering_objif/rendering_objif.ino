@@ -488,7 +488,7 @@ stop_rendering:
   board_external_amp_mute_control(true); 
   myFile.close();
   theMixer->deactivate(OutputMixer0);
-  theMixer->deactivateBaseband();
+  theMixer->end();
   puts("Exit Rendering");
   exit(1);
 }
