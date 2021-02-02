@@ -306,8 +306,14 @@ exitRecording:
   puts("Update Header!");
   
   s_myFile.close();
+
+  thePlayer->deactivate();
+  thePlayer->end();
  
-  puts("Exit.");
+  theRecorder->deactivate();
+  theRecorder->end();
+ 
+  puts("End Recording with rendering");
 
   exit(1);
 }

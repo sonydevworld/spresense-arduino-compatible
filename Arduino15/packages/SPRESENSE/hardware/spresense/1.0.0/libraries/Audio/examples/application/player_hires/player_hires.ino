@@ -172,5 +172,7 @@ void loop()
 stop_player:
   theAudio->stopPlayer(AudioClass::Player0);
   myFile.close();
+  theAudio->setReadyMode();
+  theAudio->end();
   exit(1);
 }
