@@ -27,17 +27,33 @@
 #include <SDHCI.h>
 #include <LTE.h>
 
-// APN data
-#define LTE_APN       "apn"      // replace your APN
-#define LTE_USER_NAME "user"     // replace with your username
-#define LTE_PASSWORD  "password" // replace with your password
+// APN name
+#define APP_LTE_APN "apn" // replace your APN
+
+/* APN authentication settings
+ * Ignore these parameters when setting LTE_NET_AUTHTYPE_NONE.
+ */
+#define APP_LTE_USER_NAME "user"     // replace with your username
+#define APP_LTE_PASSWORD  "password" // replace with your password
+
+// APN IP type
+#define APP_LTE_IP_TYPE (LTE_NET_IPTYPE_V4V6) // IP : IPv4v6
+// #define APP_LTE_IP_TYPE (LTE_NET_IPTYPE_V4) // IP : IPv4
+// #define APP_LTE_IP_TYPE (LTE_NET_IPTYPE_V6) // IP : IPv6
+
+// APN authentication type
+#define APP_LTE_AUTH_TYPE (LTE_NET_AUTHTYPE_CHAP) // Authentication : CHAP
+// #define APP_LTE_AUTH_TYPE (LTE_NET_AUTHTYPE_PAP) // Authentication : PAP
+// #define APP_LTE_AUTH_TYPE (LTE_NET_AUTHTYPE_NONE) // Authentication : NONE
 
 /* RAT to use
  * Refer to the cellular carriers information
  * to find out which RAT your SIM supports.
+ * The RAT set on the modem can be checked with LTEModemVerification::getRAT().
  */
 
-#define LTE_RAT (LTE_MODEM_RAT_CATM)
+#define APP_LTE_RAT (LTE_NET_RAT_CATM) // RAT : Cat.M
+// #define APP_LTE_RAT (LTE_NET_RAT_NBIOT) // RAT : NB-IoT
 
 // URL, path & port (for example: httpbin.org)
 char server[] = "httpbin.org";
@@ -54,7 +70,6 @@ int port = 443; // port 443 is the default for HTTPS
 
 // initialize the library instance
 LTE lteAccess;
-LTEModem modem;
 LTETLSClient tlsClient;
 HttpClient client = HttpClient(tlsClient, server, port);
 SDClass theSD;
@@ -81,31 +96,39 @@ void setup()
     ; /* wait until SD card is mounted. */
   }
 
-  if (modem.begin() == LTE_IDLE) {
-    // If the RAT set on the modem is not what you expected, switch it.
-    if (modem.getRAT() != LTE_RAT) {
-      if (modem.setRAT(LTE_RAT) < 0) {
-        Serial.println("Set RAT failed");
-        // do nothing forevermore:
-        for (;;)
-          sleep(1);
-      } else {
-        Serial.println("Set RAT succeeded");
-      }
+  /* Power on the modem and Enable the radio function. */
+
+  if (lteAccess.begin() != LTE_SEARCHING) {
+    Serial.println("Could not transition to LTE_SEARCHING.");
+    Serial.println("Please check the status of the LTE board.");
+    for (;;) {
+      sleep(1);
     }
   }
 
-  // If your SIM has PIN, pass it as a parameter of begin() in quotes
   while (true) {
-    if (lteAccess.begin() == LTE_SEARCHING) {
-      if (lteAccess.attach(LTE_APN, LTE_USER_NAME, LTE_PASSWORD) == LTE_READY) {
-        Serial.println("attach succeeded.");
-        break;
-      }
-      Serial.println("An error occurred, shutdown and try again.");
-      lteAccess.shutdown();
-      sleep(1);
+    /* The connection process to the APN will start.
+     * If the synchronous parameter is false,
+     * the return value will be returned when the connection process is started.
+     */
+    if (lteAccess.attach(APP_LTE_RAT,
+                         APP_LTE_APN,
+                         APP_LTE_USER_NAME,
+                         APP_LTE_PASSWORD,
+                         APP_LTE_AUTH_TYPE,
+                         APP_LTE_IP_TYPE) == LTE_READY) {
+      Serial.println("attach succeeded.");
+      break;
     }
+
+    /* If the following logs occur frequently, one of the following might be a cause:
+     * - APN settings are incorrect
+     * - SIM is not inserted correctly
+     * - If you have specified LTE_NET_RAT_NBIOT for APP_LTE_RAT,
+     *   your LTE board may not support it.
+     */
+    Serial.println("An error has occurred. Retry the network attach process after 1 second.");
+    sleep(1);
   }
 
   // Set local time (not UTC) obtained from the network to RTC.

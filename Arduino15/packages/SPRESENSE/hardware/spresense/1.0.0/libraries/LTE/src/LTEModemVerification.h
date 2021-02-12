@@ -131,32 +131,18 @@ public:
   String getFirmwareVersion();
 
   /**
-   * @brief Set RAT(Radio Access Technology).
-   *
-   * @details [en] Set the RAT (Radio Access Technology) used by the modem.
-   *
-   * @details [ja] モデムが使用するRAT(Radio Access Technology)を設定します。
-   *
-   * @return [en] Returns 0 on success and a negative value on error.
-   *
-   * @return [ja] 成功時は0を返し、エラーが発生した場合、負の値を返します。
-   */
-
-  int setRAT(int type);
-
-  /**
    * @brief Get RAT(Radio Access Technology).
    *
    * @details [en] Get the RAT(Radio Access Technology) currently used by the modem.
    *
    * @details [ja] モデムが現在使用しているRAT(Radio Access Technology)を取得します。
    *
-   * @return [en] RAT type defined as #LTERatType.
+   * @return [en] RAT type defined as #LTENetworkRatType. Returns LTE_NET_RAT_UNKNOWN if an error occurs.
    *
-   * @return [ja] 成功時は #LTERatType が定義するRAT形式を返し、エラーが発生した場合、負の値を返します。
+   * @return [ja] 成功時は #LTENetworkRatType が定義するRAT形式を返し、エラーが発生した場合、LTE_NET_RAT_UNKNOWNを返します。
    */
 
-  int getRAT();
+  LTENetworkRatType getRAT();
 
   /**
    * @brief Get the modem status.
