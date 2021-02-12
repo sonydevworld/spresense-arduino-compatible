@@ -104,6 +104,10 @@ void setup() {
 }
 
 void loop() {
+
+  // Wait 1 second to get the IP address correctly.
+  sleep(1);
+
    // Assigned IP address
   IPAddress address = lteAccess.getIPAddress();
   Serial.print("IP address: ");
@@ -117,5 +121,4 @@ void loop() {
   Serial.print("Signal Strength: ");
   Serial.print(scannerNetworks.getSignalStrength());
   Serial.println(" [dBm]");
-  sleep(1);
 }
