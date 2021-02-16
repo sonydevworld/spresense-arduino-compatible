@@ -265,10 +265,15 @@ public:
    * @details [ja] LTEネットワークが割り当てたIPアドレスを取得します。
    *
    * @attention [en] The IP address cannot be obtained unless the modem status is LTE_READY.
-   *                 The only IP address that can be obtained with this method is IPv4.
+   *                 The only IP address that can be obtained with this method is IPv4.<BR>
+   *                 IP address may not be acquired immediately after the LTE_READY state transition.
+   *                 Please execute this API after waiting for 1 second or more after
+   *                 transitioning to the LTE_READY state.
    *
    * @attention [ja] モデムがLTE_READY状態でないとIPアドレスは取得出来ません。
-   *                 このメソッドで取得できるIPアドレスはIPv4のみです。
+   *                 このメソッドで取得できるIPアドレスはIPv4のみです。<BR>
+   *                 LTE_READY状態遷移直後はIPアドレスが取得できない場合があります。
+   *                 LTE_READY状態に遷移してから1秒以上待機してから本APIを実行してください。
    *
    * @return [en] Returns IP address on success, empty object if an error occurs.
    *
