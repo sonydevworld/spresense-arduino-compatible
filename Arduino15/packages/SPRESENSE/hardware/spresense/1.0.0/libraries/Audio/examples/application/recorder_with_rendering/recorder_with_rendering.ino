@@ -167,10 +167,10 @@ void setup()
 
   theRecorder->begin();
   thePlayer->begin();
+  theMixer->begin();
 
   puts("initialization MediaRecorder, MediaPlayer and OutputMixer");
 
-  theMixer->activateBaseband();
 
   /* Create Objects */
 
@@ -306,8 +306,14 @@ exitRecording:
   puts("Update Header!");
   
   s_myFile.close();
- 
-  puts("Exit.");
+
+  thePlayer->deactivate(MediaPlayer::Player0);
+  thePlayer->end();
+
+  theRecorder->deactivate();
+  theRecorder->end();
+
+  puts("End Recording with rendering");
 
   exit(1);
 }

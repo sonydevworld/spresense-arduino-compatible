@@ -176,6 +176,10 @@ err_t OutputMixer::activateBaseband(void)
 /*--------------------------------------------------------------------------*/
 err_t OutputMixer::deactivateBaseband(void)
 {
+  /* Mute output */
+
+  board_external_amp_mute_control(true);
+
   /* Disable output */
 
   CXD56_AUDIO_ECODE error_code = CXD56_AUDIO_ECODE_OK;

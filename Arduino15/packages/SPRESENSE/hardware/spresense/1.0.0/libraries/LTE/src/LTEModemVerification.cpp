@@ -1,6 +1,6 @@
 /*
  *  LTEModemVerification.cpp - LTEModemVerification implementation file for Spresense Arduino
- *  Copyright 2019 Sony Semiconductor Solutions Corporation
+ *  Copyright 2019, 2021 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -93,6 +93,26 @@ String LTEModemVerification::getFirmwareVersion()
   LTEDBG("Successful get version : %s\n", fwVersion.np_package);
 
   return String(reinterpret_cast<char*>(fwVersion.np_package));
+}
+
+LTENetworkRatType LTEModemVerification::getRAT()
+{
+  int32_t result = 0;
+
+  result = lte_get_rat_sync();
+  if (result < 0) {
+    if (result == -ENOTSUP) {
+      LTEDBG("This API is not supported by the FW version of your modem.\n");
+      LTEDBG("Returns LTE_NET_RAT_CATM.\n");
+      return LTE_NET_RAT_CATM;
+    } else {
+      LTEERR("lte_get_rat_sync result error : %d\n", result);
+      return LTE_NET_RAT_UNKNOWN;
+    }
+  } else {
+    LTEDBG("Successful get RAT : %d\n", result);
+  }
+  return (LTENetworkRatType)result;
 }
 
 LTEModemStatus LTEModemVerification::getStatus()

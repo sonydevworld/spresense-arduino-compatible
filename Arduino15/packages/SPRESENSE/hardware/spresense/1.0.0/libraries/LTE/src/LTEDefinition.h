@@ -1,6 +1,6 @@
 /*
  *  LTEDefinition.h - LTEDefinition include file for Spresense Arduino
- *  Copyright 2019 Sony Semiconductor Solutions Corporation
+ *  Copyright 2019, 2021 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -89,5 +89,16 @@ enum LTENetworkAuthType {
 };
 
 /** @} */
+
+/**
+ * @enum LTENetworkRatType
+ *
+ * @brief  RAT(Radio Access Technology)
+ */
+enum LTENetworkRatType {
+  LTE_NET_RAT_UNKNOWN = -1, /**< [en] RAT(Radio Access Technology): Unknown */
+  LTE_NET_RAT_CATM    = 2,  /**< [en] RAT(Radio Access Technology): Cat.M */
+  LTE_NET_RAT_NBIOT   = 3   /**< [en] RAT(Radio Access Technology): NB-IoT */
+};
 
 #endif // __SPRESENSE_LTEDEFINITION_H__

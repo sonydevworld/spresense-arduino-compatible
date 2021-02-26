@@ -147,6 +147,11 @@ static bool getFrame(AsPcmDataParam *pcm, bool direct_read)
   pcm->is_end = (pcm->size < READSIZE);
   pcm->is_valid = (pcm->size > 0);
 
+  if (pcm->size < 0) {
+    puts("Cannot read SD card!");
+    return false;
+  }
+
   return true;
 }
 
@@ -413,7 +418,7 @@ void loop()
 
   if (ErrEnd) {
     printf("Error End\n");
-    goto stop_player;
+    goto stop_rendering;
   }
 
   /* Menu operation */
@@ -438,9 +443,9 @@ void loop()
           s_state = Stopping;
           break;
           
-          default:
-            break;
-        }
+        default:
+          break;
+      }
     }
 
   /* Processing in accordance with the state */
@@ -477,12 +482,13 @@ void loop()
      being processed at the same time by Application.
    */
 
-  usleep(1 * 1000);
-
   return;
 
-stop_player:
-  printf("Exit player\n");
+stop_rendering:
+  board_external_amp_mute_control(true); 
   myFile.close();
+  theMixer->deactivate(OutputMixer0);
+  theMixer->end();
+  puts("Exit Rendering");
   exit(1);
 }

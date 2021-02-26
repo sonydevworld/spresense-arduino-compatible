@@ -142,12 +142,9 @@ void setup()
   theMixer  = OutputMixer::getInstance();
 
   thePlayer->begin();
+  theMixer->begin();
   
   puts("initialization Audio Library");
-
-  /* Activate Baseband */
-
-  theMixer->activateBaseband();
 
   /* Create Objects */
 
@@ -255,8 +252,9 @@ void loop()
   return;
 
 stop_player:
-  sleep(1);
   thePlayer->stop(MediaPlayer::Player0);
   myFile.close();
+  thePlayer->deactivate(MediaPlayer::Player0);
+  thePlayer->end();
   exit(1);
 }

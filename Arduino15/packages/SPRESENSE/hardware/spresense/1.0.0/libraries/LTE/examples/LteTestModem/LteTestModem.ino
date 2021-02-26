@@ -1,6 +1,6 @@
 /*
  *  LteTestModem.ino - Example for obtaining modem information
- *  Copyright 2019 Sony Semiconductor Solutions Corporation
+ *  Copyright 2019, 2021 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -30,7 +30,7 @@ LTEModem modem;
 // IMEI variable
 String IMEI = "";
 String VERSION = "";
-
+LTENetworkRatType RAT = LTE_NET_RAT_UNKNOWN;
 void setup() {
   // initialize serial communications and wait for port to open:
   Serial.begin(115200);
@@ -40,10 +40,15 @@ void setup() {
 
   // start modem test (reset and check response)
   Serial.println("Starting modem test...");
+  // Power on the modem
   if (LTE_IDLE == modem.begin()) {
     Serial.println("modem.begin() succeeded.");
   } else {
-    Serial.println("ERROR, no modem answer.");
+    Serial.println("Could not transition to LTE_IDLE.");
+    Serial.println("Please check the status of the LTE board.");
+    for (;;) {
+      sleep(1);
+    }
   }
 }
 
@@ -56,6 +61,21 @@ void loop() {
   //Firmware version of the modem.
   VERSION = modem.getFirmwareVersion();
   Serial.println("VERSION: " + VERSION);
+
+  // Current RAT of the modem.
+  RAT = modem.getRAT();
+
+  switch (RAT) {
+    case LTE_NET_RAT_CATM:
+      Serial.println("RAT: Cat.M");
+      break;
+    case LTE_NET_RAT_NBIOT:
+      Serial.println("RAT: NB-IoT");
+      break;
+    default:
+      Serial.println("RAT: Unknown type [" + String(RAT) + "]");
+      break;
+  }
 
   sleep(1);
 }

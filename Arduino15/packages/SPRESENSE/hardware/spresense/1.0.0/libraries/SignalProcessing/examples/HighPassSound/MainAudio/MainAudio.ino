@@ -143,6 +143,8 @@ void mediaplayer_decode_callback(AsPcmDataParam pcm_param)
 
 void setup()
 {
+  Serial.begin(115200);
+  while (!Serial);
 
   /* Launch SubCore */
   int ret = MP.begin(subcore);

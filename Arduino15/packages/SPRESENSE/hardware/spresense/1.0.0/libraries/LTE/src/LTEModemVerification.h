@@ -1,6 +1,6 @@
 /*
  *  LTEModemVerification.h - LTEModemVerification include file for Spresense Arduino
- *  Copyright 2019 Sony Semiconductor Solutions Corporation
+ *  Copyright 2019, 2021 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -129,6 +129,20 @@ public:
    * @return [ja] 成功時はモデムのファームウェアバージョンを返し、エラーが発生した場合、"N/A"を返します。
    */
   String getFirmwareVersion();
+
+  /**
+   * @brief Get RAT(Radio Access Technology).
+   *
+   * @details [en] Get the RAT(Radio Access Technology) currently used by the modem.
+   *
+   * @details [ja] モデムが現在使用しているRAT(Radio Access Technology)を取得します。
+   *
+   * @return [en] RAT type defined as #LTENetworkRatType. Returns LTE_NET_RAT_UNKNOWN if an error occurs.
+   *
+   * @return [ja] 成功時は #LTENetworkRatType が定義するRAT形式を返し、エラーが発生した場合、LTE_NET_RAT_UNKNOWNを返します。
+   */
+
+  LTENetworkRatType getRAT();
 
   /**
    * @brief Get the modem status.

@@ -1,6 +1,6 @@
 /*
  *  LTEAccessProvider.h - LTEAccessProvider include file for Spresense Arduino
- *  Copyright 2019 Sony Semiconductor Solutions Corporation
+ *  Copyright 2019, 2021 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -105,6 +105,14 @@ public:
    * @param [in] restart [en] Restart flag <BR> [ja] 再起動フラグ
    * @param [in] synchronous [en] Synchronization wait flag <BR> [ja] 同期待ちフラグ
    *
+   * @attention [en] If you enter the PIN code, check the operation on the serial console in advance.
+   *                 If the PIN code is incorrect, an error message will be displayed with the remaining try count that can be executed.
+   *                 If you have locked your modem beyond the remaining try count, please refer to the SIM manual to find out how to unlock it.
+   *
+   * @attention [ja] PINロック解除コードを入力した場合は、事前にシリアルコンソールでの動作確認を行ってください。
+   *                 PINロック解除コードが間違っている場合は残り施行可能回数と共にエラーメッセージが出力されます。
+   *                 残り施行可能回数を超えてロックされてしまった場合はSIMの説明書を参照して解除方法を確認してください。
+
    * @return [en] Returns LTE_SEARCHING on success, LTE_ERROR if an error occurs.
    *
    * @return [ja] 成功時はLTE_SEARCHING、エラーが発生した場合、LTE_ERRORを返します。
@@ -125,11 +133,15 @@ public:
    *
    * @details [en] Register the modem on the LTE network.
    *               If the synchronous parameter is false, please check the modem
-   *               has been registered on the LTE network using the getStatus() method.
+   *               has been registered on the LTE network using the getStatus() method. <BR>
+   *               The RAT used in this method will be the one previously configured on the modem.
+   *               If you want to connect to the LTE network by specifying RAT, use the attach() method described later.
    *
    * @details [ja] LTEネットワークにモデムを登録します。
    *               synchronousパラメータがfalseの場合、getStatus()メソッドを使用して、
-   *               LTEネットワークにモデムが登録できたことを確認してください。
+   *               LTEネットワークにモデムが登録できたことを確認してください。 <BR>
+   *               このメソッドで使用されるRATは、以前モデムに設定されたものになります。
+   *               RATを指定してLTEネットワークに接続したい場合は、後述するattach()メソッドを使用してください。
    *
    * @param [in] apn [en] Access point name
    *                 [ja] アクセスポイント名
@@ -159,7 +171,65 @@ public:
    *         - synchronousの値がfalseの場合 <BR>
    *          成功時はLTE_CONNECTING、エラーが発生した場合、LTE_ERRORを返します。
    */
-  LTEModemStatus attach(const char *apn, const char *userName = NULL, const char *password = NULL, LTENetworkAuthType authType = LTE_NET_AUTHTYPE_CHAP, LTENetworkIPType ipType = LTE_NET_IPTYPE_V4V6, bool synchronous = true);
+  LTEModemStatus attach(const char *apn,
+                        const char *userName = NULL,
+                        const char *password = NULL,
+                        LTENetworkAuthType authType = LTE_NET_AUTHTYPE_CHAP,
+                        LTENetworkIPType ipType = LTE_NET_IPTYPE_V4V6,
+                        bool synchronous = true);
+
+  /**
+   * @brief Register the modem on the LTE network after configuring RAT.
+   *
+   * @details [en] Registers the modem with the LTE network for the specified RAT.
+   *               RAT can specify Cat.M / NB-IoT depending on the SIM contract you are using.
+   *               Please check your SIM contract and specify RAT. <BR>
+   *               If the synchronous parameter is false, please check the modem
+   *               has been registered on the LTE network using the getStatus() method.
+   *
+   * @details [ja] 指定されたRATのLTEネットワークにモデムを登録します。
+   *               RATは使用しているSIM契約に応じて、Cat.M/NB-IoTを指定できます。
+   *               ご使用のSIMの契約を確認し、RATを指定してください。<BR>
+   *               synchronousパラメータがfalseの場合、getStatus()メソッドを使用して、
+   *               LTEネットワークにモデムが登録できたことを確認してください。
+   *
+   * @param [in] rat [en] RAT(Radio Access Technology). Set the value defined in #LTENetworkRatType. <BR>
+   *                 [ja] RAT(Radio Access Technology)。 #LTENetworkRatType で定義された値を設定してください。
+   * @param [in] apn [en] Access point name
+   *                 [ja] アクセスポイント名
+   * @param [in] userName [en] Authentication user name. If authentication is not required, set this parameter to NULL. <BR>
+   *                      [ja] 認証ユーザ名。ユーザ認証が必要ない場合、NULLを設定してください。
+   * @param [in] password [en] Authentication password. If authentication is not required, set this parameter to NULL. <BR>
+   *                      [ja] 認証パスワード。ユーザ認証が必要ない場合、NULLを設定してください。
+   * @param [in] authType [en] Authentication type. Set the value defined in #LTENetworkAuthType. <BR>
+   *                      [ja] 認証形式。 #LTENetworkAuthType で定義された値を設定してください。
+   * @param [in] ipType [en] Connection IP type. Set the value defined in #LTENetworkIPType. <BR>
+   *                    [ja] 接続IP形式。 #LTENetworkIPType で定義された値を設定してください。
+   * @param [in] synchronous [en] Synchronization wait flag <BR> [ja] 同期待ちフラグ
+   *
+   * @attention [en] If rejected from the LTE network, the status changes to LTE_ERROR.
+   *
+   * @attention [ja] LTEネットワークからリジェクトされた場合、ステータスはLTE_ERRORに遷移します。
+   *
+   * @return [en] The return value on success depends on the value of synchronous.
+   *         - If synchronous is true <BR>
+   *          Returns LTE_READY on success, LTE_ERROR if an error occurs.
+   *         - If synchronous is false <BR>
+   *          Returns LTE_CONNECTING on success, LTE_ERROR if an error occurs.
+   *
+   * @return [ja] 成功時の戻り値は、synchronousパラメータの値によって変わります。
+   *         - synchronousの値がtrueの場合 <BR>
+   *          成功時はLTE_READY、エラーが発生した場合、LTE_ERRORを返します。
+   *         - synchronousの値がfalseの場合 <BR>
+   *          成功時はLTE_CONNECTING、エラーが発生した場合、LTE_ERRORを返します。
+   */
+  LTEModemStatus attach(LTENetworkRatType rat,
+                        const char *apn,
+                        const char *userName = NULL,
+                        const char *password = NULL,
+                        LTENetworkAuthType authType = LTE_NET_AUTHTYPE_CHAP,
+                        LTENetworkIPType ipType = LTE_NET_IPTYPE_V4V6, 
+                        bool synchronous = true);
 
   /**
    * @brief Detach the modem from the LTE network.
@@ -195,10 +265,15 @@ public:
    * @details [ja] LTEネットワークが割り当てたIPアドレスを取得します。
    *
    * @attention [en] The IP address cannot be obtained unless the modem status is LTE_READY.
-   *                 The only IP address that can be obtained with this method is IPv4.
+   *                 The only IP address that can be obtained with this method is IPv4.<BR>
+   *                 IP address may not be acquired immediately after the LTE_READY state transition.
+   *                 Please execute this API after waiting for 1 second or more after
+   *                 transitioning to the LTE_READY state.
    *
    * @attention [ja] モデムがLTE_READY状態でないとIPアドレスは取得出来ません。
-   *                 このメソッドで取得できるIPアドレスはIPv4のみです。
+   *                 このメソッドで取得できるIPアドレスはIPv4のみです。<BR>
+   *                 LTE_READY状態遷移直後はIPアドレスが取得できない場合があります。
+   *                 LTE_READY状態に遷移してから1秒以上待機してから本APIを実行してください。
    *
    * @return [en] Returns IP address on success, empty object if an error occurs.
    *

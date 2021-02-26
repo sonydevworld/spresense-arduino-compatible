@@ -219,8 +219,10 @@ void loop()
   return;
 
 stop_player:
-  puts("End.");
   theAudio->stopPlayer(AudioClass::Player0);
   myFile.close();
+  theAudio->setReadyMode();
+  theAudio->end();
+  printf("Exit player\n");
   exit(1);
 }

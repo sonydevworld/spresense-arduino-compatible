@@ -28,6 +28,7 @@
 #include <common/up_arch.h>
 #include <armv7-m/nvic.h>
 #include <assert.h>
+#include <nuttx/arch.h>
 #include "MP.h"
 
 /****************************************************************************
@@ -84,6 +85,9 @@ int MPClass::begin(int subid)
   if ((ret != 0) && (ret != -ENODEV)) {
     return ret;
   }
+
+  /* Wait until RTC is available */
+  while (g_rtc_enabled == false);
 
   if (ret == -ENODEV) {
     ret = load(subid);

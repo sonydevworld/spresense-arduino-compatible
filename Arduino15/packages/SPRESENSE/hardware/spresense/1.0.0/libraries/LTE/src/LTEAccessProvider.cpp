@@ -1,6 +1,6 @@
 /*
  *  LTEAccessProvider.cpp - LTEAccessProvider implementation file for Spresense Arduino
- *  Copyright 2019 Sony Semiconductor Solutions Corporation
+ *  Copyright 2019, 2021 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -74,13 +74,61 @@ void LTEAccessProvider::shutdown()
 {
   theLTECore.shutdown();
 }
-LTEModemStatus LTEAccessProvider::attach(const char *apn, const char *userName, const char *password, LTENetworkAuthType authType, LTENetworkIPType ipType, bool synchronous)
+
+LTEModemStatus LTEAccessProvider::attach(const char *apn,
+                                         const char *userName,
+                                         const char *password,
+                                         LTENetworkAuthType authType,
+                                         LTENetworkIPType ipType,
+                                         bool synchronous)
 {
   LTEModemStatus networkStatus = getStatus();
   if (LTE_CONNECTING == networkStatus) {
     LTEERR("This method cannot be called while waiting for a connection.\n");
     theLTECore.setStatus(LTE_ERROR);
     return LTE_ERROR;
+  }
+
+  networkStatus = theLTECore.connectNetwork(apn, userName, password, authType, ipType, synchronous);
+  theLTECore.setStatus(networkStatus);
+
+  return networkStatus;
+}
+
+LTEModemStatus LTEAccessProvider::attach(LTENetworkRatType rat,
+                                         const char *apn,
+                                         const char *userName,
+                                         const char *password,
+                                         LTENetworkAuthType authType,
+                                         LTENetworkIPType ipType,
+                                         bool synchronous)
+{
+  int32_t        result        = 0;
+  LTEModemStatus networkStatus = getStatus();
+  if (LTE_CONNECTING == networkStatus) {
+    LTEERR("This method cannot be called while waiting for a connection.\n");
+    theLTECore.setStatus(LTE_ERROR);
+    return LTE_ERROR;
+  }
+
+  result = lte_set_rat_sync((uint8_t)rat, true);
+  if (result < 0) {
+    if (result == -ENOTSUP) {
+      if (LTE_NET_RAT_CATM != rat) {
+        LTEERR("RAT changes are not supported in the FW version of the modem.\n");
+        theLTECore.setStatus(LTE_ERROR);
+        return LTE_ERROR;
+      } else {
+        LTEDBG("RAT changes are not supported in the FW version of the modem.\n");
+        LTEDBG("LTE_NET_RAT_CATM is already set on the modem.\n");
+      }
+    } else {
+      LTEERR("lte_set_rat_sync result error : %d\n", result);
+      theLTECore.setStatus(LTE_ERROR);
+      return LTE_ERROR;
+    }
+  } else {
+    LTEDBG("Successful set RAT : %d\n", result);
   }
 
   networkStatus = theLTECore.connectNetwork(apn, userName, password, authType, ipType, synchronous);

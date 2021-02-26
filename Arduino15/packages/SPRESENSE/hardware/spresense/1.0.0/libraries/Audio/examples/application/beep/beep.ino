@@ -111,6 +111,8 @@ void loop()
   Score::Note theNote = theScore.get();
   if (theNote.fs == 0) {
     puts("End,");
+    theAudio->setReadyMode();
+    theAudio->end();
     exit(1);
   }
 
