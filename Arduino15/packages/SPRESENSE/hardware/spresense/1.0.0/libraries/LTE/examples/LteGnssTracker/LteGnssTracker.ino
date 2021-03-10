@@ -106,17 +106,18 @@ void setup()
     ; /* wait until SD card is mounted. */
   }
 
-  /* Power on the modem and Enable the radio function. */
-
-  if (lteAccess.begin() != LTE_SEARCHING) {
-    Serial.println("Could not transition to LTE_SEARCHING.");
-    Serial.println("Please check the status of the LTE board.");
-    for (;;) {
-      sleep(1);
-    }
-  }
-
   while (true) {
+
+    /* Power on the modem and Enable the radio function. */
+
+    if (lteAccess.begin() != LTE_SEARCHING) {
+      Serial.println("Could not transition to LTE_SEARCHING.");
+      Serial.println("Please check the status of the LTE board.");
+      for (;;) {
+        sleep(1);
+      }
+    }
+
     /* The connection process to the APN will start.
      * If the synchronous parameter is false,
      * the return value will be returned when the connection process is started.
@@ -138,7 +139,8 @@ void setup()
      * - If you have specified LTE_NET_RAT_NBIOT for APP_LTE_RAT,
      *   your LTE board may not support it.
      */
-    Serial.println("An error has occurred. Retry the network attach preparation process after 1 second.");
+    Serial.println("An error has occurred. Shutdown and retry the network attach preparation process after 1 second.");
+    lteAccess.shutdown();
     sleep(1);
   }
 
