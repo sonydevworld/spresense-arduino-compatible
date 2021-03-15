@@ -3,7 +3,7 @@
 set -u
 
 CURRENT_DIR=`pwd`
-SCRIPT_NAME=`readlink -e "${BASH_SOURCE[0]}"`
+SCRIPT_NAME=$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)/$(basename "${BASH_SOURCE[0]}")
 SCRIPT_DIR=`dirname "$SCRIPT_NAME"`
 ARDUINO_DIR=${SCRIPT_DIR}/../Arduino15
 
