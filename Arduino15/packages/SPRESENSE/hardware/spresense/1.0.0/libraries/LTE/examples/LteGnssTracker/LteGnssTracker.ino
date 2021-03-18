@@ -91,21 +91,10 @@ void printClock(RtcTime &rtc)
          rtc.hour(), rtc.minute(), rtc.second());
 }
 
-void setup()
+/* Attach to the LTE network */
+
+void doAttach()
 {
-  // Open serial communications and wait for port to open
-  Serial.begin(115200);
-  while (!Serial) {
-      ; // wait for serial port to connect. Needed for native USB port only
-  }
-
-  Serial.println("Starting GNSS tracker via LTE.");
-
-  /* Initialize SD */
-  while (!theSD.begin()) {
-    ; /* wait until SD card is mounted. */
-  }
-
   while (true) {
 
     /* Power on the modem and Enable the radio function. */
@@ -143,6 +132,25 @@ void setup()
     lteAccess.shutdown();
     sleep(1);
   }
+}
+
+void setup()
+{
+  // Open serial communications and wait for port to open
+  Serial.begin(115200);
+  while (!Serial) {
+      ; // wait for serial port to connect. Needed for native USB port only
+  }
+
+  Serial.println("Starting GNSS tracker via LTE.");
+
+  /* Initialize SD */
+  while (!theSD.begin()) {
+    ; /* wait until SD card is mounted. */
+  }
+
+  /* Connect LTE network */
+  doAttach();
 
   int result;
 
@@ -157,9 +165,23 @@ void setup()
 
   // Wait for the modem to connect to the LTE network.
   Serial.println("Waiting for successful attach.");
-  while(LTE_READY != lteAccess.getStatus()) {
+  LTEModemStatus modemStatus = lteAccess.getStatus();
+
+  while(LTE_READY != modemStatus) {
+    if (LTE_ERROR == modemStatus) {
+
+      /* If the following logs occur frequently, one of the following might be a cause:
+       * - Reject from LTE network
+       */
+      Serial.println("An error has occurred. Shutdown and retry the network attach process after 1 second.");
+      lteAccess.shutdown();
+      sleep(1);
+      doAttach();
+    }
     sleep(1);
+    modemStatus = lteAccess.getStatus();
   }
+
   Serial.println("attach succeeded.");
 
   // Set local time (not UTC) obtained from the network to RTC.

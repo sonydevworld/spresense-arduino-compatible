@@ -71,16 +71,6 @@ void setup()
 
   Serial.println("Starting web client.");
 
-  /* Power on the modem and Enable the radio function. */
-
-  if (lteAccess.begin() != LTE_SEARCHING) {
-    Serial.println("Could not transition to LTE_SEARCHING.");
-    Serial.println("Please check the status of the LTE board.");
-    for (;;) {
-      sleep(1);
-    }
-  }
-
   while (true) {
 
     /* Power on the modem and Enable the radio function. */
