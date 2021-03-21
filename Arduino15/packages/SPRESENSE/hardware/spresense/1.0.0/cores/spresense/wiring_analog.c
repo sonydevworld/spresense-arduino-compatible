@@ -513,9 +513,8 @@ void analog_write(uint8_t pin, uint32_t pulse_width, uint32_t freq)
 /*
  * Reference voltage is a fixed value which is depending on the board.
  * e.g.)
- * - Reference Voltage of A4 and A5 pins on Main Board is 0.7V.
- * - Reference Voltage of A0 ~ A5 pins on External Interface board
- *   is selected 3.3V or 5.0V by a IO Volt jumper pin.
+ * - Reference Voltage of A2 and A3 pins on Main Board is 0.7V.
+ * - Reference Voltage of A0 ~ A5 pins on Extension board is 5.0V
  */
 void analogReference(uint8_t mode)
 {
