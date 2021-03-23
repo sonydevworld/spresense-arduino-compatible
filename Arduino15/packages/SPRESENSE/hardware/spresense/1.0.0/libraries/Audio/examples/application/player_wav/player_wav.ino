@@ -78,7 +78,7 @@ void setup()
   fmt_chunk_t fmt;
 
   handel_wav_parser_t *handle
-    = (handel_wav_parser_t *)theParser.parseChunk("/mnt/sd0/"PLAYBACK_FILE_NAME, &fmt);
+    = (handel_wav_parser_t *)theParser.parseChunk("/mnt/sd0/" PLAYBACK_FILE_NAME, &fmt);
   if (handle == NULL)
     {
       printf("Wav parser error.\n");
