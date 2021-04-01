@@ -1,6 +1,6 @@
 /*
  *  Camera.h - Camera include file for the Spresense SDK
- *  Copyright 2018, 2020 Sony Semiconductor Solutions Corporation
+ *  Copyright 2018, 2020, 2021 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -330,6 +330,15 @@ public:
    *         [jp] 実際のデータ長。(byte単位)
    */
   size_t getImgSize() { return (img_buff != NULL) ? img_buff->actual_size : 0; }
+
+  /**
+   * @brief Get image buffer size.
+   * @details [en] Get image buffer size (bytes). <BR>
+   *          [ja] 画像バッファサイズを返す。(byte単位)
+   * @return [en] Image buffer size. (bytes). <BR>
+   *         [jp] 画像バッファサイズ。(byte単位)
+   */
+  size_t getImgBuffSize() { return (img_buff != NULL) ? img_buff->buf_size : 0; }
 
   /**
    * @brief Get Image Pixcel format.
