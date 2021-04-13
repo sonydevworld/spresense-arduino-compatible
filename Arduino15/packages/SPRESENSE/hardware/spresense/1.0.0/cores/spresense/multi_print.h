@@ -1,6 +1,6 @@
 /*
  *  multi_print.h - Spresense MultiCore printlog functions
- *  Copyright 2019 Sony Semiconductor Solutions Corporation
+ *  Copyright 2019,2021 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -27,8 +27,8 @@ extern "C" {
 #endif // __cplusplus
 
 void init_multi_print(void);
-void printlock(void);
-void printunlock(void);
+irqstate_t printlock(void);
+void printunlock(irqstate_t flags);
 ssize_t uart_syncwrite(const char *buffer, size_t buflen);
 int sync_printf(const char *fmt, ...);
 

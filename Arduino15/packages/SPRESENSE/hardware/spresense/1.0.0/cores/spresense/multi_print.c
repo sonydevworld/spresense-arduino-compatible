@@ -1,6 +1,6 @@
 /*
  *  multi_print.c - Spresense MultiCore printlog functions
- *  Copyright 2019 Sony Semiconductor Solutions Corporation
+ *  Copyright 2019,2021 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -29,9 +29,19 @@
 #include <armv7-m/nvic.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
+#include <assert.h>
+#include <arch/chip/hardware/cxd56_sph.h>
 #include "multi_print.h"
 
+#define PRINT_HSEMID 3
+#define CPU_ID (CXD56_CPU_BASE + 0x40)
+
+#define sph_state_unlocked(sts) (STS_STATE(sts) == STATE_IDLE)
+#define sph_state_locked(sts)   (STS_STATE(sts) == STATE_LOCKED)
+#define sph_state_busy(sts)     (STS_STATE(sts) == STATE_LOCKEDANDRESERVED)
+
 static int printlock_fd;
+static uint32_t g_cpuid;
 
 void init_multi_print(void)
 {
@@ -41,25 +51,41 @@ void init_multi_print(void)
   uint32_t bit = 1 << (irq & 0x1f);
   putreg32(bit, NVIC_IRQ_CLEAR(irq));
 #endif
-  /* Initialize hardware semaphore for exclusive control of print log */
+  /* Reserve hardware semaphore for exclusive control of print log.
+   * In fact, the hsem driver is not used and it controls the register
+   * directly to support for multi-task/thread and reduce overhead.
+   */
   printlock_fd = open("/dev/hsem3", 0);
+  /* Save cpuid to use the hardware semaphore */
+  g_cpuid = getreg32(CPU_ID);
 }
 
-void printlock(void)
+irqstate_t printlock(void)
 {
-  int ret;
-  if (!up_interrupt_context()) {
-    do {
-      ret = ioctl(printlock_fd, HSTRYLOCK, 0);
-    } while (ret != 0);
+  irqstate_t flags;
+  uint32_t   sts;
+
+  flags = enter_critical_section();
+  for (int i = 0; i < INT_MAX; i++) {
+    sts = getreg32(CXD56_SPH_STS(PRINT_HSEMID));
+    if (sph_state_unlocked(sts)) {
+      putreg32(REQ_LOCK, CXD56_SPH_REQ(PRINT_HSEMID));
+
+      sts = getreg32(CXD56_SPH_STS(PRINT_HSEMID));
+      if (sph_state_locked(sts) && (LOCK_OWNER(sts) == g_cpuid)) {
+        return flags;
+      }
+    }
   }
+  /* Any system fatal error to assert */
+  assert(0);
+  return flags;
 }
 
-void printunlock(void)
+void printunlock(irqstate_t flags)
 {
-  if (!up_interrupt_context()) {
-    ioctl(printlock_fd, HSUNLOCK, 0);
-  }
+  putreg32(REQ_UNLOCK, CXD56_SPH_REQ(PRINT_HSEMID));
+  leave_critical_section(flags);
 }
 
 /*
