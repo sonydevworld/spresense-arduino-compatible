@@ -23,13 +23,8 @@
 
 bool IIRClass::begin(filterType_t type, int channel, int cutoff, float q, int sample, format_t output, int fs)
 {
-  if (fs <= 0) {
+  if ((cutoff <= 0) || (cutoff >= fs)){
     m_err = ERR_FS;
-    return false;
-  }
-
-  if (create_coef(type, cutoff, q) == false) {
-    m_err = ERR_FILTER_TYPE;
     return false;
   }
 
@@ -47,6 +42,11 @@ bool IIRClass::begin(filterType_t type, int channel, int cutoff, float q, int sa
   m_framesize = sample;
   m_output = output;
   m_fs = fs;
+
+  if (create_coef(type, cutoff, q) == false) {
+    m_err = ERR_FILTER_TYPE;
+    return false;
+  }
 
   for (int i = 0; i < m_channel; i++) {
     m_ringbuff[i] = new RingBuff(channel*sizeof(q15_t)*sample*4);
@@ -113,12 +113,9 @@ bool IIRClass::create_coef(filterType_t type, int cutoff, float q)
   case (TYPE_LPF):
   case (TYPE_HPF):
     k0 = sin(w) / (2.0f * q);
-    k1 = 1.0f - cos(w);
 
     a0 =  1.0f + k0;
     a2 =  1.0f - k0;
-    b0 =  k1 / 2.0f;
-    b2 = (k0) / 2.0f;
 
     break;
   case (TYPE_BPF):
@@ -133,10 +130,16 @@ bool IIRClass::create_coef(filterType_t type, int cutoff, float q)
 
   switch(type){
   case TYPE_LPF:
-    b1 =  k1;
+    k1 = 1.0f - cos(w);
+    b0 = k1 / 2.0f;
+    b1 = k1;
+    b2 = k1 / 2.0f;
     break;
   case TYPE_HPF:
-    b1 =  -k1;
+    k1 = 1.0f + cos(w);
+    b0 = k1 / 2.0f;
+    b1 = -k1;
+    b2 = k1 / 2.0f;
     break;
   case TYPE_BPF:
     b0 =  k0;
@@ -240,7 +243,7 @@ int IIRClass::get(q15_t* pDst)
     arm_float_to_q15(m_tmpOutBuff, m_InterleaveBuff, m_framesize);
 
     for (int j = 0; j < m_framesize; j++) {
-      *(pDst + (j * m_channel)) = *(m_InterleaveBuff + j);
+      *(pDst + (j * m_channel) + i) = *(m_InterleaveBuff + j);
     }
   }
 
