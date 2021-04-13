@@ -33,6 +33,7 @@
 #error "Audio library is NOT supported by SubCore."
 #endif
 
+#include <audio/audio_capture_api.h>
 #include <audio/audio_frontend_api.h>
 #include <audio/audio_message_types.h>
 #include <audio/utilities/frame_samples.h>
