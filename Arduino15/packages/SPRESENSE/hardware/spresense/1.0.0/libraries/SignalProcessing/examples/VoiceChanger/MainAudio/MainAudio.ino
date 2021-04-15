@@ -61,12 +61,11 @@ bool ErrEnd = false;
  * When audio internal error occurc, this function will be called back.
  */
 
-void frontend_attention_cb(const ErrorAttentionParam *param)
+static void frontend_attention_cb(const ErrorAttentionParam *param)
 {
   puts("Attention!");
 
-  if (param->error_code >= AS_ATTENTION_CODE_WARNING)
-  {
+  if (param->error_code >= AS_ATTENTION_CODE_WARNING) {
     ErrEnd = true;
   }
 }
@@ -76,12 +75,11 @@ void frontend_attention_cb(const ErrorAttentionParam *param)
  *
  * When audio internal error occurc, this function will be called back.
  */
-void mixer_attention_cb(const ErrorAttentionParam *param)
+static void mixer_attention_cb(const ErrorAttentionParam *param)
 {
   puts("Attention!");
 
-  if (param->error_code >= AS_ATTENTION_CODE_WARNING)
-  {
+  if (param->error_code >= AS_ATTENTION_CODE_WARNING) {
     ErrEnd = true;
   }
 }
@@ -168,7 +166,7 @@ static void outmixer0_send_callback(int32_t identifier, bool is_end)
   return;
 }
 
-bool send_mixer(Result* res)
+static bool send_mixer(Result* res)
 {
   AsPcmDataParam pcm_param;
 

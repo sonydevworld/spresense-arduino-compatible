@@ -59,11 +59,9 @@ arm_rfft_fast_instance_f32 iS;
 arm_biquad_cascade_df2T_instance_f32 bS;
 
 /* Allocate the larger heap size than default */
-
 USER_HEAP_SIZE(64 * 1024);
 
 /* MultiCore definitions */
-
 struct Request {
   void *buffer;
   int  sample;
@@ -86,7 +84,6 @@ void setup()
   }
 
   /* receive with non-blocking */
-//  MP.RecvTimeout(MP_RECV_POLLING);
   MP.RecvTimeout(100000);
 
   /* begin FFT */
@@ -95,7 +92,7 @@ void setup()
   /* begin LPF */
   if(!LPF.begin(TYPE_LPF, g_channel, g_cutoff, g_Q, g_sample)) {
     int err = LPF.getErrorCause();
-    printf("error! %d\n",err);
+    printf("error! %d\n", err);
     errorLoop(abs(err));
   }
 
@@ -107,8 +104,8 @@ void loop()
   int      ret;
   int8_t   sndid = 10; /* user-defined msgid */
   int8_t   rcvid;
-  Request *request;
-  Result   result[g_result_size];
+  Request  *request;
+  static Result result[g_result_size];
 
   static float pTmp[(FFT_LEN + abs(g_max_shift)) * 2];
   static float pDst[FFT_LEN];
@@ -125,29 +122,29 @@ void loop()
       pitch_shift = request->pitch_shift;
   }
 
-  if((pitch_shift < -g_max_shift) || (pitch_shift > g_max_shift)){
+  if ((pitch_shift < -g_max_shift) || (pitch_shift > g_max_shift)) {
     puts("Shift value error.");
     errorLoop(10);
   }
 
-  while(!FFT.empty(0)){
+  while (!FFT.empty(0)) {
     for (int i = 0; i < g_channel; i++) {
-      if(pitch_shift > 0){
+      if (pitch_shift > 0) {
         memset(pTmp, 0, pitch_shift * 2);
         FFT.get_raw(&pTmp[(pitch_shift) * 2], i);
         arm_rfft_fast_f32(&iS, &pTmp[0], pDst, 1);
-      }else{
+      } else {
         FFT.get_raw(&pTmp[0],i);
         memset(pTmp+(FFT_LEN), 0, abs(pitch_shift) * 2);
         arm_rfft_fast_f32(&iS, &pTmp[abs(pitch_shift) * 2], pDst, 1);
       }
       
-      if(i == 0){
+      if (i == 0) {
         arm_float_to_q15(pDst, pLpfTmp, FFT_LEN);
         LPF.put(pLpfTmp, FFT_LEN);
         int cnt = LPF.get(pLpfDst, 0);
-        printf("cnt=%d\n",cnt);
-        for(int j = 0; j < cnt; j++){
+        printf("cnt=%d\n", cnt);
+        for(int j = 0; j < cnt; j++) {
           pOut[pos][j * 2]     = pLpfDst[j];
           pOut[pos][j * 2 + 1] = 0;
         }
@@ -158,7 +155,7 @@ void loop()
         ret = MP.Send(sndid, &result[pos],0);
         pos = (pos + 1) % g_result_size;
         if (ret < 0) {
-          errorLoop(1);
+          errorLoop(11);
         }
       }
     }
