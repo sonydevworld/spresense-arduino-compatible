@@ -1,6 +1,6 @@
 /*
  *  SubFFT.ino - FFT Example with Audio (peak detector)
- *  Copyright 2019 Sony Semiconductor Solutions Corporation
+ *  Copyright 2019, 2021 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -56,16 +56,16 @@ struct Request {
 };
 
 struct Result {
-  Result(){
+  Result() {
     clear();
   }
 
   float peak[MAX_CHANNEL_NUM];
   int  channel;
 
-  void clear(){
-    for(int i=0;i<MAX_CHANNEL_NUM;i++){
-      peak[i]=0;
+  void clear() {
+    for (int i = 0; i < MAX_CHANNEL_NUM; i++) {
+      peak[i] = 0;
     }
   }
 };
@@ -92,29 +92,28 @@ void loop()
   int8_t   rcvid;
   Request *request;
   static Result result[RESULT_SIZE];
-  static int pos=0;
+  static int pos = 0;
 
-  result[pos].clear();
-
-  static float pDst[FFT_LEN/2];
+  static float pDst[FFT_LEN / 2];
 
   /* Receive PCM captured buffer from MainCore */
   ret = MP.Recv(&rcvid, &request);
   if (ret >= 0) {
-      FFT.put((q15_t*)request->buffer,request->sample);
+    FFT.put((q15_t*)request->buffer, request->sample);
   }
 
-  while(!FFT.empty(0)){
-      result[pos].channel = MAX_CHANNEL_NUM;
+  while (!FFT.empty(0)) {
+    result[pos].clear();
+    result[pos].channel = MAX_CHANNEL_NUM;
     for (int i = 0; i < MAX_CHANNEL_NUM; i++) {
-      FFT.get(pDst,i);
+      FFT.get(pDst, i);
       result[pos].peak[i] = get_peak_frequency(pDst, FFT_LEN);
-//      printf("%8.3f, ", result[pos].peak[i]);
+//    printf("%8.3f, ", result[pos].peak[i]);
     }
-//    printf("\n");
+//  printf("\n");
 
-    ret = MP.Send(sndid, &result[pos],0);
-    pos = (pos+1)%RESULT_SIZE;
+    ret = MP.Send(sndid, &result[pos], 0);
+    pos = (pos + 1) % RESULT_SIZE;
     if (ret < 0) {
       errorLoop(1);
     }
