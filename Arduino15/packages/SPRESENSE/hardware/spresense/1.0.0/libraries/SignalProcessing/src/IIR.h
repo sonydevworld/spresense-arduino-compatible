@@ -57,7 +57,7 @@
 /** @def
  * The minimum number of samples in an execution frame
  */
-#define MIN_FRAMSIZE 256
+#define MIN_FRAMSIZE 240
 
 /* An execution sample of frame */
 #define FRAMSIZE DEFAULT_FRAMSIZE
