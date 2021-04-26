@@ -97,7 +97,7 @@ enum LTENetworkAuthType {
  */
 enum LTENetworkRatType {
   LTE_NET_RAT_UNKNOWN = -1, /**< [en] RAT(Radio Access Technology): Unknown */
-  LTE_NET_RAT_CATM    = 2,  /**< [en] RAT(Radio Access Technology): Cat.M */
+  LTE_NET_RAT_CATM    = 2,  /**< [en] RAT(Radio Access Technology): LTE-M (LTE Cat-M1) */
   LTE_NET_RAT_NBIOT   = 3   /**< [en] RAT(Radio Access Technology): NB-IoT */
 };
 
