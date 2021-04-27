@@ -67,7 +67,7 @@ void loop() {
 
   switch (RAT) {
     case LTE_NET_RAT_CATM:
-      Serial.println("RAT: Cat.M");
+      Serial.println("RAT: LTE-M (LTE Cat-M1)");
       break;
     case LTE_NET_RAT_NBIOT:
       Serial.println("RAT: NB-IoT");

@@ -52,7 +52,7 @@
  * The RAT set on the modem can be checked with LTEModemVerification::getRAT().
  */
 
-#define APP_LTE_RAT (LTE_NET_RAT_CATM) // RAT : Cat.M
+#define APP_LTE_RAT (LTE_NET_RAT_CATM) // RAT : LTE-M (LTE Cat-M1)
 // #define APP_LTE_RAT (LTE_NET_RAT_NBIOT) // RAT : NB-IoT
 
 // URL, path & port (for example: httpbin.org)

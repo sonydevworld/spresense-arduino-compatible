@@ -182,13 +182,13 @@ public:
    * @brief Register the modem on the LTE network after configuring RAT.
    *
    * @details [en] Registers the modem with the LTE network for the specified RAT.
-   *               RAT can specify Cat.M / NB-IoT depending on the SIM contract you are using.
+   *               RAT can specify LTE-M (LTE Cat-M1) / NB-IoT depending on the SIM contract you are using.
    *               Please check your SIM contract and specify RAT. <BR>
    *               If the synchronous parameter is false, please check the modem
    *               has been registered on the LTE network using the getStatus() method.
    *
    * @details [ja] 指定されたRATのLTEネットワークにモデムを登録します。
-   *               RATは使用しているSIM契約に応じて、Cat.M/NB-IoTを指定できます。
+   *               RATは使用しているSIM契約に応じて、LTE-M (LTE Cat-M1)/NB-IoTを指定できます。
    *               ご使用のSIMの契約を確認し、RATを指定してください。<BR>
    *               synchronousパラメータがfalseの場合、getStatus()メソッドを使用して、
    *               LTEネットワークにモデムが登録できたことを確認してください。
