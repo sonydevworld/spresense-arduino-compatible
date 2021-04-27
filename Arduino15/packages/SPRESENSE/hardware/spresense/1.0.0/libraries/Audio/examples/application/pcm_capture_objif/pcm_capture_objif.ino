@@ -31,7 +31,7 @@ static const int32_t frame_size   = frame_sample * (bit_length / 8) * channel_nu
 
 static CMN_SimpleFifoHandle simple_fifo_handle;
 static const int32_t fifo_size  = frame_size * 10;
-static uint8_t fifo_buffer[fifo_size];
+static uint32_t fifo_buffer[fifo_size / sizeof(uint32_t)];
 
 
 static const int32_t proc_size  = frame_size * 2;
