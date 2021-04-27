@@ -103,7 +103,7 @@ void loop()
         }
       }
     }
-    result[pos].buffer = MP.Virt2Phys(&out_buffer[pos][0]);
+    result[pos].buffer = (void*)MP.Virt2Phys(&out_buffer[pos][0]);
     result[pos].sample = cnt;
 
     ret = MP.Send(sndid, &result[pos], 0);
