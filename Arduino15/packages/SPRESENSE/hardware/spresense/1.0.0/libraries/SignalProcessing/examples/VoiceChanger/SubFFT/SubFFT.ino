@@ -149,7 +149,7 @@ void loop()
           pOut[pos][j * 2 + 1] = 0;
         }
 
-        result[pos].buffer = MP.Virt2Phys(&pOut[pos][0]);
+        result[pos].buffer = (void*)MP.Virt2Phys(&pOut[pos][0]);
         result[pos].sample = cnt;
 
         ret = MP.Send(sndid, &result[pos],0);
