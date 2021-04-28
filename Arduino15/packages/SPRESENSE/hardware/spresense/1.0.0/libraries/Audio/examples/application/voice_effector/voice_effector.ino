@@ -122,7 +122,7 @@ void distortion_filter(int16_t* ptr, int size)
   int16_t *ls = ptr;
   int16_t *rs = ls + 1;
 
-  for (uint32_t cnt = 0; cnt < size; cnt += 4) {
+  for (int32_t cnt = 0; cnt < size; cnt += 4) {
     int32_t tmp;
 
     tmp = *ls * 4 / 3;
