@@ -55,6 +55,11 @@ DNNRT::begin(File& nnbfile)
 
   size = nnbfile.size();
   _network = (nn_network_t *)malloc(size);
+  if (!_network)
+    {
+      return -1;
+    }
+
   ret = nnbfile.read(_network, size);
   if (ret < 0)
     {
@@ -64,6 +69,13 @@ DNNRT::begin(File& nnbfile)
     }
 
   _rt = (dnn_runtime_t *)malloc(sizeof(dnn_runtime_t));
+  if (!_rt)
+    {
+      free(_network);
+      _network = NULL;
+      return -1;
+    }
+
   ret = dnn_runtime_initialize(_rt, _network);
   if (ret < 0)
     {
