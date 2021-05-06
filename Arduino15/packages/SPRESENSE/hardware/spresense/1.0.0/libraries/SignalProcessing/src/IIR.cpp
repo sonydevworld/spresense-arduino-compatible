@@ -49,7 +49,7 @@ bool IIRClass::begin(filterType_t type, int channel, int cutoff, float q, int sa
   }
 
   for (int i = 0; i < m_channel; i++) {
-    m_ringbuff[i] = new RingBuff(channel*sizeof(q15_t)*sample*4);
+    m_ringbuff[i] = new RingBuff(channel * sizeof(q15_t) * sample * INPUT_BUFFER_SIZE);
     if (!m_ringbuff[i]) {
       m_err = ERR_MEMORY;
       goto error_return;
@@ -73,7 +73,7 @@ bool IIRClass::begin(filterType_t type, int channel, int cutoff, float q, int sa
   }
 
   for (int i = 0; i < channel; i++) {
-    arm_biquad_cascade_df2T_init_f32(&S[i], 1, m_coef, m_buffer);
+    arm_biquad_cascade_df2T_init_f32(&S[i], 1, m_coef, m_buffer[i]);
   }
 
   m_err = ERR_OK;

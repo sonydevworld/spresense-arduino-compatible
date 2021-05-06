@@ -26,6 +26,13 @@
  * @brief SignalProcessing Library for Arduino
  */
 
+/*------------------------------------------------------------------*/
+/* For compatibility                                                */
+/*------------------------------------------------------------------*/
+/* An execution sample of frame */
+/* For compatibility. Please do not use! */
+#define FRAMSIZE IIRClass::DEFAULT_FRAMSIZE
+
 /**
  * @defgroup signalprocessing  SignalProcessing Library API
  * @brief API for using SignalProcessing
@@ -38,34 +45,6 @@
 #include <cmsis/arm_math.h>
 
 #include "RingBuff.h"
-
-/*------------------------------------------------------------------*/
-/* Configurations                                                   */
-/*------------------------------------------------------------------*/
-
-/** @def
- * The bit length definition (Only Support 16bit)
- */
-#define BITLEN 16
-//#define BITLEN 32
-
-/** @def
- * The default number of samples in an execution frame
- */
-#define DEFAULT_FRAMSIZE 768
-
-/** @def
- * The minimum number of samples in an execution frame
- */
-#define MIN_FRAMSIZE 240
-
-/* An execution sample of frame */
-#define FRAMSIZE DEFAULT_FRAMSIZE
-
-/** @def
- * The Maximum number of channels
- */
-#define MAX_CHANNEL_NUM 8
 
 /*------------------------------------------------------------------*/
 /* Type Definition                                                  */
@@ -97,14 +76,35 @@ class IIRClass
 {
 public:
 
-  IIRClass() {
-    for (int i = 0; i < MAX_CHANNEL_NUM; i++) {
-      m_ringbuff[i] = NULL;
-    }
-    m_tmpInBuff = NULL;
-    m_tmpOutBuff = NULL;
-    m_InterleaveBuff = NULL;
-  }
+  /*------------------------------------------------------------------*/
+  /* Configurations                                                   */
+  /*------------------------------------------------------------------*/
+
+  /**
+   * The bit length definition (Only Support 16bit)
+   */
+  static const int BITLEN = 16;
+  //static const int  BITLEN 32
+
+  /**
+   * The default number of samples in an execution frame
+   */
+  static const int DEFAULT_FRAMSIZE = 768;
+
+  /**
+   * The minimum number of samples in an execution frame
+   */
+  static const int MIN_FRAMSIZE = 240;
+
+  /**
+   * The Maximum number of channels
+   */
+  static const int MAX_CHANNEL_NUM = 8;
+
+  /**
+   * The size of input buffer (Multiple of frame size)
+   */
+  static const int INPUT_BUFFER_SIZE = 4; /* Times */
 
   /**
    * @enum format_t
@@ -140,6 +140,14 @@ public:
     ERR_FS = -7
   } error_t;
 
+  IIRClass() {
+    for (int i = 0; i < MAX_CHANNEL_NUM; i++) {
+      m_ringbuff[i] = NULL;
+    }
+    m_tmpInBuff = NULL;
+    m_tmpOutBuff = NULL;
+    m_InterleaveBuff = NULL;
+  }
 
   /**
    * @brief   Initialize the IIR library.
@@ -233,7 +241,7 @@ private:
   arm_biquad_cascade_df2T_instance_f32 S[MAX_CHANNEL_NUM];
 
   float32_t m_coef[5];
-  float32_t m_buffer[4];
+  float32_t m_buffer[MAX_CHANNEL_NUM][4];
 
   RingBuff* m_ringbuff[MAX_CHANNEL_NUM];
 
