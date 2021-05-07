@@ -78,8 +78,8 @@ void loop()
   Request  *request;
   static Result result[g_result_size];
 
-  static q15_t pDst[DEFAULT_FRAMSIZE * 2]; /* Channels must be stereo for Mixer */
-  static q15_t out_buffer[g_result_size][DEFAULT_FRAMSIZE * 2]; /* Channels must be stereo for Mixer */
+  static q15_t pDst[IIRClass::DEFAULT_FRAMESIZE * 2]; /* Channels must be stereo for Mixer */
+  static q15_t out_buffer[g_result_size][IIRClass::DEFAULT_FRAMESIZE * 2]; /* Channels must be stereo for Mixer */
   static int pos = 0;
 
   /* Receive PCM captured buffer from MainCore */

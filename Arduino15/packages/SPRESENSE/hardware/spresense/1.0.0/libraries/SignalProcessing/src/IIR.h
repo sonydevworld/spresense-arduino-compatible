@@ -31,7 +31,7 @@
 /*------------------------------------------------------------------*/
 /* An execution sample of frame */
 /* For compatibility. Please do not use! */
-#define FRAMSIZE IIRClass::DEFAULT_FRAMSIZE
+#define FRAMSIZE IIRClass::DEFAULT_FRAMESIZE
 
 /**
  * @defgroup signalprocessing  SignalProcessing Library API
@@ -89,12 +89,12 @@ public:
   /**
    * The default number of samples in an execution frame
    */
-  static const int DEFAULT_FRAMSIZE = 768;
+  static const int DEFAULT_FRAMESIZE = 768;
 
   /**
    * The minimum number of samples in an execution frame
    */
-  static const int MIN_FRAMSIZE = 240;
+  static const int MIN_FRAMESIZE = 240;
 
   /**
    * The Maximum number of channels
@@ -161,7 +161,7 @@ public:
     int channel,        /**< The number of channels */
     int cutoff,         /**< The cutoff frequency(BPF/HPF) or the center frequency(BPF/BEF) */
     float q,            /**< The Q value(BPF/HPF) or the bandwidth[octave](BPF/BEF) */
-    int sample = DEFAULT_FRAMSIZE,   /**< The number of samples in an execution filter(default size is DEFAULT_FRAMSIZE) */
+    int sample = DEFAULT_FRAMESIZE,   /**< The number of samples in an execution filter(default size is DEFAULT_FRAMESIZE) */
     format_t output = Planar,        /**< The output format(default is Planar) */
     int fs = 48000      /**< The Sampling rate */
   );

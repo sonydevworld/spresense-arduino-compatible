@@ -33,7 +33,7 @@ bool IIRClass::begin(filterType_t type, int channel, int cutoff, float q, int sa
     return false;
   }
 
-  if (sample < MIN_FRAMSIZE) {
+  if (sample < MIN_FRAMESIZE) {
       m_err = ERR_FRAME_SIZE;
       return false;
   }
