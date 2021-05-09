@@ -34,6 +34,7 @@
 typedef enum e_windowType {
   WindowHamming,
   WindowHanning,
+  WindowFlattop,
   WindowRectangle
 } windowType_t;
 
@@ -123,6 +124,11 @@ private:
         coef[i] = 0.54f - (0.46f * arm_cos_f32(2 * PI * (float)i / (FFTLEN - 1)));
       } else if (type == WindowHanning) {
         coef[i] = 0.54f - (1.0f * arm_cos_f32(2 * PI * (float)i / (FFTLEN - 1)));
+      } else if (type == WindowFlattop) {
+        coef[i] = 0.21557895f - (0.41663158f  * arm_cos_f32(2 * PI * (float)i / (FFTLEN - 1)))
+                              + (0.277263158f * arm_cos_f32(4 * PI * (float)i / (FFTLEN - 1)))
+                              - (0.083578947f * arm_cos_f32(6 * PI * (float)i / (FFTLEN - 1)))
+                              + (0.006947368f * arm_cos_f32(8 * PI * (float)i / (FFTLEN - 1)));
       } else {
         coef[i] = 1;
       }
