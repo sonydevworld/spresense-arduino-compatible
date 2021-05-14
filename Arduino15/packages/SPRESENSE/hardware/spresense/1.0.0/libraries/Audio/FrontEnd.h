@@ -1,6 +1,6 @@
 /*
  *  FrontEnd.h - Audio include file for the Spresense SDK
- *  Copyright 2019 Sony Semiconductor Solutions Corporation
+ *  Copyright 2019, 2021 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -18,11 +18,12 @@
  */
 
 /**
- * @file MediaRecorder.h
+ * @file FrontEnd.h
  * @author Sony Semiconductor Solutions Corporation
- * @brief Media Recorder Class for Arduino on Spresense.
- * @details By using this library, you can use the follow features on SPRESSENSE.
- *          - Voice recording
+ * @brief Mic Frontend Class for Arduino on Spresense.
+ * @details By using this library, you can use the following features on Spresense.
+ *          - Sound capture
+ *          - Sound effector
  */
 
 #ifndef FrontEnd_h
@@ -32,7 +33,8 @@
 #error "Audio library is NOT supported by SubCore."
 #endif
 
-#include <audio/audio_high_level_api.h>
+#include <audio/audio_capture_api.h>
+#include <audio/audio_frontend_api.h>
 #include <audio/audio_message_types.h>
 #include <audio/utilities/frame_samples.h>
 #include <audio/utilities/wav_containerformat.h>
@@ -219,7 +221,12 @@ public:
    *
    */
 
-  err_t setMicGain(int16_t mic_gain);
+  err_t setMicGain(
+      int16_t mic_gain /**< Input gain : value range
+                          Analog Mic  0:0dB, 5:+0.5dB, ... , 210:+21.0dB (Max is 21dB.)
+                          Digital Mic -7850:-78.50dB, ... , -5:-0.05dB, 0:0dB (Max is 0dB.)
+                          set #AS_MICGAIN_HOLD is keep setting. */
+  );
 
   /**
    * @brief Set capturing clock mode

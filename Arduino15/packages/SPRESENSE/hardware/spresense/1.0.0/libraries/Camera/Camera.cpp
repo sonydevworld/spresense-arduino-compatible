@@ -1,6 +1,6 @@
 /*
  *  Camera.cpp - Camera implementation file for the Spresense SDK
- *  Copyright 2018, 2020 Sony Semiconductor Solutions Corporation
+ *  Copyright 2018, 2020, 2021 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -45,7 +45,7 @@ ImgBuff::ImgBuff(enum v4l2_buf_type type,
                  int w, int h, CAM_IMAGE_PIX_FMT fmt, int jpgbufsize_divisor,
                  CameraClass *cam)
   : ref_count(0), buff(NULL), width(0), height(0), idx(-1), is_queue(false),
-    buf_type(type), pix_fmt(CAM_IMAGE_PIX_FMT_NONE),
+    buf_type(type), org_pix_fmt(CAM_IMAGE_PIX_FMT_NONE),
     buf_size(0), actual_size(0), cam_ref(NULL)
 {
   buf_size = calc_img_size(w, h, fmt, jpgbufsize_divisor);
@@ -55,7 +55,7 @@ ImgBuff::ImgBuff(enum v4l2_buf_type type,
       cam_ref = cam;
       width = w;
       height = h;
-      pix_fmt = fmt;
+      org_pix_fmt = fmt;
     }
 }
 
@@ -156,6 +156,16 @@ void ImgBuff::update_actual_size(size_t sz)
   actual_size = sz;
 }
 
+void ImgBuff::init_pix_fmt(void)
+{
+  cur_pix_fmt = org_pix_fmt;
+}
+
+void ImgBuff::update_pix_fmt(CAM_IMAGE_PIX_FMT fmt)
+{
+  cur_pix_fmt = fmt;
+}
+
 /****************************************************************************
  * CamImage implementation.
  ****************************************************************************/
@@ -182,6 +192,11 @@ CamErr CamImage::convertPixFormat(CAM_IMAGE_PIX_FMT to_fmt)
   int               height   = getHeight();
   uint8_t           *buff    = getImgBuff();
 
+  if (buff == NULL)
+    {
+      return CAM_ERR_NOT_PERMITTED;
+    }
+
   switch (from_fmt)
     {
       case CAM_IMAGE_PIX_FMT_YUV422:
@@ -205,6 +220,8 @@ CamErr CamImage::convertPixFormat(CAM_IMAGE_PIX_FMT to_fmt)
       default:
         return CAM_ERR_INVALID_PARAM;
     }
+
+  setPixFormat(to_fmt);
 
   return CAM_ERR_SUCCESS;
 }
@@ -1139,6 +1156,7 @@ CamImage CameraClass::takePicture( )
                     {
                       if ((buf.flags & V4L2_BUF_FLAG_ERROR) == 0)
                         {
+                          still_img->initPixFormat();
                           still_img->setActualSize((size_t)buf.bytesused);
                         }
                       else
@@ -1210,11 +1228,13 @@ void CameraClass::dqbuf_thread(void *arg)
            == 0)
         {
           CamImage *img = cam->search_vimg(buf.index);
-          img->img_buff->queued(false);
           if (img != NULL)
             {
+              img->img_buff->queued(false);
+
               if ((buf.flags & V4L2_BUF_FLAG_ERROR) == 0)
                 {
+                  img->initPixFormat();
                   img->setActualSize((size_t)buf.bytesused);
                 }
               else

@@ -122,7 +122,7 @@ public:
    *
    */
 
-  err_t end(void){}
+  err_t end(void){ return MEDIAPLAYER_ECODE_OK; }
 
   /**
    * @brief Creation of the MediaPlayer.

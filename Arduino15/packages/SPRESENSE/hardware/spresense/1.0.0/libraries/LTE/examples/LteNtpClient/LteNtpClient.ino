@@ -48,7 +48,7 @@
  * The RAT set on the modem can be checked with LTEModemVerification::getRAT().
  */
 
-#define APP_LTE_RAT (LTE_NET_RAT_CATM) // RAT : Cat.M
+#define APP_LTE_RAT (LTE_NET_RAT_CATM) // RAT : LTE-M (LTE Cat-M1)
 // #define APP_LTE_RAT (LTE_NET_RAT_NBIOT) // RAT : NB-IoT
 
 #define NTP_SERVER_NAME "ntp.nict.jp"
@@ -74,17 +74,18 @@ void setup()
 
   Serial.println("Starting NTP client.");
 
-  /* Power on the modem and Enable the radio function. */
-
-  if (lteAccess.begin() != LTE_SEARCHING) {
-    Serial.println("Could not transition to LTE_SEARCHING.");
-    Serial.println("Please check the status of the LTE board.");
-    for (;;) {
-      sleep(1);
-    }
-  }
-
   while (true) {
+
+    /* Power on the modem and Enable the radio function. */
+
+    if (lteAccess.begin() != LTE_SEARCHING) {
+      Serial.println("Could not transition to LTE_SEARCHING.");
+      Serial.println("Please check the status of the LTE board.");
+      for (;;) {
+        sleep(1);
+      }
+    }
+
     /* The connection process to the APN will start.
      * If the synchronous parameter is false,
      * the return value will be returned when the connection process is started.
@@ -104,8 +105,10 @@ void setup()
      * - SIM is not inserted correctly
      * - If you have specified LTE_NET_RAT_NBIOT for APP_LTE_RAT,
      *   your LTE board may not support it.
+     * - Rejected from LTE network
      */
-    Serial.println("An error has occurred. Retry the network attach process after 1 second.");
+    Serial.println("An error has occurred. Shutdown and retry the network attach process after 1 second.");
+    lteAccess.shutdown();
     sleep(1);
   }
 

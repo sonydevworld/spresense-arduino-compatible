@@ -1,6 +1,6 @@
 /*
  *  MP.h - Spresense Arduino Multi-Processer Communication library
- *  Copyright 2019 Sony Semiconductor Solutions Corporation
+ *  Copyright 2019,2021 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -89,9 +89,10 @@
 #endif
 
 #define MPLog(fmt, ...) do { \
-    printlock(); \
+    irqstate_t flags; \
+    flags = printlock(); \
     sync_printf(MPLOG_PREFIX fmt, ##__VA_ARGS__); \
-    printunlock(); \
+    printunlock(flags); \
 } while (0)
 
 /****************************************************************************

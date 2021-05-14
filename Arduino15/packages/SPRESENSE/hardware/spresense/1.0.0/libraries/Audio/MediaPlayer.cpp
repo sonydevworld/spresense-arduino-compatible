@@ -142,6 +142,7 @@ err_t MediaPlayer::activate(PlayerId id, uint8_t output_device, MediaPlayerCallb
                                NULL) != 0)
     {
       print_err("Fail to initialize simple FIFO.\n");
+      free(p_buffer);
       return MEDIAPLAYER_ECODE_SIMPLEFIFO_ERROR;
     }
 

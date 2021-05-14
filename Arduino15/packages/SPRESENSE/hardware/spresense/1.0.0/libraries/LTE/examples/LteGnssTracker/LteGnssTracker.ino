@@ -52,7 +52,7 @@
  * The RAT set on the modem can be checked with LTEModemVerification::getRAT().
  */
 
-#define APP_LTE_RAT (LTE_NET_RAT_CATM) // RAT : Cat.M
+#define APP_LTE_RAT (LTE_NET_RAT_CATM) // RAT : LTE-M (LTE Cat-M1)
 // #define APP_LTE_RAT (LTE_NET_RAT_NBIOT) // RAT : NB-IoT
 
 // MQTT broker
@@ -91,32 +91,22 @@ void printClock(RtcTime &rtc)
          rtc.hour(), rtc.minute(), rtc.second());
 }
 
-void setup()
+/* Attach to the LTE network */
+
+void doAttach()
 {
-  // Open serial communications and wait for port to open
-  Serial.begin(115200);
-  while (!Serial) {
-      ; // wait for serial port to connect. Needed for native USB port only
-  }
-
-  Serial.println("Starting GNSS tracker via LTE.");
-
-  /* Initialize SD */
-  while (!theSD.begin()) {
-    ; /* wait until SD card is mounted. */
-  }
-
-  /* Power on the modem and Enable the radio function. */
-
-  if (lteAccess.begin() != LTE_SEARCHING) {
-    Serial.println("Could not transition to LTE_SEARCHING.");
-    Serial.println("Please check the status of the LTE board.");
-    for (;;) {
-      sleep(1);
-    }
-  }
-
   while (true) {
+
+    /* Power on the modem and Enable the radio function. */
+
+    if (lteAccess.begin() != LTE_SEARCHING) {
+      Serial.println("Could not transition to LTE_SEARCHING.");
+      Serial.println("Please check the status of the LTE board.");
+      for (;;) {
+        sleep(1);
+      }
+    }
+
     /* The connection process to the APN will start.
      * If the synchronous parameter is false,
      * the return value will be returned when the connection process is started.
@@ -138,9 +128,29 @@ void setup()
      * - If you have specified LTE_NET_RAT_NBIOT for APP_LTE_RAT,
      *   your LTE board may not support it.
      */
-    Serial.println("An error has occurred. Retry the network attach preparation process after 1 second.");
+    Serial.println("An error has occurred. Shutdown and retry the network attach preparation process after 1 second.");
+    lteAccess.shutdown();
     sleep(1);
   }
+}
+
+void setup()
+{
+  // Open serial communications and wait for port to open
+  Serial.begin(115200);
+  while (!Serial) {
+      ; // wait for serial port to connect. Needed for native USB port only
+  }
+
+  Serial.println("Starting GNSS tracker via LTE.");
+
+  /* Initialize SD */
+  while (!theSD.begin()) {
+    ; /* wait until SD card is mounted. */
+  }
+
+  /* Connect LTE network */
+  doAttach();
 
   int result;
 
@@ -155,9 +165,23 @@ void setup()
 
   // Wait for the modem to connect to the LTE network.
   Serial.println("Waiting for successful attach.");
-  while(LTE_READY != lteAccess.getStatus()) {
+  LTEModemStatus modemStatus = lteAccess.getStatus();
+
+  while(LTE_READY != modemStatus) {
+    if (LTE_ERROR == modemStatus) {
+
+      /* If the following logs occur frequently, one of the following might be a cause:
+       * - Reject from LTE network
+       */
+      Serial.println("An error has occurred. Shutdown and retry the network attach process after 1 second.");
+      lteAccess.shutdown();
+      sleep(1);
+      doAttach();
+    }
     sleep(1);
+    modemStatus = lteAccess.getStatus();
   }
+
   Serial.println("attach succeeded.");
 
   // Set local time (not UTC) obtained from the network to RTC.

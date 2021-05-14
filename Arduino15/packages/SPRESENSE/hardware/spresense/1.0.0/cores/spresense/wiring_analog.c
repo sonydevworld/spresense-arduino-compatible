@@ -158,6 +158,22 @@ static analog_timer_info_t s_sim_timers[] __attribute__((aligned (4))) = {
     { PIN_D26, 0,   0,   0,   0,   0,   0,   0 },
     { PIN_D27, 0,   0,   0,   0,   0,   0,   0 },
     { PIN_D28, 0,   0,   0,   0,   0,   0,   0 },
+    { PIN_D29, 0,   0,   0,   0,   0,   0,   0 },
+    { PIN_D30, 0,   0,   0,   0,   0,   0,   0 },
+    { PIN_D31, 0,   0,   0,   0,   0,   0,   0 },
+    { PIN_D32, 0,   0,   0,   0,   0,   0,   0 },
+    { PIN_D33, 0,   0,   0,   0,   0,   0,   0 },
+    { PIN_D34, 0,   0,   0,   0,   0,   0,   0 },
+    { PIN_D35, 0,   0,   0,   0,   0,   0,   0 },
+    { PIN_D36, 0,   0,   0,   0,   0,   0,   0 },
+    { PIN_D37, 0,   0,   0,   0,   0,   0,   0 },
+    { PIN_D38, 0,   0,   0,   0,   0,   0,   0 },
+    { PIN_D39, 0,   0,   0,   0,   0,   0,   0 },
+    { PIN_D40, 0,   0,   0,   0,   0,   0,   0 },
+    { PIN_D41, 0,   0,   0,   0,   0,   0,   0 },
+    { PIN_D42, 0,   0,   0,   0,   0,   0,   0 },
+    { PIN_D43, 0,   0,   0,   0,   0,   0,   0 },
+    { PIN_D44, 0,   0,   0,   0,   0,   0,   0 },
 };
 
 static pwm_timer_info_t s_pwm_timers[] __attribute__((aligned (4))) = {
@@ -497,9 +513,8 @@ void analog_write(uint8_t pin, uint32_t pulse_width, uint32_t freq)
 /*
  * Reference voltage is a fixed value which is depending on the board.
  * e.g.)
- * - Reference Voltage of A4 and A5 pins on Main Board is 0.7V.
- * - Reference Voltage of A0 ~ A5 pins on External Interface board
- *   is selected 3.3V or 5.0V by a IO Volt jumper pin.
+ * - Reference Voltage of A2 and A3 pins on Main Board is 0.7V.
+ * - Reference Voltage of A0 ~ A5 pins on Extension board is 5.0V
  */
 void analogReference(uint8_t mode)
 {

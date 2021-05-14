@@ -3,7 +3,7 @@
 set -u
 
 CURRENT_DIR=`pwd`
-SCRIPT_NAME=`readlink -e "${BASH_SOURCE[0]}"`
+SCRIPT_NAME=$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)/$(basename "${BASH_SOURCE[0]}")
 SCRIPT_DIR=`dirname "$SCRIPT_NAME"`
 ARDUINO_DIR=${SCRIPT_DIR}/../Arduino15
 
@@ -60,9 +60,10 @@ function show_help()
 	echo "       -S: Spresense SDK build root path (if you use local build)"
 	echo "       -v: Spresense variant name (default: spresense)"
 	echo "       -c: Spresense SDK configuration. (spresense or spresense_sub) (default: spresense)"
-	echo "       -M: Manual build configuration by menuconfig (SDK or Kernel or SDK/Kernel)."
-	echo "       -G: Manual build configuration by gconfig (SDK or Kernel or SDK/Kernel)."
-	echo "       -Q: Manual build configuration by qconfig (SDK or Kernel or SDK/Kernel)."
+	echo "       -d: Spresense debug build option. (disable or enable) (default: disable)"
+	echo "       -M: Manual build configuration by menuconfig (e.g. -M SDK)."
+	echo "       -G: Manual build configuration by gconfig (e.g. -G SDK)."
+	echo "       -Q: Manual build configuration by qconfig (e.g. -Q SDK)."
 	echo "       -i: Skip build configuration"
 	echo ""
 	echo "    Other option:"
@@ -77,13 +78,13 @@ function show_help()
 	echo "       $0 -S path/to/spresense -p"
 	echo ""
 	echo "    Export SDK prebuilt binary for Main core/Debug:Enabled with default configuration:"
-	echo "       $0 -S path/to/spresense -k debug -p"
+	echo "       $0 -S path/to/spresense -d enable -p"
 	echo ""
 	echo "    Export SDK prebuilt binary for Sub core/Debug:Disabled with default configuration:"
-	echo "       $0 -S path/to/spresense -c spresense_sub -k subcore-release -p"
+	echo "       $0 -S path/to/spresense -c spresense_sub -p"
 	echo ""
 	echo "    Export SDK prebuilt binary for Sub core/Debug:Enabled with default configuration:"
-	echo "       $0 -S path/to/spresense -c spresense_sub -k subcore-debug -p"
+	echo "       $0 -S path/to/spresense -c spresense_sub -d enable -p"
 	echo ""
 	exit
 }

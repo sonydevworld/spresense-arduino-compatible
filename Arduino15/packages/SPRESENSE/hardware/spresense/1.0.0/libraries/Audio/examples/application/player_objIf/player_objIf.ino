@@ -136,10 +136,14 @@ void setup()
   initMemoryPools();
   createStaticPools(MEM_LAYOUT_PLAYER);
   
-  /* start audio system */
-  
   thePlayer = MediaPlayer::getInstance();
   theMixer  = OutputMixer::getInstance();
+
+  /* Set rendering clock */
+
+  theMixer->setRenderingClkMode(OUTPUTMIXER_RNDCLK_NORMAL);
+
+  /* start audio system */
 
   thePlayer->begin();
   theMixer->begin();
@@ -151,10 +155,6 @@ void setup()
   thePlayer->create(MediaPlayer::Player0, attention_cb);
 
   theMixer->create(attention_cb);
-
-  /* Set rendering clock */
-
-  theMixer->setRenderingClkMode(OUTPUTMIXER_RNDCLK_NORMAL);
 
   /* Activate Player Object */
 

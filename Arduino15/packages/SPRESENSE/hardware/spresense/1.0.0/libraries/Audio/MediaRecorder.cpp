@@ -143,7 +143,7 @@ err_t MediaRecorder::activate(AsSetRecorderStsInputDevice input_device,
                               MediaRecorderCallback mrcb,
                               uint32_t recorder_bufsize)
 {
-  return activate(input_device, mrcb, MEDIARECORDER_BUF_SIZE, AsMicFrontendPreProcThrough);
+  return activate(input_device, mrcb, recorder_bufsize, AsMicFrontendPreProcThrough);
 }
 
 /*--------------------------------------------------------------------------*/

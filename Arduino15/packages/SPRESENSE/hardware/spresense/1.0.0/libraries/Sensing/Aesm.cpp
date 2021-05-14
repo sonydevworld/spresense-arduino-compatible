@@ -43,9 +43,9 @@ const int step_counter_rate       = 32; /* 32 Hz */
 const int step_counter_sample_num = 32; /* 32sample/1process */
 
 
-unsigned char step_counter_cb(sensor_command_data_mh_t &dat)
+bool step_counter_cb(sensor_command_data_mh_t &dat)
 {
-  return Aesm.subscribe(dat);
+  return (Aesm.subscribe(dat) == SENSORCLIENT_ECODE_OK);
 }
 
 

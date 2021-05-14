@@ -1,6 +1,6 @@
 /*
  *  SubIIR.ino - IIR Example with Audio (High Pass Filter)
- *  Copyright 2019 Sony Semiconductor Solutions Corporation
+ *  Copyright 2019, 2021 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -26,17 +26,21 @@
 #define __FPU_PRESENT 1U
 #include <cmsis/arm_math.h>
 
-/* channel number */
-const int g_channel = 1;
+/* Parameters */
+const int   g_channel = 2; /* Number of channels */
+const int   g_cutoff  = 1000; /* Cutoff frequency */
+const float g_Q       = sqrt(0.5); /* Q Value */
+const int   g_sample  = 240; /* Number of channels */
+const int   g_fs      = 48000; /* Sampling Rate */
+
+const int   g_result_size = 4; /* Result buffer size */
 
 IIRClass HPF;
 
 /* Allocate the larger heap size than default */
-
 USER_HEAP_SIZE(64 * 1024);
 
 /* MultiCore definitions */
-
 struct Request {
   void *buffer;
   int  sample;
@@ -57,48 +61,50 @@ void setup()
     errorLoop(2);
   }
   /* receive with non-blocking */
-//  MP.RecvTimeout(MP_RECV_POLLING);
   MP.RecvTimeout(100000);
-  HPF.begin(TYPE_HPF,g_channel,1000,sqrt(0.5));
+
+  /* begin Filter */
+  if(!HPF.begin(TYPE_HPF, g_channel, g_cutoff, g_Q, g_sample, IIRClass::Interleave, g_fs)) {
+    int err = HPF.getErrorCause();
+    printf("error! %d\n", err);
+    errorLoop(abs(err));
+  }
 }
 
-#define RESULT_SIZE 4
 void loop()
 {
   int      ret;
   int8_t   sndid = 10; /* user-defined msgid */
   int8_t   rcvid;
   Request  *request;
-  static Result result[RESULT_SIZE];
+  static Result result[g_result_size];
 
-  static q15_t pDst[FRAMSIZE];
-  static q15_t out_buffer[RESULT_SIZE][FRAMSIZE*g_channel];
-  static int pos=0;
+  static q15_t pDst[g_sample * sizeof(q15_t) * g_channel];
+  static q15_t out_buffer[g_result_size][g_sample * sizeof(q15_t) * g_channel];
+  static int pos = 0;
 
   /* Receive PCM captured buffer from MainCore */
   ret = MP.Recv(&rcvid, &request);
   if (ret >= 0) {
-      HPF.put((q15_t*)request->buffer,request->sample);
+    HPF.put((q15_t*)request->buffer, request->sample);
   }else{
-      puts("error!");
-      return;
+    printf("error! %d\n", ret);
+    return;
   }
 
   int cnt = 0;
   while (!HPF.empty(0)) {
-    for (int i = 0; i < g_channel; i++) {
-      cnt = HPF.get(pDst,i);
-      /* support only mono channel */
-      memcpy(&out_buffer[pos][0],pDst,cnt*2);
-    }
-
-    result[pos].buffer = MP.Virt2Phys(&out_buffer[pos][0]);
+    cnt = HPF.get(pDst);
+    memcpy(&out_buffer[pos][0], pDst, cnt * sizeof(q15_t) * g_channel);
+ 
+    result[pos].buffer = (void*)MP.Virt2Phys(&out_buffer[pos][0]);
     result[pos].sample = cnt;
 
-    ret = MP.Send(sndid, &result[pos],0);
-    pos = (pos+1)%RESULT_SIZE;
+    ret = MP.Send(sndid, &result[pos], 0);
+    pos = (pos + 1) % g_result_size;
+
     if (ret < 0) {
-      errorLoop(1);
+      errorLoop(10);
     }
   }
 }

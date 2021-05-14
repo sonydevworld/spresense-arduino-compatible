@@ -1,6 +1,6 @@
 /*
  *  IIR.cpp - IIR(biquad cascade) Library
- *  Copyright 2019 Sony Semiconductor Solutions Corporation
+ *  Copyright 2019, 2021 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -19,30 +19,93 @@
 
 #include "IIR.h"
 
-RingBuff ringbuf[MAX_CHANNEL_NUM](INPUT_BUFFER);
+#include <stdio.h>
 
-bool IIRClass::begin(filterType_t type, int channel, int cutoff, float q)
+bool IIRClass::begin(filterType_t type, int channel, int cutoff, float q, int sample, format_t output, int fs)
 {
-  if(channel > MAX_CHANNEL_NUM) return false;
-
-  m_channel = channel;
-
-  if(create_coef(type, cutoff, q) == false){
+  if ((cutoff <= 0) || (cutoff >= fs)){
+    m_err = ERR_FS;
     return false;
   }
 
-  for (int i = 0; i < channel; i++) {
-    arm_biquad_cascade_df2T_init_f32(&S[i],1,coef,buffer);
+  if (channel > MAX_CHANNEL_NUM) {
+    m_err = ERR_CH_NUM;
+    return false;
   }
 
+  if (sample < MIN_FRAMESIZE) {
+      m_err = ERR_FRAME_SIZE;
+      return false;
+  }
+
+  m_channel = channel;
+  m_framesize = sample;
+  m_output = output;
+  m_fs = fs;
+
+  if (create_coef(type, cutoff, q) == false) {
+    m_err = ERR_FILTER_TYPE;
+    return false;
+  }
+
+  for (int i = 0; i < m_channel; i++) {
+    m_ringbuff[i] = new RingBuff(channel * sizeof(q15_t) * sample * INPUT_BUFFER_SIZE);
+    if (!m_ringbuff[i]) {
+      m_err = ERR_MEMORY;
+      goto error_return;
+    }
+  }
+
+  /* Temporary buffer */
+  m_tmpInBuff  = new float[m_framesize];
+  m_tmpOutBuff = new float[m_framesize];
+  if ((!m_tmpInBuff) || (!m_tmpInBuff)) {
+    m_err = ERR_MEMORY;
+    goto error_return;
+  }
+
+  if (m_output == Interleave) {
+    m_InterleaveBuff = new q15_t[m_framesize];
+    if (!m_InterleaveBuff) {
+      m_err = ERR_MEMORY;
+      goto error_return;
+    }
+  }
+
+  for (int i = 0; i < channel; i++) {
+    arm_biquad_cascade_df2T_init_f32(&S[i], 1, m_coef, m_buffer[i]);
+  }
+
+  m_err = ERR_OK;
   return true;
+
+error_return:
+  end();
+  return false;
+}
+
+void IIRClass::end()
+{
+  for (int i = 0; i < m_channel; i++) {
+    delete m_ringbuff[i];
+    m_ringbuff[i] = NULL;
+  }
+  delete m_tmpInBuff;
+  m_tmpInBuff =NULL;
+  delete m_tmpOutBuff;
+  m_tmpOutBuff =NULL;
+  if (m_output == Interleave) {
+    delete m_InterleaveBuff;
+    m_InterleaveBuff = NULL;
+  }
+  m_err = ERR_OK;
 }
 
 bool IIRClass::create_coef(filterType_t type, int cutoff, float q)
 {
   float w,k0,k1,a0,a1,a2,b0,b1,b2;
 
-  w = 2.0f * PI * cutoff / 48000;
+  w = 2.0f * PI * cutoff / m_fs;
 
   a1 = -2.0f * cos(w);
 
@@ -50,12 +113,9 @@ bool IIRClass::create_coef(filterType_t type, int cutoff, float q)
   case (TYPE_LPF):
   case (TYPE_HPF):
     k0 = sin(w) / (2.0f * q);
-    k1 = 1.0f - cos(w);
 
     a0 =  1.0f + k0;
     a2 =  1.0f - k0;
-    b0 =  k1 / 2.0f;
-    b2 = (k0) / 2.0f;
 
     break;
   case (TYPE_BPF):
@@ -70,10 +130,16 @@ bool IIRClass::create_coef(filterType_t type, int cutoff, float q)
 
   switch(type){
   case TYPE_LPF:
-    b1 =  k1;
+    k1 = 1.0f - cos(w);
+    b0 = k1 / 2.0f;
+    b1 = k1;
+    b2 = k1 / 2.0f;
     break;
   case TYPE_HPF:
-    b1 =  -k1;
+    k1 = 1.0f + cos(w);
+    b0 = k1 / 2.0f;
+    b1 = -k1;
+    b2 = k1 / 2.0f;
     break;
   case TYPE_BPF:
     b0 =  k0;
@@ -89,49 +155,98 @@ bool IIRClass::create_coef(filterType_t type, int cutoff, float q)
     return false;
   }
 
-  coef[0] = b0/a0;
-  coef[1] = b1/a0;
-  coef[2] = b2/a0;
-  coef[3] = -(a1/a0);
-  coef[4] = -(a2/a0);
+  m_coef[0] = b0/a0;
+  m_coef[1] = b1/a0;
+  m_coef[2] = b2/a0;
+  m_coef[3] = -(a1/a0);
+  m_coef[4] = -(a2/a0);
 
   return true;
 }
 
-
 bool IIRClass::put(q15_t* pSrc, int sample)
 {
   /* Ringbuf size check */
-  if(m_channel > MAX_CHANNEL_NUM) return false;
-  if(sample > ringbuf[0].remain()) return false;
+  for (int i = 0; i < m_channel; i++) {
+    if (sample > m_ringbuff[i]->remain()) {
+      m_err = ERR_BUF_FULL;
+      return false;
+    }
+  }
 
   if (m_channel == 1) {
     /* the faster optimization */
-    ringbuf[0].put((q15_t*)pSrc, sample);
+    m_ringbuff[0]->put((q15_t*)pSrc, sample);
   } else {
     for (int i = 0; i < m_channel; i++) {
-      ringbuf[i].put(pSrc, sample, m_channel, i);
+      m_ringbuff[i]->put(pSrc, sample, m_channel, i);
     }
   }
+
+  m_err = ERR_OK;
   return  true;
 }
 
 bool IIRClass::empty(int channel)
 {
-   return (ringbuf[channel].stored() < FRAMSIZE);
+  if (channel >= m_channel) {
+    m_err = ERR_CH_NUM;
+    return true;
+  }
+
+  return (m_ringbuff[channel]->stored() < m_framesize);
 }
 
 int IIRClass::get(q15_t* pDst, int channel)
 {
-
-  if(channel >= m_channel) return false;
-  if (ringbuf[channel].stored() < FRAMSIZE) return 0;
+  if (m_output == Interleave) {
+    m_err = ERR_FORMAT;
+    return ERR_FORMAT;
+  }
+  if (channel >= m_channel) {
+    m_err = ERR_CH_NUM;
+    return ERR_CH_NUM;
+  }
+  if (empty(channel)) {
+    m_err = ERR_OK;
+    return 0;
+  }
 
   /* Read from the ring buffer */
-  ringbuf[channel].get(tmpInBuf, FRAMSIZE);
+  m_ringbuff[channel]->get(m_tmpInBuff, m_framesize);
 
-  arm_biquad_cascade_df2T_f32(&S[channel], tmpInBuf, tmpOutBuf, FRAMSIZE);
-  arm_float_to_q15(tmpOutBuf, pDst, FRAMSIZE);
+  arm_biquad_cascade_df2T_f32(&S[channel], m_tmpInBuff, m_tmpOutBuff, m_framesize);
+  arm_float_to_q15(m_tmpOutBuff, pDst, m_framesize);
 
-  return FRAMSIZE;
+  m_err = ERR_OK;
+  return m_framesize;
+}
+
+int IIRClass::get(q15_t* pDst)
+{
+  if (m_output == Planar) {
+    m_err = ERR_FORMAT;
+    return ERR_FORMAT;
+  }
+  for (int i = 0; i < m_channel; i++) {
+    if (empty(i)) {
+      m_err = ERR_OK;
+      return 0;
+    }
+  }
+
+  /* Read from the ring buffer */
+  for (int i = 0; i < m_channel; i++) {
+    m_ringbuff[i]->get(m_tmpInBuff, m_framesize);
+
+    arm_biquad_cascade_df2T_f32(&S[i], m_tmpInBuff, m_tmpOutBuff, m_framesize);
+    arm_float_to_q15(m_tmpOutBuff, m_InterleaveBuff, m_framesize);
+
+    for (int j = 0; j < m_framesize; j++) {
+      *(pDst + (j * m_channel) + i) = *(m_InterleaveBuff + j);
+    }
+  }
+
+  m_err = ERR_OK;
+  return m_framesize;
 }

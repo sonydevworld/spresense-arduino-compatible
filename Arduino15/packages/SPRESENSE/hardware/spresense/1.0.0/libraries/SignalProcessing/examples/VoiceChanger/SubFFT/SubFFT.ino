@@ -20,6 +20,7 @@
 #include <MP.h>
 
 #include "FFT.h"
+#include "IIR.h"
 
 /*-----------------------------------------------------------------*/
 /*
@@ -41,20 +42,26 @@
 //#define MAX_CHANNEL_NUM 2
 //#define MAX_CHANNEL_NUM 4
 
+/* Parameters */
+const int   g_channel = MAX_CHANNEL_NUM; /* Number of channels */
+const int   g_cutoff  = 1000; /* Cutoff frequency */
+const float g_Q       = sqrt(0.5); /* Q Value */
+const int   g_sample  = 1024; /* Number of channels */
+
+const int   g_max_shift = 30; /* Pitch shift value */
+
+const int   g_result_size = 4; /* Result buffer size */
+
 FFTClass<MAX_CHANNEL_NUM, FFT_LEN> FFT;
+IIRClass LPF;
 
 arm_rfft_fast_instance_f32 iS;
 arm_biquad_cascade_df2T_instance_f32 bS;
 
-float32_t lpf_coef[5];
-float32_t lpf_buffer[4];
-
 /* Allocate the larger heap size than default */
-
 USER_HEAP_SIZE(64 * 1024);
 
 /* MultiCore definitions */
-
 struct Request {
   void *buffer;
   int  sample;
@@ -65,29 +72,6 @@ struct Result {
   void *buffer;
   int  sample;
 };
-
-void create_coef(int cutoff, float q)
-{
-  float w,k0,k1,a0,a1,a2,b0,b1,b2;
-
-  w = 2.0f * PI * cutoff / 48000;
-
-  a1 = -2.0f * cos(w);
-  k0 = sin(w) / (2.0f * q);
-  k1 = 1.0f - cos(w);
-
-  a0 =  1.0f + k0;
-  a2 =  1.0f - k0;
-  b0 =  k1 / 2.0f;
-  b1 =  k1;
-  b2 = (k0) / 2.0f;
-
-  lpf_coef[0] = b0/a0;
-  lpf_coef[1] = b1/a0;
-  lpf_coef[2] = b2/a0;
-  lpf_coef[3] = -(a1/a0);
-  lpf_coef[4] = -(a2/a0);
-}
 
 void setup()
 {
@@ -100,31 +84,35 @@ void setup()
   }
 
   /* receive with non-blocking */
-//  MP.RecvTimeout(MP_RECV_POLLING);
   MP.RecvTimeout(100000);
 
+  /* begin FFT */
   FFT.begin(WindowRectangle,MAX_CHANNEL_NUM,0);
-  create_coef(1000, 1);
+
+  /* begin LPF */
+  if(!LPF.begin(TYPE_LPF, g_channel, g_cutoff, g_Q, g_sample)) {
+    int err = LPF.getErrorCause();
+    printf("error! %d\n", err);
+    errorLoop(abs(err));
+  }
 
   arm_rfft_1024_fast_init_f32(&iS);
-  arm_biquad_cascade_df2T_init_f32(&bS,1,lpf_coef,lpf_buffer);
 }
 
-#define RESULT_SIZE 4
-#define MAX_SHIFT 20
 void loop()
 {
   int      ret;
   int8_t   sndid = 10; /* user-defined msgid */
   int8_t   rcvid;
-  Request *request;
-  Result   result[RESULT_SIZE];
+  Request  *request;
+  static Result result[g_result_size];
 
-  static float pTmp[(FFT_LEN+(MAX_SHIFT*2))*2];
+  static float pTmp[(FFT_LEN + abs(g_max_shift)) * 2];
   static float pDst[FFT_LEN];
-  static float pLpfTmp[FFT_LEN];
-  static q15_t pOut[RESULT_SIZE][FFT_LEN];
-  static int pos=0;
+  static q15_t pLpfTmp[FFT_LEN];
+  static q15_t pLpfDst[FFT_LEN*2]; /* for stereo */
+  static q15_t pOut[g_result_size][FFT_LEN*2];
+  static int pos = 0;
   static int pitch_shift = 0;
 
   /* Receive PCM captured buffer from MainCore */
@@ -133,31 +121,42 @@ void loop()
       FFT.put((q15_t*)request->buffer,request->sample);
       pitch_shift = request->pitch_shift;
   }
-  while(!FFT.empty(0)){
-    for (int i = 0; i < MAX_CHANNEL_NUM; i++) {
 
-      int cnt = FFT.get_raw(&pTmp[(MAX_SHIFT+pitch_shift)*2],i);
+  if ((pitch_shift < -g_max_shift) || (pitch_shift > g_max_shift)) {
+    puts("Shift value error.");
+    errorLoop(10);
+  }
 
-      if(pitch_shift>0){
-        FFT.get_raw(&pTmp[(pitch_shift)*2],i);
-        memset(pTmp,0,pitch_shift*2);
+  while (!FFT.empty(0)) {
+    for (int i = 0; i < g_channel; i++) {
+      if (pitch_shift > 0) {
+        memset(pTmp, 0, pitch_shift * 2);
+        FFT.get_raw(&pTmp[(pitch_shift) * 2], i);
         arm_rfft_fast_f32(&iS, &pTmp[0], pDst, 1);
-      }else{
-        FFT.get_raw(&pTmp[(MAX_SHIFT-pitch_shift)*2],i);
-        memset((pTmp+(FFT_LEN-MAX_SHIFT)),0,MAX_SHIFT*2);
-        arm_rfft_fast_f32(&iS, &pTmp[MAX_SHIFT*2], pDst, 1);
+      } else {
+        FFT.get_raw(&pTmp[0],i);
+        memset(pTmp+(FFT_LEN), 0, abs(pitch_shift) * 2);
+        arm_rfft_fast_f32(&iS, &pTmp[abs(pitch_shift) * 2], pDst, 1);
       }
+      
+      if (i == 0) {
+        arm_float_to_q15(pDst, pLpfTmp, FFT_LEN);
+        LPF.put(pLpfTmp, FFT_LEN);
+        int cnt = LPF.get(pLpfDst, 0);
+        printf("cnt=%d\n", cnt);
+        for(int j = 0; j < cnt; j++) {
+          pOut[pos][j * 2]     = pLpfDst[j];
+          pOut[pos][j * 2 + 1] = 0;
+        }
 
-      arm_biquad_cascade_df2T_f32(&bS, pDst, pLpfTmp, FFT_LEN);
-      arm_float_to_q15(pLpfTmp,&pOut[pos][0],FFT_LEN);
+        result[pos].buffer = (void*)MP.Virt2Phys(&pOut[pos][0]);
+        result[pos].sample = cnt;
 
-      result[pos].buffer = MP.Virt2Phys(&pOut[pos][0]);
-      result[pos].sample = FFT_LEN;
-
-      ret = MP.Send(sndid, &result[pos],0);
-      pos = (pos+1)%RESULT_SIZE;
-      if (ret < 0) {
-        errorLoop(1);
+        ret = MP.Send(sndid, &result[pos],0);
+        pos = (pos + 1) % g_result_size;
+        if (ret < 0) {
+          errorLoop(11);
+        }
       }
     }
   }

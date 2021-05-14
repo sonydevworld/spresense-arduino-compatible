@@ -1,6 +1,6 @@
 /*
  *  MainAudio.ino - FFT Example with Audio (voice changer)
- *  Copyright 2019 Sony Semiconductor Solutions Corporation
+ *  Copyright 2019, 2021 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -18,25 +18,25 @@
  */
 
 #include <MP.h>
-#include <MediaRecorder.h>
-#include <MediaPlayer.h>
+
+#include <FrontEnd.h>
 #include <OutputMixer.h>
 #include <MemoryUtil.h>
+#include <arch/board/board.h>
 
-MediaRecorder *theRecorder;
-MediaPlayer *thePlayer;
+FrontEnd *theFrontEnd;
 OutputMixer *theMixer;
 
-/* Now suppot only mono channel*/
+/* Setting audio parameters */
+static const int32_t channel_num  = AS_CHANNEL_MONO;
+static const int32_t bit_length   = AS_BITLENGTH_16;
+static const int32_t frame_sample = 1024;
+static const int32_t capture_size = frame_sample * (bit_length / 8) * channel_num;
+static const int32_t render_size  = frame_sample * (bit_length / 8) * 2;
 
-/* Select mic channel number */
-const int mic_channel_num = 1;
-//const int mic_channel_num = 2;
+static int pitch_shift = -10;
 
-const int32_t s_buffer_size = 768 * mic_channel_num * sizeof(uint16_t);
-uint8_t s_buffer[s_buffer_size];
-bool ErrEnd = false;
-
+/* Multi-core parameters */
 const int subcore = 1;
 
 struct Request {
@@ -50,108 +50,178 @@ struct Result {
   int  sample;
 };
 
+/* Application flags */
+bool isCaptured = false;
+bool isEnd = false;
+bool ErrEnd = false;
+
 /**
-   @brief Audio attention callback
+ * @brief Frontend attention callback
+ *
+ * When audio internal error occurc, this function will be called back.
+ */
 
-   When audio internal error occurc, this function will be called back.
-*/
-
-static void attention_callback(const ErrorAttentionParam *atprm)
+static void frontend_attention_cb(const ErrorAttentionParam *param)
 {
   puts("Attention!");
 
-  if (atprm->error_code >= AS_ATTENTION_CODE_WARNING)
-  {
+  if (param->error_code >= AS_ATTENTION_CODE_WARNING) {
     ErrEnd = true;
   }
 }
 
 /**
-   @brief Recorder done callback procedure
-
-   @param [in] event        AsRecorderEvent type indicator
-   @param [in] result       Result
-   @param [in] sub_result   Sub result
-
-   @return true on success, false otherwise
-*/
-
-static bool mediarecorder_event_callback(AsRecorderEvent event, uint32_t result, uint32_t sub_result)
+ * @brief OutputMixer attention callback
+ *
+ * When audio internal error occurc, this function will be called back.
+ */
+static void mixer_attention_cb(const ErrorAttentionParam *param)
 {
+  puts("Attention!");
+
+  if (param->error_code >= AS_ATTENTION_CODE_WARNING) {
+    ErrEnd = true;
+  }
+}
+
+/**
+ * @brief Frontend done callback procedure
+ *
+ * @param [in] event        AsMicFrontendEvent type indicator
+ * @param [in] result       Result
+ * @param [in] sub_result   Sub result
+ *
+ * @return true on success, false otherwise
+ */
+
+static bool frontend_done_callback(AsMicFrontendEvent ev, uint32_t result, uint32_t sub_result)
+{
+  UNUSED(ev);
+  UNUSED(result);
+  UNUSED(sub_result);
   return true;
 }
 
 /**
-   @brief Mixer done callback procedure
-
-   @param [in] requester_dtq    MsgQueId type
-   @param [in] reply_of         MsgType type
-   @param [in,out] done_param   AsOutputMixDoneParam type pointer
-*/
-static void outputmixer_event_callback(MsgQueId requester_dtq,
+ * @brief Mixer done callback procedure
+ *
+ * @param [in] requester_dtq    MsgQueId type
+ * @param [in] reply_of         MsgType type
+ * @param [in,out] done_param   AsOutputMixDoneParam type pointer
+ */
+static void outputmixer_done_callback(MsgQueId requester_dtq,
                                       MsgType reply_of,
-                                      AsOutputMixDoneParam *done_param)
+                                      AsOutputMixDoneParam* done_param)
 {
+  UNUSED(requester_dtq);
+  UNUSED(reply_of);
+  UNUSED(done_param);
   return;
 }
 
 /**
-   @brief Mixer data send callback procedure
-
-   @param [in] identifier   Device identifier
-   @param [in] is_end       For normal request give false, for stop request give true
-*/
-static void outmixer_rendering_callback(int32_t identifier, bool is_end)
+ * @brief Pcm capture on FrontEnd callback procedure
+ *
+ * @param [in] pcm          PCM data structure
+ */
+static void frontend_pcm_callback(AsPcmDataParam pcm)
 {
-  AsRequestNextParam next;
+  int8_t sndid = 100; /* user-defined msgid */
+  static Request request;
 
-  next.type = (!is_end) ? AsNextNormalRequest : AsNextStopResRequest;
+  if (pcm.size > capture_size) {
+    puts("Capture size is too big!");
+    pcm.size = capture_size;
+  }
 
-  AS_RequestNextPlayerProcess(AS_PLAYER_ID_0, &next);
+  request.buffer  = pcm.mh.getPa();
+  request.sample  = pcm.size / (bit_length / 8) / channel_num;
+  request.pitch_shift = pitch_shift;
+
+  if (!pcm.is_valid) {
+    puts("Invalid data !");
+    memset(request.buffer , 0, request.sample);
+  }
+
+  MP.Send(sndid, &request, subcore);
+
+  if (pcm.is_end) {
+    isEnd = true;
+  }
 
   return;
 }
 
 /**
-   @brief Player done callback procedure
-
-   @param [in] event        AsPlayerEvent type indicator
-   @param [in] result       Result
-   @param [in] sub_result   Sub result
-
-   @return true on success, false otherwise
-*/
-static bool mediaplayer_event_callback(AsPlayerEvent event, uint32_t result, uint32_t sub_result)
+ * @brief Mixer data send callback procedure
+ *
+ * @param [in] identifier   Device identifier
+ * @param [in] is_end       For normal request give false, for stop request give true
+ */
+static void outmixer0_send_callback(int32_t identifier, bool is_end)
 {
-  /* If result of "Play", restart recording (It should been stopped when "Play" requested) */
+  /* Do nothing, as the pcm data already sent in the main loop. */
+  UNUSED(identifier);
+  UNUSED(is_end);
+  return;
+}
+
+static bool send_mixer(Result* res)
+{
+  AsPcmDataParam pcm_param;
+
+  /* Alloc MemHandle */
+  while (pcm_param.mh.allocSeg(S0_REND_PCM_BUF_POOL, render_size) != ERR_OK) {
+    delay(1);
+  }
+
+  if (isEnd) {
+    pcm_param.is_end = true;
+    isEnd = false;
+  } else {
+    pcm_param.is_end = false;
+  }
+
+  /* Set PCM parameters */
+  pcm_param.identifier = OutputMixer0;
+  pcm_param.callback = 0;
+  pcm_param.bit_length = bit_length;
+  pcm_param.size = render_size;
+  pcm_param.sample = frame_sample;
+  pcm_param.is_valid = true;
+
+  memcpy(pcm_param.mh.getPa(), res->buffer, pcm_param.size);
+
+  int err = theMixer->sendData(OutputMixer0,
+                               outmixer0_send_callback,
+                               pcm_param);
+
+  if (err != OUTPUTMIXER_ECODE_OK) {
+    printf("OutputMixer send error: %d\n", err);
+    return false;
+  }
+
   return true;
+
 }
 
 /**
-   @brief Player decode callback procedure
-
-   @param [in] pcm_param    AsPcmDataParam type
-*/
-void mediaplayer_decode_callback(AsPcmDataParam pcm_param)
-{
-  /* You can imprement any audio signal process */
-
-  /* Output and sound audio data */
-  theMixer->sendData(OutputMixer0,
-                     outmixer_rendering_callback,
-                     pcm_param);
-}
-
+ * @brief Setup Audio & MP objects
+ */
 void setup()
 {
+  /* Initialize serial */
+  Serial.begin(115200);
+  while (!Serial);
 
   /* Launch SubCore */
   int ret = MP.begin(subcore);
   if (ret < 0) {
     printf("MP.begin error = %d\n", ret);
   }
+
   /* receive with non-blocking */
-  MP.RecvTimeout(20);
+  //  MP.RecvTimeout(20);
 
   /* Initialize memory pools and message libs */
   Serial.println("Init memory Library");
@@ -159,156 +229,90 @@ void setup()
   initMemoryPools();
   createStaticPools(MEM_LAYOUT_RECORDINGPLAYER);
 
-  /* start audio system */
-  Serial.println("Init Audio Library");
+  /* Begin objects */
+  theFrontEnd = FrontEnd::getInstance();
+  theMixer = OutputMixer::getInstance();
 
-  theRecorder = MediaRecorder::getInstance();
-  thePlayer = MediaPlayer::getInstance();
-  theMixer  = OutputMixer::getInstance();
+  theFrontEnd->begin(frontend_attention_cb);
+  theMixer->begin();
 
-  theRecorder->begin();
-  thePlayer->begin();
-
-  puts("initialization MediaRecorder, MediaPlayer and OutputMixer");
-
-  theMixer->activateBaseband();
+  puts("begin FrontEnd and OutputMixer");
 
   /* Create Objects */
+  theMixer->create(mixer_attention_cb);
 
-  thePlayer->create(MediaPlayer::Player0, attention_callback);
-  theMixer->create(attention_callback);
+  /* Set capture clock */
+  theFrontEnd->setCapturingClkMode(FRONTEND_CAPCLK_NORMAL);
 
-  /* Activate Objects. Set output device to Speakers/Headphones */
+  /* Activate objects */
+  theFrontEnd->activate(frontend_done_callback);
+  theMixer->activate(OutputMixer0, outputmixer_done_callback);
 
-  theRecorder->activate(AS_SETRECDR_STS_INPUTDEVICE_MIC, mediarecorder_event_callback);
-  thePlayer->activate(MediaPlayer::Player0, AS_SETPLAYER_OUTPUTDEVICE_SPHP, mediaplayer_event_callback);
-  theMixer->activate(OutputMixer0, outputmixer_event_callback);
+  usleep(100 * 1000); /* waiting for Mic startup */
 
-  usleep(100 * 1000);
+  /* Initialize each objects */
+  AsDataDest dst;
+  dst.cb = frontend_pcm_callback;
+  theFrontEnd->init(channel_num, bit_length, frame_sample, AsDataPathCallback, dst);
 
-  /*
-     Initialize recorder to decode stereo wav stream with 48kHz sample rate
-     Search for SRC filter in "/mnt/sd0/BIN" directory
-  */
-  uint8_t channel;
-  switch (mic_channel_num) {
-    case 1: channel = AS_CHANNEL_MONO;   break;
-    case 2: channel = AS_CHANNEL_STEREO; break;
-    case 4: channel = AS_CHANNEL_4CH;    break;
-  }
+  /* Set rendering volume */
+  theMixer->setVolume(-6, 0, 0);
 
-  theRecorder->init(AS_CODECTYPE_LPCM, channel, AS_SAMPLINGRATE_48000, AS_BITLENGTH_16, 0);
-  theRecorder->setMicGain(180);
-  puts("recorder init");
-  thePlayer->init(MediaPlayer::Player0, AS_CODECTYPE_WAV,"/mnt/sd0/BIN", AS_SAMPLINGRATE_48000, channel);
-  puts("player init");
+  /* Unmute */
+  board_external_amp_mute_control(false);
 
-  /* Start Recorder */
-
-  theMixer->setVolume(0, 0, 0);
+  theFrontEnd->start();
 
 }
 
-typedef enum e_appState {
-  StateReady = 0,
-  StatePrepare,
-  StateRun
-} appState_t;
-
+/**
+ * @brief Audio loop
+ */
 void loop()
 {
-  static appState_t state = StateReady;
-  static int pitch_shift = 10;
-	
-  int8_t   sndid = 100; /* user-defined msgid */
   int8_t   rcvid = 0;
-  int      read_size;
-  int      ret;
-
-  static Request  request;
   static Result*  result;
 
-  switch (state) {
-    case StateReady:
-      {
-      /* Start recording */
-      theRecorder->start();
-      puts("recorder start");
-      state = StatePrepare;
-      break;
-      }
-    case StatePrepare:
-    {
-      static int pre_cnt = 0;
-      err_t err = theRecorder->readFrames(s_buffer, s_buffer_size, &read_size);
+  /* Receive sound from SubCore */
+  int ret = MP.Recv(&rcvid, &result, subcore);
 
-      if (err != 0) {printf("Error! %x ,%x , %d\n",err,request.buffer,request.sample);}
-
-      if (read_size > 0)
-      {
-        request.buffer  = s_buffer;
-        request.sample = read_size/ sizeof(uint16_t) / mic_channel_num;
-        request.pitch_shift = pitch_shift;
-        MP.Send(sndid, &request, subcore);
-
-        if (pre_cnt < 2) {
-          pre_cnt++;
-          break;
-        }
-
-        /* Receive sound from SubCore */
-        int ret = MP.Recv(&rcvid, &result, subcore);
-        if (ret >= 0) {
-          if (result->sample != 1024) { break;}
-          thePlayer->writeFrames(MediaPlayer::Player0, result->buffer, result->sample*2);
-          pre_cnt++;
-        } else {
-          printf("error! %d\n", ret);
-          break;
-        }
-      } else {
-        break;
-      }
-
-      if (pre_cnt > 5) {
-        puts("player start");
-        thePlayer->start(MediaPlayer::Player0, mediaplayer_decode_callback);
-        pre_cnt = 0;
-        state = StateRun;
-      }
-      break;
-    }
-
-    case StateRun:
-    {
-      err_t err = theRecorder->readFrames(s_buffer, s_buffer_size, &read_size);
-
-//      if (err != 0) { printf("Error! %x ,%x , %d\n",err,request.buffer,read_size); }
-      if (read_size > 0)
-      {
-        request.buffer  = s_buffer;
-        request.sample = read_size/ sizeof(uint16_t) / mic_channel_num;
-        request.pitch_shift = pitch_shift;
-        MP.Send(sndid, &request, subcore);
-
-        /* Receive sound from SubCore */
-        ret = MP.Recv(&rcvid, &result, subcore);
-        if (ret >= 0) {
-          if (result->sample != 1024) {break;}
-          thePlayer->writeFrames(MediaPlayer::Player0,result->buffer, result->sample*2);
-        } else {
-//        printf("error! %d\n", ret);
-          break;
-        }
-      } else {
-        break;
-      }
-      break;
-    }
-    default:
-    {
-      puts("error!");
-      exit(1);
-    }
+  if (ret < 0) {
+    printf("MP error! %d\n", ret);
+    return;
   }
+
+  if (result->sample != frame_sample) {
+    printf("Size miss match.%d,%d\n", result->sample, frame_sample);
+    goto exitCapturing;
+  }
+
+  if (!send_mixer(result)) {
+    printf("Rendering error!\n");
+    goto exitCapturing;
+  }
+
+  /* This sleep is adjusted by the time to write the audio stream file.
+   * Please adjust in according with the processing contents
+   * being processed at the same time by Application.
+   *
+   * The usleep() function suspends execution of the calling thread for usec microseconds.
+   * But the timer resolution depends on the OS system tick time 
+   * which is 10 milliseconds (10,000 microseconds) by default.
+   * Therefore, it will sleep for a longer time than the time requested here.
+   */
+
+  //  usleep(10 * 1000);
+
+  return;
+
+exitCapturing:
+  board_external_amp_mute_control(true);
+  theFrontEnd->deactivate();
+  theMixer->deactivate(OutputMixer0);
+  theFrontEnd->end();
+  theMixer->end();
+
+  puts("Exit.");
+  exit(1);
+
 }

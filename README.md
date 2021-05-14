@@ -57,11 +57,11 @@ spresense-arduino-compatible
 | -S     | path/to/spresense-sdk-path        | Local Spresense SDK build root path            |
 | -v     | Board_variant                     | Target board variant (default:spresense)       |
 | -c     | spresense or spresense_sub        | Target SDK configuration (default: spresense)  |
-| -k     | release or debug                  | Target kernel configuration (default: release) |
-| -M     | "SDK" or "Kernel" or "SDK/Kernel" | Manual configuration by menuconfig             |
-| -G     | "SDK" or "Kernel" or "SDK/Kernel" | Manual configuration by gconfig                |
-| -Q     | "SDK" or "Kernel" or "SDK/Kernel" | Manual configuration by qconfig                |
-| -i     | -                                 | Do not change Kernel/SDK configuration         |
+| -d     | disable or enable                 | Target debug configuration (default: disable)  |
+| -M     | "SDK"                             | Manual configuration by menuconfig             |
+| -G     | "SDK"                             | Manual configuration by gconfig                |
+| -Q     | "SDK"                             | Manual configuration by qconfig                |
+| -i     | -                                 | Do not change SDK configuration                |
 
 #### Other option
 
@@ -82,28 +82,26 @@ $ ./tools/prepare_arduino.sh -S path/to/spresense -p
 #### Export Spresense SDK prebuilt binary for MainCore/Debug:Enabled from local repository.
 
 ```
-$ ./tools/prepare_arduino.sh -S path/to/spresense -k debug -p
+$ ./tools/prepare_arduino.sh -S path/to/spresense -d enable -p
 ```
 
 #### Export Spresense SDK prebuilt binary for SubCore/Debug:Disabled from local repository.
 
 ```
-$ ./tools/prepare_arduino.sh -S path/to/spresense -c spresense_sub -k subcore-release -p
+$ ./tools/prepare_arduino.sh -S path/to/spresense -c spresense_sub -d disable -p
 ```
 
 #### Export Spresense SDK prebuilt binary for SubCore/Debug:Enabled from local repository.
 
 ```
-$ ./tools/prepare_arduino.sh -S path/to/spresense -c spresense_sub -k subcore-debug -p
+$ ./tools/prepare_arduino.sh -S path/to/spresense -c spresense_sub -d enable -p
 ```
 
 #### Export Spresense SDK prebuilt binary for MainCore/Debug:Disabled from local repository *with configuration change*.
 
 ```
-$ ./tools/prepare_arduino.sh -S path/to/spresense -M SDK/Kernel -p
+$ ./tools/prepare_arduino.sh -S path/to/spresense -M SDK -p
 ```
-
-* Menu configuration will open twice as `NuttX Configuration` and `SDK configuration`
 
 # Creating Arduino boards manager local install package
 
