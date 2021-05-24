@@ -170,10 +170,13 @@ int eMMCClass::format(uint8_t fattype)
   int ret;
   struct fat_format_s fmt = FAT_FORMAT_INITIALIZER;
 
-  /* Default is FAT32, but it's possible to format at FAT12 or FAT16. */
-  if ((fattype == 12) || (fattype == 16)) {
-    fmt.ff_fattype = fattype;
+  /* FAT size: 0 (autoselect), 12, 16, or 32 */
+  if ((fattype != 0) && (fattype != 12) &&
+      (fattype != 16) && (fattype != 32)) {
+    return -1;
   }
+
+  fmt.ff_fattype = fattype;
 
   ret = mkfatfs(EMMC_DEVPATH, &fmt);
   return ret;
