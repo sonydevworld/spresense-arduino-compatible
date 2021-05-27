@@ -1,6 +1,6 @@
 /*
  *  Camera.h - Camera include file for the Spresense SDK
- *  Copyright 2018, 2020 Sony Semiconductor Solutions Corporation
+ *  Copyright 2018, 2020, 2021 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -284,6 +284,7 @@ private:
 
   CamImage(enum v4l2_buf_type type, int w, int h, CAM_IMAGE_PIX_FMT fmt, int jpgbufsize_divisor = 7, CameraClass *cam = NULL);
   void setActualSize(size_t sz) { img_buff->update_actual_size(sz); };
+  void setPixFormat(CAM_IMAGE_PIX_FMT pix_fmt) { if(img_buff != NULL) img_buff->pix_fmt = pix_fmt; }
   void setIdx(int i){ if(img_buff != NULL) img_buff->idx = i; }
   bool isIdx(int i){ return (img_buff != NULL) ? (img_buff->idx == i) : false; }
   int getIdx(){ return (img_buff != NULL) ? img_buff->idx : -1; }
@@ -497,6 +498,8 @@ private:
   int video_fd;
   int video_init_stat;
   int video_buf_num;
+  CAM_IMAGE_PIX_FMT video_pix_fmt;
+  CAM_IMAGE_PIX_FMT still_pix_fmt;
   CamImage **video_imgs;
   CamImage *still_img;
   static CameraClass *instance;

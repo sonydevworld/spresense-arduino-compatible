@@ -1,6 +1,6 @@
 /*
  *  Camera.cpp - Camera implementation file for the Spresense SDK
- *  Copyright 2018, 2020 Sony Semiconductor Solutions Corporation
+ *  Copyright 2018, 2020, 2021 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -182,6 +182,11 @@ CamErr CamImage::convertPixFormat(CAM_IMAGE_PIX_FMT to_fmt)
   int               height   = getHeight();
   uint8_t           *buff    = getImgBuff();
 
+  if (buff == NULL)
+    {
+      return CAM_ERR_NOT_PERMITTED;
+    }
+
   switch (from_fmt)
     {
       case CAM_IMAGE_PIX_FMT_YUV422:
@@ -189,11 +194,13 @@ CamErr CamImage::convertPixFormat(CAM_IMAGE_PIX_FMT to_fmt)
           {
             case CAM_IMAGE_PIX_FMT_RGB565:
               imageproc_convert_yuv2rgb(buff, width, height);
+              setPixFormat(to_fmt);
               break;
 
             case CAM_IMAGE_PIX_FMT_GRAY:
               imageproc_convert_yuv2gray(buff, buff, width, height);
               setActualSize(width * height);
+              setPixFormat(to_fmt);
               break;
 
             default:
@@ -474,7 +481,9 @@ CameraClass::CameraClass(const char *path)
   video_fd = -1;
   video_imgs = NULL;
   video_buf_num = 0;
+  video_pix_fmt = CAM_IMAGE_PIX_FMT_NONE;
   still_img = NULL;
+  still_pix_fmt = CAM_IMAGE_PIX_FMT_NONE;
   loop_dqbuf_en = false;
   video_cb = NULL;
   dq_tid = -1;
@@ -931,6 +940,7 @@ CamErr CameraClass::begin(int buff_num, CAM_VIDEO_FPS fps, int video_width, int 
       goto label_err_with_memaligned;
     }
 
+  video_pix_fmt = video_fmt;
   return ret; // Success begin.
 
   label_err_with_memaligned:
@@ -1117,6 +1127,7 @@ CamErr CameraClass::setStillPictureImageFormat(int img_width, int img_height, CA
       err = CAM_ERR_NOT_INITIALIZED;
     }
 
+  still_pix_fmt = img_fmt;
   return err;
 }
 
@@ -1146,6 +1157,7 @@ CamImage CameraClass::takePicture( )
                           still_img->setActualSize((size_t)0);
                         }
 
+                      still_img->setPixFormat(still_pix_fmt);
                       return *still_img;
                     }
                 }
@@ -1210,9 +1222,10 @@ void CameraClass::dqbuf_thread(void *arg)
            == 0)
         {
           CamImage *img = cam->search_vimg(buf.index);
-          img->img_buff->queued(false);
           if (img != NULL)
             {
+              img->img_buff->queued(false);
+
               if ((buf.flags & V4L2_BUF_FLAG_ERROR) == 0)
                 {
                   img->setActualSize((size_t)buf.bytesused);
@@ -1250,6 +1263,7 @@ void CameraClass::frame_handle_thread(void *arg)
               cam->lock_video_cb();
               if (cam->video_cb != NULL)
                 {
+                  img->setPixFormat(cam->video_pix_fmt);
                   cam->video_cb(*img);
                 }
               else
