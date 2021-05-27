@@ -1,6 +1,6 @@
 /*
  *  Camera.h - Camera include file for the Spresense SDK
- *  Copyright 2018, 2020, 2021 Sony Semiconductor Solutions Corporation
+ *  Copyright 2018, 2020 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -237,8 +237,7 @@ class ImgBuff {
   bool is_queue;
   enum v4l2_buf_type buf_type;
 
-  CAM_IMAGE_PIX_FMT org_pix_fmt;
-  CAM_IMAGE_PIX_FMT cur_pix_fmt;
+  CAM_IMAGE_PIX_FMT pix_fmt;
 
   size_t buf_size;
   size_t actual_size;
@@ -265,8 +264,6 @@ class ImgBuff {
   bool generate_imgmem(size_t s);
   size_t calc_img_size(int w, int h, CAM_IMAGE_PIX_FMT fmt, int jpgbufsize_divisor);
   void update_actual_size(size_t sz);
-  void update_pix_fmt(CAM_IMAGE_PIX_FMT fmt);
-  void init_pix_fmt();
 
   static void delete_inst(ImgBuff *buf);
 
@@ -287,8 +284,6 @@ private:
 
   CamImage(enum v4l2_buf_type type, int w, int h, CAM_IMAGE_PIX_FMT fmt, int jpgbufsize_divisor = 7, CameraClass *cam = NULL);
   void setActualSize(size_t sz) { img_buff->update_actual_size(sz); };
-  void initPixFormat() { img_buff->init_pix_fmt(); };
-  void setPixFormat(CAM_IMAGE_PIX_FMT fmt) { img_buff->update_pix_fmt(fmt); };
   void setIdx(int i){ if(img_buff != NULL) img_buff->idx = i; }
   bool isIdx(int i){ return (img_buff != NULL) ? (img_buff->idx == i) : false; }
   int getIdx(){ return (img_buff != NULL) ? img_buff->idx : -1; }
@@ -352,7 +347,7 @@ public:
    * @return [en] Enum value of #CAM_IMAGE_PIX_FMT <BR>
    *         [jp] #CAM_IMAGE_PIX_FMT で定義されているピクセルフォーマット
    */
-  CAM_IMAGE_PIX_FMT getPixFormat() { return (img_buff != NULL) ? img_buff->cur_pix_fmt : CAM_IMAGE_PIX_FMT_NONE; }
+  CAM_IMAGE_PIX_FMT getPixFormat() { return (img_buff != NULL) ? img_buff->pix_fmt : CAM_IMAGE_PIX_FMT_NONE; }
 
   /**
    * @brief Constuctor of CamImage class
