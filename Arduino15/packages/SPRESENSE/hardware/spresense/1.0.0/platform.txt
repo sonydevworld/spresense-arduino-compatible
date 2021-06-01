@@ -29,7 +29,7 @@ compiler.S.flags=-c {compiler.warning_flags} -MMD -std=gnu99 -c -fno-builtin -ma
 compiler.c.elf.flags=-ggdb -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -Xlinker --entry=__start -nodefaultlibs -nostartfiles "{build.stack}" "{build.ldscript}" -Wl,--gc-sections
 
 compiler.c.elf.cmd=arm-none-eabi-g++
-compiler.c.elf.libs= "{build.libpath}/libs/libapps.a" "{build.libpath}/libs/libnuttx.a" -lgcc -lm
+compiler.c.elf.libs= "{build.libpath}/libs/libapps.a" "{build.libpath}/libs/libarch.a" "{build.libpath}/libs/libarm_cortexM4lf_math.a" "{build.libpath}/libs/libaudio.a" "{build.libpath}/libs/libbinfmt.a" "{build.libpath}/libs/libboard.a" "{build.libpath}/libs/libboards.a" "{build.libpath}/libs/libc.a" "{build.libpath}/libs/libcmsis_nn.a" "{build.libpath}/libs/libdrivers.a" "{build.libpath}/libs/libfs.a" "{build.libpath}/libs/libgcc.a" "{build.libpath}/libs/libm.a" "{build.libpath}/libs/libmm.a" "{build.libpath}/libs/libnet.a" "{build.libpath}/libs/libnnablart.a" "{build.libpath}/libs/libsched.a" "{build.libpath}/libs/libsslutils.a" "{build.libpath}/libs/libxx.a" -lgcc -lm
 
 compiler.cpp.cmd=arm-none-eabi-g++
 compiler.cpp.flags=-c {compiler.warning_flags} -MMD -std=gnu++11 -c -fno-builtin -mabi=aapcs -Wall -Os -fno-strict-aliasing -fno-strength-reduce -fomit-frame-pointer -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -pipe -ffunction-sections -fno-exceptions -fno-rtti -ggdb -gdwarf-3 -ffunction-sections -fdata-sections -fpermissive
