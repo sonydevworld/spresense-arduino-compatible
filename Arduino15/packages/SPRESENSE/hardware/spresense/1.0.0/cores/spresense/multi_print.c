@@ -30,7 +30,7 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <assert.h>
-#include <arch/chip/hardware/cxd56_sph.h>
+#include <hardware/cxd56_sph.h>
 #include "multi_print.h"
 
 #define PRINT_HSEMID 3
