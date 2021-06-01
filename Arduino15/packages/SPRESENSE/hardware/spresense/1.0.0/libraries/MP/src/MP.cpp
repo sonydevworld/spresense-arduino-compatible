@@ -25,7 +25,7 @@
 #include <stdio.h>
 #include <chip/hardware/cxd5602_backupmem.h>
 #include <chip/hardware/cxd5602_memorymap.h>
-#include <common/up_arch.h>
+#include <common/arm_arch.h>
 #include <armv7-m/nvic.h>
 #include <assert.h>
 #include <nuttx/arch.h>
