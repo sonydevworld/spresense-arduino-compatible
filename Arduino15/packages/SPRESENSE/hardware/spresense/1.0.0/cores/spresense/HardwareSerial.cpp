@@ -73,7 +73,7 @@ void HardwareSerial::begin(unsigned long baud, uint16_t config)
 
         close(0);
         if (null >= 0 && null != 0) {
-            fs_dupfd2(null, 0);
+            dup2(null, 0);
             close(null);
         }
     }
@@ -103,7 +103,7 @@ void HardwareSerial::end(void)
         close(_fd);
         _fd = -1;
     }
-    fs_dupfd2(_stdin_fd, 0);
+    dup2(_stdin_fd, 0);
 }
 
 HardwareSerial::operator bool() const
