@@ -103,7 +103,7 @@ ssize_t uart_syncwrite(const char *buffer, size_t buflen)
 
     /* Output the character, using the low-level direct UART interfaces */
 
-    up_lowputc(ch);
+    arm_lowputc(ch);
   }
 
   return ret;

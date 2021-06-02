@@ -269,7 +269,7 @@ void setup()
   /* Set random seed to use shuffle mode */
 
   struct timespec ts;
-  clock_systimespec(&ts);
+  clock_systime_timespec(&ts);
   srand((unsigned int)ts.tv_nsec);
 
   /* Restore preset data */
