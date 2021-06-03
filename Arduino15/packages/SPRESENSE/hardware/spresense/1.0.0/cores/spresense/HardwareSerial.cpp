@@ -88,7 +88,7 @@ void HardwareSerial::begin(unsigned long baud, uint16_t config)
     if (ret != 0)
         return;
     tio.c_speed = baud;
-    tio.c_cflag &= ~0x3ff;
+    tio.c_cflag &= ~SERIAL_CONTROL_MASK;
     tio.c_cflag |= config;
     tio.c_oflag &= ~OPOST;
     ioctl(_fd, TCSETS, (long unsigned int)&tio);
