@@ -40,7 +40,6 @@
 #define sph_state_locked(sts)   (STS_STATE(sts) == STATE_LOCKED)
 #define sph_state_busy(sts)     (STS_STATE(sts) == STATE_LOCKEDANDRESERVED)
 
-static int printlock_fd;
 static uint32_t g_cpuid;
 
 void init_multi_print(void)
@@ -51,11 +50,6 @@ void init_multi_print(void)
   uint32_t bit = 1 << (irq & 0x1f);
   putreg32(bit, NVIC_IRQ_CLEAR(irq));
 #endif
-  /* Reserve hardware semaphore for exclusive control of print log.
-   * In fact, the hsem driver is not used and it controls the register
-   * directly to support for multi-task/thread and reduce overhead.
-   */
-  printlock_fd = open("/dev/hsem3", 0);
   /* Save cpuid to use the hardware semaphore */
   g_cpuid = getreg32(CPU_ID);
 }
