@@ -209,6 +209,27 @@ CamErr CamImage::convertPixFormat(CAM_IMAGE_PIX_FMT to_fmt)
 
         break;
 
+      case CAM_IMAGE_PIX_FMT_RGB565:
+        switch (to_fmt)
+          {
+            case CAM_IMAGE_PIX_FMT_YUV422:
+              imageproc_convert_rgb2yuv(buff, width, height);
+              setPixFormat(to_fmt);
+              break;
+
+            case CAM_IMAGE_PIX_FMT_GRAY:
+              imageproc_convert_rgb2yuv(buff, width, height);
+              imageproc_convert_yuv2gray(buff, buff, width, height);
+              setActualSize(width * height);
+              setPixFormat(to_fmt);
+              break;
+
+            default:
+              return CAM_ERR_INVALID_PARAM;
+          }
+
+        break;
+
       default:
         return CAM_ERR_INVALID_PARAM;
     }
