@@ -28,37 +28,48 @@
 
 #include <nuttx/config.h>
 #include <sdk/config.h>
+#include <termios.h>
 #include "Stream.h"
 
 
-#define SERIAL_5N1 0x00
-#define SERIAL_6N1 0x01
-#define SERIAL_7N1 0x02
-#define SERIAL_8N1 0x03
-#define SERIAL_5N2 0x04
-#define SERIAL_6N2 0x05
-#define SERIAL_7N2 0x06
-#define SERIAL_8N2 0x07
-#define SERIAL_5E1 0x10
-#define SERIAL_6E1 0x11
-#define SERIAL_7E1 0x12
-#define SERIAL_8E1 0x13
-#define SERIAL_5E2 0x14
-#define SERIAL_6E2 0x15
-#define SERIAL_7E2 0x16
-#define SERIAL_8E2 0x17
-#define SERIAL_5O1 0x30
-#define SERIAL_6O1 0x31
-#define SERIAL_7O1 0x32
-#define SERIAL_8O1 0x33
-#define SERIAL_5O2 0x34
-#define SERIAL_6O2 0x35
-#define SERIAL_7O2 0x36
-#define SERIAL_8O2 0x37
+#define SERIAL_5N1 CS5
+#define SERIAL_6N1 CS6
+#define SERIAL_7N1 CS7
+#define SERIAL_8N1 CS8
+#define SERIAL_5N2 (CS5 | CSTOPB)
+#define SERIAL_6N2 (CS6 | CSTOPB)
+#define SERIAL_7N2 (CS7 | CSTOPB)
+#define SERIAL_8N2 (CS8 | CSTOPB)
+#define SERIAL_5E1 (CS5 | PARENB)
+#define SERIAL_6E1 (CS6 | PARENB)
+#define SERIAL_7E1 (CS7 | PARENB)
+#define SERIAL_8E1 (CS8 | PARENB)
+#define SERIAL_5E2 (CS5 | CSTOPB | PARENB)
+#define SERIAL_6E2 (CS6 | CSTOPB | PARENB)
+#define SERIAL_7E2 (CS7 | CSTOPB | PARENB)
+#define SERIAL_8E2 (CS8 | CSTOPB | PARENB)
+#define SERIAL_5O1 (CS5 | PARENB | PARODD)
+#define SERIAL_6O1 (CS6 | PARENB | PARODD)
+#define SERIAL_7O1 (CS7 | PARENB | PARODD)
+#define SERIAL_8O1 (CS8 | PARENB | PARODD)
+#define SERIAL_5O2 (CS5 | CSTOPB | PARENB | PARODD)
+#define SERIAL_6O2 (CS6 | CSTOPB | PARENB | PARODD)
+#define SERIAL_7O2 (CS7 | CSTOPB | PARENB | PARODD)
+#define SERIAL_8O2 (CS8 | CSTOPB | PARENB | PARODD)
 
-#define SERIAL_CTS (0x100)
-#define SERIAL_RTS (0x200)
-#define SERIAL_RTSCTS (SERIAL_CTS | SERIAL_RTS)
+#define SERIAL_CTS CCTS_OFLOW
+#define SERIAL_RTS CRTS_IFLOW
+#define SERIAL_RTSCTS CRTSCTS
+
+#define SERIAL_CONTROL_MASK (CSIZE | \
+                             CSTOPB | \
+                             CREAD | \
+                             PARENB | \
+                             PARODD | \
+                             HUPCL | \
+                             CLOCAL | \
+                             CCTS_OFLOW | \
+                             CRTS_IFLOW)
 
 #if defined(CONFIG_CXD56_UART1)
 #define SERIAL_DEFAULT_CHANNEL 1

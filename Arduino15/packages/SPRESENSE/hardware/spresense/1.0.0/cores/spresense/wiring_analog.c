@@ -26,7 +26,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
-#include <common/up_arch.h>
+#include <common/arm_arch.h>
 #include <nuttx/arch.h>
 #include <nuttx/config.h>
 #include <sdk/config.h>
@@ -36,8 +36,8 @@
 #include <cxd56_clock.h>
 #include <arch/cxd56xx/scu.h>
 #include <arch/cxd56xx/adc.h>
-#include <arch/chip/hardware/cxd56_scu.h>
-#include <arch/chip/hardware/cxd56_adc.h>
+#include <hardware/cxd56_scu.h>
+#include <hardware/cxd56_adc.h>
 #include <Arduino.h>
 #include "utility.h"
 #include "wiring_private.h"

@@ -19,18 +19,18 @@
 
 #include <sdk/config.h>
 #include <nuttx/streams.h>
-#include <common/up_internal.h>
+#include <common/arm_internal.h>
 #include <stdio.h>
 #include <string.h>
 #include <cxd56_sph.h>
 #include <nuttx/irq.h>
 #include <nuttx/arch.h>
-#include <common/up_arch.h>
+#include <common/arm_arch.h>
 #include <armv7-m/nvic.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <assert.h>
-#include <arch/chip/hardware/cxd56_sph.h>
+#include <hardware/cxd56_sph.h>
 #include "multi_print.h"
 
 #define PRINT_HSEMID 3
@@ -40,7 +40,6 @@
 #define sph_state_locked(sts)   (STS_STATE(sts) == STATE_LOCKED)
 #define sph_state_busy(sts)     (STS_STATE(sts) == STATE_LOCKEDANDRESERVED)
 
-static int printlock_fd;
 static uint32_t g_cpuid;
 
 void init_multi_print(void)
@@ -51,11 +50,6 @@ void init_multi_print(void)
   uint32_t bit = 1 << (irq & 0x1f);
   putreg32(bit, NVIC_IRQ_CLEAR(irq));
 #endif
-  /* Reserve hardware semaphore for exclusive control of print log.
-   * In fact, the hsem driver is not used and it controls the register
-   * directly to support for multi-task/thread and reduce overhead.
-   */
-  printlock_fd = open("/dev/hsem3", 0);
   /* Save cpuid to use the hardware semaphore */
   g_cpuid = getreg32(CPU_ID);
 }
@@ -103,7 +97,7 @@ ssize_t uart_syncwrite(const char *buffer, size_t buflen)
 
     /* Output the character, using the low-level direct UART interfaces */
 
-    up_lowputc(ch);
+    arm_lowputc(ch);
   }
 
   return ret;
