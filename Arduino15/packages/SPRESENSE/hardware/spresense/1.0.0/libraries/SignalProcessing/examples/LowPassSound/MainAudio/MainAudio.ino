@@ -279,7 +279,7 @@ void loop()
   }
 
   if (result->sample != frame_sample) {
-    printf("Size miss match.%d,%d\n", result->sample, frame_sample);
+    printf("Size miss match.%d,%ld\n", result->sample, frame_sample);
     goto exitCapturing;
   }
 
