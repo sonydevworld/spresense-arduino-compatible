@@ -187,7 +187,7 @@ int MPClass::SendWaitComplete(int subid)
 
   ret = Recv(&msgid, &data, subid);
   if ((ret != 0) || (data != 0)) {
-    MPDBG("sync error: ret=%d data=%d\n", ret, data);
+    MPDBG("sync error: ret=%d data=%ld\n", ret, data);
     return ret;
   }
 
