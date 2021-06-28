@@ -62,7 +62,7 @@ String LTEModemVerification::getIMEI()
 
   result = lte_get_imei_sync(imei);
   if (result < 0) {
-    LTEERR("lte_get_imei_sync result error : %d\n", result);
+    LTEERR("lte_get_imei_sync result error : %ld\n", result);
     if (-EPROTO == result) {
       theLTECore.printErrorInfo();
     }
@@ -83,7 +83,7 @@ String LTEModemVerification::getFirmwareVersion()
 
   result = lte_get_version_sync(&fwVersion);
   if (result < 0) {
-    LTEERR("lte_get_version_sync result error : %d\n", result);
+    LTEERR("lte_get_version_sync result error : %ld\n", result);
     if (-EPROTO == result) {
       theLTECore.printErrorInfo();
     }
@@ -106,11 +106,11 @@ LTENetworkRatType LTEModemVerification::getRAT()
       LTEDBG("Returns LTE_NET_RAT_CATM.\n");
       return LTE_NET_RAT_CATM;
     } else {
-      LTEERR("lte_get_rat_sync result error : %d\n", result);
+      LTEERR("lte_get_rat_sync result error : %ld\n", result);
       return LTE_NET_RAT_UNKNOWN;
     }
   } else {
-    LTEDBG("Successful get RAT : %d\n", result);
+    LTEDBG("Successful get RAT : %ld\n", result);
   }
   return (LTENetworkRatType)result;
 }

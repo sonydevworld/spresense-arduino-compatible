@@ -183,14 +183,14 @@ LTEModemStatus LTECore::begin(bool restart)
       LTEDBG("Already powered on.\n");
       return getStatus();
     } else {
-      LTEERR("lte_initialize result error : %d\n", result);
+      LTEERR("lte_initialize result error : %ld\n", result);
       goto errout;
     }
   }
 
   result = lte_set_report_restart(modemRestartCallback);
   if (result < 0) {
-    LTEERR("lte_set_report_restart result error : %d\n", result);
+    LTEERR("lte_set_report_restart result error : %ld\n", result);
     goto errout;
   }
 
@@ -201,7 +201,7 @@ LTEModemStatus LTECore::begin(bool restart)
 
   result = lte_power_on();
   if (result < 0) {
-    LTEERR("lte_power_on result error : %d\n", result);
+    LTEERR("lte_power_on result error : %ld\n", result);
     goto errout;
   }
 
@@ -265,7 +265,7 @@ LTEModemStatus LTECore::startSearchNetwork(char* pinCode, bool synchronous)
 
     result = lte_enter_pin_sync(reinterpret_cast<int8_t*>(pinCode), NULL, &simStatus, &attemptsleft);
     if (result < 0) {
-      LTEERR("lte_enter_pin_sync result error : %d\n", result);
+      LTEERR("lte_enter_pin_sync result error : %ld\n", result);
       LTEERR("simStatus : %d\n", simStatus);
       LTEERR("attemptsleft : %d\n", attemptsleft);
       if (-EPROTO == result) {
@@ -274,7 +274,7 @@ LTEModemStatus LTECore::startSearchNetwork(char* pinCode, bool synchronous)
       goto errout;
     }
 
-    LTEDBG("Successful unlock PIN code.\n", pinCode);
+    LTEDBG("Successful unlock PIN code: %s\n", pinCode);
 
     /* Copy to privte member */
 
@@ -285,7 +285,7 @@ LTEModemStatus LTECore::startSearchNetwork(char* pinCode, bool synchronous)
 
   result = lte_radio_on_sync();
   if (result < 0) {
-    LTEERR("lte_radio_on_sync result error : %d\n", result);
+    LTEERR("lte_radio_on_sync result error : %ld\n", result);
     if (-EPROTO == result) {
       printErrorInfo();
     }
@@ -296,7 +296,7 @@ LTEModemStatus LTECore::startSearchNetwork(char* pinCode, bool synchronous)
 
   result = lte_get_imscap_sync(&imsCapability);
   if (result < 0) {
-    LTEERR("lte_get_imscap_sync result error : %d", result);
+    LTEERR("lte_get_imscap_sync result error : %ld", result);
     if (-EPROTO == result) {
       printErrorInfo();
     }
@@ -325,7 +325,7 @@ LTEModemStatus LTECore::startSearchNetwork(char* pinCode, bool synchronous)
 
       result = lte_activate_pdn_sync(&imsSetting, &imsResult);
       if (result < 0) {
-        LTEERR("lte_activate_pdn_sync result error : %d\n", result);
+        LTEERR("lte_activate_pdn_sync result error : %ld\n", result);
         if (-EPROTO == result) {
           printErrorInfo();
         }
@@ -338,7 +338,7 @@ LTEModemStatus LTECore::startSearchNetwork(char* pinCode, bool synchronous)
     } else {
       result = lte_activate_pdn(&imsSetting, activatePDNCallback);
       if (result < 0) {
-        LTEERR("lte_activate_pdn result error : %d\n", result);
+        LTEERR("lte_activate_pdn result error : %ld\n", result);
         goto errout;
       }
       status = LTE_CONNECTING;
@@ -386,7 +386,7 @@ LTEModemStatus LTECore::connectNetwork(const char *apn, const char *userName, co
 
   result = lte_get_imscap_sync(&imsCapability);
   if (result < 0) {
-    LTEERR("lte_get_imscap_sync result error : %d\n", result);
+    LTEERR("lte_get_imscap_sync result error : %ld\n", result);
     if (-EPROTO == result) {
       printErrorInfo();
     }
@@ -402,7 +402,7 @@ LTEModemStatus LTECore::connectNetwork(const char *apn, const char *userName, co
   if (cancelable) {
     result = lte_set_report_netinfo(reportNetinfoCallback);
     if (result < 0) {
-      LTEERR("lte_set_report_netinfo result error : %d\n", result);
+      LTEERR("lte_set_report_netinfo result error : %ld\n", result);
       goto errout;
     }
   }
@@ -412,7 +412,7 @@ LTEModemStatus LTECore::connectNetwork(const char *apn, const char *userName, co
 
     result = lte_activate_pdn_sync(&apnSetting, &resultPDN);
     if (result < 0) {
-      LTEERR("lte_activate_pdn_sync result error : %d\n", result);
+      LTEERR("lte_activate_pdn_sync result error : %ld\n", result);
       if (-EPROTO == result) {
         printErrorInfo();
       }
@@ -425,7 +425,7 @@ LTEModemStatus LTECore::connectNetwork(const char *apn, const char *userName, co
     if (cancelable) {
       result = lte_set_report_netinfo(NULL);
       if (result < 0) {
-        LTEERR("lte_set_report_netinfo result error : %d\n", result);
+        LTEERR("lte_set_report_netinfo result error : %ld\n", result);
         goto errout;
       }
     }
@@ -436,7 +436,7 @@ LTEModemStatus LTECore::connectNetwork(const char *apn, const char *userName, co
   } else {
     result = lte_activate_pdn(&apnSetting, activatePDNCallback);
     if (result < 0) {
-      LTEERR("lte_activate_pdn result error : %d\n", result);
+      LTEERR("lte_activate_pdn result error : %ld\n", result);
       goto errout;
     }
     status = LTE_CONNECTING;
@@ -477,7 +477,7 @@ LTEModemStatus LTECore::disconnectNetwork()
   if (0 < _sessionID) {
     result = lte_deactivate_pdn_sync(_sessionID);
     if (result < 0) {  
-      LTEERR("lte_deactivate_pdn_sync result error : %d\n", result);
+      LTEERR("lte_deactivate_pdn_sync result error : %ld\n", result);
       if (-EPROTO == result) {
         printErrorInfo();
       }
@@ -505,7 +505,7 @@ LTEModemStatus LTECore::disconnectNetwork()
     LTEDBG("Send PDN attach cancel command.\n");
     result = lte_activate_pdn_cancel();
     if (result < 0) {  
-      LTEERR("lte_activate_pdn_cancel result error : %d\n", result);
+      LTEERR("lte_activate_pdn_cancel result error : %ld\n", result);
       goto errout;
     }
 
@@ -537,16 +537,16 @@ void LTECore::printErrorInfo()
   result = lte_get_errinfo(&errinfo);
   if (result == 0) {
     if (0 != (errinfo.err_indicator & LTE_ERR_INDICATOR_ERRCODE)) {
-      LTEERR("Errorinfo errcode : %d\n", errinfo.err_result_code);
+      LTEERR("Errorinfo errcode : %ld\n", errinfo.err_result_code);
     }
     if (0 != (errinfo.err_indicator & LTE_ERR_INDICATOR_ERRNO)) {
-      LTEERR("Errorinfo errno : %d\n", errinfo.err_no);
+      LTEERR("Errorinfo errno : %ld\n", errinfo.err_no);
     }
     if (0 != (errinfo.err_indicator & LTE_ERR_INDICATOR_ERRSTR)) {
       LTEERR("Errorinfo errstr : %s\n", errinfo.err_string);
     }
   } else {
-    LTEERR("lte_get_errinfo result error : %d\n", result);
+    LTEERR("lte_get_errinfo result error : %ld\n", result);
   }
 }
 

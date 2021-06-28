@@ -69,7 +69,7 @@ String LTEScanNetworks::getSignalStrength()
 
   result = lte_get_quality_sync(&quality);
   if (result < 0) {
-    LTEERR("lte_get_quality_sync result error : %d\n", result);
+    LTEERR("lte_get_quality_sync result error : %ld\n", result);
     if (-EPROTO == result) {
       theLTECore.printErrorInfo();
     }
@@ -92,7 +92,7 @@ String LTEScanNetworks::getCurrentCarrier()
 
   result = lte_get_operator_sync(carrier);
   if (result < 0) {
-    LTEERR("lte_get_operator_sync result error : %d\n", result);
+    LTEERR("lte_get_operator_sync result error : %ld\n", result);
     if (-EPROTO == result) {
       theLTECore.printErrorInfo();
     }
