@@ -47,6 +47,36 @@ size_t Print::write(const uint8_t *buffer, size_t size)
   return n;
 }
 
+size_t Print::printf(const char *format, ...)
+{
+  char buf[64];
+  char *temp = buf;
+  va_list arg;
+  va_list copy;
+  va_start(arg, format);
+  va_copy(copy, arg);
+  int len = vsnprintf(temp, sizeof(buf), format, copy);
+  va_end(copy);
+  if (len < 0) {
+    va_end(arg);
+    return 0;
+  };
+  if ((unsigned int)len >= sizeof(buf)) {
+    temp = (char*)malloc(len + 1);
+    if(temp == NULL) {
+      va_end(arg);
+      return 0;
+    }
+    len = vsnprintf(temp, len + 1, format, arg);
+  }
+  va_end(arg);
+  len = write((uint8_t*)temp, len);
+  if (temp != buf){
+    free(temp);
+  }
+  return len;
+}
+
 size_t Print::print(const char * str)
 {
   const char * p = str;
