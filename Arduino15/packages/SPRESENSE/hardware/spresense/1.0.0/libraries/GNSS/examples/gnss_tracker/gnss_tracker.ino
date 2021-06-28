@@ -316,19 +316,19 @@ static String MakeParameterString(ConfigParam *pConfigParam)
   /* Set IntervalSec. */
   pComment = "; Positioning interval sec(1-300)";
   pParam = "IntervalSec=";
-  snprintf(StringBuffer, STRING_BUFFER_SIZE, "%s\n%s%d\n", pComment, pParam, pConfigParam->IntervalSec);
+  snprintf(StringBuffer, STRING_BUFFER_SIZE, "%s\n%s%ld\n", pComment, pParam, pConfigParam->IntervalSec);
   ParamString += StringBuffer;
 
   /* Set ActiveSec. */
   pComment = "; Positioning active sec(60-300)";
   pParam = "ActiveSec=";
-  snprintf(StringBuffer, STRING_BUFFER_SIZE, "%s\n%s%d\n", pComment, pParam, pConfigParam->ActiveSec);
+  snprintf(StringBuffer, STRING_BUFFER_SIZE, "%s\n%s%ld\n", pComment, pParam, pConfigParam->ActiveSec);
   ParamString += StringBuffer;
 
   /* Set SleepSec. */
   pComment = "; Positioning sleep sec(0-240)";
   pParam = "SleepSec=";
-  snprintf(StringBuffer, STRING_BUFFER_SIZE, "%s\n%s%d\n", pComment, pParam, pConfigParam->SleepSec);
+  snprintf(StringBuffer, STRING_BUFFER_SIZE, "%s\n%s%ld\n", pComment, pParam, pConfigParam->SleepSec);
   ParamString += StringBuffer;
 
   /* Set UartDebugMessage. */

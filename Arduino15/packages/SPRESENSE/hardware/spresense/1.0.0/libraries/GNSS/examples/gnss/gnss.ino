@@ -254,7 +254,7 @@ static void print_pos(SpNavData *pNavData)
   snprintf(StringBuffer, STRING_BUFFER_SIZE, "%04d/%02d/%02d ", pNavData->time.year, pNavData->time.month, pNavData->time.day);
   Serial.print(StringBuffer);
 
-  snprintf(StringBuffer, STRING_BUFFER_SIZE, "%02d:%02d:%02d.%06d, ", pNavData->time.hour, pNavData->time.minute, pNavData->time.sec, pNavData->time.usec);
+  snprintf(StringBuffer, STRING_BUFFER_SIZE, "%02d:%02d:%02d.%06ld, ", pNavData->time.hour, pNavData->time.minute, pNavData->time.sec, pNavData->time.usec);
   Serial.print(StringBuffer);
 
   /* print satellites count */
@@ -346,7 +346,7 @@ static void print_condition(SpNavData *pNavData)
     float sigLevel = pNavData->getSatelliteSignalLevel(cnt);
 
     /* Print satellite condition. */
-    snprintf(StringBuffer, STRING_BUFFER_SIZE, "[%2d] Type:%s, Id:%2d, Elv:%2d, Azm:%3d, CN0:", cnt, pType, Id, Elv, Azm );
+    snprintf(StringBuffer, STRING_BUFFER_SIZE, "[%2ld] Type:%s, Id:%2ld, Elv:%2ld, Azm:%3ld, CN0:", cnt, pType, Id, Elv, Azm );
     Serial.print(StringBuffer);
     Serial.println(sigLevel, 6);
   }
