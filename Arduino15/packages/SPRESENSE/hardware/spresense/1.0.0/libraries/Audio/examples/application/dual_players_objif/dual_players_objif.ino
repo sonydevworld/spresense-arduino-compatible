@@ -451,8 +451,8 @@ void setup()
   char        param0[16];
   char        param1[16];
 
-  snprintf(param0, 16, "%x", &play0_elm);
-  snprintf(param1, 16, "%x", &play1_elm);
+  snprintf(param0, 16, "%lx", (uint32_t)&play0_elm);
+  snprintf(param1, 16, "%lx", (uint32_t)&play1_elm);
 
   argv0[0] = param0;
   argv0[1] = NULL;

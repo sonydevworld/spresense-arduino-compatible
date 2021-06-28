@@ -41,7 +41,7 @@ extern "C" {
 
 static void attentionCallback(const ErrorAttentionParam *attparam)
 {
-  print_err("Attention!! Level 0x%x Code 0x%x\n", attparam->error_code, attparam->error_att_sub_code);
+  print_err("Attention!! Level 0x%x Code 0x%lx\n", attparam->error_code, attparam->error_att_sub_code);
 }
 
 }

@@ -82,7 +82,7 @@ void signal_process(uint32_t size)
   /* The actual signal processing will be coding here.
      For example, prints capture data. */
 
-  printf("Size %d [%02x %02x %02x %02x %02x %02x %02x %02x ...]\n",
+  printf("Size %ld [%02x %02x %02x %02x %02x %02x %02x %02x ...]\n",
          size,
          s_buffer[0],
          s_buffer[1],

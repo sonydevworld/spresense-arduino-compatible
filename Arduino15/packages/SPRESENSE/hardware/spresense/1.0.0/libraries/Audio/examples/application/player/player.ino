@@ -104,7 +104,7 @@ void setup()
       printf("File open error\n");
       exit(1);
     }
-  printf("Open! %d\n",myFile);
+  printf("Open! 0x%08lx\n", (uint32_t)myFile);
 
   /* Send first frames to be decoded */
   err = theAudio->writeFrames(AudioClass::Player0, myFile);
