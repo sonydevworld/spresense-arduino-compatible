@@ -31,6 +31,16 @@
 #include <HardwareSerial.h>
 #include <multi_print.h>
 
+#define SERIAL_CONTROL_MASK (CSIZE | \
+                             CSTOPB | \
+                             CREAD | \
+                             PARENB | \
+                             PARODD | \
+                             HUPCL | \
+                             CLOCAL | \
+                             CCTS_OFLOW | \
+                             CRTS_IFLOW)
+
 HardwareSerial::HardwareSerial(uint8_t ch)
 : _fd(-1),
  _ch(ch),
@@ -88,8 +98,23 @@ void HardwareSerial::begin(unsigned long baud, uint16_t config)
     if (ret != 0)
         return;
     tio.c_speed = baud;
+
+    // Convert config to c_cflag in the termios structure
+    tcflag_t c_cflag = 0;
+    switch (config & MY_CSIZE) {
+    case MY_CS5: c_cflag |= CS5; break;
+    case MY_CS6: c_cflag |= CS6; break;
+    case MY_CS7: c_cflag |= CS7; break;
+    case MY_CS8: c_cflag |= CS8; break;
+    }
+    if (config & MY_CSTOPB) c_cflag |= CSTOPB;
+    if (config & MY_PARENB) c_cflag |= PARENB;
+    if (config & MY_PARODD) c_cflag |= PARODD;
+    if (config & SERIAL_CTS) c_cflag |= CCTS_OFLOW;
+    if (config & SERIAL_RTS) c_cflag |= CRTS_IFLOW;
+
     tio.c_cflag &= ~SERIAL_CONTROL_MASK;
-    tio.c_cflag |= config;
+    tio.c_cflag |= c_cflag;
     tio.c_oflag &= ~OPOST;
     ioctl(_fd, TCSETS, (long unsigned int)&tio);
     ioctl(_fd, TCFLSH, NULL);
