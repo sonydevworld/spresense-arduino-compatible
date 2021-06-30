@@ -46,7 +46,12 @@ const int g_channel = 4;
 /* Ring buffer */
 
 #define INPUT_BUFFER (1024 * 4)
-RingBuff ringbuf[g_channel](INPUT_BUFFER);
+RingBuff ringbuf[g_channel] = {
+  RingBuff(INPUT_BUFFER),
+  RingBuff(INPUT_BUFFER),
+  RingBuff(INPUT_BUFFER),
+  RingBuff(INPUT_BUFFER)
+};
 
 /* Allocate the larger heap size than default */
 
