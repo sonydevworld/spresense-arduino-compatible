@@ -123,12 +123,12 @@ LTEModemStatus LTEAccessProvider::attach(LTENetworkRatType rat,
         LTEDBG("LTE_NET_RAT_CATM is already set on the modem.\n");
       }
     } else {
-      LTEERR("lte_set_rat_sync result error : %d\n", result);
+      LTEERR("lte_set_rat_sync result error : %ld\n", result);
       theLTECore.setStatus(LTE_ERROR);
       return LTE_ERROR;
     }
   } else {
-    LTEDBG("Successful set RAT : %d\n", result);
+    LTEDBG("Successful set RAT : %ld\n", result);
   }
 
   networkStatus = theLTECore.connectNetwork(apn, userName, password, authType, ipType, synchronous);
@@ -213,14 +213,14 @@ unsigned long LTEAccessProvider::getTime()
 
   result = lte_get_localtime_sync(&localTime);
   if (result < 0) {  
-    LTEERR("lte_get_localtime_sync result error : %d\n", result);
+    LTEERR("lte_get_localtime_sync result error : %ld\n", result);
     if (-EPROTO == result) {
       theLTECore.printErrorInfo();
     }
     return 0;
   }
 
-  LTEDBG("Successful get localtime : %4d/%02d/%02d,%02d:%02d:%02d\n",
+  LTEDBG("Successful get localtime : %4ld/%02ld/%02ld,%02ld:%02ld:%02ld\n",
          localTime.year + 1900 + 100, localTime.mon, localTime.mday,
          localTime.hour, localTime.min, localTime.sec);
 
@@ -237,7 +237,7 @@ unsigned long LTEAccessProvider::getTime()
   unsigned long timeSecond = mktime(&calTime);
 
   if (timeSecond == (time_t)-1) {
-    LTEERR("mktime error : 0x%X\n", timeSecond);
+    LTEERR("mktime error : 0x%lX\n", timeSecond);
     return 0;
   } else {
     return timeSecond;
