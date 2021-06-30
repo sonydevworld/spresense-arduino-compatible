@@ -104,7 +104,7 @@ static uint8_t        s_buffer[buffer_size];
 
 static bool mediarecorder_done_callback(AsRecorderEvent event, uint32_t result, uint32_t sub_result)
 {
-  printf("mp cb %x %x %x\n", event, result, sub_result);
+  printf("mp cb %x %lx %lx\n", event, result, sub_result);
 
   return true;
 }
@@ -200,7 +200,7 @@ void signal_process(uint32_t size)
 {
   /* Put any signal process */
 
-  printf("Size %d [%02x %02x %02x %02x %02x %02x %02x %02x ...]\n",
+  printf("Size %ld [%02x %02x %02x %02x %02x %02x %02x %02x ...]\n",
          size,
          s_buffer[0],
          s_buffer[1],

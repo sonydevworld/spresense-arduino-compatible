@@ -155,7 +155,7 @@ void signal_process(uint32_t size)
   /* This is just a sample. 
      Please write what you want to process. */
 
-  printf("Size %d [%02x %02x %02x %02x %02x %02x %02x %02x ...]\n",
+  printf("Size %ld [%02x %02x %02x %02x %02x %02x %02x %02x ...]\n",
          size,
          proc_buffer[0],
          proc_buffer[1],

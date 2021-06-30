@@ -89,7 +89,7 @@ static void outmixer_send_callback(int32_t identifier, bool is_end)
  */
 static bool mediaplayer_done_callback(AsPlayerEvent event, uint32_t result, uint32_t sub_result)
 {
-  printf("mp cb %x %x %x\n", event, result, sub_result);
+  printf("mp cb %x %lx %lx\n", event, result, sub_result);
 
   return true;
 }
@@ -191,7 +191,7 @@ void setup()
       printf("File open error\n");
       exit(1);
     }
-  printf("Open! %d\n", myFile);
+  printf("Open! 0x%08lx\n", (uint32_t)myFile);
 
   /* Send first frames to be decoded */
   err_t err = thePlayer->writeFrames(MediaPlayer::Player0, myFile);
