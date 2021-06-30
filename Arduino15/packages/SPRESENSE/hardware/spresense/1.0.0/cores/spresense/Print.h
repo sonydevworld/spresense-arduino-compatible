@@ -65,6 +65,7 @@ class Print
       return write((const uint8_t *)buffer, size);
     }
     
+    size_t printf(const char * format, ...) __attribute__ ((format (printf, 2, 3)));
     size_t print(const char *);
     size_t print(const String &);
     size_t print(char);
