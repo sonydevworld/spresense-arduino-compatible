@@ -108,7 +108,7 @@ int util_start_timer(int fd, unsigned long timeout /*us*/, tccb_t handler)
 
     struct timer_status_s status;
     if (get_timer_status(fd, &status) == 0 && status.timeout != timeout)
-        printf("start status.timeout = %d\n", status.timeout);
+        printf("start status.timeout = %ld\n", status.timeout);
 
     return OK;
 }

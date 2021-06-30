@@ -28,48 +28,47 @@
 
 #include <nuttx/config.h>
 #include <sdk/config.h>
-#include <termios.h>
 #include "Stream.h"
 
+/* Bit defintions (like c_cflag in the termios structure) */
 
-#define SERIAL_5N1 CS5
-#define SERIAL_6N1 CS6
-#define SERIAL_7N1 CS7
-#define SERIAL_8N1 CS8
-#define SERIAL_5N2 (CS5 | CSTOPB)
-#define SERIAL_6N2 (CS6 | CSTOPB)
-#define SERIAL_7N2 (CS7 | CSTOPB)
-#define SERIAL_8N2 (CS8 | CSTOPB)
-#define SERIAL_5E1 (CS5 | PARENB)
-#define SERIAL_6E1 (CS6 | PARENB)
-#define SERIAL_7E1 (CS7 | PARENB)
-#define SERIAL_8E1 (CS8 | PARENB)
-#define SERIAL_5E2 (CS5 | CSTOPB | PARENB)
-#define SERIAL_6E2 (CS6 | CSTOPB | PARENB)
-#define SERIAL_7E2 (CS7 | CSTOPB | PARENB)
-#define SERIAL_8E2 (CS8 | CSTOPB | PARENB)
-#define SERIAL_5O1 (CS5 | PARENB | PARODD)
-#define SERIAL_6O1 (CS6 | PARENB | PARODD)
-#define SERIAL_7O1 (CS7 | PARENB | PARODD)
-#define SERIAL_8O1 (CS8 | PARENB | PARODD)
-#define SERIAL_5O2 (CS5 | CSTOPB | PARENB | PARODD)
-#define SERIAL_6O2 (CS6 | CSTOPB | PARENB | PARODD)
-#define SERIAL_7O2 (CS7 | CSTOPB | PARENB | PARODD)
-#define SERIAL_8O2 (CS8 | CSTOPB | PARENB | PARODD)
+#define MY_CSIZE     (3 << 4)  /* Bits 4-5: Character size: */
+#  define MY_CS5     (0 << 4)  /*   5 bits */
+#  define MY_CS6     (1 << 4)  /*   6 bits */
+#  define MY_CS7     (2 << 4)  /*   7 bits */
+#  define MY_CS8     (3 << 4)  /*   8 bits */
+#define MY_CSTOPB    (1 << 6)  /* Bit 6: Send two stop bits, else one */
+#define MY_PARENB    (1 << 8)  /* Bit 8: Parity enable */
+#define MY_PARODD    (1 << 9)  /* Bit 9: Odd parity, else even */
 
-#define SERIAL_CTS CCTS_OFLOW
-#define SERIAL_RTS CRTS_IFLOW
-#define SERIAL_RTSCTS CRTSCTS
+#define SERIAL_5N1 MY_CS5
+#define SERIAL_6N1 MY_CS6
+#define SERIAL_7N1 MY_CS7
+#define SERIAL_8N1 MY_CS8
+#define SERIAL_5N2 (MY_CS5 | MY_CSTOPB)
+#define SERIAL_6N2 (MY_CS6 | MY_CSTOPB)
+#define SERIAL_7N2 (MY_CS7 | MY_CSTOPB)
+#define SERIAL_8N2 (MY_CS8 | MY_CSTOPB)
+#define SERIAL_5E1 (MY_CS5 | MY_PARENB)
+#define SERIAL_6E1 (MY_CS6 | MY_PARENB)
+#define SERIAL_7E1 (MY_CS7 | MY_PARENB)
+#define SERIAL_8E1 (MY_CS8 | MY_PARENB)
+#define SERIAL_5E2 (MY_CS5 | MY_CSTOPB | MY_PARENB)
+#define SERIAL_6E2 (MY_CS6 | MY_CSTOPB | MY_PARENB)
+#define SERIAL_7E2 (MY_CS7 | MY_CSTOPB | MY_PARENB)
+#define SERIAL_8E2 (MY_CS8 | MY_CSTOPB | MY_PARENB)
+#define SERIAL_5O1 (MY_CS5 | MY_PARENB | MY_PARODD)
+#define SERIAL_6O1 (MY_CS6 | MY_PARENB | MY_PARODD)
+#define SERIAL_7O1 (MY_CS7 | MY_PARENB | MY_PARODD)
+#define SERIAL_8O1 (MY_CS8 | MY_PARENB | MY_PARODD)
+#define SERIAL_5O2 (MY_CS5 | MY_CSTOPB | MY_PARENB | MY_PARODD)
+#define SERIAL_6O2 (MY_CS6 | MY_CSTOPB | MY_PARENB | MY_PARODD)
+#define SERIAL_7O2 (MY_CS7 | MY_CSTOPB | MY_PARENB | MY_PARODD)
+#define SERIAL_8O2 (MY_CS8 | MY_CSTOPB | MY_PARENB | MY_PARODD)
 
-#define SERIAL_CONTROL_MASK (CSIZE | \
-                             CSTOPB | \
-                             CREAD | \
-                             PARENB | \
-                             PARODD | \
-                             HUPCL | \
-                             CLOCAL | \
-                             CCTS_OFLOW | \
-                             CRTS_IFLOW)
+#define SERIAL_CTS (0x1000)
+#define SERIAL_RTS (0x2000)
+#define SERIAL_RTSCTS (SERIAL_CTS | SERIAL_RTS)
 
 #if defined(CONFIG_CXD56_UART1)
 #define SERIAL_DEFAULT_CHANNEL 1
