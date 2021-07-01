@@ -439,7 +439,7 @@ err_t AudioClass::powerOn(void)
 
   if (result.header.result_code != AUDRLT_STATUSCHANGED)
     {
-      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(0x%x) Error code(0x%lx) subcode(0x%lx)\n",
+      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(%d) Error code(0x%lx) subcode(0x%lx)\n",
                 command.header.command_code, result.header.result_code, result.error_response_param.module_id,
                 result.error_response_param.error_code, result.error_response_param.error_sub_code);
       print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
@@ -465,7 +465,7 @@ err_t AudioClass::powerOff(void)
 
   if (result.header.result_code != AUDRLT_STATUSCHANGED)
     {
-      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(0x%x) Error code(0x%lx) subcode(0x%lx)\n",
+      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(%d) Error code(0x%lx) subcode(0x%lx)\n",
                 command.header.command_code, result.header.result_code, result.error_response_param.module_id,
                 result.error_response_param.error_code, result.error_response_param.error_sub_code);
       print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
@@ -491,7 +491,7 @@ err_t AudioClass::setReadyMode(void)
 
   if (result.header.result_code != AUDRLT_STATUSCHANGED)
     {
-      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(0x%x) Error code(0x%lx) subcode(0x%lx)\n",
+      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(%d) Error code(0x%lx) subcode(0x%lx)\n",
                 command.header.command_code, result.header.result_code, result.error_response_param.module_id,
                 result.error_response_param.error_code, result.error_response_param.error_sub_code);
       print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
@@ -606,7 +606,7 @@ err_t AudioClass::setPlayerMode(uint8_t device, uint8_t sp_drv, uint32_t player0
 
   if (result.header.result_code != AUDRLT_STATUSCHANGED)
     {
-      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(0x%x) Error code(0x%lx) subcode(0x%lx)\n",
+      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(%d) Error code(0x%lx) subcode(0x%lx)\n",
                 command.header.command_code, result.header.result_code, result.error_response_param.module_id,
                 result.error_response_param.error_code, result.error_response_param.error_sub_code);
       print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
@@ -669,7 +669,7 @@ err_t AudioClass::initPlayer(PlayerId id, uint8_t codec_type, const char* codec_
 
   if (result.header.result_code != AUDRLT_INITPLAYERCMPLT)
     {
-      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(0x%x) Error code(0x%lx) subcode(0x%lx)\n",
+      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(%d) Error code(0x%lx) subcode(0x%lx)\n",
                 command.header.command_code, result.header.result_code, result.error_response_param.module_id,
                 result.error_response_param.error_code, result.error_response_param.error_sub_code);
       print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
@@ -698,7 +698,7 @@ err_t AudioClass::startPlayer(PlayerId id)
 
   if (result.header.result_code != AUDRLT_PLAYCMPLT)
     {
-      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(0x%x) Error code(0x%lx) subcode(0x%lx)\n",
+      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(%d) Error code(0x%lx) subcode(0x%lx)\n",
                 command.header.command_code, result.header.result_code, result.error_response_param.module_id,
                 result.error_response_param.error_code, result.error_response_param.error_sub_code);
       print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
@@ -727,7 +727,7 @@ err_t AudioClass::setBeep(char en, short vol, short freq)
 
   if (result.header.result_code != AUDRLT_SETBEEPCMPLT)
     {
-      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(0x%x) Error code(0x%lx) subcode(0x%lx)\n",
+      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(%d) Error code(0x%lx) subcode(0x%lx)\n",
                 command.header.command_code, result.header.result_code, result.error_response_param.module_id,
                 result.error_response_param.error_code, result.error_response_param.error_sub_code);
       print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
@@ -763,7 +763,7 @@ err_t AudioClass::stopPlayer(PlayerId id, uint8_t mode)
 
   if (result.header.result_code != AUDRLT_STOPCMPLT)
     {
-      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(0x%x) Error code(0x%lx) subcode(0x%lx)\n",
+      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(%d) Error code(0x%lx) subcode(0x%lx)\n",
                 command.header.command_code, result.header.result_code, result.error_response_param.module_id,
                 result.error_response_param.error_code, result.error_response_param.error_sub_code);
       print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
@@ -796,7 +796,7 @@ err_t AudioClass::setVolume(int master_db)
 
   if (result.header.result_code != AUDRLT_SETVOLUMECMPLT)
     {
-      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(0x%x) Error code(0x%lx) subcode(0x%lx)\n",
+      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(%d) Error code(0x%lx) subcode(0x%lx)\n",
                 command.header.command_code, result.header.result_code, result.error_response_param.module_id,
                 result.error_response_param.error_code, result.error_response_param.error_sub_code);
       print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
@@ -826,7 +826,7 @@ err_t AudioClass::setVolume(int master, int player0, int player1)
 
   if (result.header.result_code != AUDRLT_SETVOLUMECMPLT)
     {
-      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(0x%x) Error code(0x%lx) subcode(0x%lx)\n",
+      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(%d) Error code(0x%lx) subcode(0x%lx)\n",
                 command.header.command_code, result.header.result_code, result.error_response_param.module_id,
                 result.error_response_param.error_code, result.error_response_param.error_sub_code);
       print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
@@ -856,7 +856,7 @@ err_t AudioClass::setLRgain(PlayerId id, unsigned char l_gain, unsigned char r_g
 
   if (result.header.result_code != AUDRLT_SETGAIN_CMPLT)
     {
-      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(0x%x) Error code(0x%lx) subcode(0x%lx)\n",
+      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(%d) Error code(0x%lx) subcode(0x%lx)\n",
                 command.header.command_code, result.header.result_code, result.error_response_param.module_id,
                 result.error_response_param.error_code, result.error_response_param.error_sub_code);
       print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
@@ -1033,7 +1033,7 @@ err_t AudioClass::setRecorderMode(uint8_t input_device, int32_t input_gain, uint
 
   if (result.header.result_code != AUDRLT_STATUSCHANGED)
     {
-      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(0x%x) Error code(0x%lx) subcode(0x%lx)\n",
+      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(%d) Error code(0x%lx) subcode(0x%lx)\n",
                 command.header.command_code, result.header.result_code, result.error_response_param.module_id,
                 result.error_response_param.error_code, result.error_response_param.error_sub_code);
       print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
@@ -1081,7 +1081,7 @@ err_t AudioClass::initMicFrontend(uint8_t ch_num, uint8_t bit_length, uint16_t s
   AS_ReceiveAudioResult(&result);
   if (result.header.result_code != AUDRLT_INIT_MICFRONTEND)
     {
-      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(0x%x) Error code(0x%lx) subcode(0x%lx)\n",
+      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(%d) Error code(0x%lx) subcode(0x%lx)\n",
                 command.header.command_code, result.header.result_code, result.error_response_param.module_id,
                 result.error_response_param.error_code, result.error_response_param.error_sub_code);
       print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
@@ -1104,7 +1104,7 @@ err_t AudioClass::init_recorder_wav(AudioCommand* command, uint32_t sampling_rat
   AS_ReceiveAudioResult(&result);
   if (result.header.result_code != AUDRLT_INITRECCMPLT)
     {
-      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(0x%x) Error code(0x%lx) subcode(0x%lx)\n",
+      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(%d) Error code(0x%lx) subcode(0x%lx)\n",
                 command->header.command_code, result.header.result_code, result.error_response_param.module_id,
                 result.error_response_param.error_code, result.error_response_param.error_sub_code);
       print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
@@ -1140,7 +1140,7 @@ err_t AudioClass::init_recorder_mp3(AudioCommand* command, uint32_t sampling_rat
   AS_ReceiveAudioResult(&result);
   if (result.header.result_code != AUDRLT_INITRECCMPLT)
     {
-      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(0x%x) Error code(0x%lx) subcode(0x%lx)\n",
+      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(%d) Error code(0x%lx) subcode(0x%lx)\n",
                 command->header.command_code, result.header.result_code, result.error_response_param.module_id,
                 result.error_response_param.error_code, result.error_response_param.error_sub_code);
       print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
@@ -1165,7 +1165,7 @@ err_t AudioClass::init_recorder_opus(AudioCommand* command, uint32_t sampling_ra
   AS_ReceiveAudioResult(&result);
   if (result.header.result_code != AUDRLT_INITRECCMPLT)
     {
-      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(0x%x) Error code(0x%lx) subcode(0x%lx)\n",
+      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(%d) Error code(0x%lx) subcode(0x%lx)\n",
                 command->header.command_code, result.header.result_code, result.error_response_param.module_id,
                 result.error_response_param.error_code, result.error_response_param.error_sub_code);
       print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
@@ -1188,7 +1188,7 @@ err_t AudioClass::init_recorder_pcm(AudioCommand* command, uint32_t sampling_rat
   AS_ReceiveAudioResult(&result);
   if (result.header.result_code != AUDRLT_INITRECCMPLT)
     {
-      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(0x%x) Error code(0x%lx) subcode(0x%lx)\n",
+      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(%d) Error code(0x%lx) subcode(0x%lx)\n",
                 command->header.command_code, result.header.result_code, result.error_response_param.module_id,
                 result.error_response_param.error_code, result.error_response_param.error_sub_code);
       print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
@@ -1285,7 +1285,7 @@ err_t AudioClass::startRecorder(void)
 
   if (result.header.result_code != AUDRLT_RECCMPLT)
     {
-      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(0x%x) Error code(0x%lx) subcode(0x%lx)\n",
+      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(%d) Error code(0x%lx) subcode(0x%lx)\n",
                 command.header.command_code, result.header.result_code, result.error_response_param.module_id,
                 result.error_response_param.error_code, result.error_response_param.error_sub_code);
       print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
@@ -1313,7 +1313,7 @@ err_t AudioClass::stopRecorder(void)
 
   if (result.header.result_code != AUDRLT_STOPRECCMPLT)
     {
-      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(0x%x) Error code(0x%lx) subcode(0x%lx)\n",
+      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(%d) Error code(0x%lx) subcode(0x%lx)\n",
                 command.header.command_code, result.header.result_code, result.error_response_param.module_id,
                 result.error_response_param.error_code, result.error_response_param.error_sub_code);
       print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
@@ -1466,7 +1466,7 @@ err_t AudioClass::setRenderingClockMode(AsClkMode mode)
 
   if (result.header.result_code != AUDRLT_SETRENDERINGCLKCMPLT)
     {
-      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(0x%x) Error code(0x%lx) subcode(0x%lx)\n",
+      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(%d) Error code(0x%lx) subcode(0x%lx)\n",
                 command.header.command_code, result.header.result_code, result.error_response_param.module_id,
                 result.error_response_param.error_code, result.error_response_param.error_sub_code);
       print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
@@ -1546,7 +1546,7 @@ err_t AudioClass::setThroughMode(ThroughInput input, ThroughI2sOut i2s_out, bool
 
   if (result.header.result_code != AUDRLT_SETTHROUGHPATHCMPLT)
     {
-      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(0x%x) Error code(0x%lx) subcode(0x%lx)\n",
+      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(%d) Error code(0x%lx) subcode(0x%lx)\n",
                 command.header.command_code, result.header.result_code, result.error_response_param.module_id,
                 result.error_response_param.error_code, result.error_response_param.error_sub_code);
       print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
@@ -1566,7 +1566,7 @@ err_t AudioClass::setThroughMode(ThroughInput input, ThroughI2sOut i2s_out, bool
 
       if (result.header.result_code != AUDRLT_SETTHROUGHPATHCMPLT)
         {
-          print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(0x%x) Error code(0x%lx) subcode(0x%lx)\n",
+          print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(%d) Error code(0x%lx) subcode(0x%lx)\n",
                     command.header.command_code, result.header.result_code, result.error_response_param.module_id,
                     result.error_response_param.error_code, result.error_response_param.error_sub_code);
           print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
@@ -1631,7 +1631,7 @@ err_t AudioClass::set_output(uint8_t device, uint8_t sp_drv)
 
   if (result.header.result_code != AUDRLT_INITOUTPUTSELECTCMPLT)
     {
-      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(0x%x) Error code(0x%lx) subcode(0x%lx)\n",
+      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(%d) Error code(0x%lx) subcode(0x%lx)\n",
                 command.header.command_code, result.header.result_code, result.error_response_param.module_id,
                 result.error_response_param.error_code, result.error_response_param.error_sub_code);
       print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
@@ -1651,7 +1651,7 @@ err_t AudioClass::set_output(uint8_t device, uint8_t sp_drv)
 
   if (result.header.result_code != AUDRLT_SETSPDRVMODECMPLT)
     {
-      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(0x%x) Error code(0x%lx) subcode(0x%lx)\n",
+      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(%d) Error code(0x%lx) subcode(0x%lx)\n",
                 command.header.command_code, result.header.result_code, result.error_response_param.module_id,
                 result.error_response_param.error_code, result.error_response_param.error_sub_code);
       print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
@@ -1757,7 +1757,7 @@ err_t AudioClass::set_mic_map(uint8_t map[AS_MIC_CHANNEL_MAX])
 
   if (result.header.result_code != AUDRLT_SETMICMAPCMPLT)
     {
-      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(0x%x) Error code(0x%lx) subcode(0x%lx)\n",
+      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(%d) Error code(0x%lx) subcode(0x%lx)\n",
                 command.header.command_code, result.header.result_code, result.error_response_param.module_id,
                 result.error_response_param.error_code, result.error_response_param.error_sub_code);
       print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
@@ -1795,7 +1795,7 @@ err_t AudioClass::init_mic_gain(int dev, int gain)
 
   if (result.header.result_code != AUDRLT_INITMICGAINCMPLT)
     {
-      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(0x%x) Error code(0x%lx) subcode(0x%lx)\n",
+      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(%d) Error code(0x%lx) subcode(0x%lx)\n",
                 command.header.command_code, result.header.result_code, result.error_response_param.module_id,
                 result.error_response_param.error_code, result.error_response_param.error_sub_code);
       print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
@@ -1823,7 +1823,7 @@ err_t AudioClass::send_set_through(void)
 
   if (result.header.result_code != AUDRLT_STATUSCHANGED)
     {
-      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(0x%x) Error code(0x%lx) subcode(0x%lx)\n",
+      print_err("ERROR: Command(0x%x) fails. Result code(0x%x) Module id(%d) Error code(0x%lx) subcode(0x%lx)\n",
                 command.header.command_code, result.header.result_code, result.error_response_param.module_id,
                 result.error_response_param.error_code, result.error_response_param.error_sub_code);
       print_dbg("ERROR: %s\n", error_msg[result.error_response_param.error_code]);
