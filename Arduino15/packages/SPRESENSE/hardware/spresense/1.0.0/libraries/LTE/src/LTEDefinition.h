@@ -42,11 +42,11 @@
  ****************************************************************************/
 
 #ifdef BRD_DEBUG
-#define LTEDBG(format, ...) printf("DEBUG: " format, ##__VA_ARGS__)
+#define LTEDBG(format, ...) ::printf("DEBUG: " format, ##__VA_ARGS__)
 #else
 #define LTEDBG(format, ...)
 #endif
-#define LTEERR(format, ...) printf("ERROR: " format, ##__VA_ARGS__)
+#define LTEERR(format, ...) ::printf("ERROR: " format, ##__VA_ARGS__)
 
 /**
  * @enum LTEModemStatus

@@ -30,11 +30,11 @@
  ****************************************************************************/
 
 #ifdef BRD_DEBUG
-#define TLSCDBG(format, ...) printf("DEBUG: " format, ##__VA_ARGS__)
+#define TLSCDBG(format, ...) ::printf("DEBUG: " format, ##__VA_ARGS__)
 #else
 #define TLSCDBG(format, ...)
 #endif
-#define TLSCERR(format, ...) printf("ERROR: " format, ##__VA_ARGS__)
+#define TLSCERR(format, ...) ::printf("ERROR: " format, ##__VA_ARGS__)
 
 #define BUF_LEN 512
 
