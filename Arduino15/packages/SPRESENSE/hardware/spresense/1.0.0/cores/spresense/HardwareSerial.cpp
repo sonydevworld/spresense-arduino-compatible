@@ -146,7 +146,7 @@ int HardwareSerial::available(void)
 
     ret = ioctl(_fd, FIONREAD, (long unsigned int)&count);
     if (ret)
-        printf("Serial FIONREAD not supported\n");
+        ::printf("Serial FIONREAD not supported\n");
 
     return count;
 }
@@ -182,10 +182,10 @@ int HardwareSerial::read(void)
         return -1;
 
     if (_peek_buffer >= 0) {
-		int t = _peek_buffer;
-		_peek_buffer = -1;
-		return t;
-	}
+        int t = _peek_buffer;
+        _peek_buffer = -1;
+        return t;
+    }
 
     if (_available <= 0)
         _available = available();
@@ -209,7 +209,7 @@ int HardwareSerial::availableForWrite(void)
 
     ret = ioctl(_fd, FIONSPACE, (long unsigned int)&count);
     if (ret)
-        printf("Serial FIONSPACE not supported\n");
+        ::printf("Serial FIONSPACE not supported\n");
 
     return count;
 }
@@ -266,7 +266,7 @@ int HardwareSerial::ch_to_tty(uint8_t *tty)
     uint8_t ch;
 
     if (_ch >= UART_CH_NUM) {
-        printf("invalid channel.\n");
+        ::printf("invalid channel.\n");
         return -1;
     }
 
@@ -276,13 +276,13 @@ int HardwareSerial::ch_to_tty(uint8_t *tty)
     ttys[UART_1] = TTYS_0;
     ttys[UART_2] = TTYS_2;
 
-	if (ttys[_ch] < 0) {
-		printf("invalid channel.\n");
-		return -1;
-	}
+    if (ttys[_ch] < 0) {
+        ::printf("invalid channel.\n");
+        return -1;
+    }
 
-	*tty = (uint8_t)ttys[_ch];
-	return 0;
+    *tty = (uint8_t)ttys[_ch];
+    return 0;
 }
 
 #if defined(CONFIG_CXD56_UART1)
