@@ -38,7 +38,7 @@
 
 //#define DEBUG
 #ifdef DEBUG
-#  define DebugPrintf(fmt, ...) printf(fmt, ## __VA_ARGS__)
+#  define DebugPrintf(fmt, ...) ::printf(fmt, ## __VA_ARGS__)
 #else
 #  define DebugPrintf(fmt, ...) ((void)0)
 #endif
@@ -69,7 +69,7 @@ File::File(const char *name, uint8_t mode)
       retry++;
       if (retry >= 20) {
         retry = 0;
-        printf("Insert SD card!\n");
+        ::printf("Insert SD card!\n");
       }
       usleep(100 * 1000); // 100 msec
     }
