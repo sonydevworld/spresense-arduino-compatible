@@ -152,6 +152,12 @@ void yield(void);
 #endif // __cplusplus
 
 #ifdef __cplusplus
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#endif
+
 template<class T, class L>
 auto min(const T& a, const L& b) -> decltype((b < a) ? b : a)
 {
@@ -163,6 +169,10 @@ auto max(const T& a, const L& b) -> decltype((b < a) ? b : a)
 {
   return (a < b) ? b : a;
 }
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
 #else
 
