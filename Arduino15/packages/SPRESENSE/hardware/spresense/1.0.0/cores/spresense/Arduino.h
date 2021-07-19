@@ -177,20 +177,17 @@ auto max(const T& a, const L& b) -> decltype((b < a) ? b : a)
 #else
 
 #ifndef min
-#define min(a,b) \
-   ({ __typeof__ (a) _a = (a); \
-       __typeof__ (b) _b = (b); \
-     _a < _b ? _a : _b; })
+#define min(a, b)    ((a) < (b) ? (a) : (b))
 #endif
-
 #ifndef max
-#define max(a,b) \
-   ({ __typeof__ (a) _a = (a); \
-       __typeof__ (b) _b = (b); \
-     _a > _b ? _a : _b; })
+#define max(a, b)    ((a) > (b) ? (a) : (b))
 #endif
-
-#define abs(x) ((x) > 0 ? (x) : -(x))
+#ifndef abs
+#define abs(x)       ((x) > 0 ? (x) : -(x))
+#endif
+#ifndef round
+#define round(x)     ((x) >= 0 ? (long)((x) + 0.5) : (long)((x) - 0.5))
+#endif
 
 #endif
 
