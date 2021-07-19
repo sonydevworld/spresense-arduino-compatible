@@ -56,11 +56,11 @@
  ****************************************************************************/
 
 #ifdef BRD_DEBUG
-#define LTEUDPDBG(format, ...) printf("DEBUG:LTEUDP:%d " format, __LINE__, ##__VA_ARGS__)
+#define LTEUDPDBG(format, ...) ::printf("DEBUG:LTEUDP:%d " format, __LINE__, ##__VA_ARGS__)
 #else
 #define LTEUDPDBG(format, ...)
 #endif
-#define LTEUDPERR(format, ...) printf("ERROR:LTEUDP:%d " format, __LINE__, ##__VA_ARGS__)
+#define LTEUDPERR(format, ...) ::printf("ERROR:LTEUDP:%d " format, __LINE__, ##__VA_ARGS__)
 
 #define BUFFER_MAX_LEN 1500
 #define FAILED         -1

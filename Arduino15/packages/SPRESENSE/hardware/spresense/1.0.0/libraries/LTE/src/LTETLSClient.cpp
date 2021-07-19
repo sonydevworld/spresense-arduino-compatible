@@ -44,11 +44,11 @@
  ****************************************************************************/
 
 #ifdef BRD_DEBUG
-#define LTETLSCDBG(format, ...) printf("DEBUG:LTETLSClient:%d " format, __LINE__, ##__VA_ARGS__)
+#define LTETLSCDBG(format, ...) ::printf("DEBUG:LTETLSClient:%d " format, __LINE__, ##__VA_ARGS__)
 #else
 #define LTETLSCDBG(format, ...)
 #endif
-#define LTETLSCERR(format, ...) printf("ERROR:LTETLSClient:%d " format, __LINE__, ##__VA_ARGS__)
+#define LTETLSCERR(format, ...) ::printf("ERROR:LTETLSClient:%d " format, __LINE__, ##__VA_ARGS__)
 
 #define NOT_CONNECTED  0
 #define CONNECTED      1
