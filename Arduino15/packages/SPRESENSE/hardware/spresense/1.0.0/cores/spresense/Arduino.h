@@ -152,6 +152,12 @@ void yield(void);
 #endif // __cplusplus
 
 #ifdef __cplusplus
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#endif
+
 template<class T, class L>
 auto min(const T& a, const L& b) -> decltype((b < a) ? b : a)
 {
@@ -164,23 +170,24 @@ auto max(const T& a, const L& b) -> decltype((b < a) ? b : a)
   return (a < b) ? b : a;
 }
 
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
+
 #else
 
 #ifndef min
-#define min(a,b) \
-   ({ __typeof__ (a) _a = (a); \
-       __typeof__ (b) _b = (b); \
-     _a < _b ? _a : _b; })
+#define min(a, b)    ((a) < (b) ? (a) : (b))
 #endif
-
 #ifndef max
-#define max(a,b) \
-   ({ __typeof__ (a) _a = (a); \
-       __typeof__ (b) _b = (b); \
-     _a > _b ? _a : _b; })
+#define max(a, b)    ((a) > (b) ? (a) : (b))
 #endif
-
-#define abs(x) ((x) > 0 ? (x) : -(x))
+#ifndef abs
+#define abs(x)       ((x) > 0 ? (x) : -(x))
+#endif
+#ifndef round
+#define round(x)     ((x) >= 0 ? (long)((x) + 0.5) : (long)((x) - 0.5))
+#endif
 
 #endif
 
