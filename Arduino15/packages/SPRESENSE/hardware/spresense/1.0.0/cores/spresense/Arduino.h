@@ -102,10 +102,6 @@ unsigned long clockCyclesPerMicrosecond(void);
 #define microsecondsToClockCycles(a) ( (unsigned long long) (a) * clockCyclesPerMicrosecond() )
 
 /* Math */
-#define min(a, b)    ((a) < (b) ? (a) : (b))
-#define max(a, b)    ((a) > (b) ? (a) : (b))
-#define abs(x)       ((x) > 0 ? (x) : -(x))
-#define round(x)     ((x) >= 0 ? (long)((x) + 0.5) : (long)((x) - 0.5))
 #define radians(deg) ((deg) * DEG_TO_RAD)
 #define degrees(rad) ((rad) * RAD_TO_DEG)
 #define sq(x)        ((x) * (x))
@@ -154,6 +150,39 @@ void yield(void);
 #ifdef __cplusplus
 } // extern "C"
 #endif // __cplusplus
+
+#ifdef __cplusplus
+template<class T, class L>
+auto min(const T& a, const L& b) -> decltype((b < a) ? b : a)
+{
+  return (b < a) ? b : a;
+}
+
+template<class T, class L>
+auto max(const T& a, const L& b) -> decltype((b < a) ? b : a)
+{
+  return (a < b) ? b : a;
+}
+
+#else
+
+#ifndef min
+#define min(a,b) \
+   ({ __typeof__ (a) _a = (a); \
+       __typeof__ (b) _b = (b); \
+     _a < _b ? _a : _b; })
+#endif
+
+#ifndef max
+#define max(a,b) \
+   ({ __typeof__ (a) _a = (a); \
+       __typeof__ (b) _b = (b); \
+     _a > _b ? _a : _b; })
+#endif
+
+#define abs(x) ((x) > 0 ? (x) : -(x))
+
+#endif
 
 #ifdef __cplusplus
 #include "WCharacter.h" /* Characters */
