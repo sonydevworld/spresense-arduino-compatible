@@ -134,6 +134,15 @@ unsigned long clockCyclesPerMicrosecond(void);
 #define sbi(reg, bit) (*(reg) |= _BV(bit))
 #endif
 
+/* Fast gpio control */
+uint8_t pin_convert(uint8_t pin);
+uint32_t get_gpio_regaddr(uint32_t pin);
+#define digitalPinToPort(pin)    (pin_convert(pin))
+#define portInputRegister(port)  ((volatile uint8_t*)(get_gpio_regaddr(port) + 0x0)) /* 0:Low 1:High */
+#define portOutputRegister(port) ((volatile uint8_t*)(get_gpio_regaddr(port) + 0x1)) /* 0:Low 1:High */
+#define portModeRegister(port)   ((volatile uint8_t*)(get_gpio_regaddr(port) + 0x2)) /* 0:Output 1:Input */
+#define digitalPinToBitMask(pin) ((uint8_t)0x1)
+
 /* Interrupts */
 void interrupts(void);
 void noInterrupts(void);
