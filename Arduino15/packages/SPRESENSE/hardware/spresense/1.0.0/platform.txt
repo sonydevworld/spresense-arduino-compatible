@@ -29,7 +29,7 @@ compiler.S.flags=-c {compiler.warning_flags} -MMD -std=gnu99 -c -fno-builtin -ma
 compiler.c.elf.flags=-ggdb -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -Xlinker --entry=__start -nodefaultlibs -nostartfiles "{build.stack}" "{build.ldscript}" -Wl,--gc-sections
 
 compiler.c.elf.cmd=arm-none-eabi-g++
-compiler.c.elf.libs= {build.libs} -lgcc -lm -lsupc++
+compiler.c.elf.libs= {build.libs} -lgcc -lm -lsupc++_nano
 
 compiler.cpp.cmd=arm-none-eabi-g++
 compiler.cpp.flags=-c {compiler.warning_flags} -MMD -std=gnu++11 -c -fno-builtin -mabi=aapcs -Wall -Os -fno-strict-aliasing -fno-strength-reduce -fomit-frame-pointer -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -pipe -ffunction-sections -fno-exceptions -fno-rtti -ggdb -gdwarf-3 -ffunction-sections -fdata-sections -fpermissive
