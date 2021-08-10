@@ -35,6 +35,8 @@
 #include <stdint.h>
 #include <errno.h>
 
+#include <arch/board/cxd56_alt1250.h>
+
 #include <lte/lte_api.h>
 #include <LTECore.h>
 
@@ -175,6 +177,12 @@ LTEModemStatus LTECore::begin(bool restart)
 
   if (restart) {
     shutdown();
+  }
+
+  result = board_alt1250_initialize("/dev/alt1250");
+  if (result < 0) {
+    LTEDBG("Fatal error couldn't initialize modem driver\n");
+    goto errout;
   }
 
   result = lte_initialize();
