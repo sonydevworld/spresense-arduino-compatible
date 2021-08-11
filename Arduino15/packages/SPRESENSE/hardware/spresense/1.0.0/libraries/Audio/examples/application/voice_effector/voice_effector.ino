@@ -225,7 +225,12 @@ static void frontend_pcm_callback(AsPcmDataParam pcm)
       puts("Capture size is too big!");
       pcm.size = frame_size;
     }
-    memcpy(proc_buffer, pcm.mh.getPa(), pcm.size);
+
+    if (pcm.size == 0) {
+      memset(proc_buffer, 0, frame_size);        
+    } else {
+      memcpy(proc_buffer, pcm.mh.getPa(), pcm.size);
+    }
   }
 
   if (pcm.is_end) {
@@ -268,7 +273,6 @@ bool execute_aframe()
 
   if (isEnd) {
     pcm_param.is_end = true;
-    isEnd= false;
   } else {
     pcm_param.is_end = false;
   }
@@ -369,7 +373,8 @@ void loop()
     } 
   }
 
-  if (isEnd) {
+  if (isEnd && !isCaptured) {
+    isEnd= false;
     goto exitCapturing;
   }
 
