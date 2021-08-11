@@ -57,12 +57,12 @@ LTEModemStatus LTEModemVerification::begin()
 
 String LTEModemVerification::getIMEI()
 {
-  int32_t result = 0;
-  int8_t imei[LTE_IMEI_LEN] = {0};
+  int result = 0;
+  char imei[LTE_IMEI_LEN] = {0};
 
-  result = lte_get_imei_sync(imei);
+  result = lte_get_imei_sync(imei, LTE_IMEI_LEN);
   if (result < 0) {
-    LTEERR("lte_get_imei_sync result error : %ld\n", result);
+    LTEERR("lte_get_imei_sync result error : %d\n", result);
     if (-EPROTO == result) {
       theLTECore.printErrorInfo();
     }
@@ -71,19 +71,19 @@ String LTEModemVerification::getIMEI()
 
   LTEDBG("Successful get IMEI : %s\n", imei);
 
-  return String(reinterpret_cast<char*>(imei));
+  return String(imei);
 }
 
 String LTEModemVerification::getFirmwareVersion()
 {
-  int32_t       result = 0;
+  int           result = 0;
   lte_version_t fwVersion;
   
   memset(&fwVersion, 0, sizeof(lte_version_t));
 
   result = lte_get_version_sync(&fwVersion);
   if (result < 0) {
-    LTEERR("lte_get_version_sync result error : %ld\n", result);
+    LTEERR("lte_get_version_sync result error : %d\n", result);
     if (-EPROTO == result) {
       theLTECore.printErrorInfo();
     }
@@ -92,12 +92,12 @@ String LTEModemVerification::getFirmwareVersion()
 
   LTEDBG("Successful get version : %s\n", fwVersion.np_package);
 
-  return String(reinterpret_cast<char*>(fwVersion.np_package));
+  return String(fwVersion.np_package);
 }
 
 LTENetworkRatType LTEModemVerification::getRAT()
 {
-  int32_t result = 0;
+  int result = 0;
 
   result = lte_get_rat_sync();
   if (result < 0) {
@@ -106,11 +106,11 @@ LTENetworkRatType LTEModemVerification::getRAT()
       LTEDBG("Returns LTE_NET_RAT_CATM.\n");
       return LTE_NET_RAT_CATM;
     } else {
-      LTEERR("lte_get_rat_sync result error : %ld\n", result);
+      LTEERR("lte_get_rat_sync result error : %d\n", result);
       return LTE_NET_RAT_UNKNOWN;
     }
   } else {
-    LTEDBG("Successful get RAT : %ld\n", result);
+    LTEDBG("Successful get RAT : %d\n", result);
   }
   return (LTENetworkRatType)result;
 }

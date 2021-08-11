@@ -103,7 +103,7 @@ LTEModemStatus LTEAccessProvider::attach(LTENetworkRatType rat,
                                          LTENetworkIPType ipType,
                                          bool synchronous)
 {
-  int32_t        result        = 0;
+  int            result        = 0;
   LTEModemStatus networkStatus = getStatus();
   if (LTE_CONNECTING == networkStatus) {
     LTEERR("This method cannot be called while waiting for a connection.\n");
@@ -123,12 +123,12 @@ LTEModemStatus LTEAccessProvider::attach(LTENetworkRatType rat,
         LTEDBG("LTE_NET_RAT_CATM is already set on the modem.\n");
       }
     } else {
-      LTEERR("lte_set_rat_sync result error : %ld\n", result);
+      LTEERR("lte_set_rat_sync result error : %d\n", result);
       theLTECore.setStatus(LTE_ERROR);
       return LTE_ERROR;
     }
   } else {
-    LTEDBG("Successful set RAT : %ld\n", result);
+    LTEDBG("Successful set RAT : %d\n", result);
   }
 
   networkStatus = theLTECore.connectNetwork(apn, userName, password, authType, ipType, synchronous);
@@ -192,7 +192,7 @@ IPAddress LTEAccessProvider::getIPAddress()
 
   LTEDBG("Successful get IP address : %s\n", netinfo.pdn_stat[pdnNo].address[0].address);
 
-  if (!ipAddress.fromString(reinterpret_cast<char*>(netinfo.pdn_stat[pdnNo].address[0].address))) {
+  if (!ipAddress.fromString(netinfo.pdn_stat[pdnNo].address[0].address)) {
     LTEERR("IP address converting error.\n");
   }
 
@@ -202,7 +202,7 @@ exit:
 
 unsigned long LTEAccessProvider::getTime()
 {
-  int32_t result = 0;
+  int result = 0;
 
   if (LTE_READY != getStatus()) {
     LTEERR("Cannot be called with the current status. : %d\n", getStatus());
@@ -213,7 +213,7 @@ unsigned long LTEAccessProvider::getTime()
 
   result = lte_get_localtime_sync(&localTime);
   if (result < 0) {  
-    LTEERR("lte_get_localtime_sync result error : %ld\n", result);
+    LTEERR("lte_get_localtime_sync result error : %d\n", result);
     if (-EPROTO == result) {
       theLTECore.printErrorInfo();
     }
