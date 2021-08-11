@@ -44,8 +44,8 @@
 #include <fcntl.h>
 #include <stdio.h>
 
-#define FILE_READ O_RDONLY                                     /**< Open the file for reading, starting at the beginning of the file. */
-#define FILE_WRITE (O_RDONLY | O_WRONLY | O_CREAT | O_APPEND)  /**< Open the file for reading and writing, starting at the end of the file.  */
+#define FILE_READ O_RDONLY                         /**< Open the file for reading, starting at the beginning of the file. */
+#define FILE_WRITE (O_RDONLY | O_WRONLY | O_CREAT) /**< Open the file for reading and writing, starting at the end of the file.  */
 
 /**
  * @class File
