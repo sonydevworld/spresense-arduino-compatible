@@ -64,12 +64,12 @@ LTEModemStatus LTEScanNetworks::begin()
 
 String LTEScanNetworks::getSignalStrength()
 {
-  int32_t       result  = 0;
+  int           result  = 0;
   lte_quality_t quality;
 
   result = lte_get_quality_sync(&quality);
   if (result < 0) {
-    LTEERR("lte_get_quality_sync result error : %ld\n", result);
+    LTEERR("lte_get_quality_sync result error : %d\n", result);
     if (-EPROTO == result) {
       theLTECore.printErrorInfo();
     }
@@ -87,24 +87,24 @@ String LTEScanNetworks::getSignalStrength()
 
 String LTEScanNetworks::getCurrentCarrier()
 {
-  int32_t result                    = 0;
-  int8_t  carrier[LTE_OPERATOR_LEN] = {0};
+  int     result                    = 0;
+  char    carrier[LTE_OPERATOR_LEN] = {0};
 
-  result = lte_get_operator_sync(carrier);
+  result = lte_get_operator_sync(carrier, LTE_OPERATOR_LEN);
   if (result < 0) {
-    LTEERR("lte_get_operator_sync result error : %ld\n", result);
+    LTEERR("lte_get_operator_sync result error : %d\n", result);
     if (-EPROTO == result) {
       theLTECore.printErrorInfo();
     }
     return String("N/A");
   }
 
-  if (0 == strlen(reinterpret_cast<char*>(carrier))) {
+  if (0 == strlen(carrier)) {
     LTEERR("Carrier name could not be obtained from the LTE network.\n");
     return String("N/A");
   } else {
     LTEDBG("Successful get network carrier : %s\n", carrier);
-    return String(reinterpret_cast<char*>(carrier));
+    return String(carrier);
   }
 }
 
