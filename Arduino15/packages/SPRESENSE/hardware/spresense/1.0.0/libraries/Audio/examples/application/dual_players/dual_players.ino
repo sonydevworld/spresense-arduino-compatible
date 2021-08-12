@@ -58,6 +58,12 @@ void play_process( AudioClass *theAudio, AudioClass::PlayerId play_id, File& fil
            break;
         }
 
+      /* The usleep() function suspends execution of the calling thread for usec
+       * microseconds. But the timer resolution depends on the OS system tick time
+       * which is 10 milliseconds (10,000 microseconds) by default. Therefore,
+       * it will sleep for a longer time than the time requested here.
+       */
+
       usleep(40000);
     }
 }
