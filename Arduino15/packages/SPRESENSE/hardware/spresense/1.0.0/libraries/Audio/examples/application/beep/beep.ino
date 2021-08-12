@@ -117,8 +117,23 @@ void loop()
   }
 
   theAudio->setBeep(1,-40,theNote.fs);
+
+  /* The usleep() function suspends execution of the calling thread for usec
+   * microseconds. But the timer resolution depends on the OS system tick time
+   * which is 10 milliseconds (10,000 microseconds) by default. Therefore,
+   * it will sleep for a longer time than the time requested here.
+   */
+ 
   usleep(theNote.time * 1000);
+
   theAudio->setBeep(0,0,0);
+
+  /* The usleep() function suspends execution of the calling thread for usec
+   * microseconds. But the timer resolution depends on the OS system tick time
+   * which is 10 milliseconds (10,000 microseconds) by default. Therefore,
+   * it will sleep for a longer time than the time requested here.
+   */
+ 
   usleep(100000);
 
 }
