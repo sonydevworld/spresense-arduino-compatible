@@ -256,9 +256,14 @@ void play_process( MediaPlayer *thePlayer, struct PLAY_ELM_T *elm, File& file)
         }
 
       /* This sleep is adjusted by the time to read the audio stream file.
-         Please adjust in according with the processing contents
-         being processed at the same time by Application.
-      */
+       * Please adjust in according with the processing contents
+       * being processed at the same time by Application.
+       *
+       * The usleep() function suspends execution of the calling thread for usec
+       * microseconds. But the timer resolution depends on the OS system tick time
+       * which is 10 milliseconds (10,000 microseconds) by default. Therefore,
+       * it will sleep for a longer time than the time requested here.
+       */
 
       usleep(40000);
     }
@@ -451,8 +456,8 @@ void setup()
   char        param0[16];
   char        param1[16];
 
-  snprintf(param0, 16, "%x", &play0_elm);
-  snprintf(param1, 16, "%x", &play1_elm);
+  snprintf(param0, 16, "%lx", (uint32_t)&play0_elm);
+  snprintf(param1, 16, "%lx", (uint32_t)&play1_elm);
 
   argv0[0] = param0;
   argv0[1] = NULL;

@@ -55,19 +55,19 @@ void TwoWire::begin()
         _dev = cxd56_i2cbus_initialize(WIRE_PORT);
 
     if (_dev == 0)
-        printf("ERROR: Failed to init I2C device\n");
+        ::printf("ERROR: Failed to init I2C device\n");
 }
 
 void TwoWire::begin(uint8_t address)
 {
     unuse(address);
-    printf("ERROR: I2C slave mode not supported on CXD5602\n");
+    ::printf("ERROR: I2C slave mode not supported on CXD5602\n");
 }
 
 void TwoWire::begin(uint16_t address)
 {
     unuse(address);
-    printf("ERROR: I2C slave mode not supported on CXD5602\n");
+    ::printf("ERROR: I2C slave mode not supported on CXD5602\n");
 }
 
 void TwoWire::end()
@@ -108,7 +108,7 @@ uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity, uint8_t sendStop
     // Then perform the transfer.
     ret = I2C_TRANSFER(_dev, &msg, 1);
     if (ret < 0) {
-        printf("ERROR: Failed to read from i2c (errno = %d)\n", errno);
+        ::printf("ERROR: Failed to read from i2c (errno = %d)\n", errno);
         return 0;
     }
 
@@ -240,7 +240,7 @@ size_t TwoWire::write(uint8_t value)
     else {
         // in slave send mode
         // reply to master
-        printf("ERROR: I2C slave mode not supported on CXD5602\n");
+        ::printf("ERROR: I2C slave mode not supported on CXD5602\n");
     }
     return 1;
 }
@@ -258,7 +258,7 @@ size_t TwoWire::write(const uint8_t* data, size_t quantity)
     else {
         // in slave send mode
         // reply to master
-        printf("ERROR: I2C slave mode not supported on CXD5602\n");
+        ::printf("ERROR: I2C slave mode not supported on CXD5602\n");
     }
     return quantity;
 }
@@ -275,21 +275,21 @@ void TwoWire::setWireTimeout(uint32_t timeout, bool reset_with_timeout)
     // dummy function
     unuse(timeout);
     unuse(reset_with_timeout);
-    printf("ERROR: setWireTimeout is not supported\n");
+    ::printf("ERROR: setWireTimeout is not supported\n");
     return;
 }
 
 bool TwoWire::getWireTimeoutFlag(void)
 {
     // dummy function always returns false
-    printf("ERROR: getWireTimeoutFlag is not supported\n");
+    ::printf("ERROR: getWireTimeoutFlag is not supported\n");
     return false;
 }
 
 void TwoWire::clearWireTimeoutFlag(void)
 {
     // dummy function
-    printf("ERROR: clearWireTimeoutFlag is not supported\n");
+    ::printf("ERROR: clearWireTimeoutFlag is not supported\n");
     return;
 }
 

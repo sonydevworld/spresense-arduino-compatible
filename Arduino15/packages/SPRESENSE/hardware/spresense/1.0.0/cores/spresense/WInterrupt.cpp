@@ -25,7 +25,7 @@
 #include <arch/chip/pin.h>
 #include <nuttx/irq.h>
 #include <nuttx/arch.h>
-#include <common/up_arch.h>
+#include <common/arm_arch.h>
 #include <chip/hardware/cxd5602_memorymap.h>
 #include <chip/hardware/cxd5602_topreg.h>
 
@@ -159,7 +159,7 @@ static struct timer_int_s {
     unsigned int (*isr)(void);
 } s_timer_int = { -1, NULL };
 
-static bool timer_handler(unsigned int *next_interval_us, void *arg)
+static bool timer_handler(uint32_t *next_interval_us, void *arg)
 {
     unuse(arg);
 

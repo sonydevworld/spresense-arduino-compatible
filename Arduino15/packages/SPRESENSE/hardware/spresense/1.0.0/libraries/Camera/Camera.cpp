@@ -45,7 +45,7 @@ ImgBuff::ImgBuff(enum v4l2_buf_type type,
                  int w, int h, CAM_IMAGE_PIX_FMT fmt, int jpgbufsize_divisor,
                  CameraClass *cam)
   : ref_count(0), buff(NULL), width(0), height(0), idx(-1), is_queue(false),
-    buf_type(type), org_pix_fmt(CAM_IMAGE_PIX_FMT_NONE),
+    buf_type(type), pix_fmt(CAM_IMAGE_PIX_FMT_NONE),
     buf_size(0), actual_size(0), cam_ref(NULL)
 {
   buf_size = calc_img_size(w, h, fmt, jpgbufsize_divisor);
@@ -55,7 +55,7 @@ ImgBuff::ImgBuff(enum v4l2_buf_type type,
       cam_ref = cam;
       width = w;
       height = h;
-      org_pix_fmt = fmt;
+      pix_fmt = fmt;
     }
 }
 
@@ -156,16 +156,6 @@ void ImgBuff::update_actual_size(size_t sz)
   actual_size = sz;
 }
 
-void ImgBuff::init_pix_fmt(void)
-{
-  cur_pix_fmt = org_pix_fmt;
-}
-
-void ImgBuff::update_pix_fmt(CAM_IMAGE_PIX_FMT fmt)
-{
-  cur_pix_fmt = fmt;
-}
-
 /****************************************************************************
  * CamImage implementation.
  ****************************************************************************/
@@ -204,11 +194,34 @@ CamErr CamImage::convertPixFormat(CAM_IMAGE_PIX_FMT to_fmt)
           {
             case CAM_IMAGE_PIX_FMT_RGB565:
               imageproc_convert_yuv2rgb(buff, width, height);
+              setPixFormat(to_fmt);
               break;
 
             case CAM_IMAGE_PIX_FMT_GRAY:
               imageproc_convert_yuv2gray(buff, buff, width, height);
               setActualSize(width * height);
+              setPixFormat(to_fmt);
+              break;
+
+            default:
+              return CAM_ERR_INVALID_PARAM;
+          }
+
+        break;
+
+      case CAM_IMAGE_PIX_FMT_RGB565:
+        switch (to_fmt)
+          {
+            case CAM_IMAGE_PIX_FMT_YUV422:
+              imageproc_convert_rgb2yuv(buff, width, height);
+              setPixFormat(to_fmt);
+              break;
+
+            case CAM_IMAGE_PIX_FMT_GRAY:
+              imageproc_convert_rgb2yuv(buff, width, height);
+              imageproc_convert_yuv2gray(buff, buff, width, height);
+              setActualSize(width * height);
+              setPixFormat(to_fmt);
               break;
 
             default:
@@ -220,8 +233,6 @@ CamErr CamImage::convertPixFormat(CAM_IMAGE_PIX_FMT to_fmt)
       default:
         return CAM_ERR_INVALID_PARAM;
     }
-
-  setPixFormat(to_fmt);
 
   return CAM_ERR_SUCCESS;
 }
@@ -491,7 +502,9 @@ CameraClass::CameraClass(const char *path)
   video_fd = -1;
   video_imgs = NULL;
   video_buf_num = 0;
+  video_pix_fmt = CAM_IMAGE_PIX_FMT_NONE;
   still_img = NULL;
+  still_pix_fmt = CAM_IMAGE_PIX_FMT_NONE;
   loop_dqbuf_en = false;
   video_cb = NULL;
   dq_tid = -1;
@@ -948,6 +961,7 @@ CamErr CameraClass::begin(int buff_num, CAM_VIDEO_FPS fps, int video_width, int 
       goto label_err_with_memaligned;
     }
 
+  video_pix_fmt = video_fmt;
   return ret; // Success begin.
 
   label_err_with_memaligned:
@@ -1134,6 +1148,7 @@ CamErr CameraClass::setStillPictureImageFormat(int img_width, int img_height, CA
       err = CAM_ERR_NOT_INITIALIZED;
     }
 
+  still_pix_fmt = img_fmt;
   return err;
 }
 
@@ -1156,7 +1171,6 @@ CamImage CameraClass::takePicture( )
                     {
                       if ((buf.flags & V4L2_BUF_FLAG_ERROR) == 0)
                         {
-                          still_img->initPixFormat();
                           still_img->setActualSize((size_t)buf.bytesused);
                         }
                       else
@@ -1164,6 +1178,7 @@ CamImage CameraClass::takePicture( )
                           still_img->setActualSize((size_t)0);
                         }
 
+                      still_img->setPixFormat(still_pix_fmt);
                       return *still_img;
                     }
                 }
@@ -1234,7 +1249,6 @@ void CameraClass::dqbuf_thread(void *arg)
 
               if ((buf.flags & V4L2_BUF_FLAG_ERROR) == 0)
                 {
-                  img->initPixFormat();
                   img->setActualSize((size_t)buf.bytesused);
                 }
               else
@@ -1270,6 +1284,7 @@ void CameraClass::frame_handle_thread(void *arg)
               cam->lock_video_cb();
               if (cam->video_cb != NULL)
                 {
+                  img->setPixFormat(cam->video_pix_fmt);
                   cam->video_cb(*img);
                 }
               else

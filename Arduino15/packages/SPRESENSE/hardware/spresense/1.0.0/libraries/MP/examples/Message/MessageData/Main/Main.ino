@@ -53,7 +53,7 @@ void loop()
 
   /* Echo back from SubCore */
 
-  printf("Send: id=%d data=0x%08x\n", sndid, snddata);
+  printf("Send: id=%d data=0x%08lx\n", sndid, snddata);
 
   ret = MP.Send(sndid, snddata, subcore);
   if (ret < 0) {
@@ -68,7 +68,7 @@ void loop()
     printf("MP.Recv error = %d\n", ret);
   }
 
-  printf("Recv: id=%d data=0x%08x : %s\n", rcvid, rcvdata,
+  printf("Recv: id=%d data=0x%08lx : %s\n", rcvid, rcvdata,
          (snddata == rcvdata) ? "Success" : "Fail");
 
   delay(1000);

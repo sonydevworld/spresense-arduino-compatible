@@ -35,6 +35,8 @@
 #include <stdint.h>
 #include <errno.h>
 
+#include <arch/board/cxd56_alt1250.h>
+
 #include <lte/lte_api.h>
 #include <LTECore.h>
 
@@ -171,10 +173,16 @@ LTECore LTECore::getInstance()
 
 LTEModemStatus LTECore::begin(bool restart)
 {
-  int32_t result = 0;
+  int result = 0;
 
   if (restart) {
     shutdown();
+  }
+
+  result = board_alt1250_initialize("/dev/alt1250");
+  if (result < 0) {
+    LTEDBG("Fatal error couldn't initialize modem driver\n");
+    goto errout;
   }
 
   result = lte_initialize();
@@ -254,7 +262,7 @@ void LTECore::shutdown()
 
 LTEModemStatus LTECore::startSearchNetwork(char* pinCode, bool synchronous)
 {
-  int32_t        result        = 0;
+  int            result        = 0;
   bool           imsCapability = false;
   LTEModemStatus status        = LTE_SEARCHING;
 
@@ -263,7 +271,7 @@ LTEModemStatus LTECore::startSearchNetwork(char* pinCode, bool synchronous)
     uint8_t simStatus    = 0;
     uint8_t attemptsleft = 0;
 
-    result = lte_enter_pin_sync(reinterpret_cast<int8_t*>(pinCode), NULL, &simStatus, &attemptsleft);
+    result = lte_enter_pin_sync(pinCode, NULL, &simStatus, &attemptsleft);
     if (result < 0) {
       LTEERR("lte_enter_pin_sync result error : %d\n", result);
       LTEERR("simStatus : %d\n", simStatus);
@@ -274,7 +282,7 @@ LTEModemStatus LTECore::startSearchNetwork(char* pinCode, bool synchronous)
       goto errout;
     }
 
-    LTEDBG("Successful unlock PIN code.\n", pinCode);
+    LTEDBG("Successful unlock PIN code: %s\n", pinCode);
 
     /* Copy to privte member */
 
@@ -316,7 +324,7 @@ LTEModemStatus LTECore::startSearchNetwork(char* pinCode, bool synchronous)
 
     /* For IMS connections, APN name does not make sense. */
     
-    imsSetting.apn = reinterpret_cast<int8_t*>(const_cast<char*>(""));
+    imsSetting.apn = const_cast<char*>("");
     imsSetting.apn_type = LTE_APN_TYPE_IA | LTE_APN_TYPE_IMS;
     imsSetting.auth_type = LTE_NET_AUTHTYPE_NONE;
 
@@ -355,17 +363,17 @@ errout:
 
 LTEModemStatus LTECore::connectNetwork(const char *apn, const char *userName, const char *password, LTENetworkAuthType authType, LTENetworkIPType ipType, bool synchronous, bool cancelable)
 {
-  int32_t           result     = 0;
+  int               result     = 0;
   LTEModemStatus    status     = LTE_SEARCHING;
-  lte_apn_setting_t apnSetting = {reinterpret_cast<int8_t*>(const_cast<char*>(apn)),
+  lte_apn_setting_t apnSetting = {const_cast<char*>(apn),
                                   ipType,
                                   authType,
                                   LTE_APN_TYPE_IA | LTE_APN_TYPE_DEFAULT,
-                                  reinterpret_cast<int8_t*>(const_cast<char*>(userName)),
-                                  reinterpret_cast<int8_t*>(const_cast<char*>(password))
+                                  const_cast<char*>(userName),
+                                  const_cast<char*>(password)
                                   };
 
-  if (!apnSetting.apn || (0 == strlen(reinterpret_cast<char*>(apnSetting.apn)))) {
+  if (!apnSetting.apn || (0 == strlen(apnSetting.apn))) {
     LTEERR("Invalid APN name.\n");
     setStatus(LTE_ERROR);
     return LTE_ERROR;
@@ -375,8 +383,8 @@ LTEModemStatus LTECore::connectNetwork(const char *apn, const char *userName, co
    * there is no authentication.
    */
 
-  if (!apnSetting.user_name || (0 == strlen(reinterpret_cast<char*>(apnSetting.user_name))) ||
-      !apnSetting.password || (0 == strlen(reinterpret_cast<char*>(apnSetting.password)))) {
+  if (!apnSetting.user_name || (0 == strlen(apnSetting.user_name)) ||
+      !apnSetting.password || (0 == strlen(apnSetting.password))) {
     apnSetting.user_name = NULL;
     apnSetting.password = NULL;
     apnSetting.auth_type = LTE_NET_AUTHTYPE_NONE;
@@ -472,7 +480,7 @@ errout:
 
 LTEModemStatus LTECore::disconnectNetwork()
 {
-  int32_t result = 0;
+  int result = 0;
 
   if (0 < _sessionID) {
     result = lte_deactivate_pdn_sync(_sessionID);
@@ -531,16 +539,16 @@ void LTECore::signalModemReset()
 
 void LTECore::printErrorInfo()
 {
-  int32_t        result  = 0;
+  int            result  = 0;
   lte_errinfo_t  errinfo;
 
   result = lte_get_errinfo(&errinfo);
   if (result == 0) {
     if (0 != (errinfo.err_indicator & LTE_ERR_INDICATOR_ERRCODE)) {
-      LTEERR("Errorinfo errcode : %d\n", errinfo.err_result_code);
+      LTEERR("Errorinfo errcode : %ld\n", errinfo.err_result_code);
     }
     if (0 != (errinfo.err_indicator & LTE_ERR_INDICATOR_ERRNO)) {
-      LTEERR("Errorinfo errno : %d\n", errinfo.err_no);
+      LTEERR("Errorinfo errno : %ld\n", errinfo.err_no);
     }
     if (0 != (errinfo.err_indicator & LTE_ERR_INDICATOR_ERRSTR)) {
       LTEERR("Errorinfo errstr : %s\n", errinfo.err_string);

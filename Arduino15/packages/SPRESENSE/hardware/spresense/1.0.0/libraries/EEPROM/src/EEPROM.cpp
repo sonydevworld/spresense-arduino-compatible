@@ -58,7 +58,7 @@ EERef& EERef::operator=( uint8_t in )
   int ret;
   FILE *fp = NULL;
 
-  if ((fp = fopen(EEPROM_EMU, "ab+")) == NULL) {
+  if ((fp = fopen(EEPROM_EMU, "rb+")) == NULL) {
     printf("ERROR: eeprom open failure\n");
     goto errout;
   }

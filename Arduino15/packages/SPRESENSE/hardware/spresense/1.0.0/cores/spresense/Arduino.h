@@ -102,10 +102,6 @@ unsigned long clockCyclesPerMicrosecond(void);
 #define microsecondsToClockCycles(a) ( (unsigned long long) (a) * clockCyclesPerMicrosecond() )
 
 /* Math */
-#define min(a, b)    ((a) < (b) ? (a) : (b))
-#define max(a, b)    ((a) > (b) ? (a) : (b))
-#define abs(x)       ((x) > 0 ? (x) : -(x))
-#define round(x)     ((x) >= 0 ? (long)((x) + 0.5) : (long)((x) - 0.5))
 #define radians(deg) ((deg) * DEG_TO_RAD)
 #define degrees(rad) ((rad) * RAD_TO_DEG)
 #define sq(x)        ((x) * (x))
@@ -138,6 +134,15 @@ unsigned long clockCyclesPerMicrosecond(void);
 #define sbi(reg, bit) (*(reg) |= _BV(bit))
 #endif
 
+/* Fast gpio control */
+uint8_t pin_convert(uint8_t pin);
+uint32_t get_gpio_regaddr(uint32_t pin);
+#define digitalPinToPort(pin)    (pin_convert(pin))
+#define portInputRegister(port)  ((volatile uint8_t*)(get_gpio_regaddr(port) + 0x0)) /* 0:Low 1:High */
+#define portOutputRegister(port) ((volatile uint8_t*)(get_gpio_regaddr(port) + 0x1)) /* 0:Low 1:High */
+#define portModeRegister(port)   ((volatile uint8_t*)(get_gpio_regaddr(port) + 0x2)) /* 0:Output 1:Input */
+#define digitalPinToBitMask(pin) ((uint8_t)0x1)
+
 /* Interrupts */
 void interrupts(void);
 void noInterrupts(void);
@@ -154,6 +159,46 @@ void yield(void);
 #ifdef __cplusplus
 } // extern "C"
 #endif // __cplusplus
+
+#ifdef __cplusplus
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#endif
+
+template<class T, class L>
+auto min(const T& a, const L& b) -> decltype((b < a) ? b : a)
+{
+  return (b < a) ? b : a;
+}
+
+template<class T, class L>
+auto max(const T& a, const L& b) -> decltype((b < a) ? b : a)
+{
+  return (a < b) ? b : a;
+}
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
+
+#else
+
+#ifndef min
+#define min(a, b)    ((a) < (b) ? (a) : (b))
+#endif
+#ifndef max
+#define max(a, b)    ((a) > (b) ? (a) : (b))
+#endif
+#ifndef abs
+#define abs(x)       ((x) > 0 ? (x) : -(x))
+#endif
+#ifndef round
+#define round(x)     ((x) >= 0 ? (long)((x) + 0.5) : (long)((x) - 0.5))
+#endif
+
+#endif
 
 #ifdef __cplusplus
 #include "WCharacter.h" /* Characters */

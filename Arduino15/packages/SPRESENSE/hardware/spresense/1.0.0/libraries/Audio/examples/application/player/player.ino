@@ -104,7 +104,7 @@ void setup()
       printf("File open error\n");
       exit(1);
     }
-  printf("Open! %d\n",myFile);
+  printf("Open! 0x%08lx\n", (uint32_t)myFile);
 
   /* Send first frames to be decoded */
   err = theAudio->writeFrames(AudioClass::Player0, myFile);
@@ -155,9 +155,14 @@ void loop()
     }
 
   /* This sleep is adjusted by the time to read the audio stream file.
-     Please adjust in according with the processing contents
-     being processed at the same time by Application.
-  */
+   * Please adjust in according with the processing contents
+   * being processed at the same time by Application.
+   *
+   * The usleep() function suspends execution of the calling thread for usec
+   * microseconds. But the timer resolution depends on the OS system tick time
+   * which is 10 milliseconds (10,000 microseconds) by default. Therefore,
+   * it will sleep for a longer time than the time requested here.
+   */
 
   usleep(40000);
 

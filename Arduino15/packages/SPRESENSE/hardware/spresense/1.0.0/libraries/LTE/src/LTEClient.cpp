@@ -56,11 +56,11 @@
  ****************************************************************************/
 
 #ifdef BRD_DEBUG
-#define LTECDBG(format, ...) printf("DEBUG:LTEClient:%d " format, __LINE__, ##__VA_ARGS__)
+#define LTECDBG(format, ...) ::printf("DEBUG:LTEClient:%d " format, __LINE__, ##__VA_ARGS__)
 #else
 #define LTECDBG(format, ...)
 #endif
-#define LTECERR(format, ...) printf("ERROR:LTEClient:%d " format, __LINE__, ##__VA_ARGS__)
+#define LTECERR(format, ...) ::printf("ERROR:LTEClient:%d " format, __LINE__, ##__VA_ARGS__)
 
 #define SET_TIMEVAL(tv, ms) do { \
                               tv.tv_sec = (ms) / 1000; \

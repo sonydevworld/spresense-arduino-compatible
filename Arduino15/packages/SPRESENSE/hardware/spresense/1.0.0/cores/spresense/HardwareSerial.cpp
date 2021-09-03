@@ -31,6 +31,16 @@
 #include <HardwareSerial.h>
 #include <multi_print.h>
 
+#define SERIAL_CONTROL_MASK (CSIZE | \
+                             CSTOPB | \
+                             CREAD | \
+                             PARENB | \
+                             PARODD | \
+                             HUPCL | \
+                             CLOCAL | \
+                             CCTS_OFLOW | \
+                             CRTS_IFLOW)
+
 HardwareSerial::HardwareSerial(uint8_t ch)
 : _fd(-1),
  _ch(ch),
@@ -73,7 +83,7 @@ void HardwareSerial::begin(unsigned long baud, uint16_t config)
 
         close(0);
         if (null >= 0 && null != 0) {
-            fs_dupfd2(null, 0);
+            dup2(null, 0);
             close(null);
         }
     }
@@ -88,8 +98,23 @@ void HardwareSerial::begin(unsigned long baud, uint16_t config)
     if (ret != 0)
         return;
     tio.c_speed = baud;
-    tio.c_cflag &= ~0x3ff;
-    tio.c_cflag |= config;
+
+    // Convert config to c_cflag in the termios structure
+    tcflag_t c_cflag = 0;
+    switch (config & MY_CSIZE) {
+    case MY_CS5: c_cflag |= CS5; break;
+    case MY_CS6: c_cflag |= CS6; break;
+    case MY_CS7: c_cflag |= CS7; break;
+    case MY_CS8: c_cflag |= CS8; break;
+    }
+    if (config & MY_CSTOPB) c_cflag |= CSTOPB;
+    if (config & MY_PARENB) c_cflag |= PARENB;
+    if (config & MY_PARODD) c_cflag |= PARODD;
+    if (config & SERIAL_CTS) c_cflag |= CCTS_OFLOW;
+    if (config & SERIAL_RTS) c_cflag |= CRTS_IFLOW;
+
+    tio.c_cflag &= ~SERIAL_CONTROL_MASK;
+    tio.c_cflag |= c_cflag;
     tio.c_oflag &= ~OPOST;
     ioctl(_fd, TCSETS, (long unsigned int)&tio);
     ioctl(_fd, TCFLSH, NULL);
@@ -103,7 +128,7 @@ void HardwareSerial::end(void)
         close(_fd);
         _fd = -1;
     }
-    fs_dupfd2(_stdin_fd, 0);
+    dup2(_stdin_fd, 0);
 }
 
 HardwareSerial::operator bool() const
@@ -121,7 +146,7 @@ int HardwareSerial::available(void)
 
     ret = ioctl(_fd, FIONREAD, (long unsigned int)&count);
     if (ret)
-        printf("Serial FIONREAD not supported\n");
+        ::printf("Serial FIONREAD not supported\n");
 
     return count;
 }
@@ -157,10 +182,10 @@ int HardwareSerial::read(void)
         return -1;
 
     if (_peek_buffer >= 0) {
-		int t = _peek_buffer;
-		_peek_buffer = -1;
-		return t;
-	}
+        int t = _peek_buffer;
+        _peek_buffer = -1;
+        return t;
+    }
 
     if (_available <= 0)
         _available = available();
@@ -184,7 +209,7 @@ int HardwareSerial::availableForWrite(void)
 
     ret = ioctl(_fd, FIONSPACE, (long unsigned int)&count);
     if (ret)
-        printf("Serial FIONSPACE not supported\n");
+        ::printf("Serial FIONSPACE not supported\n");
 
     return count;
 }
@@ -241,7 +266,7 @@ int HardwareSerial::ch_to_tty(uint8_t *tty)
     uint8_t ch;
 
     if (_ch >= UART_CH_NUM) {
-        printf("invalid channel.\n");
+        ::printf("invalid channel.\n");
         return -1;
     }
 
@@ -251,13 +276,13 @@ int HardwareSerial::ch_to_tty(uint8_t *tty)
     ttys[UART_1] = TTYS_0;
     ttys[UART_2] = TTYS_2;
 
-	if (ttys[_ch] < 0) {
-		printf("invalid channel.\n");
-		return -1;
-	}
+    if (ttys[_ch] < 0) {
+        ::printf("invalid channel.\n");
+        return -1;
+    }
 
-	*tty = (uint8_t)ttys[_ch];
-	return 0;
+    *tty = (uint8_t)ttys[_ch];
+    return 0;
 }
 
 #if defined(CONFIG_CXD56_UART1)

@@ -103,7 +103,7 @@ LTEModemStatus LTEAccessProvider::attach(LTENetworkRatType rat,
                                          LTENetworkIPType ipType,
                                          bool synchronous)
 {
-  int32_t        result        = 0;
+  int            result        = 0;
   LTEModemStatus networkStatus = getStatus();
   if (LTE_CONNECTING == networkStatus) {
     LTEERR("This method cannot be called while waiting for a connection.\n");
@@ -192,7 +192,7 @@ IPAddress LTEAccessProvider::getIPAddress()
 
   LTEDBG("Successful get IP address : %s\n", netinfo.pdn_stat[pdnNo].address[0].address);
 
-  if (!ipAddress.fromString(reinterpret_cast<char*>(netinfo.pdn_stat[pdnNo].address[0].address))) {
+  if (!ipAddress.fromString(netinfo.pdn_stat[pdnNo].address[0].address)) {
     LTEERR("IP address converting error.\n");
   }
 
@@ -202,7 +202,7 @@ exit:
 
 unsigned long LTEAccessProvider::getTime()
 {
-  int32_t result = 0;
+  int result = 0;
 
   if (LTE_READY != getStatus()) {
     LTEERR("Cannot be called with the current status. : %d\n", getStatus());
@@ -220,7 +220,7 @@ unsigned long LTEAccessProvider::getTime()
     return 0;
   }
 
-  LTEDBG("Successful get localtime : %4d/%02d/%02d,%02d:%02d:%02d\n",
+  LTEDBG("Successful get localtime : %4ld/%02ld/%02ld,%02ld:%02ld:%02ld\n",
          localTime.year + 1900 + 100, localTime.mon, localTime.mday,
          localTime.hour, localTime.min, localTime.sec);
 
@@ -237,7 +237,7 @@ unsigned long LTEAccessProvider::getTime()
   unsigned long timeSecond = mktime(&calTime);
 
   if (timeSecond == (time_t)-1) {
-    LTEERR("mktime error : 0x%X\n", timeSecond);
+    LTEERR("mktime error : 0x%lX\n", timeSecond);
     return 0;
   } else {
     return timeSecond;

@@ -5,9 +5,9 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <errno.h>
-#include <common/up_arch.h>
+#include <common/arm_arch.h>
 #include <cxd56_clock.h>
-#include <arch/chip/hardware/cxd56_timer.h>
+#include <hardware/cxd56_timer.h>
 #include <arch/chip/timer.h>
 #include "utility.h"
 
@@ -108,7 +108,7 @@ int util_start_timer(int fd, unsigned long timeout /*us*/, tccb_t handler)
 
     struct timer_status_s status;
     if (get_timer_status(fd, &status) == 0 && status.timeout != timeout)
-        printf("start status.timeout = %d\n", status.timeout);
+        printf("start status.timeout = %ld\n", status.timeout);
 
     return OK;
 }

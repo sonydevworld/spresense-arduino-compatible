@@ -96,10 +96,16 @@ spresense.menu.Core.Main.build.variant=spresense
 spresense.build.stack=
 spresense.menu.Core.Main.build.stack=-Wl,--defsym,__reserved_ramsize=1572864-{upload.maximum_size}
 
+spresense.build.libs="{build.libpath}/libapps.a" "{build.libpath}/libarch.a" "{build.libpath}/libarm_cortexM4lf_math.a" "{build.libpath}/libbinfmt.a" "{build.libpath}/libboard.a" "{build.libpath}/libboards.a" "{build.libpath}/libc.a" "{build.libpath}/libcmsis_nn.a" "{build.libpath}/libdrivers.a" "{build.libpath}/libfs.a" "{build.libpath}/libmm.a" "{build.libpath}/libsched.a" "{build.libpath}/libxx.a"
+spresense.menu.Core.Main.build.libs="{build.libpath}/libapps.a" "{build.libpath}/libarch.a" "{build.libpath}/libarm_cortexM4lf_math.a" "{build.libpath}/libaudio.a" "{build.libpath}/libbinfmt.a" "{build.libpath}/libboard.a" "{build.libpath}/libboards.a" "{build.libpath}/libc.a" "{build.libpath}/libcmsis_nn.a" "{build.libpath}/libdrivers.a" "{build.libpath}/libfs.a" "{build.libpath}/libmm.a" "{build.libpath}/libnet.a" "{build.libpath}/libnnablart.a" "{build.libpath}/libsched.a" "{build.libpath}/libsslutils.a" "{build.libpath}/libxx.a"
+
+### without SYSBUS
 spresense.build.ldscript=-T{variant.path}/ramconfig.ld
+### with SYSBUS
+#spresense.build.ldscript=-T{variant.path}/ramconfig-new.ld
 spresense.build.root={runtime.tools.spresense-sdk.path}/spresense
 spresense.build.kernel={build.root}/{build.type}
-spresense.build.libpath={build.kernel}/nuttx
+spresense.build.libpath={build.kernel}/nuttx/libs
 
 spresense.menu.Debug.Disabled=Disabled
 spresense.menu.Debug.Disabled.build.debug=

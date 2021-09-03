@@ -17,7 +17,7 @@ compiler.warning_flags.all=-Wall -Wextra
 
 compiler.path={runtime.tools.gcc-arm-none-eabi.path}/{runtime.os}/bin/
 compiler.sdk.path={build.kernel}
-compiler.cpreprocessor.flags= "-I{build.kernel}/nuttx" "-I{build.kernel}/nuttx/include" "-I{build.kernel}/nuttx/arch" "-I{build.kernel}/nuttx/arch/chip" "-I{build.kernel}/sdk/include" "-I{build.kernel}/sdk/modules/include" "-I{build.kernel}/sdk/apps/include" "-I{build.kernel}/sdk/system/include" "-I{build.kernel}/sdk/externals/include" "-I{build.kernel}/sdk/externals/include/cmsis" "-I{variant.path}" {build.debug} -DCONFIG_WCHAR_BUILTIN -DCONFIG_HAVE_DOUBLE
+compiler.cpreprocessor.flags= "-I{build.kernel}/nuttx/include/libcxx" "-I{build.kernel}/nuttx/include" "-I{build.kernel}/nuttx/arch" "-I{build.kernel}/nuttx/arch/chip" "-I{build.kernel}/sdk/include" "-I{build.kernel}/sdk/modules/include" "-I{build.kernel}/sdk/apps/include" "-I{build.kernel}/sdk/system/include" "-I{build.kernel}/sdk/externals/include" "-I{build.kernel}/sdk/externals/include/cmsis" "-I{variant.path}" {build.debug} -DCONFIG_WCHAR_BUILTIN -DCONFIG_HAVE_DOUBLE -D__NuttX__
 
 
 compiler.c.cmd=arm-none-eabi-gcc
@@ -29,7 +29,7 @@ compiler.S.flags=-c {compiler.warning_flags} -MMD -std=gnu99 -c -fno-builtin -ma
 compiler.c.elf.flags=-ggdb -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -Xlinker --entry=__start -nodefaultlibs -nostartfiles "{build.stack}" "{build.ldscript}" -Wl,--gc-sections
 
 compiler.c.elf.cmd=arm-none-eabi-g++
-compiler.c.elf.libs= "{build.libpath}/libs/libapps.a" "{build.libpath}/libs/libnuttx.a" -lgcc -lm
+compiler.c.elf.libs= {build.libs} -lgcc -lm -lsupc++_nano
 
 compiler.cpp.cmd=arm-none-eabi-g++
 compiler.cpp.flags=-c {compiler.warning_flags} -MMD -std=gnu++11 -c -fno-builtin -mabi=aapcs -Wall -Os -fno-strict-aliasing -fno-strength-reduce -fomit-frame-pointer -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -pipe -ffunction-sections -fno-exceptions -fno-rtti -ggdb -gdwarf-3 -ffunction-sections -fdata-sections -fpermissive
@@ -116,4 +116,4 @@ tools.spresense-tools.erase.pattern="{cmd.path}" -s -c "{serial.port}" {cmd.opt.
 tools.spresense-tools.bootloader.params.verbose=
 tools.spresense-tools.bootloader.params.quiet=
 tools.spresense-tools.firmware.path={runtime.tools.spresense-sdk.path}/spresense/firmware
-tools.spresense-tools.bootloader.pattern="{cmd.path}" -s -c "{serial.port}" {cmd.opt.baudrate} -d -n -S "{firmware.path}/loader.espk" -S "{firmware.path}/gnssfw.espk" -S "{firmware.path}/dnnrt-mp.espk" -S "{firmware.path}/AESM.espk"
+tools.spresense-tools.bootloader.pattern="{cmd.path}" -s -c "{serial.port}" {cmd.opt.baudrate} -d -n "{firmware.path}/loader.espk" "{firmware.path}/gnssfw.espk" "{firmware.path}/dnnrt-mp.espk" "{firmware.path}/AESM.espk" "{firmware.path}/sysutil.spk"

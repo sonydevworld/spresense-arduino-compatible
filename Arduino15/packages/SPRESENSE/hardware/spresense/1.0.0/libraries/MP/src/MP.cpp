@@ -25,7 +25,7 @@
 #include <stdio.h>
 #include <chip/hardware/cxd5602_backupmem.h>
 #include <chip/hardware/cxd5602_memorymap.h>
-#include <common/up_arch.h>
+#include <common/arm_arch.h>
 #include <armv7-m/nvic.h>
 #include <assert.h>
 #include <nuttx/arch.h>
@@ -187,7 +187,7 @@ int MPClass::SendWaitComplete(int subid)
 
   ret = Recv(&msgid, &data, subid);
   if ((ret != 0) || (data != 0)) {
-    MPDBG("sync error: ret=%d data=%d\n", ret, data);
+    MPDBG("sync error: ret=%d data=%ld\n", ret, data);
     return ret;
   }
 
@@ -213,7 +213,7 @@ uint32_t MPClass::Virt2Phys(void *virt)
   int8_t tag;
 
   va = (uint32_t)virt >> 16;
-  if (va & 0xfff0)
+  if (va & 0x0ff0)
     {
       return (uint32_t)virt;
     }

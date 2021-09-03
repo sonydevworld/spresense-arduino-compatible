@@ -38,7 +38,7 @@
 
 //#define DEBUG
 #ifdef DEBUG
-#  define DebugPrintf(fmt, ...) printf(fmt, ## __VA_ARGS__)
+#  define DebugPrintf(fmt, ...) ::printf(fmt, ## __VA_ARGS__)
 #else
 #  define DebugPrintf(fmt, ...) ((void)0)
 #endif
@@ -69,7 +69,7 @@ File::File(const char *name, uint8_t mode)
       retry++;
       if (retry >= 20) {
         retry = 0;
-        printf("Insert SD card!\n");
+        ::printf("Insert SD card!\n");
       }
       usleep(100 * 1000); // 100 msec
     }
@@ -90,7 +90,11 @@ File::File(const char *name, uint8_t mode)
   _name = strdup(name);
   if (_fd >= 0) {
     _size = stat.st_size;
-    _curpos = ::lseek(_fd, 0, SEEK_CUR);
+    if (mode == FILE_WRITE) {
+      _curpos = ::lseek(_fd, 0, SEEK_END);
+    } else {
+      _curpos = ::lseek(_fd, 0, SEEK_CUR);
+    }
   }
 }
 

@@ -107,7 +107,7 @@ void loop()
   Request  *request;
   static Result result[g_result_size];
 
-  static float pTmp[(FFT_LEN + abs(g_max_shift)) * 2];
+  static float pTmp[(FFT_LEN + g_max_shift) * 2];
   static float pDst[FFT_LEN];
   static q15_t pLpfTmp[FFT_LEN];
   static q15_t pLpfDst[FFT_LEN*2]; /* for stereo */

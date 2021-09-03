@@ -42,7 +42,7 @@ void setup()
     return;
   }
 
-  printf("SharedMemory Address=@%08x\n", (uint32_t)addr);
+  printf("SharedMemory Address=@%08lx\n", (uint32_t)addr);
 
   /* memory fill */
   memset(addr, 0x55, MEMSIZE);
@@ -59,7 +59,7 @@ void setup()
   int i;
   for (i = 0; i < MEMSIZE; i++) {
     if (addr[i] != 0xaa) {
-      printf("Error: @%08x\n", (uint32_t)&addr[i]);
+      printf("Error: @%08lx\n", (uint32_t)&addr[i]);
       while (1);
     }
   }
