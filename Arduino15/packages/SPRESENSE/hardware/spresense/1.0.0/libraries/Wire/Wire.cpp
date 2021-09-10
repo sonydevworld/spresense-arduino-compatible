@@ -30,10 +30,9 @@ extern "C" {
 #include "utility.h"
 #include "Wire.h"
 
-#define WIRE_PORT (0) // I2C0
-
-TwoWire::TwoWire()
+TwoWire::TwoWire(int port)
 : _dev(0),
+  _port(port),
   _freq(TWI_FREQ_100KHZ),
   _transmitting(false),
   _tx_address(0),
@@ -51,8 +50,7 @@ TwoWire::TwoWire()
 
 void TwoWire::begin()
 {
-    if (_dev == 0)
-        _dev = cxd56_i2cbus_initialize(WIRE_PORT);
+    _dev = cxd56_i2cbus_initialize(_port);
 
     if (_dev == 0)
         ::printf("ERROR: Failed to init I2C device\n");
@@ -307,4 +305,8 @@ void TwoWire::onRequest(TWIRequestHandler handler)
 
 #ifdef CONFIG_CXD56_I2C0
 TwoWire Wire;
+#endif
+
+#ifdef CONFIG_CXD56_I2C1
+TwoWire Wire1(1);
 #endif

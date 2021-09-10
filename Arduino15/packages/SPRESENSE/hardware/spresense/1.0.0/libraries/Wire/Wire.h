@@ -62,7 +62,7 @@ typedef void (*TWIRequestHandler)(void);
 class TwoWire : public Stream
 {
 public:
-    TwoWire(void);
+    TwoWire(int port = 0);
     void begin(void); // master mode
     void begin(uint8_t address); // slave mode, not supported in nuttx?
     void begin(uint16_t address);
@@ -105,6 +105,7 @@ private:
 
 private:
     FAR struct i2c_master_s* _dev;
+    int _port;
     uint32_t _freq;
     bool _transmitting;
     uint16_t _tx_address;
@@ -123,6 +124,10 @@ private:
 extern TwoWire Wire;
 #else
 #error Please enable I2C0 in NuttX
+#endif
+
+#ifdef CONFIG_CXD56_I2C1
+extern TwoWire Wire1;
 #endif
 
 // #endif //__cplusplus
