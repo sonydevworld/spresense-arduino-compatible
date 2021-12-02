@@ -87,6 +87,16 @@ enum CamErr {
   CAM_ERR_NOT_PERMITTED         = -10, /**< [en] Operation is not permitted.               <BR> [jp] 許容されていない操作です */
 };
 
+/**
+ * @enum CAM_DEVICE_TYPE
+ * @brief [en] Camera device type which is being used <BR>
+ *        [ja] 使用されているカメラデバイスの種類
+ */
+enum CAM_DEVICE_TYPE {
+  CAM_DEVICE_TYPE_UNKNOWN, /**< [en] Unknown <BR> [ja] 不明 */
+  CAM_DEVICE_TYPE_ISX012,  /**< [en] ISX012  <BR> [ja] ISX012 */
+  CAM_DEVICE_TYPE_ISX019,  /**< [en] ISX019  <BR> [ja] ISX019 */
+};
 
 /**
  * @enum CAM_WHITE_BALANCE
@@ -715,6 +725,16 @@ public:
    *         [ja] 撮影された写真イメージ。もし何らかのエラーが発生した場合、空のCamImageオブジェクトが返される。
    */
   CamImage takePicture();
+
+  /**
+   * @brief Get camera device type.
+   * @details [en] Get camera device type which is being used. <BR>
+   *          [ja] 使用されているカメラデバイスの種類を取得する。
+   * @return [en] Camera device type which is being used. <BR>
+   *         [ja] 使用されているカメラデバイスの種類。
+   */
+
+  CAM_DEVICE_TYPE getDeviceType();
 
   /**
    * @brief De-initialize Spresense Camera

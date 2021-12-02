@@ -1189,6 +1189,32 @@ CamImage CameraClass::takePicture( )
   return CamImage();  // Return empty CamImage because of any error occured.
 }
 
+// Public : Get camera device type.
+CAM_DEVICE_TYPE CameraClass::getDeviceType()
+{
+  CAM_DEVICE_TYPE ret;
+  struct v4l2_capability param = {0};
+
+  ret = CAM_DEVICE_TYPE_UNKNOWN;
+
+  if (is_device_ready())
+    {
+      if (ioctl(video_fd, VIDIOC_QUERYCAP, (unsigned long)&param) == 0)
+        {
+          if (strncmp((char *)param.driver, "ISX012", sizeof(param.driver)) == 0)
+            {
+              ret = CAM_DEVICE_TYPE_ISX012;
+            }
+          else if (strncmp((char *)param.driver, "ISX019", sizeof(param.driver)) == 0)
+            {
+              ret = CAM_DEVICE_TYPE_ISX019;
+            }
+        }
+    }
+
+  return ret;
+}
+
 // Public : Finish to use the Camera.
 void CameraClass::end()
 {
