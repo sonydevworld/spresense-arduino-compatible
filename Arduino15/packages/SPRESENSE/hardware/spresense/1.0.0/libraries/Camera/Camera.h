@@ -703,6 +703,15 @@ public:
   CamErr setColorEffect(CAM_COLOR_FX effect /**< [en] Color effect. Choose one from #CAM_COLOR_FX <BR> [ja] 色効果設定値。 #CAM_COLOR_FX から選択する */ );
 
   /**
+   * @brief Set HDR.
+   * @details [en] Set HDR. <BR>
+   *          [ja] HDRを設定する。
+   * @return [en] Error code defined as #CamErr. <BR>
+   *         [ja] #CamErr で定義されているエラーコード
+   */
+  CamErr setHDR(bool enable /**< true : HDR ON, false : HDR OFF */ );
+
+  /**
    * @brief Set Still Picture Image format parameters.
    * @details [en] Set Still Picture Image format. <BR>
    *          [ja] 静止画写真の画像フォーマット設定。

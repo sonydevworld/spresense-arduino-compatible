@@ -24,6 +24,7 @@ setISOSensitivity          KEYWORD2
 setAutoWhiteBalanceMode    KEYWORD2
 setSceneMode               KEYWORD2
 setColorEffect             KEYWORD2
+setHDR                     KEYWORD2
 setStillPictureImageFormat KEYWORD2
 takePicture                KEYWORD2
 getDeviceType              KEYWORD2
