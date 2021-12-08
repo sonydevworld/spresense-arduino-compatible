@@ -26,6 +26,10 @@
  * in pgm (portable greyscale map) file. Both of requred files should be
  * placed at the SD card. And adjust file path (nnbfile and pgmfile) if
  * needed.
+ *
+ * A sample NNB file `network.nnb` is provided in the same directory as this
+ * sketch. See below for instructions on how to create this NNB file.
+ * https://developer.sony.com/develop/spresense/docs/arduino_developer_guide_en.html#_dnnrt_library
  */
 
 #include <SDHCI.h>
