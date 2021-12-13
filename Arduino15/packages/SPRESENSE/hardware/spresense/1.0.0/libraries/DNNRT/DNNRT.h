@@ -63,14 +63,16 @@ public:
    *  https://dl.sony.com/
    *
    * @param nnbfile nnb network model binary file
+   * @param cpu_num the number of CPUs to be used by DNN runtime (default 1)
    * @return 0 on success, otherwise error.
+   * @retval -22(-EINVAL) invalid argument of cpu_num
    * @retval -16(-EBUSY) dnnrt-mp included in bootloader isn't installed,
    *                     or no memory space to load it.
    * @retval -1 no memory space to load nnbfile
    * @retval -2 communication error with dnnrt-mp
    * @retval -3 illegal input/output data in network model
    */  
-  int begin(File &nnbfile);
+  int begin(File &nnbfile, unsigned char cpu_num = 1);
 
   /**
    * Finalize runtime object
