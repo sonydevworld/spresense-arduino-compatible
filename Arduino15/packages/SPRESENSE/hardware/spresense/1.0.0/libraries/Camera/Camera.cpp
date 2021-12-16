@@ -1105,6 +1105,14 @@ CamErr CameraClass::setColorEffect(CAM_COLOR_FX effect)
                        (uint32_t)effect );
 }
 
+// Public : HDR
+CamErr CameraClass::setHDR(bool enable)
+{
+  return set_ext_ctrls(V4L2_CTRL_CLASS_CAMERA,
+                       V4L2_CID_WIDE_DYNAMIC_RANGE,
+                       (uint32_t)enable);
+}
+
 // Public : Still Picture Format.
 CamErr CameraClass::setStillPictureImageFormat(int img_width, int img_height, CAM_IMAGE_PIX_FMT img_fmt,
                                                int jpgbufsize_divisor)
