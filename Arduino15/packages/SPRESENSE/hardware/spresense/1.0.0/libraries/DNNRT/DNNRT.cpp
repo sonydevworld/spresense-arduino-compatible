@@ -40,12 +40,22 @@
 #include <File.h>
 
 int
-DNNRT::begin(File& nnbfile)
+DNNRT::begin(File& nnbfile, unsigned char cpu_num)
 {
   int ret;
   size_t size;
+  dnn_config_t config;
 
-  ret = dnn_initialize(NULL);
+  // Specify the number of CPUs to be used by DNN runtime
+
+  if ((cpu_num < 1) || (cpu_num > 5))
+    {
+      return -EINVAL;
+    }
+
+  config.cpu_num = cpu_num;
+
+  ret = dnn_initialize(&config);
   if (ret < 0)
     {
       return ret;

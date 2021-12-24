@@ -87,6 +87,16 @@ enum CamErr {
   CAM_ERR_NOT_PERMITTED         = -10, /**< [en] Operation is not permitted.               <BR> [jp] 許容されていない操作です */
 };
 
+/**
+ * @enum CAM_DEVICE_TYPE
+ * @brief [en] Camera device type which is being used <BR>
+ *        [ja] 使用されているカメラデバイスの種類
+ */
+enum CAM_DEVICE_TYPE {
+  CAM_DEVICE_TYPE_UNKNOWN, /**< [en] Unknown <BR> [ja] 不明 */
+  CAM_DEVICE_TYPE_ISX012,  /**< [en] ISX012  <BR> [ja] ISX012 */
+  CAM_DEVICE_TYPE_ISX019,  /**< [en] ISX019  <BR> [ja] ISX019 */
+};
 
 /**
  * @enum CAM_WHITE_BALANCE
@@ -693,6 +703,15 @@ public:
   CamErr setColorEffect(CAM_COLOR_FX effect /**< [en] Color effect. Choose one from #CAM_COLOR_FX <BR> [ja] 色効果設定値。 #CAM_COLOR_FX から選択する */ );
 
   /**
+   * @brief Set HDR.
+   * @details [en] Set HDR. <BR>
+   *          [ja] HDRを設定する。
+   * @return [en] Error code defined as #CamErr. <BR>
+   *         [ja] #CamErr で定義されているエラーコード
+   */
+  CamErr setHDR(bool enable /**< true : HDR ON, false : HDR OFF */ );
+
+  /**
    * @brief Set Still Picture Image format parameters.
    * @details [en] Set Still Picture Image format. <BR>
    *          [ja] 静止画写真の画像フォーマット設定。
@@ -715,6 +734,16 @@ public:
    *         [ja] 撮影された写真イメージ。もし何らかのエラーが発生した場合、空のCamImageオブジェクトが返される。
    */
   CamImage takePicture();
+
+  /**
+   * @brief Get camera device type.
+   * @details [en] Get camera device type which is being used. <BR>
+   *          [ja] 使用されているカメラデバイスの種類を取得する。
+   * @return [en] Camera device type which is being used. <BR>
+   *         [ja] 使用されているカメラデバイスの種類。
+   */
+
+  CAM_DEVICE_TYPE getDeviceType();
 
   /**
    * @brief De-initialize Spresense Camera

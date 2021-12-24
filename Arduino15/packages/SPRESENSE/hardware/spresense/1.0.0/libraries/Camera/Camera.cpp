@@ -1105,6 +1105,14 @@ CamErr CameraClass::setColorEffect(CAM_COLOR_FX effect)
                        (uint32_t)effect );
 }
 
+// Public : HDR
+CamErr CameraClass::setHDR(bool enable)
+{
+  return set_ext_ctrls(V4L2_CTRL_CLASS_CAMERA,
+                       V4L2_CID_WIDE_DYNAMIC_RANGE,
+                       (uint32_t)enable);
+}
+
 // Public : Still Picture Format.
 CamErr CameraClass::setStillPictureImageFormat(int img_width, int img_height, CAM_IMAGE_PIX_FMT img_fmt,
                                                int jpgbufsize_divisor)
@@ -1187,6 +1195,32 @@ CamImage CameraClass::takePicture( )
     }
 
   return CamImage();  // Return empty CamImage because of any error occured.
+}
+
+// Public : Get camera device type.
+CAM_DEVICE_TYPE CameraClass::getDeviceType()
+{
+  CAM_DEVICE_TYPE ret;
+  struct v4l2_capability param = {0};
+
+  ret = CAM_DEVICE_TYPE_UNKNOWN;
+
+  if (is_device_ready())
+    {
+      if (ioctl(video_fd, VIDIOC_QUERYCAP, (unsigned long)&param) == 0)
+        {
+          if (strncmp((char *)param.driver, "ISX012", sizeof(param.driver)) == 0)
+            {
+              ret = CAM_DEVICE_TYPE_ISX012;
+            }
+          else if (strncmp((char *)param.driver, "ISX019", sizeof(param.driver)) == 0)
+            {
+              ret = CAM_DEVICE_TYPE_ISX019;
+            }
+        }
+    }
+
+  return ret;
 }
 
 // Public : Finish to use the Camera.
