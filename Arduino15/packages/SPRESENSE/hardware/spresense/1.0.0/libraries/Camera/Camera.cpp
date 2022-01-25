@@ -31,6 +31,9 @@
 
 #include <Camera.h>
 #include <arch/board/cxd56_imageproc.h>
+#include <nuttx/video/isx012.h>
+#include <nuttx/video/isx019.h>
+#include <arch/chip/cisif.h>
 
 /****************************************************************************
  * ImgBuff implementation.
@@ -498,7 +501,10 @@ CameraClass CameraClass::getInstance()
 // Public : Constructor.
 CameraClass::CameraClass(const char *path)
 {
-  video_init_stat = video_initialize(path);
+  video_init_stat = isx019_initialize();
+  video_init_stat += isx012_initialize();
+  video_init_stat += cxd56_cisif_initialize();
+  video_init_stat += video_initialize(path);
   video_fd = -1;
   video_imgs = NULL;
   video_buf_num = 0;
