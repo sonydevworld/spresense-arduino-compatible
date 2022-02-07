@@ -67,7 +67,7 @@ void LowPowerClass::end()
 
 void LowPowerClass::sleep(uint32_t seconds)
 {
-  sleep(seconds);
+  ::sleep(seconds);
 }
 
 void LowPowerClass::coldSleep()
