@@ -4,6 +4,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
+#include <assert.h>
 #include <errno.h>
 #include <common/arm_arch.h>
 #include <cxd56_clock.h>
