@@ -1,6 +1,6 @@
 /*
  *  Camera.h - Camera include file for the Spresense SDK
- *  Copyright 2018, 2020, 2021 Sony Semiconductor Solutions Corporation
+ *  Copyright 2018, 2020-2022 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -530,6 +530,7 @@ private:
   bool is_device_ready();
   CamErr set_video_frame_rate(CAM_VIDEO_FPS fps);
   CamErr set_ext_ctrls(uint16_t ctl_cls, uint16_t cid, int32_t value);
+  int32_t get_ext_ctrls(uint16_t ctl_cls, uint16_t cid);
   CamErr create_stillbuff(int w, int h, CAM_IMAGE_PIX_FMT fmt, int jpgbufsize_divisor);
   CamErr create_dq_thread();
   void   delete_dq_thread();
@@ -632,15 +633,26 @@ public:
   CamErr setAutoExposure(bool enable /**< [en] Start or Stop Auto Exposure. (true : start, false : stop) <BR> [ja] 自動露光調整の開始/停止 (true : 開始、false : 停止) */);
 
   /**
-   * @brief Set Exposure Time
-   * @details [en] To manually set the absolute exposure time it is first needed to disable auto exposure function by calling setAutoExposure(false).  <BR>
-   *          [ja]
+   * @brief Set exposure Time
+   * @details [en] Set exposure time in 100usec units.  <BR>
+   *          [ja] 露光時間(100usec単位)を設定する。
    *
-   * @param exposure_time Exposure time in 100 µS units. 1 unit is 1/10000th of a second. 10000 is one second.
+   * @param  exposure_time [en] Exposure time in 100 usec units. ex) 10000 is one second. <BR>
+   *                       [ja] 露光時間(100usec単位)。 例) 10000 = 1秒
    * @return [en] Error code defined as #CamErr. <BR>
-   *         [ja]
+   *         [ja] #CamErrで定義されているエラーコード。
    */
-  CamErr setAbsoluteExposure(uint32_t exposure_time);
+  CamErr setAbsoluteExposure(int32_t exposure_time);
+
+  /**
+   * @brief Get exposure Time
+   * @details [en] Get exposure time in 100usec units.  <BR>
+   *          [ja] 露光時間(100usec単位)を取得する。
+   *
+   * @return [en] Exposure time in 100usec units or error code defined as #CamErr. <BR>
+   *         [ja] 露光時間(100usec単位) もしくは、#CamErrで定義されているエラーコード。
+   */
+  int32_t getAbsoluteExposure(void);
 
   /**
    * @brief Control Auto ISO Sensitivity (WIll obsolete after v1.2.0)
