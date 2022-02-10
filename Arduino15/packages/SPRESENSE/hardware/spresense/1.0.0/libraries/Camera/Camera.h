@@ -113,7 +113,6 @@ enum CAM_WHITE_BALANCE {
   CAM_WHITE_BALANCE_SHADE         = V4L2_WHITE_BALANCE_SHADE,         /**< [en] Shade        <BR> [ja] 影 */
 };
 
-
 /**
  * @defgroup CAM_IMGSIZE Camera Image size definitions
  * @brief Camera Image size definition.
@@ -210,6 +209,17 @@ enum CAM_COLOR_FX {
 #define CAM_ISO_SENSITIVITY_1600  (1600000)   /**< [en] ISO Sensitivity 1600 <BR> [jp] ISO感度 1600 */
 /** @} */
 
+/**
+ * @enum CAM_HDR_MODE
+ * @brief [en] Camera HDR mode definitions. <BR>
+ *        [ja] CameraのHDRモードの設定値
+ * @{
+ */
+enum CAM_HDR_MODE {
+  CAM_HDR_MODE_OFF  = 0, /**< HDR off */
+  CAM_HDR_MODE_AUTO = 1, /**< HDR auto */
+  CAM_HDR_MODE_ON   = 2, /**< HDR on */
+};
 
 /**
  * @enum CAM_VIDEO_FPS
@@ -715,13 +725,13 @@ public:
   CamErr setColorEffect(CAM_COLOR_FX effect /**< [en] Color effect. Choose one from #CAM_COLOR_FX <BR> [ja] 色効果設定値。 #CAM_COLOR_FX から選択する */ );
 
   /**
-   * @brief Set HDR.
-   * @details [en] Set HDR. <BR>
-   *          [ja] HDRを設定する。
+   * @brief Set HDR mode.
+   * @details [en] Set HDR mode. The default mode is HDR auto(CAM_HDR_MODE_AUTO) <BR>
+   *          [ja] HDRモードを設定する。デフォルトはHDR auto(CAM_HDR_MODE_AUTO)。
    * @return [en] Error code defined as #CamErr. <BR>
    *         [ja] #CamErr で定義されているエラーコード
    */
-  CamErr setHDR(bool enable /**< true : HDR ON, false : HDR OFF */ );
+  CamErr setHDR(CAM_HDR_MODE mode /**< [en] HDR mode value. Choose one from #CAM_HDR_MODE <BR> [ja] HDRモード。 #CAM_HDR_MODE から選択する。 */ );
 
   /**
    * @brief Set Still Picture Image format parameters.
