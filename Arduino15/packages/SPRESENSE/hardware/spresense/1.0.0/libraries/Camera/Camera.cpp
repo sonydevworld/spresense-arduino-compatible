@@ -1,6 +1,6 @@
 /*
  *  Camera.cpp - Camera implementation file for the Spresense SDK
- *  Copyright 2018, 2020, 2021 Sony Semiconductor Solutions Corporation
+ *  Copyright 2018, 2020-2022 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -1040,6 +1040,34 @@ CamErr CameraClass::set_ext_ctrls(uint16_t ctl_cls,
     }
 }
 
+// Private : Get EXT_CTRLS of V4S.
+int32_t CameraClass::get_ext_ctrls(uint16_t ctl_cls,
+                                  uint16_t cid)
+{
+  struct v4l2_ext_controls param = {0};
+  struct v4l2_ext_control ctl_param = {0};
+
+  if (is_device_ready())
+    {
+      ctl_param.id = cid;
+
+      param.ctrl_class = ctl_cls;
+      param.count = 1;
+      param.controls = &ctl_param;
+
+      if (ioctl(video_fd, VIDIOC_G_EXT_CTRLS, (unsigned long)&param) < 0)
+        {
+          return convert_errno2camerr(errno);
+        }
+
+      return ctl_param.value;
+    }
+  else
+    {
+      return CAM_ERR_NOT_INITIALIZED;
+    }
+}
+
 // Public : Turn on/off Auto White Balance.
 CamErr CameraClass::setAutoWhiteBalance(bool enable)
 {
@@ -1057,11 +1085,18 @@ CamErr CameraClass::setAutoExposure(bool enable)
 }
 
 // Public : Set exposure time in ms.
-CamErr CameraClass::setAbsoluteExposure(uint32_t exposure_time)
+CamErr CameraClass::setAbsoluteExposure(int32_t exposure_time)
 {
   return set_ext_ctrls(V4L2_CTRL_CLASS_CAMERA,
                        V4L2_CID_EXPOSURE_ABSOLUTE,
                        exposure_time);
+}
+
+// Public : Get exposure time in 100usec.
+int32_t CameraClass::getAbsoluteExposure(void)
+{
+  return get_ext_ctrls(V4L2_CTRL_CLASS_CAMERA,
+                       V4L2_CID_EXPOSURE_ABSOLUTE);
 }
 
 // Public : Turn on/off Auto ISO Sensitivity.
