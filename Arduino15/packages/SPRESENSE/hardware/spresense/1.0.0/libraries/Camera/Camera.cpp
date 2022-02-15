@@ -28,6 +28,7 @@
 #include <fcntl.h>
 #include <sched.h>
 #include <errno.h>
+#include <assert.h>
 
 #include <Camera.h>
 #include <arch/board/cxd56_imageproc.h>
@@ -1152,6 +1153,15 @@ CamErr CameraClass::setHDR(CAM_HDR_MODE mode)
   return set_ext_ctrls(V4L2_CTRL_CLASS_CAMERA,
                        V4L2_CID_WIDE_DYNAMIC_RANGE,
                        mode);
+}
+
+CAM_HDR_MODE CameraClass::getHDR(void)
+{
+  int ret;
+
+  ret = get_ext_ctrls(V4L2_CTRL_CLASS_CAMERA, V4L2_CID_WIDE_DYNAMIC_RANGE);
+  ASSERT(ret >= 0);
+  return (CAM_HDR_MODE)ret;
 }
 
 // Public : Still Picture Format.

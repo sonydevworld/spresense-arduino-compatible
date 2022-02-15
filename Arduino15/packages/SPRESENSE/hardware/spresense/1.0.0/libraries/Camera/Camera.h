@@ -734,6 +734,15 @@ public:
   CamErr setHDR(CAM_HDR_MODE mode /**< [en] HDR mode value. Choose one from #CAM_HDR_MODE <BR> [ja] HDRモード。 #CAM_HDR_MODE から選択する。 */ );
 
   /**
+   * @brief Get HDR mode.
+   * @details [en] Get HDR mode. <BR>
+   *          [ja] HDRモードを取得する。
+   * @return [en] HDR mode defined as #CAM_HDR_MODE. <BR>
+   *         [ja] #CAM_HDR_MODE で定義されているHDRモード。
+   */
+  CAM_HDR_MODE getHDR(void);
+
+  /**
    * @brief Set Still Picture Image format parameters.
    * @details [en] Set Still Picture Image format. <BR>
    *          [ja] 静止画写真の画像フォーマット設定。
