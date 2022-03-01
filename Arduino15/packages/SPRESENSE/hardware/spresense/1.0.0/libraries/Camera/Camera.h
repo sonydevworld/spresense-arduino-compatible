@@ -743,6 +743,28 @@ public:
   CAM_HDR_MODE getHDR(void);
 
   /**
+   * @brief Set JPEG quality
+   * @details [en] Set JPEG quality.  <BR>
+   *          [ja] JPEG品質を設定する。
+   *
+   * @param  quality [en] JPEG quality(1-100). In ISX019 case, 1-4 are rounded up to 10, and 5-100 are rounded to the nearest 10. <BR>
+   *                 [ja] JPEG品質(1-100)。ISX019を使用する場合、1-4は10に切り上げ、5-100は1の位を四捨五入し10の倍数に丸め込まれる。
+   * @return [en] Error code defined as #CamErr. <BR>
+   *         [ja] #CamErrで定義されているエラーコード。
+   */
+  CamErr setJPEGQuality(int quality);
+
+  /**
+   * @brief Get JPEG quality
+   * @details [en] Get JPEG quality.  <BR>
+   *          [ja] JPEG品質を取得する。
+   *
+   * @return [en] JPEG quality or error code defined as #CamErr. <BR>
+   *         [ja] JPEG品質 もしくは、#CamErrで定義されているエラーコード。
+   */
+  int getJPEGQuality(void);
+
+  /**
    * @brief Set Still Picture Image format parameters.
    * @details [en] Set Still Picture Image format. <BR>
    *          [ja] 静止画写真の画像フォーマット設定。
