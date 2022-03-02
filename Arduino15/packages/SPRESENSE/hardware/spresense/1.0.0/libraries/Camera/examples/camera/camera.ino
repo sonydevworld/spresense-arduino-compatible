@@ -1,6 +1,6 @@
 /*
  *  camera.ino - One second interval time-lapse Camera
- *  Copyright 2018 Sony Semiconductor Solutions Corporation
+ *  Copyright 2018, 2022 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -103,7 +103,7 @@ void CamCB(CamImage img)
     }
   else
     {
-      Serial.print("Failed to get video stream image\n");
+      Serial.println("Failed to get video stream image");
     }
 }
 
@@ -227,6 +227,19 @@ void loop()
           myFile.write(img.getImgBuff(), img.getImgSize());
           myFile.close();
         }
+      else
+        {
+          /* The size of a picture may exceed the allocated memory size.
+           * Then, allocate the larger memory size and/or decrease the size of a picture.
+           * [How to allocate the larger memory]
+           * - Decrease jpgbufsize_divisor specified by setStillPictureImageFormat()
+           * - Increase the Memory size from Arduino IDE tools Menu
+           * [How to decrease the size of a picture]
+           * - Decrease the JPEG quality by setJPEGQuality()
+           */
+
+          Serial.println("Failed to take picture");
+        }
 
       take_picture_count++;
     }
@@ -235,4 +248,3 @@ void loop()
       theCamera.end();
     }
 }
-
