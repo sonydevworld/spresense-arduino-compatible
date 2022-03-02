@@ -195,10 +195,10 @@ void doAttach()
      * the return value will be returned when the connection process is started.
      */
     if (lteAccess.attach(APP_LTE_RAT,
-                         APP_LTE_APN,
-                         APP_LTE_USER_NAME,
-                         APP_LTE_PASSWORD,
-                         APP_LTE_AUTH_TYPE,
+                         apn,
+                         user_name,
+                         password,
+                         authtype,
                          APP_LTE_IP_TYPE,
                          false) == LTE_CONNECTING) {
       Serial.println("Attempting to connect to network.");
