@@ -1164,6 +1164,20 @@ CAM_HDR_MODE CameraClass::getHDR(void)
   return (CAM_HDR_MODE)ret;
 }
 
+// Public : JPEG quality
+CamErr CameraClass::setJPEGQuality(int quality)
+{
+  return set_ext_ctrls(V4L2_CTRL_CLASS_JPEG,
+                       V4L2_CID_JPEG_COMPRESSION_QUALITY,
+                       quality);
+}
+
+int CameraClass::getJPEGQuality(void)
+{
+  return  get_ext_ctrls(V4L2_CTRL_CLASS_JPEG,
+                        V4L2_CID_JPEG_COMPRESSION_QUALITY);
+}
+
 // Public : Still Picture Format.
 CamErr CameraClass::setStillPictureImageFormat(int img_width, int img_height, CAM_IMAGE_PIX_FMT img_fmt,
                                                int jpgbufsize_divisor)

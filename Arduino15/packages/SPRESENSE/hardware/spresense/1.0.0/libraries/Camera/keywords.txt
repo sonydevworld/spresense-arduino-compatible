@@ -8,6 +8,7 @@ getWidth                   KEYWORD2
 getHeight                  KEYWORD2
 getImgBuff                 KEYWORD2
 getImgSize                 KEYWORD2
+getImgBuffSize             KEYWORD2
 getPixFormat               KEYWORD2
 isAvailable                KEYWORD2
 convertPixFormat           KEYWORD2
@@ -18,6 +19,7 @@ begin                      KEYWORD2
 startStreaming             KEYWORD2
 setAutoWhiteBalance        KEYWORD2
 setAutoExposure            KEYWORD2
+setAbsoluteExposure        KEYWORD2
 setAutoISOSensitive        KEYWORD2
 setAutoISOSensitivity      KEYWORD2
 setISOSensitivity          KEYWORD2
@@ -25,6 +27,10 @@ setAutoWhiteBalanceMode    KEYWORD2
 setSceneMode               KEYWORD2
 setColorEffect             KEYWORD2
 setHDR                     KEYWORD2
+setJPEGQuality             KEYWORD2
+getAbsoluteExposure        KEYWORD2
+getHDR                     KEYWORD2
+getJPEGQuality             KEYWORD2
 setStillPictureImageFormat KEYWORD2
 takePicture                KEYWORD2
 getDeviceType              KEYWORD2
@@ -105,6 +111,10 @@ CAM_ISO_SENSITIVITY_800         LITERAL1
 CAM_ISO_SENSITIVITY_1000        LITERAL1
 CAM_ISO_SENSITIVITY_1250        LITERAL1
 CAM_ISO_SENSITIVITY_1600        LITERAL1
+
+CAM_HDR_MODE_OFF                LITERAL1
+CAM_HDR_MODE_AUTO               LITERAL1
+CAM_HDR_MODE_ON                 LITERAL1
 
 CAM_VIDEO_FPS_NONE              LITERAL1
 CAM_VIDEO_FPS_5                 LITERAL1
