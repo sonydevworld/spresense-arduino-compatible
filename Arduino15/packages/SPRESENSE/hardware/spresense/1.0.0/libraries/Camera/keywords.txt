@@ -32,6 +32,7 @@ getAbsoluteExposure        KEYWORD2
 getHDR                     KEYWORD2
 getISOSensitivity          KEYWORD2
 getJPEGQuality             KEYWORD2
+getFrameInterval           KEYWORD2
 setStillPictureImageFormat KEYWORD2
 takePicture                KEYWORD2
 getDeviceType              KEYWORD2

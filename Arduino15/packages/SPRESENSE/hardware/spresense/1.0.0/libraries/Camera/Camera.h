@@ -774,6 +774,16 @@ public:
   int getJPEGQuality(void);
 
   /**
+   * @brief Get frame interval
+   * @details [en] Get frame interval in 100usec units.  <BR>
+   *          [ja] フレーム間隔(100usec単位)を取得する。
+   *
+   * @return [en] Frame interval in 100usec units or error code defined as #CamErr. <BR>
+   *         [ja] フレーム間隔(100usec単位) もしくは、#CamErrで定義されているエラーコード。
+   */
+  int getFrameInterval(void);
+
+  /**
    * @brief Set Still Picture Image format parameters.
    * @details [en] Set Still Picture Image format. <BR>
    *          [ja] 静止画写真の画像フォーマット設定。
