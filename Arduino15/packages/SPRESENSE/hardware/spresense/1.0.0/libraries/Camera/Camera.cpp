@@ -1123,6 +1123,13 @@ CamErr CameraClass::setISOSensitivity(int iso_sense)
                        (uint32_t)iso_sense );
 }
 
+// Public : Get ISO Sensitivity value.
+int CameraClass::getISOSensitivity(void)
+{
+  return get_ext_ctrls(V4L2_CTRL_CLASS_CAMERA,
+                       V4L2_CID_ISO_SENSITIVITY);
+}
+
 // Public : Auto White Balance Mode.
 CamErr CameraClass::setAutoWhiteBalanceMode(CAM_WHITE_BALANCE wb)
 {

@@ -696,6 +696,15 @@ public:
   CamErr setISOSensitivity(int iso_sense /**< [en] ISO Sensitivity value. Use macros named @ref CAM_ISO_SENSITIVITY  <BR> [ja] ISO感度値。 @ref CAM_ISO_SENSITIVITY と定義されたマクロから選択する */);
 
   /**
+   * @brief Get ISO Sensivity value.
+   * @details [en] Get ISO Sensitivity value.
+   *          [ja] ISO感度を取得する。
+   * @return [en] ISO Sensitivity value or Error code defined as #CamErr. <BR>
+   *         [ja] ISO感度もしくは、#CamErr で定義されているエラーコード
+   */
+  int getISOSensitivity(void);
+
+  /**
    * @brief Set Auto White Balance mode.
    * @details [en] Set Auto White Balance mode. <BR>
    *          [ja] 自動ホワイトバランス調整モードの設定。

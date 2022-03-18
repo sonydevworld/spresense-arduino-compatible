@@ -30,6 +30,7 @@ setHDR                     KEYWORD2
 setJPEGQuality             KEYWORD2
 getAbsoluteExposure        KEYWORD2
 getHDR                     KEYWORD2
+getISOSensitivity          KEYWORD2
 getJPEGQuality             KEYWORD2
 setStillPictureImageFormat KEYWORD2
 takePicture                KEYWORD2
