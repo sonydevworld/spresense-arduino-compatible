@@ -1185,6 +1185,31 @@ int CameraClass::getJPEGQuality(void)
                         V4L2_CID_JPEG_COMPRESSION_QUALITY);
 }
 
+// Public : frame interval
+int CameraClass::getFrameInterval(void)
+{
+  struct v4l2_streamparm param = {0};
+  struct v4l2_fract *interval = &param.parm.capture.timeperframe;
+
+  if (is_device_ready())
+    {
+      param.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+
+      if (ioctl(video_fd, VIDIOC_G_PARM, (unsigned long)&param) < 0)
+        {
+          return convert_errno2camerr(errno);
+        }
+
+      /* Convert fraction to value with 100usec unit. */
+
+      return interval->numerator * 10000 / interval->denominator;
+    }
+  else
+    {
+      return CAM_ERR_NOT_INITIALIZED;
+    }
+}
+
 // Public : Still Picture Format.
 CamErr CameraClass::setStillPictureImageFormat(int img_width, int img_height, CAM_IMAGE_PIX_FMT img_fmt,
                                                int jpgbufsize_divisor)
