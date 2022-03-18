@@ -548,21 +548,6 @@ CamErr CameraClass::convert_errno2camerr(int err)
     }
 }
 
-// Private : Validate video frame parameters.
-bool CameraClass::check_video_fmtparam(int w, int h, CAM_VIDEO_FPS fps, CAM_IMAGE_PIX_FMT fmt)
-{
-  if( ((CAM_IMGSIZE_QVGA_H    == w) && (CAM_IMGSIZE_QVGA_V    == h)) ||
-      ((CAM_IMGSIZE_VGA_H     == w) && (CAM_IMGSIZE_VGA_V     == h)) ||
-      ((CAM_IMGSIZE_QUADVGA_H == w) && (CAM_IMGSIZE_QUADVGA_V == h)) ||
-      ((CAM_IMGSIZE_HD_H      == w) && (CAM_IMGSIZE_HD_V      == h)) ||
-      ((CAM_IMGSIZE_FULLHD_H  == w) && (CAM_IMGSIZE_FULLHD_V  == h)) ||
-      ((CAM_IMGSIZE_5M_H      == w) && (CAM_IMGSIZE_5M_V      == h)) ||
-      ((CAM_IMGSIZE_3M_H      == w) && (CAM_IMGSIZE_3M_V      == h)) ){
-    return true;
-  }
-  return false;
-}
-
 // Private : Set V4S frame paramters.
 CamErr CameraClass::set_frame_parameters( enum v4l2_buf_type type, int video_width, int video_height, int buf_num, CAM_IMAGE_PIX_FMT video_fmt )
 {
@@ -884,11 +869,6 @@ CamErr CameraClass::begin(int buff_num, CAM_VIDEO_FPS fps, int video_width, int 
 {
   CamErr ret = CAM_ERR_SUCCESS;
 
-  if (!check_video_fmtparam(video_width, video_height, fps, video_fmt))
-    {
-      return CAM_ERR_INVALID_PARAM;
-    }
-
   if (buff_num < 0)
     {
       return CAM_ERR_INVALID_PARAM;
@@ -922,13 +902,6 @@ CamErr CameraClass::begin(int buff_num, CAM_VIDEO_FPS fps, int video_width, int 
       return CAM_ERR_SUCCESS;
     }
 
-  // Start Dequeue Buff thread.
-  ret = create_dq_thread();
-  if (ret != CAM_ERR_SUCCESS)
-    {
-      goto label_err_no_memaligned;
-    }
-
   // Set Video Frame parameters.
   ret = set_frame_parameters(V4L2_BUF_TYPE_VIDEO_CAPTURE,
                              video_width,
@@ -942,6 +915,13 @@ CamErr CameraClass::begin(int buff_num, CAM_VIDEO_FPS fps, int video_width, int 
 
   // Set Video Frame Rate.
   ret = set_video_frame_rate(fps);
+  if (ret != CAM_ERR_SUCCESS)
+    {
+      goto label_err_no_memaligned;
+    }
+
+  // Start Dequeue Buff thread.
+  ret = create_dq_thread();
   if (ret != CAM_ERR_SUCCESS)
     {
       goto label_err_no_memaligned;
@@ -1223,29 +1203,15 @@ CamErr CameraClass::setStillPictureImageFormat(int img_width, int img_height, CA
 
   if (is_device_ready())
     {
-      if (check_video_fmtparam(img_width,
-                               img_height,
-                               CAM_VIDEO_FPS_NONE,
-                               img_fmt))
+      err = set_frame_parameters(V4L2_BUF_TYPE_STILL_CAPTURE,
+                                 img_width, img_height, 1, img_fmt);
+      if (err == CAM_ERR_SUCCESS)
         {
           err = create_stillbuff(img_width, img_height, img_fmt, jpgbufsize_divisor);
           if (err == CAM_ERR_SUCCESS)
             {
-              err = set_frame_parameters(V4L2_BUF_TYPE_STILL_CAPTURE,
-                                         img_width, img_height, 1, img_fmt);
-              if (err == CAM_ERR_SUCCESS)
-                {
-                  enqueue_video_buff(still_img);
-                }
-              else
-                {
-                  DELETE_CAMIMAGE(still_img);
-                }
+              enqueue_video_buff(still_img);
             }
-        }
-      else
-        {
-          err = CAM_ERR_INVALID_PARAM;
         }
     }
   else

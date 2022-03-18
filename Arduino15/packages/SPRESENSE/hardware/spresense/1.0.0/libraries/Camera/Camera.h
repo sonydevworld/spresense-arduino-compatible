@@ -118,20 +118,22 @@ enum CAM_WHITE_BALANCE {
  * @brief Camera Image size definition.
  * @{
  */
-#define CAM_IMGSIZE_QVGA_H    VIDEO_HSIZE_QVGA      /**< QVGA    horizontal size */
-#define CAM_IMGSIZE_QVGA_V    VIDEO_VSIZE_QVGA      /**< QVGA    vertical   size */
-#define CAM_IMGSIZE_VGA_H     VIDEO_HSIZE_VGA       /**< VGA     horizontal size */
-#define CAM_IMGSIZE_VGA_V     VIDEO_VSIZE_VGA       /**< VGA     vertical   size */
-#define CAM_IMGSIZE_HD_H      VIDEO_HSIZE_HD        /**< HD      horizontal size */
-#define CAM_IMGSIZE_HD_V      VIDEO_VSIZE_HD        /**< HD      vertical   size */
-#define CAM_IMGSIZE_QUADVGA_H VIDEO_HSIZE_QUADVGA   /**< QUADVGA horizontal size */
-#define CAM_IMGSIZE_QUADVGA_V VIDEO_VSIZE_QUADVGA   /**< QUADVGA vertical   size */
-#define CAM_IMGSIZE_FULLHD_H  VIDEO_HSIZE_FULLHD    /**< FULLHD  horizontal size */
-#define CAM_IMGSIZE_FULLHD_V  VIDEO_VSIZE_FULLHD    /**< FULLHD  vertical   size */
-#define CAM_IMGSIZE_5M_H      VIDEO_HSIZE_5M        /**< 5M      horizontal size */
-#define CAM_IMGSIZE_5M_V      VIDEO_VSIZE_5M        /**< 5M      vertical   size */
-#define CAM_IMGSIZE_3M_H      VIDEO_HSIZE_3M        /**< 3M      horizontal size */
-#define CAM_IMGSIZE_3M_V      VIDEO_VSIZE_3M        /**< 3M      vertical   size */
+#define CAM_IMGSIZE_QQVGA_H   (160)   /**< QQVGA    horizontal size */
+#define CAM_IMGSIZE_QQVGA_V   (120)   /**< QQVGA    vertical   size */
+#define CAM_IMGSIZE_QVGA_H    (320)   /**< QVGA     horizontal size */
+#define CAM_IMGSIZE_QVGA_V    (240)   /**< QVGA     vertical   size */
+#define CAM_IMGSIZE_VGA_H     (640)   /**< VGA      horizontal size */
+#define CAM_IMGSIZE_VGA_V     (480)   /**< VGA      vertical   size */
+#define CAM_IMGSIZE_HD_H      (1280)  /**< HD       horizontal size */
+#define CAM_IMGSIZE_HD_V      (720)   /**< HD       vertical   size */
+#define CAM_IMGSIZE_QUADVGA_H (1280)  /**< QUADVGA  horizontal size */
+#define CAM_IMGSIZE_QUADVGA_V (960)   /**< QUADVGA  vertical   size */
+#define CAM_IMGSIZE_FULLHD_H  (1920)  /**< FULLHD   horizontal size */
+#define CAM_IMGSIZE_FULLHD_V  (1080)  /**< FULLHD   vertical   size */
+#define CAM_IMGSIZE_3M_H      (2048)  /**< 3M       horizontal size */
+#define CAM_IMGSIZE_3M_V      (1536)  /**< 3M       vertical   size */
+#define CAM_IMGSIZE_5M_H      (2560)  /**< 5M       horizontal size */
+#define CAM_IMGSIZE_5M_V      (1920)  /**< 5M       vertical   size */
 /** @} */
 
 
@@ -531,7 +533,6 @@ private:
   CameraClass(const char *path);
 
   CamErr convert_errno2camerr(int err);
-  bool check_video_fmtparam(int w, int h, CAM_VIDEO_FPS fps, CAM_IMAGE_PIX_FMT fmt);
   CamErr set_frame_parameters( enum v4l2_buf_type type, int video_width, int video_height, int buf_num, CAM_IMAGE_PIX_FMT video_fmt );
   CamErr create_videobuff(int w, int h, int buff_num, CAM_IMAGE_PIX_FMT fmt, int jpgbufsize_divisor);
   void delete_videobuff();
