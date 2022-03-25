@@ -1,5 +1,5 @@
 /*
- *  camera.ino - One second interval time-lapse Camera
+ *  camera.ino - Simple camera example sketch
  *  Copyright 2018, 2022 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
@@ -26,6 +26,7 @@
 #include <Camera.h>
 
 #define BAUDRATE                (115200)
+#define TOTAL_PICTURE_COUNT     (10)
 
 SDClass  theSD;
 int take_picture_count = 0;
@@ -191,9 +192,9 @@ void loop()
    *   CAM_IMAGE_PIX_FMT_JPG);
    */
 
-  /* This sample code can take 100 pictures in every one second from starting. */
+  /* This sample code can take pictures in every one second from starting. */
 
-  if (take_picture_count < 100)
+  if (take_picture_count < TOTAL_PICTURE_COUNT)
     {
 
       /* Take still picture.
@@ -205,7 +206,7 @@ void loop()
       CamImage img = theCamera.takePicture();
 
       /* Check availability of the img instance. */
-      /* If any error was occured, the img is not available. */
+      /* If any errors occur, the img is not available. */
 
       if (img.isAvailable())
         {
@@ -240,11 +241,12 @@ void loop()
 
           Serial.println("Failed to take picture");
         }
-
-      take_picture_count++;
     }
-  else
+  else if (take_picture_count == TOTAL_PICTURE_COUNT)
     {
+      Serial.println("End.");
       theCamera.end();
     }
+
+  take_picture_count++;
 }
