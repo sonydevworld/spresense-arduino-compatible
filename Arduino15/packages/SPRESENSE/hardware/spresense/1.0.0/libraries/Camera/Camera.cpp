@@ -1,6 +1,6 @@
 /*
  *  Camera.cpp - Camera implementation file for the Spresense SDK
- *  Copyright 2018, 2020, 2021 Sony Semiconductor Solutions Corporation
+ *  Copyright 2018, 2020-2022 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -28,9 +28,13 @@
 #include <fcntl.h>
 #include <sched.h>
 #include <errno.h>
+#include <assert.h>
 
 #include <Camera.h>
 #include <arch/board/cxd56_imageproc.h>
+#include <nuttx/video/isx012.h>
+#include <nuttx/video/isx019.h>
+#include <arch/chip/cisif.h>
 
 /****************************************************************************
  * ImgBuff implementation.
@@ -498,7 +502,10 @@ CameraClass CameraClass::getInstance()
 // Public : Constructor.
 CameraClass::CameraClass(const char *path)
 {
-  video_init_stat = video_initialize(path);
+  video_init_stat = isx019_initialize();
+  video_init_stat += isx012_initialize();
+  video_init_stat += cxd56_cisif_initialize();
+  video_init_stat += video_initialize(path);
   video_fd = -1;
   video_imgs = NULL;
   video_buf_num = 0;
@@ -539,21 +546,6 @@ CamErr CameraClass::convert_errno2camerr(int err)
       default:
         return CAM_ERR_ILLEGAL_DEVERR;
     }
-}
-
-// Private : Validate video frame parameters.
-bool CameraClass::check_video_fmtparam(int w, int h, CAM_VIDEO_FPS fps, CAM_IMAGE_PIX_FMT fmt)
-{
-  if( ((CAM_IMGSIZE_QVGA_H    == w) && (CAM_IMGSIZE_QVGA_V    == h)) ||
-      ((CAM_IMGSIZE_VGA_H     == w) && (CAM_IMGSIZE_VGA_V     == h)) ||
-      ((CAM_IMGSIZE_QUADVGA_H == w) && (CAM_IMGSIZE_QUADVGA_V == h)) ||
-      ((CAM_IMGSIZE_HD_H      == w) && (CAM_IMGSIZE_HD_V      == h)) ||
-      ((CAM_IMGSIZE_FULLHD_H  == w) && (CAM_IMGSIZE_FULLHD_V  == h)) ||
-      ((CAM_IMGSIZE_5M_H      == w) && (CAM_IMGSIZE_5M_V      == h)) ||
-      ((CAM_IMGSIZE_3M_H      == w) && (CAM_IMGSIZE_3M_V      == h)) ){
-    return true;
-  }
-  return false;
 }
 
 // Private : Set V4S frame paramters.
@@ -877,11 +869,6 @@ CamErr CameraClass::begin(int buff_num, CAM_VIDEO_FPS fps, int video_width, int 
 {
   CamErr ret = CAM_ERR_SUCCESS;
 
-  if (!check_video_fmtparam(video_width, video_height, fps, video_fmt))
-    {
-      return CAM_ERR_INVALID_PARAM;
-    }
-
   if (buff_num < 0)
     {
       return CAM_ERR_INVALID_PARAM;
@@ -915,13 +902,6 @@ CamErr CameraClass::begin(int buff_num, CAM_VIDEO_FPS fps, int video_width, int 
       return CAM_ERR_SUCCESS;
     }
 
-  // Start Dequeue Buff thread.
-  ret = create_dq_thread();
-  if (ret != CAM_ERR_SUCCESS)
-    {
-      goto label_err_no_memaligned;
-    }
-
   // Set Video Frame parameters.
   ret = set_frame_parameters(V4L2_BUF_TYPE_VIDEO_CAPTURE,
                              video_width,
@@ -935,6 +915,13 @@ CamErr CameraClass::begin(int buff_num, CAM_VIDEO_FPS fps, int video_width, int 
 
   // Set Video Frame Rate.
   ret = set_video_frame_rate(fps);
+  if (ret != CAM_ERR_SUCCESS)
+    {
+      goto label_err_no_memaligned;
+    }
+
+  // Start Dequeue Buff thread.
+  ret = create_dq_thread();
   if (ret != CAM_ERR_SUCCESS)
     {
       goto label_err_no_memaligned;
@@ -1034,6 +1021,34 @@ CamErr CameraClass::set_ext_ctrls(uint16_t ctl_cls,
     }
 }
 
+// Private : Get EXT_CTRLS of V4S.
+int32_t CameraClass::get_ext_ctrls(uint16_t ctl_cls,
+                                  uint16_t cid)
+{
+  struct v4l2_ext_controls param = {0};
+  struct v4l2_ext_control ctl_param = {0};
+
+  if (is_device_ready())
+    {
+      ctl_param.id = cid;
+
+      param.ctrl_class = ctl_cls;
+      param.count = 1;
+      param.controls = &ctl_param;
+
+      if (ioctl(video_fd, VIDIOC_G_EXT_CTRLS, (unsigned long)&param) < 0)
+        {
+          return convert_errno2camerr(errno);
+        }
+
+      return ctl_param.value;
+    }
+  else
+    {
+      return CAM_ERR_NOT_INITIALIZED;
+    }
+}
+
 // Public : Turn on/off Auto White Balance.
 CamErr CameraClass::setAutoWhiteBalance(bool enable)
 {
@@ -1051,11 +1066,18 @@ CamErr CameraClass::setAutoExposure(bool enable)
 }
 
 // Public : Set exposure time in ms.
-CamErr CameraClass::setAbsoluteExposure(uint32_t exposure_time)
+CamErr CameraClass::setAbsoluteExposure(int32_t exposure_time)
 {
   return set_ext_ctrls(V4L2_CTRL_CLASS_CAMERA,
                        V4L2_CID_EXPOSURE_ABSOLUTE,
                        exposure_time);
+}
+
+// Public : Get exposure time in 100usec.
+int32_t CameraClass::getAbsoluteExposure(void)
+{
+  return get_ext_ctrls(V4L2_CTRL_CLASS_CAMERA,
+                       V4L2_CID_EXPOSURE_ABSOLUTE);
 }
 
 // Public : Turn on/off Auto ISO Sensitivity.
@@ -1079,6 +1101,13 @@ CamErr CameraClass::setISOSensitivity(int iso_sense)
   return set_ext_ctrls(V4L2_CTRL_CLASS_CAMERA,
                        V4L2_CID_ISO_SENSITIVITY,
                        (uint32_t)iso_sense );
+}
+
+// Public : Get ISO Sensitivity value.
+int CameraClass::getISOSensitivity(void)
+{
+  return get_ext_ctrls(V4L2_CTRL_CLASS_CAMERA,
+                       V4L2_CID_ISO_SENSITIVITY);
 }
 
 // Public : Auto White Balance Mode.
@@ -1106,11 +1135,59 @@ CamErr CameraClass::setColorEffect(CAM_COLOR_FX effect)
 }
 
 // Public : HDR
-CamErr CameraClass::setHDR(bool enable)
+CamErr CameraClass::setHDR(CAM_HDR_MODE mode)
 {
   return set_ext_ctrls(V4L2_CTRL_CLASS_CAMERA,
                        V4L2_CID_WIDE_DYNAMIC_RANGE,
-                       (uint32_t)enable);
+                       mode);
+}
+
+CAM_HDR_MODE CameraClass::getHDR(void)
+{
+  int ret;
+
+  ret = get_ext_ctrls(V4L2_CTRL_CLASS_CAMERA, V4L2_CID_WIDE_DYNAMIC_RANGE);
+  ASSERT(ret >= 0);
+  return (CAM_HDR_MODE)ret;
+}
+
+// Public : JPEG quality
+CamErr CameraClass::setJPEGQuality(int quality)
+{
+  return set_ext_ctrls(V4L2_CTRL_CLASS_JPEG,
+                       V4L2_CID_JPEG_COMPRESSION_QUALITY,
+                       quality);
+}
+
+int CameraClass::getJPEGQuality(void)
+{
+  return  get_ext_ctrls(V4L2_CTRL_CLASS_JPEG,
+                        V4L2_CID_JPEG_COMPRESSION_QUALITY);
+}
+
+// Public : frame interval
+int CameraClass::getFrameInterval(void)
+{
+  struct v4l2_streamparm param = {0};
+  struct v4l2_fract *interval = &param.parm.capture.timeperframe;
+
+  if (is_device_ready())
+    {
+      param.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+
+      if (ioctl(video_fd, VIDIOC_G_PARM, (unsigned long)&param) < 0)
+        {
+          return convert_errno2camerr(errno);
+        }
+
+      /* Convert fraction to value with 100usec unit. */
+
+      return interval->numerator * 10000 / interval->denominator;
+    }
+  else
+    {
+      return CAM_ERR_NOT_INITIALIZED;
+    }
 }
 
 // Public : Still Picture Format.
@@ -1126,29 +1203,15 @@ CamErr CameraClass::setStillPictureImageFormat(int img_width, int img_height, CA
 
   if (is_device_ready())
     {
-      if (check_video_fmtparam(img_width,
-                               img_height,
-                               CAM_VIDEO_FPS_NONE,
-                               img_fmt))
+      err = set_frame_parameters(V4L2_BUF_TYPE_STILL_CAPTURE,
+                                 img_width, img_height, 1, img_fmt);
+      if (err == CAM_ERR_SUCCESS)
         {
           err = create_stillbuff(img_width, img_height, img_fmt, jpgbufsize_divisor);
           if (err == CAM_ERR_SUCCESS)
             {
-              err = set_frame_parameters(V4L2_BUF_TYPE_STILL_CAPTURE,
-                                         img_width, img_height, 1, img_fmt);
-              if (err == CAM_ERR_SUCCESS)
-                {
-                  enqueue_video_buff(still_img);
-                }
-              else
-                {
-                  DELETE_CAMIMAGE(still_img);
-                }
+              enqueue_video_buff(still_img);
             }
-        }
-      else
-        {
-          err = CAM_ERR_INVALID_PARAM;
         }
     }
   else

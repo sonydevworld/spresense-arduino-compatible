@@ -1,6 +1,6 @@
 /*
- *  camera.ino - One second interval time-lapse Camera
- *  Copyright 2018 Sony Semiconductor Solutions Corporation
+ *  camera.ino - Simple camera example sketch
+ *  Copyright 2018, 2022 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -26,6 +26,7 @@
 #include <Camera.h>
 
 #define BAUDRATE                (115200)
+#define TOTAL_PICTURE_COUNT     (10)
 
 SDClass  theSD;
 int take_picture_count = 0;
@@ -103,7 +104,7 @@ void CamCB(CamImage img)
     }
   else
     {
-      Serial.print("Failed to get video stream image\n");
+      Serial.println("Failed to get video stream image");
     }
 }
 
@@ -191,9 +192,9 @@ void loop()
    *   CAM_IMAGE_PIX_FMT_JPG);
    */
 
-  /* This sample code can take 100 pictures in every one second from starting. */
+  /* This sample code can take pictures in every one second from starting. */
 
-  if (take_picture_count < 100)
+  if (take_picture_count < TOTAL_PICTURE_COUNT)
     {
 
       /* Take still picture.
@@ -205,7 +206,7 @@ void loop()
       CamImage img = theCamera.takePicture();
 
       /* Check availability of the img instance. */
-      /* If any error was occured, the img is not available. */
+      /* If any errors occur, the img is not available. */
 
       if (img.isAvailable())
         {
@@ -227,12 +228,25 @@ void loop()
           myFile.write(img.getImgBuff(), img.getImgSize());
           myFile.close();
         }
+      else
+        {
+          /* The size of a picture may exceed the allocated memory size.
+           * Then, allocate the larger memory size and/or decrease the size of a picture.
+           * [How to allocate the larger memory]
+           * - Decrease jpgbufsize_divisor specified by setStillPictureImageFormat()
+           * - Increase the Memory size from Arduino IDE tools Menu
+           * [How to decrease the size of a picture]
+           * - Decrease the JPEG quality by setJPEGQuality()
+           */
 
-      take_picture_count++;
+          Serial.println("Failed to take picture");
+        }
     }
-  else
+  else if (take_picture_count == TOTAL_PICTURE_COUNT)
     {
+      Serial.println("End.");
       theCamera.end();
     }
-}
 
+  take_picture_count++;
+}

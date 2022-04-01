@@ -1,6 +1,6 @@
 /*
  *  Camera.h - Camera include file for the Spresense SDK
- *  Copyright 2018, 2020, 2021 Sony Semiconductor Solutions Corporation
+ *  Copyright 2018, 2020-2022 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -113,26 +113,27 @@ enum CAM_WHITE_BALANCE {
   CAM_WHITE_BALANCE_SHADE         = V4L2_WHITE_BALANCE_SHADE,         /**< [en] Shade        <BR> [ja] 影 */
 };
 
-
 /**
  * @defgroup CAM_IMGSIZE Camera Image size definitions
  * @brief Camera Image size definition.
  * @{
  */
-#define CAM_IMGSIZE_QVGA_H    VIDEO_HSIZE_QVGA      /**< QVGA    horizontal size */
-#define CAM_IMGSIZE_QVGA_V    VIDEO_VSIZE_QVGA      /**< QVGA    vertical   size */
-#define CAM_IMGSIZE_VGA_H     VIDEO_HSIZE_VGA       /**< VGA     horizontal size */
-#define CAM_IMGSIZE_VGA_V     VIDEO_VSIZE_VGA       /**< VGA     vertical   size */
-#define CAM_IMGSIZE_HD_H      VIDEO_HSIZE_HD        /**< HD      horizontal size */
-#define CAM_IMGSIZE_HD_V      VIDEO_VSIZE_HD        /**< HD      vertical   size */
-#define CAM_IMGSIZE_QUADVGA_H VIDEO_HSIZE_QUADVGA   /**< QUADVGA horizontal size */
-#define CAM_IMGSIZE_QUADVGA_V VIDEO_VSIZE_QUADVGA   /**< QUADVGA vertical   size */
-#define CAM_IMGSIZE_FULLHD_H  VIDEO_HSIZE_FULLHD    /**< FULLHD  horizontal size */
-#define CAM_IMGSIZE_FULLHD_V  VIDEO_VSIZE_FULLHD    /**< FULLHD  vertical   size */
-#define CAM_IMGSIZE_5M_H      VIDEO_HSIZE_5M        /**< 5M      horizontal size */
-#define CAM_IMGSIZE_5M_V      VIDEO_VSIZE_5M        /**< 5M      vertical   size */
-#define CAM_IMGSIZE_3M_H      VIDEO_HSIZE_3M        /**< 3M      horizontal size */
-#define CAM_IMGSIZE_3M_V      VIDEO_VSIZE_3M        /**< 3M      vertical   size */
+#define CAM_IMGSIZE_QQVGA_H   (160)   /**< QQVGA    horizontal size */
+#define CAM_IMGSIZE_QQVGA_V   (120)   /**< QQVGA    vertical   size */
+#define CAM_IMGSIZE_QVGA_H    (320)   /**< QVGA     horizontal size */
+#define CAM_IMGSIZE_QVGA_V    (240)   /**< QVGA     vertical   size */
+#define CAM_IMGSIZE_VGA_H     (640)   /**< VGA      horizontal size */
+#define CAM_IMGSIZE_VGA_V     (480)   /**< VGA      vertical   size */
+#define CAM_IMGSIZE_HD_H      (1280)  /**< HD       horizontal size */
+#define CAM_IMGSIZE_HD_V      (720)   /**< HD       vertical   size */
+#define CAM_IMGSIZE_QUADVGA_H (1280)  /**< QUADVGA  horizontal size */
+#define CAM_IMGSIZE_QUADVGA_V (960)   /**< QUADVGA  vertical   size */
+#define CAM_IMGSIZE_FULLHD_H  (1920)  /**< FULLHD   horizontal size */
+#define CAM_IMGSIZE_FULLHD_V  (1080)  /**< FULLHD   vertical   size */
+#define CAM_IMGSIZE_3M_H      (2048)  /**< 3M       horizontal size */
+#define CAM_IMGSIZE_3M_V      (1536)  /**< 3M       vertical   size */
+#define CAM_IMGSIZE_5M_H      (2560)  /**< 5M       horizontal size */
+#define CAM_IMGSIZE_5M_V      (1920)  /**< 5M       vertical   size */
 /** @} */
 
 
@@ -210,6 +211,17 @@ enum CAM_COLOR_FX {
 #define CAM_ISO_SENSITIVITY_1600  (1600000)   /**< [en] ISO Sensitivity 1600 <BR> [jp] ISO感度 1600 */
 /** @} */
 
+/**
+ * @enum CAM_HDR_MODE
+ * @brief [en] Camera HDR mode definitions. <BR>
+ *        [ja] CameraのHDRモードの設定値
+ * @{
+ */
+enum CAM_HDR_MODE {
+  CAM_HDR_MODE_OFF  = 0, /**< HDR off */
+  CAM_HDR_MODE_AUTO = 1, /**< HDR auto */
+  CAM_HDR_MODE_ON   = 2, /**< HDR on */
+};
 
 /**
  * @enum CAM_VIDEO_FPS
@@ -521,7 +533,6 @@ private:
   CameraClass(const char *path);
 
   CamErr convert_errno2camerr(int err);
-  bool check_video_fmtparam(int w, int h, CAM_VIDEO_FPS fps, CAM_IMAGE_PIX_FMT fmt);
   CamErr set_frame_parameters( enum v4l2_buf_type type, int video_width, int video_height, int buf_num, CAM_IMAGE_PIX_FMT video_fmt );
   CamErr create_videobuff(int w, int h, int buff_num, CAM_IMAGE_PIX_FMT fmt, int jpgbufsize_divisor);
   void delete_videobuff();
@@ -530,6 +541,7 @@ private:
   bool is_device_ready();
   CamErr set_video_frame_rate(CAM_VIDEO_FPS fps);
   CamErr set_ext_ctrls(uint16_t ctl_cls, uint16_t cid, int32_t value);
+  int32_t get_ext_ctrls(uint16_t ctl_cls, uint16_t cid);
   CamErr create_stillbuff(int w, int h, CAM_IMAGE_PIX_FMT fmt, int jpgbufsize_divisor);
   CamErr create_dq_thread();
   void   delete_dq_thread();
@@ -632,15 +644,26 @@ public:
   CamErr setAutoExposure(bool enable /**< [en] Start or Stop Auto Exposure. (true : start, false : stop) <BR> [ja] 自動露光調整の開始/停止 (true : 開始、false : 停止) */);
 
   /**
-   * @brief Set Exposure Time
-   * @details [en] To manually set the absolute exposure time it is first needed to disable auto exposure function by calling setAutoExposure(false).  <BR>
-   *          [ja]
+   * @brief Set exposure Time
+   * @details [en] Set exposure time in 100usec units.  <BR>
+   *          [ja] 露光時間(100usec単位)を設定する。
    *
-   * @param exposure_time Exposure time in 100 µS units. 1 unit is 1/10000th of a second. 10000 is one second.
+   * @param  exposure_time [en] Exposure time in 100 usec units. ex) 10000 is one second. <BR>
+   *                       [ja] 露光時間(100usec単位)。 例) 10000 = 1秒
    * @return [en] Error code defined as #CamErr. <BR>
-   *         [ja]
+   *         [ja] #CamErrで定義されているエラーコード。
    */
-  CamErr setAbsoluteExposure(uint32_t exposure_time);
+  CamErr setAbsoluteExposure(int32_t exposure_time);
+
+  /**
+   * @brief Get exposure Time
+   * @details [en] Get exposure time in 100usec units.  <BR>
+   *          [ja] 露光時間(100usec単位)を取得する。
+   *
+   * @return [en] Exposure time in 100usec units or error code defined as #CamErr. <BR>
+   *         [ja] 露光時間(100usec単位) もしくは、#CamErrで定義されているエラーコード。
+   */
+  int32_t getAbsoluteExposure(void);
 
   /**
    * @brief Control Auto ISO Sensitivity (WIll obsolete after v1.2.0)
@@ -674,6 +697,15 @@ public:
   CamErr setISOSensitivity(int iso_sense /**< [en] ISO Sensitivity value. Use macros named @ref CAM_ISO_SENSITIVITY  <BR> [ja] ISO感度値。 @ref CAM_ISO_SENSITIVITY と定義されたマクロから選択する */);
 
   /**
+   * @brief Get ISO Sensivity value.
+   * @details [en] Get ISO Sensitivity value.
+   *          [ja] ISO感度を取得する。
+   * @return [en] ISO Sensitivity value or Error code defined as #CamErr. <BR>
+   *         [ja] ISO感度もしくは、#CamErr で定義されているエラーコード
+   */
+  int getISOSensitivity(void);
+
+  /**
    * @brief Set Auto White Balance mode.
    * @details [en] Set Auto White Balance mode. <BR>
    *          [ja] 自動ホワイトバランス調整モードの設定。
@@ -703,13 +735,54 @@ public:
   CamErr setColorEffect(CAM_COLOR_FX effect /**< [en] Color effect. Choose one from #CAM_COLOR_FX <BR> [ja] 色効果設定値。 #CAM_COLOR_FX から選択する */ );
 
   /**
-   * @brief Set HDR.
-   * @details [en] Set HDR. <BR>
-   *          [ja] HDRを設定する。
+   * @brief Set HDR mode.
+   * @details [en] Set HDR mode. The default mode is HDR auto(CAM_HDR_MODE_AUTO) <BR>
+   *          [ja] HDRモードを設定する。デフォルトはHDR auto(CAM_HDR_MODE_AUTO)。
    * @return [en] Error code defined as #CamErr. <BR>
    *         [ja] #CamErr で定義されているエラーコード
    */
-  CamErr setHDR(bool enable /**< true : HDR ON, false : HDR OFF */ );
+  CamErr setHDR(CAM_HDR_MODE mode /**< [en] HDR mode value. Choose one from #CAM_HDR_MODE <BR> [ja] HDRモード。 #CAM_HDR_MODE から選択する。 */ );
+
+  /**
+   * @brief Get HDR mode.
+   * @details [en] Get HDR mode. <BR>
+   *          [ja] HDRモードを取得する。
+   * @return [en] HDR mode defined as #CAM_HDR_MODE. <BR>
+   *         [ja] #CAM_HDR_MODE で定義されているHDRモード。
+   */
+  CAM_HDR_MODE getHDR(void);
+
+  /**
+   * @brief Set JPEG quality
+   * @details [en] Set JPEG quality.  <BR>
+   *          [ja] JPEG品質を設定する。
+   *
+   * @param  quality [en] JPEG quality(1-100). In ISX019 case, 1-4 are rounded up to 10, and 5-100 are rounded to the nearest 10. <BR>
+   *                 [ja] JPEG品質(1-100)。ISX019を使用する場合、1-4は10に切り上げ、5-100は1の位を四捨五入し10の倍数に丸め込まれる。
+   * @return [en] Error code defined as #CamErr. <BR>
+   *         [ja] #CamErrで定義されているエラーコード。
+   */
+  CamErr setJPEGQuality(int quality);
+
+  /**
+   * @brief Get JPEG quality
+   * @details [en] Get JPEG quality.  <BR>
+   *          [ja] JPEG品質を取得する。
+   *
+   * @return [en] JPEG quality or error code defined as #CamErr. <BR>
+   *         [ja] JPEG品質 もしくは、#CamErrで定義されているエラーコード。
+   */
+  int getJPEGQuality(void);
+
+  /**
+   * @brief Get frame interval
+   * @details [en] Get frame interval in 100usec units.  <BR>
+   *          [ja] フレーム間隔(100usec単位)を取得する。
+   *
+   * @return [en] Frame interval in 100usec units or error code defined as #CamErr. <BR>
+   *         [ja] フレーム間隔(100usec単位) もしくは、#CamErrで定義されているエラーコード。
+   */
+  int getFrameInterval(void);
 
   /**
    * @brief Set Still Picture Image format parameters.

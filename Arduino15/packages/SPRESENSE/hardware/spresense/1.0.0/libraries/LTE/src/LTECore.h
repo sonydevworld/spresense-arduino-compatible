@@ -53,9 +53,6 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define LTE_NET_APN_MAXLEN      (101)
-#define LTE_NET_USER_MAXLEN      (64)
-#define LTE_NET_PASSWORD_MAXLEN  (32)
 #define LTE_NET_PINCODE_MAXLEN    (9)
 
 /****************************************************************************

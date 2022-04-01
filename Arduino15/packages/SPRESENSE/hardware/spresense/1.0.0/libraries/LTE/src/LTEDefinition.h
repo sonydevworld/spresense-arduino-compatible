@@ -49,6 +49,19 @@
 #define LTEERR(format, ...) ::printf("ERROR: " format, ##__VA_ARGS__)
 
 /**
+ * @defgroup APN_LENGTH APN parameter max length definitions
+ *
+ * @brief APN length definitions.
+ * @{
+ */
+
+#define LTE_NET_APN_MAXLEN      (101) /** [en] Access Point Name max length */
+#define LTE_NET_USER_MAXLEN      (64) /** [en] User Name max length */
+#define LTE_NET_PASSWORD_MAXLEN  (32) /** [en] Password max length */
+
+/** @} */
+
+/**
  * @enum LTEModemStatus
  *
  * @brief [en] Status code of the modem. <BR>
