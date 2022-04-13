@@ -62,7 +62,7 @@ public:
   int32_t writebuf(File& file, uint32_t reqsize)
   {
     /* Get vacant space. */
-    uint32_t space = (m_wp < m_rp) ? (m_rp - m_wp) : (sizeof(m_buf) - m_wp + m_rp);
+    uint32_t space = (m_wp < m_rp) ? (m_rp - m_wp) - 1 : (sizeof(m_buf) - m_wp + m_rp) - 1;
     uint32_t writesize = 0;
 
     /* If vacant space is smaller than request size, don't write buffer. */
