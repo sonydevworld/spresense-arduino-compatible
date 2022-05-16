@@ -17,7 +17,7 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
  *  This sketch connects to a website via LTE. Specifically,
- *  this example downloads the URL "http://www.arduino.cc/asciilogo.txt" and
+ *  this example downloads the URL "http://arduino.tips/asciilogo.txt" and
  *  prints it to the Serial monitor.
  */
 
@@ -57,7 +57,7 @@ LTE lteAccess;
 LTEClient client;
 
 // URL, path & port (for example: arduino.cc)
-char server[] = "arduino.cc";
+char server[] = "arduino.tips";
 char path[] = "/asciilogo.txt";
 int port = 80; // port 80 is the default for HTTP
 
