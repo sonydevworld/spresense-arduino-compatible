@@ -27,13 +27,6 @@ RtcTime::RtcTime(uint32_t sec, long nsec)
   update();
 }
 
-RtcTime::RtcTime(int year, int month, int day, int hour, int minute, int second)
-     : _year(year), _month(month), _day(day),
-       _hour(hour), _minute(minute), _second(second)
-{
-  RtcTime(_year, _month, _day, _hour, _minute, _second, 0);
-};
-
 RtcTime::RtcTime(int year, int month, int day, int hour, int minute, int second, long nsec)
      : _nsec(nsec),
        _year(year), _month(month), _day(day),
