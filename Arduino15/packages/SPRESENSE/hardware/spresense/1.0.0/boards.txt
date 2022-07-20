@@ -84,20 +84,40 @@ spresense.menu.Memory.1280.upload.maximum_data_size=1310720
 spresense.menu.Memory.1408.upload.maximum_data_size=1441792
 spresense.menu.Memory.1536.upload.maximum_data_size=1572864
 
-spresense.build.extra_flags=-DSUBCORE={index}
 spresense.menu.Core.Main.build.extra_flags=
+spresense.menu.Core.Sub1.build.extra_flags=-DSUBCORE=1
+spresense.menu.Core.Sub2.build.extra_flags=-DSUBCORE=2
+spresense.menu.Core.Sub3.build.extra_flags=-DSUBCORE=3
+spresense.menu.Core.Sub4.build.extra_flags=-DSUBCORE=4
+spresense.menu.Core.Sub5.build.extra_flags=-DSUBCORE=5
 
-spresense.build.type_prefix=subcore-
 spresense.menu.Core.Main.build.type_prefix=
+spresense.menu.Core.Sub1.build.type_prefix=subcore-
+spresense.menu.Core.Sub2.build.type_prefix=subcore-
+spresense.menu.Core.Sub3.build.type_prefix=subcore-
+spresense.menu.Core.Sub4.build.type_prefix=subcore-
+spresense.menu.Core.Sub5.build.type_prefix=subcore-
 
-spresense.build.variant=spresense_sub
 spresense.menu.Core.Main.build.variant=spresense
+spresense.menu.Core.Sub1.build.variant=spresense_sub
+spresense.menu.Core.Sub2.build.variant=spresense_sub
+spresense.menu.Core.Sub3.build.variant=spresense_sub
+spresense.menu.Core.Sub4.build.variant=spresense_sub
+spresense.menu.Core.Sub5.build.variant=spresense_sub
 
-spresense.build.stack=
 spresense.menu.Core.Main.build.stack=-Wl,--defsym,__reserved_ramsize=1572864-{upload.maximum_size}
+spresense.menu.Core.Sub1.build.stack=
+spresense.menu.Core.Sub2.build.stack=
+spresense.menu.Core.Sub3.build.stack=
+spresense.menu.Core.Sub4.build.stack=
+spresense.menu.Core.Sub5.build.stack=
 
-spresense.build.libs="{build.libpath}/libapps.a" "{build.libpath}/libarch.a" "{build.libpath}/libarm_cortexM4lf_math.a" "{build.libpath}/libbinfmt.a" "{build.libpath}/libboard.a" "{build.libpath}/libboards.a" "{build.libpath}/libc.a" "{build.libpath}/libcmsis_nn.a" "{build.libpath}/libdrivers.a" "{build.libpath}/libfs.a" "{build.libpath}/libmm.a" "{build.libpath}/libsched.a" "{build.libpath}/libxx.a"
 spresense.menu.Core.Main.build.libs="{build.libpath}/libapps.a" "{build.libpath}/libarch.a" "{build.libpath}/libarm_cortexM4lf_math.a" "{build.libpath}/libaudio.a" "{build.libpath}/libbinfmt.a" "{build.libpath}/libboard.a" "{build.libpath}/libboards.a" "{build.libpath}/libc.a" "{build.libpath}/libcmsis_nn.a" "{build.libpath}/libdrivers.a" "{build.libpath}/libfs.a" "{build.libpath}/libmm.a" "{build.libpath}/libnet.a" "{build.libpath}/libnnablart.a" "{build.libpath}/libsched.a" "{build.libpath}/libsslutils.a" "{build.libpath}/libxx.a"
+spresense.menu.Core.Sub1.build.libs="{build.libpath}/libapps.a" "{build.libpath}/libarch.a" "{build.libpath}/libarm_cortexM4lf_math.a" "{build.libpath}/libbinfmt.a" "{build.libpath}/libboard.a" "{build.libpath}/libboards.a" "{build.libpath}/libc.a" "{build.libpath}/libcmsis_nn.a" "{build.libpath}/libdrivers.a" "{build.libpath}/libfs.a" "{build.libpath}/libmm.a" "{build.libpath}/libsched.a" "{build.libpath}/libxx.a"
+spresense.menu.Core.Sub2.build.libs="{build.libpath}/libapps.a" "{build.libpath}/libarch.a" "{build.libpath}/libarm_cortexM4lf_math.a" "{build.libpath}/libbinfmt.a" "{build.libpath}/libboard.a" "{build.libpath}/libboards.a" "{build.libpath}/libc.a" "{build.libpath}/libcmsis_nn.a" "{build.libpath}/libdrivers.a" "{build.libpath}/libfs.a" "{build.libpath}/libmm.a" "{build.libpath}/libsched.a" "{build.libpath}/libxx.a"
+spresense.menu.Core.Sub3.build.libs="{build.libpath}/libapps.a" "{build.libpath}/libarch.a" "{build.libpath}/libarm_cortexM4lf_math.a" "{build.libpath}/libbinfmt.a" "{build.libpath}/libboard.a" "{build.libpath}/libboards.a" "{build.libpath}/libc.a" "{build.libpath}/libcmsis_nn.a" "{build.libpath}/libdrivers.a" "{build.libpath}/libfs.a" "{build.libpath}/libmm.a" "{build.libpath}/libsched.a" "{build.libpath}/libxx.a"
+spresense.menu.Core.Sub4.build.libs="{build.libpath}/libapps.a" "{build.libpath}/libarch.a" "{build.libpath}/libarm_cortexM4lf_math.a" "{build.libpath}/libbinfmt.a" "{build.libpath}/libboard.a" "{build.libpath}/libboards.a" "{build.libpath}/libc.a" "{build.libpath}/libcmsis_nn.a" "{build.libpath}/libdrivers.a" "{build.libpath}/libfs.a" "{build.libpath}/libmm.a" "{build.libpath}/libsched.a" "{build.libpath}/libxx.a"
+spresense.menu.Core.Sub5.build.libs="{build.libpath}/libapps.a" "{build.libpath}/libarch.a" "{build.libpath}/libarm_cortexM4lf_math.a" "{build.libpath}/libbinfmt.a" "{build.libpath}/libboard.a" "{build.libpath}/libboards.a" "{build.libpath}/libc.a" "{build.libpath}/libcmsis_nn.a" "{build.libpath}/libdrivers.a" "{build.libpath}/libfs.a" "{build.libpath}/libmm.a" "{build.libpath}/libsched.a" "{build.libpath}/libxx.a"
 
 ### without SYSBUS
 spresense.build.ldscript=-T{variant.path}/ramconfig.ld
