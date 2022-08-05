@@ -38,7 +38,6 @@ public:
    * @brief Create RtcTime object
    */
   RtcTime(uint32_t sec = 0, long nsec = 0);
-  RtcTime(int year, int month, int day, int hour = 0, int minute = 0, int second = 0);
   RtcTime(int year, int month, int day, int hour = 0, int minute = 0, int second = 0, long nsec = 0);
   RtcTime(const char* date, const char* time);
 
