@@ -381,6 +381,19 @@ public:
    */
   int setTimeout(uint32_t milliseconds);
 
+  /**
+   * @brief Set the timeout when the client send.
+   *
+   * @details [en] Set the timeout when the client send. 0 means disabled (no timeout). If this method has not been called, the timeout is 60 seconds.
+   *
+   * @details [ja] クライアントが送信をする際のタイムアウトを設定します。0は無効（タイムアウトしない）を意味します。本メソッドを呼び出さない場合のタイムアウトは60秒です。
+   *
+   * @return [en] Returns 0 if succeeded, -1 if not.
+   *
+   * @return [ja] 成功した場合は0を、そうでない場合は-1を返します。
+   */
+  int setSendTimeout(uint32_t milliseconds);
+
 private:
   int _peekVal;
   char *_rootCA;
@@ -392,6 +405,7 @@ private:
   tlsClientContext_t *_tlsContext;
   uint8_t _connected;
   uint32_t _timeout;
+  uint32_t _writeTimeout;
 };
 
 /** @} ltetlsclient */

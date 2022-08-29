@@ -45,6 +45,7 @@ parsePacket	KEYWORD2
 remoteIP	KEYWORD2
 remotePort	KEYWORD2
 setTimeout	KEYWORD2
+setSendTimeout	KEYWORD2
 getRAT	KEYWORD2
 
 #######################################
