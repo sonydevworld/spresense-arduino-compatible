@@ -1357,6 +1357,8 @@ err_t AudioClass::writeWavHeader(File& myFile)
       return AUDIOLIB_ECODE_FILEACCESS_ERROR;
     }
 
+   m_es_size = 0;
+
   return AUDIOLIB_ECODE_OK;
 }
 
