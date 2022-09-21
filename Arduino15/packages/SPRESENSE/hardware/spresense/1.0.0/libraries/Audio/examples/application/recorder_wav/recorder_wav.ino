@@ -34,7 +34,7 @@ bool ErrEnd = false;
 /**
  * @brief Audio attention callback
  *
- * When audio internal error occurc, this function will be called back.
+ * When audio internal error occurs, this function will be called back.
  */
 
 static void audio_attention_cb(const ErrorAttentionParam *atprm)
@@ -48,7 +48,7 @@ static void audio_attention_cb(const ErrorAttentionParam *atprm)
 }
 
 /**
- * @brief Setup recording of mp3 stream to file
+ * @brief Setup recording of wav stream to file
  *
  * Select input device as microphone <br>
  * Initialize filetype to stereo wav with 48 Kb/s sampling rate <br>
