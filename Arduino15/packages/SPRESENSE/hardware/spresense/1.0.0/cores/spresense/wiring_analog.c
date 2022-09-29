@@ -26,7 +26,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
-#include <common/arm_arch.h>
+#include <common/arm_internal.h>
 #include <nuttx/arch.h>
 #include <nuttx/config.h>
 #include <sdk/config.h>

@@ -25,7 +25,7 @@
 #include <cxd56_sph.h>
 #include <nuttx/irq.h>
 #include <nuttx/arch.h>
-#include <common/arm_arch.h>
+#include <common/arm_internal.h>
 #include <armv7-m/nvic.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>

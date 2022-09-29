@@ -25,7 +25,7 @@
 #include <arch/chip/pin.h>
 #include <nuttx/irq.h>
 #include <nuttx/arch.h>
-#include <common/arm_arch.h>
+#include <common/arm_internal.h>
 #include <chip/hardware/cxd5602_memorymap.h>
 #include <chip/hardware/cxd5602_topreg.h>
 

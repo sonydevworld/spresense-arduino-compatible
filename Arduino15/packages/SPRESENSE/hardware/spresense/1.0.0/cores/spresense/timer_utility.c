@@ -6,7 +6,7 @@
 #include <sys/ioctl.h>
 #include <assert.h>
 #include <errno.h>
-#include <common/arm_arch.h>
+#include <common/arm_internal.h>
 #include <cxd56_clock.h>
 #include <hardware/cxd56_timer.h>
 #include <arch/chip/timer.h>
