@@ -71,6 +71,9 @@
 // MQTT publish interval settings
 #define PUBLISH_INTERVAL_SEC   1   // MQTT publish interval in sec
 #define MAX_NUMBER_OF_PUBLISH  60  // Maximum number of publish
+#define RET_SUCCESS            1   // Return value meaning success
+#define RET_FAILURE            0   // Return value meaning failure
+#define CONNECT_RETRY          5   // Number of retries when connection to the broker fails
 
 LTE lteAccess;
 LTETLSClient client;
@@ -217,6 +220,64 @@ void doAttach()
   }
 }
 
+void connectMqttBroker(char *_broker, int _port)
+{
+  int i;
+
+  for (i = 0; i < CONNECT_RETRY; i++) {
+    Serial.print("Attempting to connect to the MQTT broker: ");
+    Serial.println(_broker);
+
+    if (mqttClient.connect(_broker, _port)) {
+      break;
+    }
+    Serial.print("MQTT connection failed! Error code = ");
+    Serial.println(mqttClient.connectError());
+    sleep(1);
+  }
+
+  if (i >= CONNECT_RETRY) {
+    Serial.println("Exceeded maximum number of retries to connect to the broker, application terminated.");
+
+    // do nothing forevermore:
+    for (;;)
+      sleep(1);
+  }
+
+  Serial.println("You're connected to the MQTT broker!");
+}
+
+int mqttPublish(char *_topic, const String &_data)
+{
+  // Publish to broker
+  Serial.print("Sending message to topic: ");
+  Serial.println(_topic);
+  Serial.print("Publish: ");
+  Serial.println(_data);
+
+  if (mqttClient.beginMessage(_topic) == 0) {
+    Serial.println("mqttClient.beginMessage failed!");
+    mqttClient.stop();
+    return RET_FAILURE;
+  }
+
+  if (mqttClient.print(_data) == 0) {
+    Serial.println("mqttClient.print failed!");
+    mqttClient.stop();
+    return RET_FAILURE;
+  }
+
+  if (mqttClient.endMessage() == 0) {
+    Serial.println("mqttClient.endMessage failed!");
+    mqttClient.stop();
+    return RET_FAILURE;
+  }
+
+  Serial.println("MQTT Publish succeeded!");
+
+  return RET_SUCCESS;
+}
+
 void setup()
 {
   // Open serial communications and wait for port to open
@@ -290,18 +351,8 @@ void setup()
   client.setPrivateKey(priKeyFile, priKeyFile.available());
   priKeyFile.close();
 
-  Serial.print("Attempting to connect to the MQTT broker: ");
-  Serial.println(broker);
-
-  if (!mqttClient.connect(broker, port)) {
-    Serial.print("MQTT connection failed! Error code = ");
-    Serial.println(mqttClient.connectError());
-    // do nothing forevermore:
-    for (;;)
-      sleep(1);
-  }
-
-  Serial.println("You're connected to the MQTT broker!");
+  // connect to the MQTT broker
+  connectMqttBroker(broker, port);
 }
 
 void loop()
@@ -319,18 +370,16 @@ void loop()
       if (strlen(nmeaString.c_str()) != 0) {
         unsigned long currentTime = lteAccess.getTime();
         if (currentTime >= lastPubSec + PUBLISH_INTERVAL_SEC) {
-          // Publish to broker
-          Serial.print("Sending message to topic: ");
-          Serial.println(topic);
-          Serial.print("Publish: ");
-          Serial.println(nmeaString);
+          if (!mqttClient.connected()) {
+            // reconnect to the MQTT broker
+            connectMqttBroker(broker, port);
+          }
 
-          // send message, the Print interface can be used to set the message contents
-          mqttClient.beginMessage(topic);
-          mqttClient.print(nmeaString);
-          mqttClient.endMessage();
-          lastPubSec = currentTime;
-          numOfPubs++;
+          // Publish to broker
+          if (mqttPublish(topic, nmeaString) == RET_SUCCESS) {
+            lastPubSec = currentTime;
+            numOfPubs++;
+          }
         }
       }
     } else {
