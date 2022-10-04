@@ -24,6 +24,7 @@
 #include <string.h>
 #include <TLSClient.h>
 #include <WString.h>
+#include <time.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -43,6 +44,51 @@
  ****************************************************************************/
 
 static const char *g_pers = "spresense-tls";
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+static void startTimer(struct timespec *timer)
+{
+  clock_gettime(CLOCK_MONOTONIC, timer);
+}
+
+static uint32_t leftTimer(struct timespec *timer, uint32_t timeout_ms)
+{
+  struct timespec current_time;
+  struct timespec diff_time;
+  uint32_t difftime_msec = 0;
+
+  clock_gettime(CLOCK_MONOTONIC, &current_time);
+
+  diff_time.tv_sec  = current_time.tv_sec - timer->tv_sec;
+  diff_time.tv_nsec = current_time.tv_nsec - timer->tv_nsec;
+
+  if (diff_time.tv_nsec < 0) {
+    diff_time.tv_sec -= 1;
+    diff_time.tv_nsec += 1000*1000*1000;
+  }
+
+  difftime_msec = diff_time.tv_sec*1000 + diff_time.tv_nsec/(1000*1000);
+
+  if (difftime_msec < timeout_ms) {
+    return timeout_ms - difftime_msec;
+  }
+
+  return 0;
+}
+
+static bool hasTimerExpired(struct timespec *timer, uint32_t timeout_ms)
+{
+  if (timeout_ms) {
+    return leftTimer(timer, timeout_ms) ? false : true;
+  }
+
+  /* 0 means no timeout */
+
+  return false;
+}
 
 /****************************************************************************
  * Public Functions
@@ -241,14 +287,21 @@ int tlsRead(tlsClientContext_t *tlsCtx, uint8_t *buffer, int len)
   return ret;
 }
 
-int tlsWrite(tlsClientContext_t *tlsCtx, const uint8_t *buffer, int len)
+int tlsWrite(tlsClientContext_t *tlsCtx, const uint8_t *buffer, int len,
+             uint32_t timeout)
 {
   int ret;
+  struct timespec timer;
+
+  startTimer(&timer);
 
   while ((ret = mbedtls_ssl_write(&tlsCtx->ssl, buffer, len)) <= 0) {
     if ((ret != MBEDTLS_ERR_SSL_WANT_READ) &&
         (ret != MBEDTLS_ERR_SSL_WANT_WRITE)) {
       TLSCERR("mbedtls_ssl_write() error : -0x%x\n", -ret);
+      return ret;
+    } else if (hasTimerExpired(&timer, timeout)) {
+      TLSCERR("write timer expired : -0x%x\n", -ret);
       return ret;
     }
   }

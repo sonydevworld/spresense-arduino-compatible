@@ -56,6 +56,7 @@ int tlsConnect(tlsClientContext_t *tlsCtx, const char *host, uint32_t port,
                const char *privateKey,  size_t privateKeySize);
 int tlsGetAvailable(tlsClientContext_t *tlsCtx);
 int tlsRead(tlsClientContext_t *tlsCtx, uint8_t *buffer, int len);
-int tlsWrite(tlsClientContext_t *tlsCtx, const uint8_t *buffer, int len);
+int tlsWrite(tlsClientContext_t *tlsCtx, const uint8_t *buffer, int len,
+             uint32_t timeout);
 
 #endif
