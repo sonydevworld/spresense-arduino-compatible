@@ -616,6 +616,8 @@ err_t MediaRecorder::writeWavHeader(File& myfile)
       return MEDIARECORDER_ECODE_FILEACCESS_ERROR;
     }
 
+  m_es_size = 0;
+
   return MEDIARECORDER_ECODE_OK;
 }
 

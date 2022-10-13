@@ -24,7 +24,7 @@ AudioClass *theAudio;
 /**
  * @brief Audio attention callback
  *
- * When audio internal error occurc, this function will be called back.
+ * When audio internal error occurs, this function will be called back.
  */
 
 static void audio_attention_cb(const ErrorAttentionParam *atprm)
