@@ -26,7 +26,7 @@
 #include <sys/ioctl.h>
 #include <nuttx/config.h>
 #include <sdk/config.h>
-#include <common/arm_arch.h>
+#include <common/arm_internal.h>
 #include <Arduino.h>
 #include "utility.h"
 #include "wiring_private.h"

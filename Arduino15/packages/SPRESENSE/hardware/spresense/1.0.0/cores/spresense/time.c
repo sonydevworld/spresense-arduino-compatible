@@ -36,10 +36,6 @@
 # error Please enable RTC High Resolution in NuttX
 #endif // CONFIG_RTC_HIRES
 
-#ifndef CONFIG_CLOCK_MONOTONIC
-# error Please enable monotonic clock in NuttX
-#endif // CONFIG_CLOCK_MONOTONIC
-
 #define DELAY_CORRECTION    (700)
 #define DELAY_INTERVAL      (50)
 
