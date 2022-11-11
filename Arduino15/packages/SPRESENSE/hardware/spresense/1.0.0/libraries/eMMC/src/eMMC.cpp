@@ -54,6 +54,20 @@
 
 eMMCClass::eMMCClass() : StorageClass(EMMC_MOUNT_POINT), mshandle(NULL)
 {
+  power_pin = 0xff;
+}
+
+boolean eMMCClass::begin(uint8_t pin)
+{
+  power_pin = pin;
+  
+  pinMode(power_pin, OUTPUT);
+  digitalWrite(power_pin, HIGH);
+
+  /* device bootup time */
+  delay(5);
+
+  return begin();
 }
 
 boolean eMMCClass::begin()
@@ -62,9 +76,28 @@ boolean eMMCClass::begin()
 
   /* Initialize and mount the eMMC device */
   ret = board_emmc_initialize();
-  if (ret != 0) {
-    return false;
-  }
+  if (ret != 0)
+    {
+      return false;
+    }
+
+  return true;
+}
+
+boolean eMMCClass::end()
+{
+  /* Finalize and unmount the eMMC device */
+  int ret = board_emmc_finalize();
+  if (ret != 0)
+    {
+      return false;
+    }
+
+  if(power_pin != 0xff)
+    {
+      digitalWrite(power_pin, LOW);
+      power_pin = 0xff;
+    }
 
   return true;
 }
