@@ -45,6 +45,8 @@
 
 #define EMMC_MOUNT_POINT "/mnt/emmc/"
 
+#define EMMC_POWER_PIN_UNKNOWN 0xff
+
 //#define DEBUG
 #ifdef DEBUG
 #  define DebugPrintf(fmt, ...) printf(fmt, ## __VA_ARGS__)
@@ -52,9 +54,8 @@
 #  define DebugPrintf(fmt, ...) ((void)0)
 #endif
 
-eMMCClass::eMMCClass() : StorageClass(EMMC_MOUNT_POINT), mshandle(NULL)
+eMMCClass::eMMCClass() : StorageClass(EMMC_MOUNT_POINT), mshandle(NULL), power_pin(EMMC_POWER_PIN_UNKNOWN)
 {
-  power_pin = 0xff;
 }
 
 boolean eMMCClass::begin(uint8_t pin)
@@ -87,13 +88,7 @@ boolean eMMCClass::begin()
 boolean eMMCClass::end()
 {
   /* Finalize and unmount the eMMC device */
-  int ret = board_emmc_finalize();
-  if (ret != 0)
-    {
-      return false;
-    }
-
-  if(power_pin != 0xff)
+  if(power_pin != EMMC_POWER_PIN_UNKNOWN)
     {
       digitalWrite(power_pin, LOW);
       power_pin = 0xff;
