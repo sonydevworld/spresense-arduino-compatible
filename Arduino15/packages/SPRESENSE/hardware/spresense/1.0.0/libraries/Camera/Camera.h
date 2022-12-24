@@ -588,6 +588,17 @@ public:
   static CameraClass getInstance();
 
   /**
+   * @brief Get the file descriptor of camera device.
+   * @details [en] Get the file descriptor of camera device.<BR>
+   *          [ja] カメラデバイスのファイルディスクリプタを取得する。
+   * @return [en] The file descriptor of camera device.
+   *              Return CAM_ERR_NO_DEVICE if begin() methods is not executed.<BR>
+   *         [ja] カメラデバイスのファイルディスクリプタ。
+   *              begin()メソッドが実行されていない場合は、CAM_ERR_NO_DEVICEを返す。
+   */
+  int getFd() { return (video_fd < 0) ? CAM_ERR_NO_DEVICE : video_fd; }
+
+  /**
    * @brief Initialize CameraClass instance.
    * @details [en] Initialize CameraClass Instance. This method must be called before
    *               use any other methods. With initialization, image buffers
