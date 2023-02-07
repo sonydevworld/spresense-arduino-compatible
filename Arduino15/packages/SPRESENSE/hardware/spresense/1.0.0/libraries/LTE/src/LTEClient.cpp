@@ -134,7 +134,9 @@ int LTEClient::connect(const char *host, uint16_t port)
 
     ret = ::connect(_fd, curainfo->ai_addr, curainfo->ai_addrlen);
     if (ret < 0) {
-      LTECERR("connect() error : %d\n", errno);
+      if (curainfo->ai_next == NULL) {
+        LTECERR("connect() error : %d\n", errno);
+      }
       close(_fd);
       _fd = INVALID_FD;
     } else {
