@@ -467,7 +467,7 @@ int SpGnss::isUpdate(void)
 
 /**
  * @brief Wait for position information to be updated
- * @param [in] timeout timeout of waiting
+ * @param [in] timeout timeout of waiting [sec]
  * @return 1 enable, 0 disable
  *
  * If not specified timeout, wait forever.
