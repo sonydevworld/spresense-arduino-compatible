@@ -859,6 +859,19 @@ int SpGnss::saveEphemeris(void)
 }
 
 /**
+ * @brief Remove the backup data stored in the Flash
+ * @return 0 if success, -1 if failure
+ */
+int SpGnss::removeEphemeris(void)
+{
+#ifdef CONFIG_CXD56_GNSS_BACKUP_FILENAME
+    return unlink(CONFIG_CXD56_GNSS_BACKUP_FILENAME);
+#else
+    return -1;
+#endif
+}
+
+/**
  * @brief Get the QZQSM DC report data
  * @return the pointer to DC Report structure if valid, otherwise NULL
  */

@@ -438,6 +438,12 @@ public:
     int saveEphemeris(void);
 
     /**
+     * @brief Remove the backup data stored in the Flash
+     * @return 0 if success, -1 if failure
+     */
+    int removeEphemeris(void);
+
+    /**
      * @brief Get the QZQSM DC report data
      * @return the pointer to DC Report structure if valid, otherwise NULL
      */
