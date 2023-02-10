@@ -977,7 +977,7 @@ void loop() {
     int WriteRequest = false;
 
     /* Check update. */
-    if (Gnss.waitUpdate(Parameter.IntervalSec * 1000))
+    if (Gnss.waitUpdate(Parameter.IntervalSec))
     {
       /* Get NavData. */
       Gnss.getNavData(&NavData);
