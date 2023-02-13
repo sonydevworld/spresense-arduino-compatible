@@ -87,6 +87,12 @@ boolean eMMCClass::begin()
 
 boolean eMMCClass::end()
 {
+  int ret = board_emmc_finalize();
+  if (ret != 0)
+    {
+      return false;
+    }
+
   /* Finalize and unmount the eMMC device */
   if(power_pin != EMMC_POWER_PIN_UNKNOWN)
     {

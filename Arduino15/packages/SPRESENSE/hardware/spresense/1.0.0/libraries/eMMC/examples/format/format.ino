@@ -54,6 +54,10 @@ void setup() {
   } else {
     Serial.println("Success!!");
   }
+
+  /* Finalize eMMC */
+  eMMC.end();
+
 }
 
 /**

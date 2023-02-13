@@ -82,6 +82,10 @@ void setup() {
     /* If the file didn't open, print an error */
     Serial.println("error opening test.txt");
   }
+
+  /* Finalize eMMC */
+  eMMC.end();
+
 }
 
 /**
