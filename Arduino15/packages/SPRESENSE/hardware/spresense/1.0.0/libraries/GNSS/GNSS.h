@@ -300,7 +300,7 @@ public:
     /**
      * @brief Wait for position information to be updated
      * @details Calling this function will block until GNSS positioning information is updated.
-     * @param [in] timeout timeout of waiting
+     * @param [in] timeout timeout of waiting [sec]
      * @return 1 enable, 0 disable
      *
      * Returns 1 if position information is updated.
