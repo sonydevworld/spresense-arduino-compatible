@@ -329,6 +329,8 @@ void LTETLSClient::setCACert(const unsigned char *rootCA, size_t size)
 
 void LTETLSClient::setCACert(File& f, size_t size)
 {
+  int ret;
+
   if ((size == 0) || (size == SIZE_MAX)) {
     LTETLSCERR("invalid parameter\n");
     return;
@@ -346,7 +348,8 @@ void LTETLSClient::setCACert(File& f, size_t size)
     return;
   }
 
-  if (size != f.read(_rootCA, size)) {
+  ret = f.read(_rootCA, size);
+  if (ret < 0 || size != static_cast<size_t>(ret)) {
     delete[] _rootCA;
     _rootCA = NULL;
     return;
@@ -430,6 +433,8 @@ void LTETLSClient::setCertificate(const unsigned char *clientCA, size_t size)
 
 void LTETLSClient::setCertificate(File& f, size_t size)
 {
+  int ret;
+
   if ((size == 0) || (size == SIZE_MAX)) {
     LTETLSCERR("invalid parameter\n");
     return;
@@ -447,7 +452,8 @@ void LTETLSClient::setCertificate(File& f, size_t size)
     return;
   }
 
-  if (size != f.read(_clientCA, size)) {
+  ret = f.read(_clientCA, size);
+  if (ret < 0 || size != static_cast<size_t>(ret)) {
     delete[] _clientCA;
     _clientCA = NULL;
     return;
@@ -531,6 +537,8 @@ void LTETLSClient::setPrivateKey(const unsigned char *privateKey, size_t size)
 
 void LTETLSClient::setPrivateKey(File& f, size_t size)
 {
+  int ret;
+
   if ((size == 0) || (size == SIZE_MAX)) {
     LTETLSCERR("invalid parameter\n");
     return;
@@ -548,7 +556,8 @@ void LTETLSClient::setPrivateKey(File& f, size_t size)
     return;
   }
 
-  if (size != f.read(_privateKey, size)) {
+  ret = f.read(_privateKey, size);
+  if (ret < 0 || size != static_cast<size_t>(ret)) {
     delete[] _privateKey;
     _privateKey = NULL;
     return;
