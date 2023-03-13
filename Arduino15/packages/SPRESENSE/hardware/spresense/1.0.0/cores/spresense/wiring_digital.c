@@ -25,7 +25,7 @@
 #include <arch/chip/pin.h>
 #include <chip/hardware/cxd5602_memorymap.h>
 #include <chip/hardware/cxd5602_topreg.h>
-#include <common/arm_arch.h>
+#include <common/arm_internal.h>
 #include <Arduino.h>
 #include "utility.h"
 #include "wiring_private.h"

@@ -149,7 +149,7 @@ inline int16_t clip(int32_t val, int32_t peak)
 /**
  * @brief Frontend attention callback
  *
- * When audio internal error occurc, this function will be called back.
+ * When audio internal error occurs, this function will be called back.
  */
 
 void frontend_attention_cb(const ErrorAttentionParam *param)
@@ -164,7 +164,7 @@ void frontend_attention_cb(const ErrorAttentionParam *param)
 /**
  * @brief OutputMixer attention callback
  *
- * When audio internal error occurc, this function will be called back.
+ * When audio internal error occurs, this function will be called back.
  */
 void mixer_attention_cb(const ErrorAttentionParam *param)
 {

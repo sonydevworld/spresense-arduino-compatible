@@ -64,7 +64,7 @@ SDClass theSD;
 /**
  * @brief Audio(player0) attention callback
  *
- * When audio internal error occurc, this function will be called back.
+ * When audio internal error occurs, this function will be called back.
  */
 
 static void attention_player_cb(const ErrorAttentionParam *atprm)

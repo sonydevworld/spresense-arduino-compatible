@@ -300,7 +300,7 @@ public:
     /**
      * @brief Wait for position information to be updated
      * @details Calling this function will block until GNSS positioning information is updated.
-     * @param [in] timeout timeout of waiting
+     * @param [in] timeout timeout of waiting [sec]
      * @return 1 enable, 0 disable
      *
      * Returns 1 if position information is updated.
@@ -436,6 +436,12 @@ public:
      * @return 0 if success, -1 if failure
      */
     int saveEphemeris(void);
+
+    /**
+     * @brief Remove the backup data stored in the Flash
+     * @return 0 if success, -1 if failure
+     */
+    int removeEphemeris(void);
 
     /**
      * @brief Get the QZQSM DC report data

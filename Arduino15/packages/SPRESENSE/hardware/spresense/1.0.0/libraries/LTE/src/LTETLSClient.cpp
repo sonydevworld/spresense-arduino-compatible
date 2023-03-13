@@ -54,6 +54,7 @@
 #define CONNECTED      1
 #define FAILED         -1
 #define TLS_READ_TIMEOUT 10000
+#define TLS_WRITE_TIMEOUT (60*1000)
 
 /****************************************************************************
  * Public Functions
@@ -70,6 +71,7 @@ LTETLSClient::LTETLSClient()
 , _tlsContext(NULL)
 , _connected(NOT_CONNECTED)
 , _timeout(TLS_READ_TIMEOUT)
+, _writeTimeout(TLS_WRITE_TIMEOUT)
 {
 }
 
@@ -149,7 +151,7 @@ size_t LTETLSClient::write(const uint8_t *buf, size_t size)
     return 0;
   }
 
-  ret = tlsWrite(_tlsContext, buf, size);
+  ret = tlsWrite(_tlsContext, buf, size, _writeTimeout);
   if (ret < 0) {
     stop();
     return 0;
@@ -325,6 +327,37 @@ void LTETLSClient::setCACert(const unsigned char *rootCA, size_t size)
   memcpy(_rootCA, rootCA, _rootCASize);
 }
 
+void LTETLSClient::setCACert(File& f, size_t size)
+{
+  int ret;
+
+  if ((size == 0) || (size == SIZE_MAX)) {
+    LTETLSCERR("invalid parameter\n");
+    return;
+  }
+
+  if (_rootCA) {
+    delete[] _rootCA;
+    _rootCA = NULL;
+  }
+
+  _rootCASize = size + 1;
+  _rootCA = new char[_rootCASize];
+  if (!_rootCA) {
+    LTETLSCERR("failed to allocate memory\n");
+    return;
+  }
+
+  ret = f.read(_rootCA, size);
+  if (ret < 0 || size != static_cast<size_t>(ret)) {
+    delete[] _rootCA;
+    _rootCA = NULL;
+    return;
+  }
+
+  _rootCA[size] = '\0';
+}
+
 void LTETLSClient::setCACert(Stream& stream, size_t size)
 {
   if ((size == 0) || (size == SIZE_MAX)) {
@@ -396,6 +429,37 @@ void LTETLSClient::setCertificate(const unsigned char *clientCA, size_t size)
   }
 
   memcpy(_clientCA, clientCA, _clientCASize);
+}
+
+void LTETLSClient::setCertificate(File& f, size_t size)
+{
+  int ret;
+
+  if ((size == 0) || (size == SIZE_MAX)) {
+    LTETLSCERR("invalid parameter\n");
+    return;
+  }
+
+  if (_clientCA) {
+    delete[] _clientCA;
+    _clientCA = NULL;
+  }
+
+  _clientCASize = size + 1;
+  _clientCA = new char[_clientCASize];
+  if (!_clientCA) {
+    LTETLSCERR("failed to allocate memory\n");
+    return;
+  }
+
+  ret = f.read(_clientCA, size);
+  if (ret < 0 || size != static_cast<size_t>(ret)) {
+    delete[] _clientCA;
+    _clientCA = NULL;
+    return;
+  }
+
+  _clientCA[size] = '\0';
 }
 
 void LTETLSClient::setCertificate(Stream& stream, size_t size)
@@ -471,6 +535,37 @@ void LTETLSClient::setPrivateKey(const unsigned char *privateKey, size_t size)
   memcpy(_privateKey, privateKey, _privateKeySize);
 }
 
+void LTETLSClient::setPrivateKey(File& f, size_t size)
+{
+  int ret;
+
+  if ((size == 0) || (size == SIZE_MAX)) {
+    LTETLSCERR("invalid parameter\n");
+    return;
+  }
+
+  if (_privateKey) {
+    delete[] _privateKey;
+    _privateKey = NULL;
+  }
+
+  _privateKeySize = size + 1;
+  _privateKey = new char[_privateKeySize];
+  if (!_privateKey) {
+    LTETLSCERR("failed to allocate memory\n");
+    return;
+  }
+
+  ret = f.read(_privateKey, size);
+  if (ret < 0 || size != static_cast<size_t>(ret)) {
+    delete[] _privateKey;
+    _privateKey = NULL;
+    return;
+  }
+
+  _privateKey[size] = '\0';
+}
+
 void LTETLSClient::setPrivateKey(Stream& stream, size_t size)
 {
   if ((size == 0) || (size == SIZE_MAX)) {
@@ -502,6 +597,13 @@ void LTETLSClient::setPrivateKey(Stream& stream, size_t size)
 int LTETLSClient::setTimeout(uint32_t milliseconds)
 {
   _timeout = milliseconds;
+
+  return 0;
+}
+
+int LTETLSClient::setSendTimeout(uint32_t milliseconds)
+{
+  _writeTimeout = milliseconds;
 
   return 0;
 }

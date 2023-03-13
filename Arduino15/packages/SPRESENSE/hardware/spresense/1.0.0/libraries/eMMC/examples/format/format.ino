@@ -26,6 +26,8 @@
 #include <Arduino.h>
 #include <eMMC.h>
 
+#define EMMC_POWER_PIN 26
+
 /**
  * @brief Write to the file and read from the file.
  * 
@@ -41,7 +43,7 @@ void setup() {
 
   /* Initialize eMMC */
   Serial.println("eMMC Initialize");
-  eMMC.begin();
+  eMMC.begin(EMMC_POWER_PIN);
 
   /* FAT32 format eMMC*/
   Serial.println("eMMC FAT32 format");
@@ -52,6 +54,10 @@ void setup() {
   } else {
     Serial.println("Success!!");
   }
+
+  /* Finalize eMMC */
+  eMMC.end();
+
 }
 
 /**

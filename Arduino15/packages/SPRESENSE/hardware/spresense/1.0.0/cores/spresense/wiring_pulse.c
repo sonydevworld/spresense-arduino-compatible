@@ -23,7 +23,7 @@
 */
 
 #include <stdio.h>
-#include <common/arm_arch.h>
+#include <common/arm_internal.h>
 #include <Arduino.h>
 #include "wiring_private.h"
 #include "wiring.h"

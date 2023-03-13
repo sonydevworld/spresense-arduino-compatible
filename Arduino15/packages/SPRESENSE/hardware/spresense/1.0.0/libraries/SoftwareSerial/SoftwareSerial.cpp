@@ -30,7 +30,7 @@
 
 #include <Arduino.h>
 #include <SoftwareSerial.h>
-#include <common/arm_arch.h>
+#include <common/arm_internal.h>
 extern "C" {
 #include <cxd56_gpioint.h>
 }

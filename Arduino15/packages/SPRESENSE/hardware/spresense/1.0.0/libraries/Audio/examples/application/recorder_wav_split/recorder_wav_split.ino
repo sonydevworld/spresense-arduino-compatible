@@ -1,6 +1,6 @@
 /*
- *  recorder_wav.ino - Recorder example application for WAV(PCM)
- *  Copyright 2018 Sony Semiconductor Solutions Corporation
+ *  recorder_wav_split.ino - Recorder(recording to split files) example application for WAV(PCM)
+ *  Copyright 2022 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -20,9 +20,11 @@
 #include <SDHCI.h>
 #include <Audio.h>
 
-#include <arch/board/board.h>
-
-#define RECORD_FILE_NAME "Sound.wav"
+#define RECORD_FILE_NAME "Sound"
+#define RECORD_DIR_NAME    "Rec"
+#define DIR_PATH_LEN         32
+#define FILE_PATH_LEN       128
+static char dir_name[FILE_PATH_LEN];
 
 SDClass theSD;
 AudioClass *theAudio;
@@ -73,9 +75,21 @@ static const uint8_t  recoding_cannel_number = 2;
 
 static const uint8_t  recoding_bit_length = 16;
 
+/* Mic Gain */
+
+static const uint8_t  mic_gain = 16;
+
+/* Encoded date buffer size */
+
+static const uint32_t enc_buf_size = 160*1024;
+
 /* Recording time[second] */
 
-static const uint32_t recoding_time = 10;
+static const uint32_t recoding_time = 60*60;
+
+/* Recording split time[second] */
+
+static const int32_t split_time = 10*60;
 
 /* Bytes per second */
 
@@ -87,8 +101,72 @@ static const int32_t recoding_byte_per_second = recoding_sampling_rate *
 
 static const int32_t recoding_size = recoding_byte_per_second * recoding_time;
 
+/* split recording size */
+
+static const uint32_t split_size = recoding_byte_per_second * split_time;
+
+
+/* Number of files in one directory */
+
+static const uint32_t dir_file_num = 100;
+
+
+/* Number of directories */
+
+static uint16_t dir_count  = 0;
+
+/* Number of files */
+
+static uint16_t file_count = 0;
+
+/**
+ * @brief create recording directories
+ */
+ 
+static void create_dir()
+{
+  snprintf(dir_name, sizeof(dir_name), "%s%02d", RECORD_DIR_NAME, dir_count);
+
+  if (!theSD.exists(dir_name))
+    {
+      theSD.mkdir(dir_name);
+    }
+
+  dir_count++;
+}
+
+/**
+ * @brief create record file
+ *
+ * create the record file to SD card.
+ */
+
+static void create_file(File *record_file, uint16_t count)
+{
+  char file_path[FILE_PATH_LEN];
+
+  snprintf(file_path, sizeof(file_path), "%s/%s%03d.wav", dir_name, RECORD_FILE_NAME, count);
+  if (theSD.exists(file_path))
+    {
+      printf("Remove existing file [%s].\n", file_path);
+      theSD.remove(file_path);
+    }
+
+  *record_file = theSD.open(file_path, FILE_WRITE);
+  /* Verify file open */
+  if (!myFile)
+    {
+      printf("File open error\n");
+      exit(1);
+    }
+
+  printf("Open! [%s]\n", file_path);
+}
+
 void setup()
 {
+  Serial.begin(115200);
+  
   /* Initialize SD */
   while (!theSD.begin())
     {
@@ -105,6 +183,10 @@ void setup()
   /* Select input device as microphone */
   theAudio->setRecorderMode(AS_SETRECDR_STS_INPUTDEVICE_MIC);
 
+  /* If file writing fails, change the buffer size to a larger one.
+     And if recording volume is small, change microphone gain. */
+//  theAudio->setRecorderMode(AS_SETRECDR_STS_INPUTDEVICE_MIC, mic_gain, enc_buf_size);
+
   /* Search for WAVDEC codec in "/mnt/sd0/BIN" directory */
   theAudio->initRecorder(AS_CODECTYPE_WAV,
                          "/mnt/sd0/BIN",
@@ -113,23 +195,9 @@ void setup()
                          recoding_cannel_number);
   puts("Init Recorder!");
 
-  /* Open file for data write on SD card */
+  create_dir();
 
-  if (theSD.exists(RECORD_FILE_NAME))
-    {
-      printf("Remove existing file [%s].\n", RECORD_FILE_NAME);
-      theSD.remove(RECORD_FILE_NAME);
-    }
-
-  myFile = theSD.open(RECORD_FILE_NAME, FILE_WRITE);
-  /* Verify file open */
-  if (!myFile)
-    {
-      printf("File open error\n");
-      exit(1);
-    }
-
-  printf("Open! [%s]\n", RECORD_FILE_NAME);
+  create_file(&myFile, file_count++);
 
   theAudio->writeWavHeader(myFile);
   puts("Write Header!");
@@ -142,25 +210,40 @@ void setup()
 void loop() 
 {
   err_t err;
+
+  if (file_count >= (dir_file_num * dir_count))
+    {
+      create_dir();
+    }
+
   /* recording end condition */
-  if (theAudio->getRecordingSize() > recoding_size)
+  if (theAudio->getRecordingSize() + split_size * (file_count - 1) > recoding_size)
     {
       theAudio->stopRecorder();
       sleep(1);
       err = theAudio->readFrames(myFile);
 
-      goto exitRecording;
+      goto exitRecording;      
     }
+  else if ((uint32_t)theAudio->getRecordingSize() > split_size)
+    {
+      theAudio->closeOutputFile(myFile);
+      myFile.close();
+      create_file(&myFile, file_count++);
 
-
-  /* Read frames to record in file */
-  err = theAudio->readFrames(myFile);
+      theAudio->writeWavHeader(myFile);
+      
+      err = theAudio->readFrames(myFile);
+    }
+  else
+    {
+      err = theAudio->readFrames(myFile);
+    }
 
   if (err != AUDIOLIB_ECODE_OK)
     {
-      printf("File End! =%d\n",err);
-      theAudio->stopRecorder();
-      goto exitRecording;
+      printf("Error End! =%d\n",err);
+      ErrEnd = true;
     }
 
   if (ErrEnd)
