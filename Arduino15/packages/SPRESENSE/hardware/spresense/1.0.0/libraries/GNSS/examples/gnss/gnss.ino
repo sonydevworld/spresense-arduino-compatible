@@ -165,6 +165,7 @@ void setup() {
 
     case eSatGlonass:
       Gnss.select(GLONASS);
+      Gnss.deselect(GPS);
       break;
 
     case eSatGpsGlonass:
