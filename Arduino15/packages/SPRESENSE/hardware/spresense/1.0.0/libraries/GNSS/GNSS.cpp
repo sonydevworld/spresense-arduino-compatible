@@ -25,7 +25,7 @@
 #include <GNSSPositionData.h>
 #include <Arduino.h>
 #include <signal.h>
-
+#include <poll.h>
 
 #define SP_GNSS_DEBUG
 
@@ -39,6 +39,9 @@
 # define PRINT_I(c)
 #endif /* SP_GNSS_DEBUG */
 
+//#define SP_GNSS_USE_SIGNAL
+#define GNSS_POLL_FD_NUM 1
+
 const char SP_GNSS_DEV_NAME[]       = "/dev/gps";
 const int SP_GNSS_SIG               = 18;
 const unsigned int MAGIC_NUMBER     = 0xDEADBEEF;
@@ -47,9 +50,11 @@ const unsigned int BIN_BUF_SIZE     = sizeof(GnssPositionData);
 SpPrintLevel SpGnss::DebugPrintLevel = PrintNone;   /* Print level */
 Stream& SpGnss::DebugOut = Serial;
 
+#ifdef SP_GNSS_USE_SIGNAL
 static struct cxd56_gnss_signal_setting_s setting;
 static sigset_t mask;
 static int no_handler = 0;
+#endif
 static struct cxd56_gnss_positiondata_s *pPosdat = NULL;
 static uint32_t crc_table[256];
 
@@ -224,10 +229,12 @@ SpGnss::~SpGnss()
     (void) end();
 }
 
+#ifdef SP_GNSS_USE_SIGNAL
 static void signal_handler( int no )
 {
     no_handler = no;
 }
+#endif
 
 /**
  * @brief Power on GNSS hardware block
@@ -236,8 +243,6 @@ static void signal_handler( int no )
 int SpGnss::begin(void)
 {
     PRINT_I("SpGnss : begin in\n");
-
-    int ret;
 
     if (fd_ < 0)
     {
@@ -248,6 +253,8 @@ int SpGnss::begin(void)
             return -1;
         }
     }
+#ifdef SP_GNSS_USE_SIGNAL
+    int ret;
 
     /* Configure mask to notify GNSS signal. */
 
@@ -283,7 +290,7 @@ int SpGnss::begin(void)
         sa.sa_mask = mask;
         sigaction( SP_GNSS_SIG,  &sa, 0 );
     }
-
+#endif
     /* Init CRC. */
 
     make_crc_table();
@@ -460,7 +467,7 @@ int SpGnss::isUpdate(void)
 
 /**
  * @brief Wait for position information to be updated
- * @param [in] timeout timeout of waiting
+ * @param [in] timeout timeout of waiting [sec]
  * @return 1 enable, 0 disable
  *
  * If not specified timeout, wait forever.
@@ -468,6 +475,7 @@ int SpGnss::isUpdate(void)
 int SpGnss::waitUpdate(long timeout)
 {
     int ret = 0;
+#ifdef SP_GNSS_USE_SIGNAL
     int sig_ret = 0;
 
     /* Check update */
@@ -491,8 +499,20 @@ int SpGnss::waitUpdate(long timeout)
         ret = 1;
         no_handler = 0;
     }
-
     return ret;
+#else
+    struct pollfd fds[GNSS_POLL_FD_NUM];
+    int msec;
+
+    msec = (timeout > 0) ? (int)(timeout * 1000) : timeout;
+
+    fds[0].fd     = fd_;
+    fds[0].events = POLLIN;
+
+    ret = poll(fds, GNSS_POLL_FD_NUM, msec);
+
+    return (ret > 0) ? 1 : 0;
+#endif
 }
 
 /**
@@ -836,6 +856,19 @@ int SpGnss::saveEphemeris(void)
     }
 
     return ret;
+}
+
+/**
+ * @brief Remove the backup data stored in the Flash
+ * @return 0 if success, -1 if failure
+ */
+int SpGnss::removeEphemeris(void)
+{
+#ifdef CONFIG_CXD56_GNSS_BACKUP_FILENAME
+    return unlink(CONFIG_CXD56_GNSS_BACKUP_FILENAME);
+#else
+    return -1;
+#endif
 }
 
 /**

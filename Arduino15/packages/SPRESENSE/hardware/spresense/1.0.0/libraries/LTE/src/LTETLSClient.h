@@ -49,6 +49,7 @@
 
 #include <Client.h>
 #include <TLSClient.h>
+#include <File.h>
 
 /****************************************************************************
  * class declaration
@@ -275,6 +276,20 @@ public:
   void setCACert(const unsigned char *rootCA, size_t size);
 
   /**
+   * @brief Read the root certificate authority certificate from the file and set it on the client.
+   *
+   * @details [en] Read the root certificate authority certificate from the file and set it on the client. Both DER and PEM formats can be set. Please call this method before connecting to the server by connect() method.
+   *
+   * @details [ja] ルート認証局の証明書をファイルから読み出してクライアントに設定します。DER形式とPEM形式のどちらも設定可能です。connect()のメソッドでサーバーに接続する前に本メソッドを呼び出してください。
+   *
+   * @param [in] f [en] File to set the root CA certificate. <BR>
+   *                    [ja] ルート認証局の証明書のファイルオブジェクト。
+   * @param [in] size [en] Readable size. <BR>
+   *                  [ja] 読み出し可能なサイズ。
+   */
+  void setCACert(File& f, size_t size);
+
+  /**
    * @brief Read the root certificate authority certificate from the file or other stream and set it on the client.
    *
    * @details [en] Read the root certificate authority certificate from the file or other stream and set it on the client. Both DER and PEM formats can be set. Please call this method before connecting to the server by connect() method.
@@ -315,6 +330,20 @@ public:
   void setCertificate(const unsigned char *clientCA, size_t size);
 
   /**
+   * @brief Read the certificate from the file and set it on the client.
+   *
+   * @details [en] Read the certificate from the file and set it on the client. Both DER and PEM formats can be set. Please call this method before connecting to the server by connect() method if you need.
+   *
+   * @details [ja] クライアント証明書をファイルから読み出してクライアントに設定します。DER形式とPEM形式のどちらも設定可能です。必要であれば、connect()のメソッドでサーバーに接続する前に本メソッドを呼び出してください。
+   *
+   * @param [in] f [en] File to set the certificate. <BR>
+   *                    [ja] クライアント証明書のファイルオブジェクト。
+   * @param [in] size [en] Readable size. <BR>
+   *                  [ja] 読み出し可能なサイズ。
+   */
+  void setCertificate(File& f, size_t size);
+
+  /**
    * @brief Read the certificate from the file or other stream and set it on the client.
    *
    * @details [en] Read the certificate from the file or other stream and set it on the client. Both DER and PEM formats can be set. Please call this method before connecting to the server by connect() method if you need.
@@ -353,6 +382,20 @@ public:
    *                  [ja] 秘密鍵のサイズ。
    */
   void setPrivateKey(const unsigned char *privateKey, size_t size);
+
+  /**
+   * @brief Read the private key from the file and set it on the client.
+   *
+   * @details [en] Read the private key from the file and set it on the client. Both DER and PEM formats can be set. Please call this method before connecting to the server by connect() method if you need.
+   *
+   * @details [ja] 秘密鍵をファイルから読み出してクライアントに設定します。DER形式とPEM形式のどちらも設定可能です。必要であれば、connect()のメソッドでサーバーに接続する前に本メソッドを呼び出してください。
+   *
+   * @param [in] f [en] File to set the private key. <BR>
+   *                    [ja] 秘密鍵のファイルオブジェクト。
+   * @param [in] size [en] Readable size. <BR>
+   *                  [ja] 読み出し可能なサイズ。
+   */
+  void setPrivateKey(File& f, size_t size);
 
   /**
    * @brief Read the private key from the file or other stream and set it on the client.

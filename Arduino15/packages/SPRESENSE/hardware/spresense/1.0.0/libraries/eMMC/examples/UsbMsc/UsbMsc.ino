@@ -19,11 +19,13 @@
 
 #include <eMMC.h>
 
+#define EMMC_POWER_PIN 26
+
 void setup() {
   Serial.begin(115200);
 
   /* Initialize eMMC */
-  eMMC.begin();
+  eMMC.begin(EMMC_POWER_PIN);
 
   /* Start USB MSC */
   if (eMMC.beginUsbMsc()) {

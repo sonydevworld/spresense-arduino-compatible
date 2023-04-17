@@ -107,7 +107,7 @@ public:
 
 private:
   int _fd;
-  int16_t _pid;
+  pthread_t _pid;
 
 };
 
