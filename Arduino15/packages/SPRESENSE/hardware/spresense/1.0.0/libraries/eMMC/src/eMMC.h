@@ -67,6 +67,25 @@ public:
   boolean begin();
 
   /**
+   * @brief  Initialize the eMMC library with Power on PIN
+   *
+   * @details This will check that the eMMC is mounted or not after being initialized it.
+   *          This needs to be called to set up the connection to the eMMC
+   *          before other methods are used.
+   * @param [in] Power control pin for eMMC
+   * @return true if the eMMC is mounted, false if not
+   */
+  boolean begin(uint8_t);
+
+  /**
+   * @brief  Finalize the eMMC library
+   *
+   * @details This function unmount, finalize device and power off device.
+   * @return true if the eMMC finalization complete, false if not
+   */
+  boolean end();
+
+  /**
    * @brief Start USB Mass Storage Class
    */
   int beginUsbMsc();
@@ -87,6 +106,7 @@ public:
 
 private:
   void *mshandle;
+  uint8_t power_pin;
 };
 
 extern eMMCClass eMMC;

@@ -48,14 +48,13 @@ static void alarm_handler(int signo, FAR siginfo_t *info, FAR void *ucontext)
   g_alarm = 1;
 }
 
-static int alarm_daemon(int argc, FAR char *argv[])
+static void *alarm_daemon(void *arg)
 {
   struct sigaction act;
   sigset_t set;
   int ret;
 
-  (void)argc;
-  (void)argv;
+  (void)arg;
 
   /* Make sure that the alarm signal is unmasked */
 
@@ -90,7 +89,7 @@ static int alarm_daemon(int argc, FAR char *argv[])
       }
     }
 
-  return -1;
+  return NULL;
 }
 #endif /* !SUBCORE */
 
@@ -115,7 +114,7 @@ void RtcClass::begin()
     param.sched_priority = 120;
     pthread_attr_setschedparam(&attr, &param);
 
-    pthread_create((pthread_t*)&_pid, &attr, (pthread_startroutine_t)alarm_daemon, NULL);
+    pthread_create(&_pid, &attr, (pthread_startroutine_t)alarm_daemon, NULL);
     pthread_setname_np(_pid, "alarm_daemon");
     assert (_pid > 0);
   }
@@ -130,7 +129,7 @@ void RtcClass::end()
 {
 #ifndef SUBCORE
   if (_pid > 0) {
-    pthread_cancel((pthread_t)_pid);
+    pthread_cancel(_pid);
     _pid = -1;
   }
 

@@ -27,6 +27,8 @@
 #include <File.h>
 #include <eMMC.h>
 
+#define EMMC_POWER_PIN 26
+
 File myFile; /**< File object */ 
 
 /**
@@ -43,7 +45,7 @@ void setup() {
   }
 
   /* Initialize eMMC */
-  eMMC.begin();
+  eMMC.begin(EMMC_POWER_PIN);
 
   /* Create a new directory */
   eMMC.mkdir("dir/");
@@ -80,6 +82,10 @@ void setup() {
     /* If the file didn't open, print an error */
     Serial.println("error opening test.txt");
   }
+
+  /* Finalize eMMC */
+  eMMC.end();
+
 }
 
 /**
