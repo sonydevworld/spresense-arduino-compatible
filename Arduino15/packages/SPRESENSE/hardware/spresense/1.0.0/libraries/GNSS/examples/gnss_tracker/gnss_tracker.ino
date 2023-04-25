@@ -764,6 +764,7 @@ static int SetupPositioning(void)
 
     case eSatGlonass:
       Gnss.select(GLONASS);
+      Gnss.deselect(GPS);
       break;
 
     case eSatGpsGlonass:
