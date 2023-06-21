@@ -1,6 +1,6 @@
 /*
  *  GNSS.h - GNSS include file for the Spresense SDK
- *  Copyright 2018 Sony Semiconductor Solutions Corporation
+ *  Copyright 2018, 2023 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -20,11 +20,8 @@
 #ifndef Gnss_h
 #define Gnss_h
 
-#ifdef SUBCORE
-#error "GNSS library is NOT supported by SubCore."
-#endif
-
 #include <Stream.h>
+#include <GNSSPositionData.h>
 
 /**
  * @file GNSS.h
@@ -330,6 +327,8 @@ public:
      * Get position data.
      */
     unsigned long getPositionData(char *pBinaryBuffer);
+    unsigned long getPositionData(GnssPositionData *pData);
+    unsigned long getPositionData(GnssPositionData2 *pData);
 
     /**
      * @brief Set the current position for hot start
@@ -461,7 +460,7 @@ public:
      */
     void stop1PPS(void);
 
-private:
+protected:
     int fd_;                          /* file descriptor */
     unsigned long SatelliteSystem;    /* satellite type */
     SpNavData NavData;                /* copy pos data */
@@ -477,6 +476,14 @@ private:
             DebugOut.print(str);
     }
 };
+
+#ifdef CONFIG_CXD56_GNSS_ADDON
+class SpGnssAddon : public SpGnss {
+public:
+    int begin(void);
+    int begin(Stream& debugOut) { DebugOut = debugOut; return begin(); }
+};
+#endif
 
 /** @} gnss */
 

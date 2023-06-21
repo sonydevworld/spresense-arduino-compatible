@@ -1,6 +1,6 @@
 /*
  *  GNSS.cpp - GNSS implementation file for the Spresense SDK
- *  Copyright 2018 Sony Semiconductor Solutions Corporation
+ *  Copyright 2018, 2023 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -26,6 +26,7 @@
 #include <Arduino.h>
 #include <signal.h>
 #include <poll.h>
+#include <arch/board/board.h>
 
 #define SP_GNSS_DEBUG
 
@@ -43,9 +44,11 @@
 #define GNSS_POLL_FD_NUM 1
 
 const char SP_GNSS_DEV_NAME[]       = "/dev/gps";
+const char SP_GNSS_DEV2_NAME[]      = "/dev/gps2";
 const int SP_GNSS_SIG               = 18;
 const unsigned int MAGIC_NUMBER     = 0xDEADBEEF;
 const unsigned int BIN_BUF_SIZE     = sizeof(GnssPositionData);
+const unsigned int BIN_BUF_SIZE2    = sizeof(GnssPositionData2);
 
 SpPrintLevel SpGnss::DebugPrintLevel = PrintNone;   /* Print level */
 Stream& SpGnss::DebugOut = Serial;
@@ -629,6 +632,35 @@ unsigned long SpGnss::getPositionData(char *pBinaryBuffer)
     return BIN_BUF_SIZE;
 }
 
+unsigned long SpGnss::getPositionData(GnssPositionData *pPositionDataBuffer)
+{
+    return getPositionData((char *)pPositionDataBuffer);
+}
+
+unsigned long SpGnss::getPositionData(GnssPositionData2 *pPositionDataBuffer)
+{
+    int ret;
+
+    /* Set magic number */
+
+    pPositionDataBuffer->MagicNumber = MAGIC_NUMBER;
+
+    /* Read pos data. */
+
+    ret = read(fd_, &pPositionDataBuffer->Data, sizeof(pPositionDataBuffer->Data));
+    if (ret <= 0)
+    {
+        PRINT_E("SpGnss E: Failed to read position data\n");
+        return 0;
+    }
+
+    /* Set CRC */
+
+    pPositionDataBuffer->CRC = crc32((uint8_t*)&pPositionDataBuffer->Data, sizeof(pPositionDataBuffer->Data));
+
+    return BIN_BUF_SIZE2;
+}
+
 /**
  * @brief Set the current position for hot start
  * @param [in] latitude Latitude of current position
@@ -958,3 +990,17 @@ unsigned long SpGnss::inquireSatelliteType(void)
 
     return sattype;
 }
+
+#ifdef CONFIG_CXD56_GNSS_ADDON
+int SpGnssAddon::begin(void)
+{
+    board_gnss_addon_initialize(SP_GNSS_DEV2_NAME, 0);
+    fd_ = open(SP_GNSS_DEV2_NAME, O_RDONLY);
+    if (fd_ < 0)
+    {
+        PRINT_E("SpGnssAddon E: Failed to open gps device\n");
+        return -1;
+    }
+    return SpGnss::begin();
+}
+#endif
