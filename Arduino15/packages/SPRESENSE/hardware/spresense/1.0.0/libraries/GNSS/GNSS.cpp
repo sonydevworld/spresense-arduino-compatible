@@ -458,7 +458,7 @@ int SpGnss::stop(void)
 }
 
 /**
- * @brief Check position infomation is updated and return immediately
+ * @brief Check position information is updated and return immediately
  * @return 1 enable, 0 disable
  *
  * Returns 1 if position information is updated.
@@ -860,7 +860,7 @@ int SpGnss::deselect(SpSatelliteType sattype)
 
 /**
  * @brief Set debug mode
- *        Print debug messages about GNSS controling and positioning if not set 0 to argument.
+ *        Print debug messages about GNSS controlling and positioning if not set 0 to argument.
  * @param [in] level debug print mode
  * @return none
  */

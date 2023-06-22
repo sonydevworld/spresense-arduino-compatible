@@ -121,7 +121,7 @@ public:
 
 /**
  * @class SpSatellite
- * @brief Satellite infomation using positioning
+ * @brief Satellite information using positioning
  *
  * @details This is debug information when there is a problem with positioning.
  */
@@ -287,7 +287,7 @@ public:
     int stop(void);
 
     /**
-     * @brief Check position infomation is updated and return immediately
+     * @brief Check position information is updated and return immediately
      * @return 1 enable, 0 disable
      *
      * Returns 1 if position information is updated.
@@ -424,7 +424,7 @@ public:
 
     /**
      * @brief Set debug mode
-     * @details Print debug messages about GNSS controling and positioning if not set 0 to argument.
+     * @details Print debug messages about GNSS controlling and positioning if not set 0 to argument.
      * @param [in] level debug mode
      * @return none
      */
