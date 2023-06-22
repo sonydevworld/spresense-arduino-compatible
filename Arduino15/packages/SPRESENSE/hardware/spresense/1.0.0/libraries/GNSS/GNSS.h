@@ -100,6 +100,19 @@ enum SpSatelliteType {
 };
 
 /**
+ * @enum SpIntervalFreq
+ * @brief Interval frequency
+ */
+enum SpIntervalFreq {
+    SpInterval_10Hz = 100,
+    SpInterval_8Hz  = 125,
+    SpInterval_5Hz  = 200,
+    SpInterval_4Hz  = 250,
+    SpInterval_2Hz  = 500,
+    SpInterval_1Hz  = 1000,
+};
+
+/**
  * @class SpGnssTime
  * @brief Time acquired from the satellite at the time of positioning
  *
@@ -357,6 +370,14 @@ public:
      * @return 0 if success, -1 if failure
      */
     int setInterval(long interval = 1);
+
+    /**
+     * @brief Set the pos interval time
+     * @details Set interval of POS operation.
+     * @param [in] interval Interval frequency
+     * @return 0 if success, -1 if failure
+     */
+    int setInterval(SpIntervalFreq interval);
 
     /**
      * @brief Returns whether the specified satellite system is selecting

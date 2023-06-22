@@ -776,6 +776,33 @@ int SpGnss::setInterval(long interval)
 }
 
 /**
+ * @brief Set the pos interval time
+ * @details Set interval of POS operation.
+ * @param [in] Interval time[sec]
+ * @return 0 if success, -1 if failure
+ */
+int SpGnss::setInterval(SpIntervalFreq interval)
+{
+    int ret;
+    struct cxd56_gnss_ope_mode_param_s setdata;
+
+    /* Set parameter. */
+
+      setdata.mode     = 1;
+      setdata.cycle    = (uint32_t)interval;
+
+    /* Call ioctl. */
+
+    ret = ioctl(fd_, CXD56_GNSS_IOCTL_SET_OPE_MODE, (unsigned long)&setdata);
+    if (ret < OK)
+    {
+        PRINT_E("SpGnss E: Failed to set Interval\n");
+    }
+
+    return ret;
+}
+
+/**
  * @brief Returns whether the specified satellite system is selecting
  * @return 1 use, 0 unuse
  */
