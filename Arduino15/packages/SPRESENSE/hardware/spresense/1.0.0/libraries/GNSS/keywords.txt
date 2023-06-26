@@ -1,8 +1,11 @@
 # Class
 SpGnss	KEYWORD1
+SpGnssAddon	KEYWORD1
 SpGnssTime	KEYWORD1
 SpSatellite	KEYWORD1
 SpNavData	KEYWORD1
+GnssPositionData	KEYWORD1
+GnssPositionData2	KEYWORD1
 
 # Function
 isSatelliteTypeGps	KEYWORD2

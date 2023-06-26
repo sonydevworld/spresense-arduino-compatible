@@ -1,6 +1,6 @@
 /*
  *  GNSS.cpp - GNSS implementation file for the Spresense SDK
- *  Copyright 2018 Sony Semiconductor Solutions Corporation
+ *  Copyright 2018, 2023 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -26,6 +26,7 @@
 #include <Arduino.h>
 #include <signal.h>
 #include <poll.h>
+#include <arch/board/board.h>
 
 #define SP_GNSS_DEBUG
 
@@ -43,9 +44,11 @@
 #define GNSS_POLL_FD_NUM 1
 
 const char SP_GNSS_DEV_NAME[]       = "/dev/gps";
+const char SP_GNSS_DEV2_NAME[]      = "/dev/gps2";
 const int SP_GNSS_SIG               = 18;
 const unsigned int MAGIC_NUMBER     = 0xDEADBEEF;
 const unsigned int BIN_BUF_SIZE     = sizeof(GnssPositionData);
+const unsigned int BIN_BUF_SIZE2    = sizeof(GnssPositionData2);
 
 SpPrintLevel SpGnss::DebugPrintLevel = PrintNone;   /* Print level */
 Stream& SpGnss::DebugOut = Serial;
@@ -455,7 +458,7 @@ int SpGnss::stop(void)
 }
 
 /**
- * @brief Check position infomation is updated and return immediately
+ * @brief Check position information is updated and return immediately
  * @return 1 enable, 0 disable
  *
  * Returns 1 if position information is updated.
@@ -629,6 +632,35 @@ unsigned long SpGnss::getPositionData(char *pBinaryBuffer)
     return BIN_BUF_SIZE;
 }
 
+unsigned long SpGnss::getPositionData(GnssPositionData *pPositionDataBuffer)
+{
+    return getPositionData((char *)pPositionDataBuffer);
+}
+
+unsigned long SpGnss::getPositionData(GnssPositionData2 *pPositionDataBuffer)
+{
+    int ret;
+
+    /* Set magic number */
+
+    pPositionDataBuffer->MagicNumber = MAGIC_NUMBER;
+
+    /* Read pos data. */
+
+    ret = read(fd_, &pPositionDataBuffer->Data, sizeof(pPositionDataBuffer->Data));
+    if (ret <= 0)
+    {
+        PRINT_E("SpGnss E: Failed to read position data\n");
+        return 0;
+    }
+
+    /* Set CRC */
+
+    pPositionDataBuffer->CRC = crc32((uint8_t*)&pPositionDataBuffer->Data, sizeof(pPositionDataBuffer->Data));
+
+    return BIN_BUF_SIZE2;
+}
+
 /**
  * @brief Set the current position for hot start
  * @param [in] latitude Latitude of current position
@@ -744,6 +776,33 @@ int SpGnss::setInterval(long interval)
 }
 
 /**
+ * @brief Set the pos interval time
+ * @details Set interval of POS operation.
+ * @param [in] Interval time[sec]
+ * @return 0 if success, -1 if failure
+ */
+int SpGnss::setInterval(SpIntervalFreq interval)
+{
+    int ret;
+    struct cxd56_gnss_ope_mode_param_s setdata;
+
+    /* Set parameter. */
+
+      setdata.mode     = 1;
+      setdata.cycle    = (uint32_t)interval;
+
+    /* Call ioctl. */
+
+    ret = ioctl(fd_, CXD56_GNSS_IOCTL_SET_OPE_MODE, (unsigned long)&setdata);
+    if (ret < OK)
+    {
+        PRINT_E("SpGnss E: Failed to set Interval\n");
+    }
+
+    return ret;
+}
+
+/**
  * @brief Returns whether the specified satellite system is selecting
  * @return 1 use, 0 unuse
  */
@@ -828,7 +887,7 @@ int SpGnss::deselect(SpSatelliteType sattype)
 
 /**
  * @brief Set debug mode
- *        Print debug messages about GNSS controling and positioning if not set 0 to argument.
+ *        Print debug messages about GNSS controlling and positioning if not set 0 to argument.
  * @param [in] level debug print mode
  * @return none
  */
@@ -958,3 +1017,17 @@ unsigned long SpGnss::inquireSatelliteType(void)
 
     return sattype;
 }
+
+#ifdef CONFIG_CXD56_GNSS_ADDON
+int SpGnssAddon::begin(void)
+{
+    board_gnss_addon_initialize(SP_GNSS_DEV2_NAME, 0);
+    fd_ = open(SP_GNSS_DEV2_NAME, O_RDONLY);
+    if (fd_ < 0)
+    {
+        PRINT_E("SpGnssAddon E: Failed to open gps device\n");
+        return -1;
+    }
+    return SpGnss::begin();
+}
+#endif
