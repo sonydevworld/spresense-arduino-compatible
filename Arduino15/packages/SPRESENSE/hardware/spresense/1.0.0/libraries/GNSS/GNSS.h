@@ -341,7 +341,9 @@ public:
      */
     unsigned long getPositionData(char *pBinaryBuffer);
     unsigned long getPositionData(GnssPositionData *pData);
+#ifdef CONFIG_CXD56_GNSS_ADDON
     unsigned long getPositionData(GnssPositionData2 *pData);
+#endif
 
     /**
      * @brief Set the current position for hot start
