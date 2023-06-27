@@ -48,7 +48,9 @@ const char SP_GNSS_DEV2_NAME[]      = "/dev/gps2";
 const int SP_GNSS_SIG               = 18;
 const unsigned int MAGIC_NUMBER     = 0xDEADBEEF;
 const unsigned int BIN_BUF_SIZE     = sizeof(GnssPositionData);
+#ifdef CONFIG_CXD56_GNSS_ADDON
 const unsigned int BIN_BUF_SIZE2    = sizeof(GnssPositionData2);
+#endif
 
 SpPrintLevel SpGnss::DebugPrintLevel = PrintNone;   /* Print level */
 Stream& SpGnss::DebugOut = Serial;
@@ -637,6 +639,7 @@ unsigned long SpGnss::getPositionData(GnssPositionData *pPositionDataBuffer)
     return getPositionData((char *)pPositionDataBuffer);
 }
 
+#ifdef CONFIG_CXD56_GNSS_ADDON
 unsigned long SpGnss::getPositionData(GnssPositionData2 *pPositionDataBuffer)
 {
     int ret;
@@ -660,6 +663,7 @@ unsigned long SpGnss::getPositionData(GnssPositionData2 *pPositionDataBuffer)
 
     return BIN_BUF_SIZE2;
 }
+#endif
 
 /**
  * @brief Set the current position for hot start
