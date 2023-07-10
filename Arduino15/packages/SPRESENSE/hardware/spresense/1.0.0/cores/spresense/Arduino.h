@@ -226,7 +226,7 @@ long random(long __min, long __max);
 void randomSeed(unsigned long seed);
 
 /* External Interrupts */
-void attachInterrupt(uint8_t interrupt, void (*isr)(void), int mode);
+void attachInterrupt(uint8_t interrupt, void (*isr)(void), int mode, bool filter = true);
 void detachInterrupt(uint8_t interrupt);
 #define digitalPinToInterrupt(p) (p) /* treat pin number as the interrupt number */
 
