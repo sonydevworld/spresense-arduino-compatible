@@ -1,6 +1,6 @@
 /*
  *  GNSS.h - GNSS include file for the Spresense SDK
- *  Copyright 2018 Sony Semiconductor Solutions Corporation
+ *  Copyright 2018, 2023 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -20,11 +20,8 @@
 #ifndef Gnss_h
 #define Gnss_h
 
-#ifdef SUBCORE
-#error "GNSS library is NOT supported by SubCore."
-#endif
-
 #include <Stream.h>
+#include <GNSSPositionData.h>
 
 /**
  * @file GNSS.h
@@ -103,6 +100,19 @@ enum SpSatelliteType {
 };
 
 /**
+ * @enum SpIntervalFreq
+ * @brief Interval frequency
+ */
+enum SpIntervalFreq {
+    SpInterval_10Hz = 100,
+    SpInterval_8Hz  = 125,
+    SpInterval_5Hz  = 200,
+    SpInterval_4Hz  = 250,
+    SpInterval_2Hz  = 500,
+    SpInterval_1Hz  = 1000,
+};
+
+/**
  * @class SpGnssTime
  * @brief Time acquired from the satellite at the time of positioning
  *
@@ -124,7 +134,7 @@ public:
 
 /**
  * @class SpSatellite
- * @brief Satellite infomation using positioning
+ * @brief Satellite information using positioning
  *
  * @details This is debug information when there is a problem with positioning.
  */
@@ -290,7 +300,7 @@ public:
     int stop(void);
 
     /**
-     * @brief Check position infomation is updated and return immediately
+     * @brief Check position information is updated and return immediately
      * @return 1 enable, 0 disable
      *
      * Returns 1 if position information is updated.
@@ -330,6 +340,10 @@ public:
      * Get position data.
      */
     unsigned long getPositionData(char *pBinaryBuffer);
+    unsigned long getPositionData(GnssPositionData *pData);
+#ifdef CONFIG_CXD56_GNSS_ADDON
+    unsigned long getPositionData(GnssPositionData2 *pData);
+#endif
 
     /**
      * @brief Set the current position for hot start
@@ -358,6 +372,14 @@ public:
      * @return 0 if success, -1 if failure
      */
     int setInterval(long interval = 1);
+
+    /**
+     * @brief Set the pos interval time
+     * @details Set interval of POS operation.
+     * @param [in] interval Interval frequency
+     * @return 0 if success, -1 if failure
+     */
+    int setInterval(SpIntervalFreq interval);
 
     /**
      * @brief Returns whether the specified satellite system is selecting
@@ -425,7 +447,7 @@ public:
 
     /**
      * @brief Set debug mode
-     * @details Print debug messages about GNSS controling and positioning if not set 0 to argument.
+     * @details Print debug messages about GNSS controlling and positioning if not set 0 to argument.
      * @param [in] level debug mode
      * @return none
      */
@@ -461,7 +483,7 @@ public:
      */
     void stop1PPS(void);
 
-private:
+protected:
     int fd_;                          /* file descriptor */
     unsigned long SatelliteSystem;    /* satellite type */
     SpNavData NavData;                /* copy pos data */
@@ -477,6 +499,14 @@ private:
             DebugOut.print(str);
     }
 };
+
+#ifdef CONFIG_CXD56_GNSS_ADDON
+class SpGnssAddon : public SpGnss {
+public:
+    int begin(void);
+    int begin(Stream& debugOut) { DebugOut = debugOut; return begin(); }
+};
+#endif
 
 /** @} gnss */
 

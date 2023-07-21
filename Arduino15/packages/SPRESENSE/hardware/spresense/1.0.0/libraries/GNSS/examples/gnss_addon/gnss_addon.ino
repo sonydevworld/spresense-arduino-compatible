@@ -1,6 +1,6 @@
 /*
- *  gnss.ino - GNSS example application
- *  Copyright 2018 Sony Semiconductor Solutions Corporation
+ *  gnss_addon.ino - GNSS Add-on example application
+ *  Copyright 2023 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -18,15 +18,10 @@
  */
 
 /**
- * @file gnss.ino
+ * @file gnss_addon.ino
  * @author Sony Semiconductor Solutions Corporation
- * @brief GNSS example application
- * @details Spresense has an built in GNSS receiver which supports GPS and other
- *          GNSS satellites. This skecth provides an example the GNSS operation.
- *          Simply upload the sketch, reset the board and check the USB serial
- *          output. After 3 seconds status information should start to appear.\n\n
- *
- *          This example code is in the public domain.
+ * @brief GNSS Add-on example application
+ * @details This skecth provides an example of positioning on GNSS Addon board.
  */
 
 /* include the GNSS library */
@@ -36,28 +31,7 @@
 
 #define RESTART_CYCLE       (60 * 5)  /**< positioning test term */
 
-static SpGnss Gnss;                   /**< SpGnss object */
-
-/**
- * @enum ParamSat
- * @brief Satellite system
- */
-enum ParamSat {
-  eSatGps,            /**< GPS                     World wide coverage  */
-  eSatGlonass,        /**< GLONASS                 World wide coverage  */
-  eSatGpsSbas,        /**< GPS+SBAS                North America        */
-  eSatGpsGlonass,     /**< GPS+Glonass             World wide coverage  */
-  eSatGpsBeidou,      /**< GPS+BeiDou              World wide coverage  */
-  eSatGpsGalileo,     /**< GPS+Galileo             World wide coverage  */
-  eSatGpsQz1c,        /**< GPS+QZSS_L1CA           East Asia & Oceania  */
-  eSatGpsGlonassQz1c, /**< GPS+Glonass+QZSS_L1CA   East Asia & Oceania  */
-  eSatGpsBeidouQz1c,  /**< GPS+BeiDou+QZSS_L1CA    East Asia & Oceania  */
-  eSatGpsGalileoQz1c, /**< GPS+Galileo+QZSS_L1CA   East Asia & Oceania  */
-  eSatGpsQz1cQz1S,    /**< GPS+QZSS_L1CA+QZSS_L1S  Japan                */
-};
-
-/* Set this parameter depending on your current region. */
-static enum ParamSat satType =  eSatGps;
+static SpGnssAddon Gnss;              /**< SpGnssAddon object */
 
 /**
  * @brief Turn on / off the LED0 for CPU active notification.
@@ -122,9 +96,6 @@ void setup() {
   /* Set serial baudrate. */
   Serial.begin(115200);
 
-  /* Wait HW initialization done. */
-  sleep(3);
-
   /* Turn on all LED:Setup start. */
   ledOn(PIN_LED0);
   ledOn(PIN_LED1);
@@ -146,76 +117,8 @@ void setup() {
   }
   else
   {
-    /* Setup GNSS
-     *  It is possible to setup up to two GNSS satellites systems.
-     *  Depending on your location you can improve your accuracy by selecting different GNSS system than the GPS system.
-     *  See: https://developer.sony.com/develop/spresense/developer-tools/get-started-using-nuttx/nuttx-developer-guide#_gnss
-     *  for detailed information.
-    */
-    switch (satType)
-    {
-    case eSatGps:
-      Gnss.select(GPS);
-      break;
-
-    case eSatGpsSbas:
-      Gnss.select(GPS);
-      Gnss.select(SBAS);
-      break;
-
-    case eSatGlonass:
-      Gnss.select(GLONASS);
-      Gnss.deselect(GPS);
-      break;
-
-    case eSatGpsGlonass:
-      Gnss.select(GPS);
-      Gnss.select(GLONASS);
-      break;
-
-    case eSatGpsBeidou:
-      Gnss.select(GPS);
-      Gnss.select(BEIDOU);
-      break;
-
-    case eSatGpsGalileo:
-      Gnss.select(GPS);
-      Gnss.select(GALILEO);
-      break;
-
-    case eSatGpsQz1c:
-      Gnss.select(GPS);
-      Gnss.select(QZ_L1CA);
-      break;
-
-    case eSatGpsQz1cQz1S:
-      Gnss.select(GPS);
-      Gnss.select(QZ_L1CA);
-      Gnss.select(QZ_L1S);
-      break;
-
-    case eSatGpsBeidouQz1c:
-      Gnss.select(GPS);
-      Gnss.select(BEIDOU);
-      Gnss.select(QZ_L1CA);
-      break;
-
-    case eSatGpsGalileoQz1c:
-      Gnss.select(GPS);
-      Gnss.select(GALILEO);
-      Gnss.select(QZ_L1CA);
-      break;
-
-    case eSatGpsGlonassQz1c:
-    default:
-      Gnss.select(GPS);
-      Gnss.select(GLONASS);
-      Gnss.select(QZ_L1CA);
-      break;
-    }
-
     /* Start positioning */
-    result = Gnss.start(COLD_START);
+    result = Gnss.start();
     if (result != 0)
     {
       Serial.println("Gnss start error!!");
@@ -227,7 +130,10 @@ void setup() {
     }
   }
 
-  /* Start 1PSS output to PIN_D02 */
+  /* Set interval */
+  Gnss.setInterval(SpInterval_1Hz);
+
+  /* Start 1PSS output */
   //Gnss.start1PPS();
 
   /* Turn off all LED:Setup done. */
@@ -287,73 +193,6 @@ static void print_pos(SpNavData *pNavData)
 }
 
 /**
- * @brief %Print satellite condition.
- */
-static void print_condition(SpNavData *pNavData)
-{
-  char StringBuffer[STRING_BUFFER_SIZE];
-  unsigned long cnt;
-
-  /* Print satellite count. */
-  snprintf(StringBuffer, STRING_BUFFER_SIZE, "numSatellites:%2d\n", pNavData->numSatellites);
-  Serial.print(StringBuffer);
-
-  for (cnt = 0; cnt < pNavData->numSatellites; cnt++)
-  {
-    const char *pType = "---";
-    SpSatelliteType sattype = pNavData->getSatelliteType(cnt);
-
-    /* Get satellite type. */
-    /* Keep it to three letters. */
-    switch (sattype)
-    {
-      case GPS:
-        pType = "GPS";
-        break;
-
-      case GLONASS:
-        pType = "GLN";
-        break;
-
-      case QZ_L1CA:
-        pType = "QCA";
-        break;
-
-      case SBAS:
-        pType = "SBA";
-        break;
-
-      case QZ_L1S:
-        pType = "Q1S";
-        break;
-
-      case BEIDOU:
-        pType = "BDS";
-        break;
-
-      case GALILEO:
-        pType = "GAL";
-        break;
-
-      default:
-        pType = "UKN";
-        break;
-    }
-
-    /* Get print conditions. */
-    unsigned long Id  = pNavData->getSatelliteId(cnt);
-    unsigned long Elv = pNavData->getSatelliteElevation(cnt);
-    unsigned long Azm = pNavData->getSatelliteAzimuth(cnt);
-    float sigLevel = pNavData->getSatelliteSignalLevel(cnt);
-
-    /* Print satellite condition. */
-    snprintf(StringBuffer, STRING_BUFFER_SIZE, "[%2ld] Type:%s, Id:%2ld, Elv:%2ld, Azm:%3ld, CN0:", cnt, pType, Id, Elv, Azm );
-    Serial.print(StringBuffer);
-    Serial.println(sigLevel, 6);
-  }
-}
-
-/**
  * @brief %Print position information and satellite condition.
  *
  * @details When the loop count reaches the RESTART_CYCLE value, GNSS device is
@@ -364,7 +203,6 @@ void loop()
   /* put your main code here, to run repeatedly: */
 
   static int LoopCount = 0;
-  static int LastPrintMin = 0;
 
   /* Blink LED. */
   Led_isActive();
@@ -379,13 +217,6 @@ void loop()
     /* Set posfix LED. */
     bool LedSet = (NavData.posDataExist && (NavData.posFixMode != FixInvalid));
     Led_isPosfix(LedSet);
-
-    /* Print satellite information every minute. */
-    if (NavData.time.minute != LastPrintMin)
-    {
-      print_condition(&NavData);
-      LastPrintMin = NavData.time.minute;
-    }
 
     /* Print position information. */
     print_pos(&NavData);
@@ -429,7 +260,7 @@ void loop()
       Serial.println("Gnss begin error!!");
       error_flag = 1;
     }
-    else if (Gnss.start(HOT_START) != 0)
+    else if (Gnss.start() != 0)
     {
       Serial.println("Gnss start error!!");
       error_flag = 1;
