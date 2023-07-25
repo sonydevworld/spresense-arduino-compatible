@@ -184,7 +184,7 @@ struct EEPROMClass{
     }
 
     //Basic user access methods.
-    EERef operator[]( const int idx )    { return idx; }
+    EERef operator[]( const int idx )    { init(); return idx; }
     uint8_t read( int idx )              { init(); return EERef( idx ); }
     void write( int idx, uint8_t val )   { init(); (EERef( idx )) = val; }
     void update( int idx, uint8_t val )  { init(); EERef( idx ).update( val ); }

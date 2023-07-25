@@ -46,7 +46,7 @@
 /* Default parameter. */
 #define DEFAULT_INTERVAL_SEC    1          /**< Default positioning interval in seconds*/
 #define DEFAULT_ACTIVE_SEC      60         /**< Default positioning active in seconds */
-#define DEFAULT_SEEP_SEC        240        /**< Default positioning sleep in seconds */
+#define DEFAULT_SLEEP_SEC       240        /**< Default positioning sleep in seconds */
 #define INITIAL_ACTIVE_TIME     300        /**< Initial positioning active in seconds */
 #define IDLE_ACTIVE_TIME        600        /**< Idle positioning active in seconds */
 
@@ -720,7 +720,7 @@ static int SetupPositioning(void)
   Parameter.BinaryOut        = false;
   Parameter.IntervalSec      = DEFAULT_INTERVAL_SEC;
   Parameter.ActiveSec        = DEFAULT_ACTIVE_SEC;
-  Parameter.SleepSec         = DEFAULT_SEEP_SEC;
+  Parameter.SleepSec         = DEFAULT_SLEEP_SEC;
   Parameter.UartDebugMessage = PrintNone;
 
   /* Mount SD card. */
@@ -764,6 +764,7 @@ static int SetupPositioning(void)
 
     case eSatGlonass:
       Gnss.select(GLONASS);
+      Gnss.deselect(GPS);
       break;
 
     case eSatGpsGlonass:
