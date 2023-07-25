@@ -1,6 +1,6 @@
 /*
  *  GNSSPositionData.h - GNSS include file for the Spresense SDK
- *  Copyright 2018 Sony Semiconductor Solutions Corporation
+ *  Copyright 2018, 2023 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -28,5 +28,14 @@ typedef struct
     unsigned long                       CRC;
     struct cxd56_gnss_positiondata_s    Data;
 }GnssPositionData;
+
+#ifdef CONFIG_CXD56_GNSS_ADDON
+typedef struct
+{
+    unsigned long                       MagicNumber;
+    unsigned long                       CRC;
+    struct cxd56_gnss_positiondata2_s   Data;
+}GnssPositionData2;
+#endif
 
 #endif // GnssPositionData_h
