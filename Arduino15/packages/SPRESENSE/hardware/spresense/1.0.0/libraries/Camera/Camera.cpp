@@ -29,6 +29,7 @@
 #include <sched.h>
 #include <errno.h>
 #include <assert.h>
+#include <sys/ioctl.h>
 
 #include <Camera.h>
 #include <arch/board/cxd56_imageproc.h>
