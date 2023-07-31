@@ -522,7 +522,7 @@ CameraClass::CameraClass(const char *path)
 // Public : Destructor.
 CameraClass::~CameraClass()
 {
-  video_uninitialize();
+  video_uninitialize(VIDEO_DEV_FILE_NAME);
   CameraClass::instance = NULL;
 }
 
