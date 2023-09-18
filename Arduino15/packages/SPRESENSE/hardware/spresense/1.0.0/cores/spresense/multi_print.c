@@ -117,7 +117,7 @@ int sync_printf(const char *fmt, ...)
   lib_memoutstream(&memoutstream, buf, sizeof(buf));
 
   va_start(ap, fmt);
-  n = lib_vsprintf((FAR struct lib_outstream_s *)&memoutstream.public, fmt, ap);
+  n = lib_vsprintf((FAR struct lib_outstream_s *)&memoutstream.common, fmt, ap);
   va_end(ap);
 
   uart_syncwrite(buf, n);
