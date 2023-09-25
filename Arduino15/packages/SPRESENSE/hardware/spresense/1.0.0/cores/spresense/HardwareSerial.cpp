@@ -99,6 +99,9 @@ void HardwareSerial::begin(unsigned long baud, uint16_t config)
         return;
     tio.c_speed = baud;
 
+    // Remove CR to NL conversion
+    tio.c_iflag &= ~ICRNL;
+
     // Convert config to c_cflag in the termios structure
     tcflag_t c_cflag = 0;
     switch (config & MY_CSIZE) {
