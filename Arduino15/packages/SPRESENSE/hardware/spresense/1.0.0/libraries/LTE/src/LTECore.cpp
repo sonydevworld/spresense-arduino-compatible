@@ -266,31 +266,6 @@ LTEModemStatus LTECore::startSearchNetwork(char* pinCode, bool synchronous)
   bool           imsCapability = false;
   LTEModemStatus status        = LTE_SEARCHING;
 
-  if (pinCode && (0 != strnlen(pinCode, LTE_NET_PINCODE_MAXLEN - 1))) {
-
-    uint8_t simStatus    = 0;
-    uint8_t attemptsleft = 0;
-
-    result = lte_enter_pin_sync(pinCode, NULL, &simStatus, &attemptsleft);
-    if (result < 0) {
-      LTEERR("lte_enter_pin_sync result error : %d\n", result);
-      LTEERR("simStatus : %d\n", simStatus);
-      LTEERR("attemptsleft : %d\n", attemptsleft);
-      if (-EPROTO == result) {
-        printErrorInfo();
-      }
-      goto errout;
-    }
-
-    LTEDBG("Successful unlock PIN code: %s\n", pinCode);
-
-    /* Copy to privte member */
-
-    memset(_modemPinCode, 0, LTE_NET_PINCODE_MAXLEN);
-    strncpy(_modemPinCode, pinCode, strnlen(pinCode, LTE_NET_PINCODE_MAXLEN - 1));
-
-  }
-
   result = lte_radio_on_sync();
   if (result < 0) {
     LTEERR("lte_radio_on_sync result error : %d\n", result);
