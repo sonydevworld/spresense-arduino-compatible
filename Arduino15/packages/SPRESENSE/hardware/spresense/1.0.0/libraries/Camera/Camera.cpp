@@ -29,6 +29,7 @@
 #include <sched.h>
 #include <errno.h>
 #include <assert.h>
+#include <sys/ioctl.h>
 
 #include <Camera.h>
 #include <arch/board/cxd56_imageproc.h>
@@ -501,28 +502,19 @@ CameraClass CameraClass::getInstance()
 
 // Public : Constructor.
 CameraClass::CameraClass(const char *path)
+  : video_fd(-1), video_init_stat(-1), video_buf_num(0),
+    video_pix_fmt(CAM_IMAGE_PIX_FMT_NONE),
+    still_pix_fmt(CAM_IMAGE_PIX_FMT_NONE),
+    video_imgs(NULL), still_img(NULL),
+    loop_dqbuf_en(false), video_cb(NULL),
+    frame_tid(-1), frame_exchange_mq(-1), dq_tid(-1)
 {
-  video_init_stat = isx019_initialize();
-  video_init_stat += isx012_initialize();
-  video_init_stat += cxd56_cisif_initialize();
-  video_init_stat += video_initialize(path);
-  video_fd = -1;
-  video_imgs = NULL;
-  video_buf_num = 0;
-  video_pix_fmt = CAM_IMAGE_PIX_FMT_NONE;
-  still_img = NULL;
-  still_pix_fmt = CAM_IMAGE_PIX_FMT_NONE;
-  loop_dqbuf_en = false;
-  video_cb = NULL;
-  dq_tid = -1;
-  frame_tid = -1;
   sem_init(&video_cb_access_sem, 0, 1);
 }
 
 // Public : Destructor.
 CameraClass::~CameraClass()
 {
-  video_uninitialize();
   CameraClass::instance = NULL;
 }
 
@@ -879,14 +871,19 @@ CamErr CameraClass::begin(int buff_num, CAM_VIDEO_FPS fps, int video_width, int 
       return CAM_ERR_INVALID_PARAM;
     }
 
-  if (video_init_stat)
-    {
-      return CAM_ERR_NO_DEVICE;
-    }
-
   if (video_fd >= 0)
     {
       return CAM_ERR_ALREADY_INITIALIZED;
+    }
+
+  video_init_stat = isx019_initialize();
+  video_init_stat += isx012_initialize();
+  video_init_stat += cxd56_cisif_initialize();
+  video_init_stat += video_initialize(VIDEO_DEV_FILE_NAME);
+
+  if (video_init_stat)
+    {
+      return CAM_ERR_NO_DEVICE;
     }
 
   video_fd = open(VIDEO_DEV_FILE_NAME, 0);
@@ -1300,6 +1297,8 @@ void CameraClass::end()
       DELETE_CAMIMAGE(still_img);
 
       imageproc_finalize();
+
+      video_uninitialize(VIDEO_DEV_FILE_NAME);
     }
 }
 
