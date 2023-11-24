@@ -17,7 +17,7 @@ compiler.warning_flags.all=-Wall -Wextra
 
 compiler.path={runtime.tools.gcc-arm-none-eabi.path}/{runtime.os}/bin/
 compiler.sdk.path={build.kernel}
-compiler.cpreprocessor.flags= "-I{build.kernel}/nuttx/include/libcxx" "-I{build.kernel}/nuttx/include" "-I{build.kernel}/nuttx/arch" "-I{build.kernel}/nuttx/arch/chip" "-I{build.kernel}/sdk/include" "-I{build.kernel}/sdk/modules/include" "-I{build.kernel}/sdk/apps/include" "-I{build.kernel}/sdk/system/include" "-I{build.kernel}/sdk/externals/include" "-I{build.kernel}/sdk/externals/include/cmsis" "-I{variant.path}" {build.debug} -DCONFIG_WCHAR_BUILTIN -DCONFIG_HAVE_DOUBLE -D__NuttX__
+compiler.cpreprocessor.flags= "-I{build.kernel}/nuttx/include/libcxx" "-I{build.kernel}/nuttx/include/newlib" "-I{build.kernel}/nuttx/include" "-I{build.kernel}/nuttx/arch" "-I{build.kernel}/nuttx/arch/chip" "-I{build.kernel}/sdk/include" "-I{build.kernel}/sdk/modules/include" "-I{build.kernel}/sdk/apps/include" "-I{build.kernel}/sdk/system/include" "-I{build.kernel}/sdk/externals/include" "-I{build.kernel}/sdk/externals/include/cmsis" "-I{variant.path}" {build.debug} -DCONFIG_WCHAR_BUILTIN -DCONFIG_HAVE_DOUBLE -D__NuttX__
 
 
 compiler.c.cmd=arm-none-eabi-gcc
