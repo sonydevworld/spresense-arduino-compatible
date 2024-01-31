@@ -135,7 +135,7 @@ void irq_restore(uint16_t flags)
 }
 } // extern "C"
 
-void attachInterrupt(uint8_t interrupt, void (*isr)(void), int mode,bool filter = true)
+void attachInterrupt(uint8_t interrupt, void (*isr)(void), int mode, bool filter)
 {
     uint8_t _pin = pin_convert(interrupt);
     if (_pin == PIN_NOT_ASSIGNED)
