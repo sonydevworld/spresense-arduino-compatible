@@ -42,7 +42,7 @@ SECTIONS
 
     } > gnssram
 
-    .gnssram.data . : ALIGN(8) {
+    .gnssram.data . : ALIGN(4) {
         /* Possible to locate data of any object file.
          * *libxxx.a:*.o(.data .data.*)
          */
@@ -58,9 +58,10 @@ SECTIONS
          * *libxxx.a:*.o(COMMON)
          */
 
-        . = ALIGN(4);
-        _gnssramebss = ABSOLUTE(.);
     } > gnssram
+
+    . = ALIGN(4);
+    _gnssramebss = ABSOLUTE(.);
 
     /* Whatever is left from the GNSS memory is used as a special heap. */
 
