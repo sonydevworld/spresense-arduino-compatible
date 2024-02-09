@@ -44,39 +44,8 @@ void setupUSB() { }
 void serialEventRun(void);
 void serialEvent(void);
 
-#if defined(CONFIG_HAVE_CXX) && defined(CONFIG_HAVE_CXXINITIALIZE)
-typedef void (*initializer_t)(void);
-extern initializer_t _sinit;
-extern initializer_t _einit;
-extern uint32_t _stext;
-extern uint32_t _etext;
-
-static void up_cxxinitialize(void)
+int spresense_main(int argc, char *argv[])
 {
-    initializer_t *initp;
-
-    /* Visit each entry in the initialization table */
-
-    for (initp = &_sinit; initp != &_einit; initp++) {
-        initializer_t initializer = *initp;
-
-        /* Make sure that the address is non-NULL and lies in the text region
-         * defined by the linker script.  Some toolchains may put NULL values
-         * or counts in the initialization table.
-         */
-
-        if ((void *)initializer > (void *)&_stext && (void *)initializer < (void *)&_etext) {
-            initializer();
-        }
-    }
-}
-#endif
-
-int spresense_main(void)
-{
-#if defined(CONFIG_HAVE_CXX) && defined(CONFIG_HAVE_CXXINITIALIZE)
-    up_cxxinitialize();
-#endif
     int r = boardctl(BOARDIOC_INIT, 0);
     if (r) printf("WARNING: Something wrong during board initialization\n");
 
