@@ -1,6 +1,6 @@
 /*
  *  Camera.h - Camera include file for the Spresense SDK
- *  Copyright 2018, 2020-2022 Sony Semiconductor Solutions Corporation
+ *  Copyright 2018, 2020-2022, 2024 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -190,6 +190,20 @@ enum CAM_COLOR_FX {
  * @brief Camera ISO Sensitivity parameter definitions.
  * @{
  */
+#define CAM_ISO_SENSITIVITY_1     (1000)      /**< [en] ISO Sensitivity 1    <BR> [jp] ISO感度 1 */
+#define CAM_ISO_SENSITIVITY_1_2   (1200)      /**< [en] ISO Sensitivity 1.2  <BR> [jp] ISO感度 1.2 */
+#define CAM_ISO_SENSITIVITY_1_6   (1600)      /**< [en] ISO Sensitivity 1.6  <BR> [jp] ISO感度 1.6 */
+#define CAM_ISO_SENSITIVITY_2     (2000)      /**< [en] ISO Sensitivity 2    <BR> [jp] ISO感度 2 */
+#define CAM_ISO_SENSITIVITY_2_5   (2500)      /**< [en] ISO Sensitivity 2.5  <BR> [jp] ISO感度 2.5 */
+#define CAM_ISO_SENSITIVITY_3_2   (3200)      /**< [en] ISO Sensitivity 3.2  <BR> [jp] ISO感度 3.2 */
+#define CAM_ISO_SENSITIVITY_4     (4000)      /**< [en] ISO Sensitivity 4    <BR> [jp] ISO感度 4 */
+#define CAM_ISO_SENSITIVITY_5     (5000)      /**< [en] ISO Sensitivity 5    <BR> [jp] ISO感度 5 */
+#define CAM_ISO_SENSITIVITY_6     (6000)      /**< [en] ISO Sensitivity 6    <BR> [jp] ISO感度 6 */
+#define CAM_ISO_SENSITIVITY_8     (8000)      /**< [en] ISO Sensitivity 8    <BR> [jp] ISO感度 8 */
+#define CAM_ISO_SENSITIVITY_10    (10000)     /**< [en] ISO Sensitivity 10   <BR> [jp] ISO感度 10 */
+#define CAM_ISO_SENSITIVITY_12    (12000)     /**< [en] ISO Sensitivity 12   <BR> [jp] ISO感度 12 */
+#define CAM_ISO_SENSITIVITY_16    (16000)     /**< [en] ISO Sensitivity 16   <BR> [jp] ISO感度 16 */
+#define CAM_ISO_SENSITIVITY_20    (20000)     /**< [en] ISO Sensitivity 20   <BR> [jp] ISO感度 20 */
 #define CAM_ISO_SENSITIVITY_25    (25000)     /**< [en] ISO Sensitivity 25   <BR> [jp] ISO感度 25 */
 #define CAM_ISO_SENSITIVITY_32    (32000)     /**< [en] ISO Sensitivity 32   <BR> [jp] ISO感度 32 */
 #define CAM_ISO_SENSITIVITY_40    (40000)     /**< [en] ISO Sensitivity 40   <BR> [jp] ISO感度 40 */
@@ -209,6 +223,11 @@ enum CAM_COLOR_FX {
 #define CAM_ISO_SENSITIVITY_1000  (1000000)   /**< [en] ISO Sensitivity 1000 <BR> [jp] ISO感度 1000 */
 #define CAM_ISO_SENSITIVITY_1250  (1250000)   /**< [en] ISO Sensitivity 1250 <BR> [jp] ISO感度 1250 */
 #define CAM_ISO_SENSITIVITY_1600  (1600000)   /**< [en] ISO Sensitivity 1600 <BR> [jp] ISO感度 1600 */
+#define CAM_ISO_SENSITIVITY_2000  (2000000)   /**< [en] ISO Sensitivity 2000 <BR> [jp] ISO感度 2000 */
+#define CAM_ISO_SENSITIVITY_2500  (2500000)   /**< [en] ISO Sensitivity 2500 <BR> [jp] ISO感度 2500 */
+#define CAM_ISO_SENSITIVITY_3200  (3200000)   /**< [en] ISO Sensitivity 3200 <BR> [jp] ISO感度 3200 */
+#define CAM_ISO_SENSITIVITY_4000  (4000000)   /**< [en] ISO Sensitivity 4000 <BR> [jp] ISO感度 4000 */
+#define CAM_ISO_SENSITIVITY_5000  (5000000)   /**< [en] ISO Sensitivity 5000 <BR> [jp] ISO感度 5000 */
 /** @} */
 
 /**
@@ -705,7 +724,7 @@ public:
    * @return [en] Error code defined as #CamErr. <BR>
    *         [ja] #CamErr で定義されているエラーコード
    */
-  CamErr setISOSensitivity(int iso_sense /**< [en] ISO Sensitivity value. Use macros named @ref CAM_ISO_SENSITIVITY  <BR> [ja] ISO感度値。 @ref CAM_ISO_SENSITIVITY と定義されたマクロから選択する */);
+  CamErr setISOSensitivity(int iso_sense /**< [en] ISO Sensitivity value. Use macros named @ref CAM_ISO_SENSITIVITY . If used device is ISX012, the minimum value is CAM_ISO_SENSITIVITY_25 and the maximum value is CAM_ISO_SENSITIVITY_1600.(The used device can be gotten by theCamera.getDeviceType().)  <BR> [ja] ISO感度値。 @ref CAM_ISO_SENSITIVITY と定義されたマクロから選択する 。 使用デバイスがISX012の場合は、最小値はCAM_ISO_SENSITIVITY_25、最大値はCAM_ISO_SENSITIVITY_1600 となります。(使用デバイスはtheCamera.getDeviceType().で得ることができます。) */);
 
   /**
    * @brief Get ISO Sensivity value.
