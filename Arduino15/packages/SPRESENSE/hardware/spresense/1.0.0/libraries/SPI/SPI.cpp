@@ -70,8 +70,7 @@ SPIClass SPI3(SPIDEV_PORT_3);
 /**
  * @brief Reverse bits.
  */
-static inline uint8_t reverse_bits(uint8_t data) always_inline_function;
-static inline uint8_t reverse_bits(uint8_t data)
+static always_inline_function uint8_t reverse_bits(uint8_t data)
 {
     return (((data & 0x01) << 7) | ((data & 0x02) << 5) | ((data & 0x04) << 3) | ((data & 0x08) << 1) |
             ((data & 0x10) >> 1) | ((data & 0x20) >> 3) | ((data & 0x40) >> 5) | ((data & 0x80) >> 7));
