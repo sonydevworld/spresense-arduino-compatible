@@ -65,7 +65,7 @@ static const uint32_t recoding_sampling_rate = 48000;
  * Set either 1, 2, or 4.
  */
 
-static const uint8_t  recoding_cannel_number = 2;
+static const uint8_t  recoding_channel_number = 2;
 
 /* Audio bit depth
  * Set 16 or 24
@@ -80,7 +80,7 @@ static const uint32_t recoding_time = 10;
 /* Bytes per second */
 
 static const int32_t recoding_byte_per_second = recoding_sampling_rate *
-                                                recoding_cannel_number *
+                                                recoding_channel_number *
                                                 recoding_bit_length / 8;
 
 /* Total recording size */
@@ -110,7 +110,7 @@ void setup()
                          "/mnt/sd0/BIN",
                          recoding_sampling_rate,
                          recoding_bit_length,
-                         recoding_cannel_number);
+                         recoding_channel_number);
   puts("Init Recorder!");
 
   /* Open file for data write on SD card */
