@@ -26,6 +26,7 @@
 #include <sdk/config.h>
 #include <nuttx/arch.h>
 #include <cxd56_clock.h>
+#include <cxd56_rtc.h>
 #include <Arduino.h>
 
 #ifndef CONFIG_RTC
@@ -41,30 +42,34 @@
 
 uint64_t millis(void)
 {
-    struct timespec tp;
+    uint64_t count;
 
     /* Wait until RTC is available */
     while (g_rtc_enabled == false);
 
-    if (clock_gettime(CLOCK_MONOTONIC, &tp)) {
-        return 0;
-    }
+    count = cxd56_rtc_count();
 
-    return (((uint64_t)tp.tv_sec) * 1000 + tp.tv_nsec / 1000000);
+    /* The count represents the power-on time,
+     * so overflow does not actually occur.
+     */
+
+    return (count * MSEC_PER_SEC + CONFIG_RTC_FREQUENCY / 2) / CONFIG_RTC_FREQUENCY;
 }
 
 uint64_t micros(void)
 {
-    struct timespec tp;
+    uint64_t count;
 
     /* Wait until RTC is available */
     while (g_rtc_enabled == false);
 
-    if (clock_gettime(CLOCK_MONOTONIC, &tp)) {
-        return 0;
-    }
+    count = cxd56_rtc_count();
 
-    return (((uint64_t)tp.tv_sec) * 1000000 + tp.tv_nsec / 1000);
+    /* The count represents the power-on time,
+     * so overflow does not actually occur.
+     */
+
+    return (count * USEC_PER_SEC + CONFIG_RTC_FREQUENCY / 2) / CONFIG_RTC_FREQUENCY;
 }
 
 void delayMicroseconds(unsigned int us)
