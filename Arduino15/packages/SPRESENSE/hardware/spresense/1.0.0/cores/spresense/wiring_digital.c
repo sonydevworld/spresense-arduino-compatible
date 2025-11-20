@@ -85,7 +85,7 @@ static const struct {
     { PIN_D35, PIN_SDIO_DIR1_3   },
     { PIN_D36, PIN_SDIO_CD       },
     { PIN_D37, PIN_SDIO_WP       },
-    { PIN_D38, PIN_SDIO_CLKI     },
+    { PIN_D38, PIN_SDIO_CLK      },
     { PIN_D39, PIN_HIF_GPIO0     },
     { PIN_D40, PIN_AP_CLK        },
     { PIN_D41, PIN_RTC_IRQ_OUT   },
