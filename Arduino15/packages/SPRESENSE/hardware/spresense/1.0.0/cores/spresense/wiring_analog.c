@@ -420,7 +420,7 @@ static void pwm_start(uint8_t pin)
 
   struct pwm_info_s info = {
     .frequency = s_pwm_timers[slot].freq,
-    .duty = DUTY_CONVERT(s_pwm_timers[slot].duty)
+    .channels[0].duty = DUTY_CONVERT(s_pwm_timers[slot].duty)
   };
 
   ret = ioctl(s_pwm_timers[slot].fd, PWMIOC_SETCHARACTERISTICS, (unsigned long)((uintptr_t)&info));
