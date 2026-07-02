@@ -46,9 +46,6 @@ void serialEvent(void);
 
 int spresense_main(int argc, char *argv[])
 {
-    int r = boardctl(BOARDIOC_INIT, 0);
-    if (r) printf("WARNING: Something wrong during board initialization\n");
-
     initVariant();
 
 #if defined(USBCON)
