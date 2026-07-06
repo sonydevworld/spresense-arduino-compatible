@@ -130,7 +130,7 @@ void RtcTime::update(int year, int month, int day, int hour, int minute, int sec
   tm.tm_mday = day;         /* Day of the month (1-31) */
   tm.tm_mon  = month - 1;   /* Month (0-11) */
   tm.tm_year = year - 1900; /* Years since 1900 */
-  _sec = mktime(&tm);
+  _sec = (uint32_t)mktime(&tm);
 
   update();
 }
@@ -144,7 +144,7 @@ void RtcTime::update()
     _nsec %= 1000000000L;
   }
 
-  gmtime_r(&_sec, &tm);
+  gmtime_r((time_t *)&_sec, &tm);
   _second = tm.tm_sec;
   _minute = tm.tm_min;
   _hour   = tm.tm_hour;
