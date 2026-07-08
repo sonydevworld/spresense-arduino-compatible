@@ -138,13 +138,14 @@ void RtcTime::update(int year, int month, int day, int hour, int minute, int sec
 void RtcTime::update()
 {
   struct tm tm;
+  time_t t = (time_t)_sec;
 
   if (_nsec >= 1000000000L) {
     _sec += _nsec / 1000000000L;
     _nsec %= 1000000000L;
   }
 
-  gmtime_r((time_t *)&_sec, &tm);
+  gmtime_r(&t, &tm);
   _second = tm.tm_sec;
   _minute = tm.tm_min;
   _hour   = tm.tm_hour;

@@ -154,6 +154,7 @@ void RtcClass::setTime(RtcTime &tim)
 RtcTime RtcClass::getTime()
 {
   struct timespec ts;
+  uint32_t sec = 0;
 
   int ret = clock_gettime(CLOCK_REALTIME, &ts);
 
@@ -162,7 +163,8 @@ RtcTime RtcClass::getTime()
     ts.tv_sec = ts.tv_nsec = 0;
     ERRMSG("%s() (errno=%d)\n", __FUNCTION__, errno);
   }
-  return RtcTime(ts.tv_sec, ts.tv_nsec);
+  sec = (uint32_t)ts.tv_sec;
+  return RtcTime(sec, ts.tv_nsec);
 }
 
 #ifndef SUBCORE
