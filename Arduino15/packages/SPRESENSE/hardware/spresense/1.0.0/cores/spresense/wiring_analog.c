@@ -357,18 +357,27 @@ static void sim_write(uint8_t pin, uint32_t pulse_width, uint32_t freq)
     return;
   }
 
-  pinMode(pin, OUTPUT);
   value = 255 * pulse_width * freq / 1000000L;
+
+  /* Skip the update only if pulse width and frequency are unchanged
+   * and GPIO output is still enabled. Check before pinMode(), which
+   * disables output, so repeated writes preserve the running waveform.
+   */
+  if (value > 0 && value < 255 &&
+      s_sim_timers[slot].running &&
+      s_sim_timers[slot].on_duration == pulse_width &&
+      s_sim_timers[slot].freq == freq &&
+      GPIO_OUTPUT_ENABLED(getreg32(s_sim_timers[slot].pin_addr))) {
+    return;
+  }
+
+  pinMode(pin, OUTPUT);
 
   if (value <= 0) {
       digitalWrite(pin, LOW);
   } else if (value >= 255) {
       digitalWrite(pin, HIGH);
   } else {
-    if (s_sim_timers[slot].running && s_sim_timers[slot].duty == value) {
-      return; // nothing changed
-    }
-
     digital_write(pin, HIGH, false);
     sim_set_timer_info(&s_sim_timers[slot], value, pulse_width, freq);
     sim_start();
