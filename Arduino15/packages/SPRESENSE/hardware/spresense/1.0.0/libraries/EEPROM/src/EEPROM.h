@@ -36,6 +36,7 @@
 #include <inttypes.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <unistd.h>
 
 // Emulate EEPROM through a below file on SPI-Flash
 #define EEPROM_EMU "/mnt/spif/eeprom.emu"

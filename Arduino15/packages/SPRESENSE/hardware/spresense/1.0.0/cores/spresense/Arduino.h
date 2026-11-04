@@ -27,6 +27,7 @@
 #include <nuttx/config.h>
 #include <sdk/config.h>
 #include <math.h>
+#include <unistd.h>
 
 // Some libraries assumes that AVR-specific definitions are
 // automatically included from Arduino.h... Therefore, here
