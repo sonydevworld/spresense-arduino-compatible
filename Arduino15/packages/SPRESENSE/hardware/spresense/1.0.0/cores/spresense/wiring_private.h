@@ -62,10 +62,10 @@ void fast_digital_write(uint32_t reg_addr, uint8_t value);
 bool fast_digital_read(uint32_t reg_addr);
 
 // save current irq status, and disable irqs with mask
-uint16_t irq_save(uint16_t mask);
+uint16_t local_irq_save(uint16_t mask);
 
 // restore irq with flags
-void irq_restore(uint16_t flags);
+void local_irq_restore(uint16_t flags);
 
 #ifdef __cplusplus
 } // extern "C"

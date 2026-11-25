@@ -136,7 +136,7 @@ void SPIClass::beginTransaction(SPISettings settings)
     if (interrupt_mode) {
         noInterrupts();
         if (interrupt_mode == SPI_INT_MODE_MASK) {
-            interrupt_save = irq_save(interrupt_mask);
+            interrupt_save = local_irq_save(interrupt_mask);
             interrupts();
         }
     }
@@ -168,7 +168,7 @@ void SPIClass::endTransaction(void)
     if (interrupt_mode) {
         noInterrupts();
         if (interrupt_mode == SPI_INT_MODE_MASK)
-            irq_restore(interrupt_save);
+            local_irq_restore(interrupt_save);
         interrupts();
     }
     spi_transmitting = false;

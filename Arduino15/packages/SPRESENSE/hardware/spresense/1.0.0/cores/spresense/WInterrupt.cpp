@@ -111,7 +111,7 @@ void noInterrupts(void)
     __asm volatile ("cpsid i" : : : "memory");
 }
 
-uint16_t irq_save(uint16_t mask)
+uint16_t local_irq_save(uint16_t mask)
 {
     uint16_t flags = 0;
     for (int i = CXD56_IRQ_EXDEVICE_0; i <= CXD56_IRQ_EXDEVICE_11; ++i) {
@@ -126,7 +126,7 @@ uint16_t irq_save(uint16_t mask)
     return flags;
 }
 
-void irq_restore(uint16_t flags)
+void local_irq_restore(uint16_t flags)
 {
     for (int i = CXD56_IRQ_EXDEVICE_0; i <= CXD56_IRQ_EXDEVICE_11; ++i) {
         if (bitRead(flags, i - CXD56_IRQ_EXDEVICE_0))
